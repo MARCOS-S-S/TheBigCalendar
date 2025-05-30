@@ -30,7 +30,10 @@ import com.mss.thebigcalendar.data.model.Activity
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 
 @Composable
 fun TasksForSelectedDaySection(
@@ -93,16 +96,31 @@ fun TaskItem(
     onTaskClick: (Activity) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val taskColor = try {
+        Color(android.graphics.Color.parseColor(task.categoryColor))
+    } catch (e: IllegalArgumentException) {
+        MaterialTheme.colorScheme.secondary // Cor fallback
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
             .clickable { onTaskClick(task) }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(start = 8.dp), // Padding inicial para a barra de cor
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        // NOVO: Barra vertical com a cor da tarefa
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .height(36.dp) // Altura da barra, ajuste conforme necessário
+                .background(taskColor, shape = RoundedCornerShape(2.dp))
+        )
+        Spacer(modifier = Modifier.width(12.dp)) // Espaço entre a barra e o texto
+
+        Column(modifier = Modifier.weight(1f).padding(vertical = 12.dp)) { // Adicionado padding vertical aqui
             Text(text = task.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             if (task.startTime != null) {
                 Text(

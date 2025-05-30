@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CircleShape // Ou RectangleShape se preferir células mais quadradas no geral
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mss.thebigcalendar.data.model.CalendarDay // Certifique-se que o import está correto
+import com.mss.thebigcalendar.data.model.CalendarDay
 import java.time.LocalDate
 
 @Composable
@@ -37,10 +37,9 @@ fun MonthlyCalendar(
     calendarDays: List<CalendarDay>,
     onDateSelected: (LocalDate) -> Unit
 ) {
-    val weekDayAbbreviations = getWeekDayAbbreviations() // Do CalendarUtils.kt
+    val weekDayAbbreviations = getWeekDayAbbreviations()
 
     Column(modifier = modifier) {
-        // Cabeçalho com os dias da semana
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -56,10 +55,9 @@ fun MonthlyCalendar(
             }
         }
 
-        // Grade de dias
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
-            userScrollEnabled = false // Desabilita scroll se a grade tem tamanho fixo
+            userScrollEnabled = false
         ) {
             items(calendarDays) { day ->
                 DayCell(
@@ -71,6 +69,7 @@ fun MonthlyCalendar(
     }
 }
 
+
 @Composable
 private fun DayCell(
     day: CalendarDay,
@@ -78,9 +77,9 @@ private fun DayCell(
     modifier: Modifier = Modifier
 ) {
     val cellModifier = modifier
-        .padding(1.dp) // Pequeno espaçamento entre as células
-        .aspectRatio(1f) // Para manter as células quadradas
-        .clip(CircleShape)
+        .padding(1.dp)
+        .aspectRatio(1f / 1.25f)
+        .clip(MaterialTheme.shapes.small)
         .clickable(enabled = day.isCurrentMonth) {
             onDateSelected(day.date)
         }
@@ -88,40 +87,47 @@ private fun DayCell(
             if (day.isSelected) {
                 Modifier.background(MaterialTheme.colorScheme.primaryContainer)
             } else {
-                Modifier // Sem fundo extra se não estiver selecionado
+                Modifier
             }
         )
-        .padding(4.dp) // Padding interno para o conteúdo
+        .padding(vertical = 4.dp, horizontal = 2.dp)
 
     Column(
         modifier = cellModifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = if (day.tasks.isNotEmpty() && day.isCurrentMonth) Arrangement.SpaceBetween else Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
         Text(
             text = day.date.dayOfMonth.toString(),
             textAlign = TextAlign.Center,
-            style = if (day.isSelected) MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-            else MaterialTheme.typography.bodyMedium,
+            style = if (day.isSelected) MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
+            else MaterialTheme.typography.bodySmall,
             color = when {
                 day.isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
                 day.isCurrentMonth -> MaterialTheme.colorScheme.onSurface
-                else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-            }
+                else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+            },
+            modifier = Modifier.padding(top = 2.dp)
         )
 
         if (day.isCurrentMonth && day.tasks.isNotEmpty()) {
-            // Spacer(modifier = Modifier.height(1.dp)) // Espaço mínimo se houver tarefas
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                day.tasks.take(2).forEach { task -> // Mostra no máximo 2 tarefas
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                // ATUALIZADO: Reduzindo o espaçamento entre as tarefas.
+                // Experimente 0.dp para nenhum espaço extra, ou um valor bem pequeno.
+                verticalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
+                day.tasks.take(2).forEach { task ->
                     Text(
                         text = task.title,
-                        fontSize = 8.sp,
-                        color = if (day.isSelected) LocalContentColor.current.copy(alpha = 0.8f)
+                        fontSize = 7.sp,
+                        color = if (day.isSelected) LocalContentColor.current.copy(alpha = 0.85f)
                         else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth()
+                        textAlign = TextAlign.Center
                     )
                 }
             }
