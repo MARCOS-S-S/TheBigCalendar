@@ -22,21 +22,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope // NOVO: Import se já não estiver
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.ui.components.MonthlyCalendar
 import com.mss.thebigcalendar.ui.components.Sidebar
-import com.mss.thebigcalendar.ui.components.YearlyCalendarView // NOVO: Import
+import com.mss.thebigcalendar.ui.components.YearlyCalendarView
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
+import kotlinx.coroutines.launch 
 import java.time.format.TextStyle
 import java.util.Locale
-
+import kotlin.coroutines.cancellation.CancellationException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,26 +45,46 @@ fun CalendarScreen(
     viewModel: CalendarViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope() // Usado para lançar corrotinas para abrir/fechar o drawer
 
-    LaunchedEffect(uiState.isSidebarOpen) {
-        if (uiState.isSidebarOpen) {
-            if (!drawerState.isOpen) drawerState.open()
-        } else {
-            if (drawerState.isOpen) drawerState.close()
+    // ATUALIZADO: Controle do DrawerState
+    val drawerState = rememberDrawerState(
+        // Inicializa o drawer com o estado vindo do ViewModel
+        initialValue = if (uiState.isSidebarOpen) DrawerValue.Open else DrawerValue.Closed,
+        // Callback para quando o estado do drawer TENTA mudar (ex: por gesto do usuário)
+        confirmStateChange = { newDrawerValue ->
+            if (newDrawerValue == DrawerValue.Closed && uiState.isSidebarOpen) {
+                // Se o usuário fechou por gesto e o ViewModel achava que estava aberto
+                viewModel.closeSidebar()
+            } else if (newDrawerValue == DrawerValue.Open && !uiState.isSidebarOpen) {
+                // Se o usuário abriu por gesto (raro se o gesto de abrir estiver desabilitado
+                // quando fechado, mas bom ter para consistência) e o ViewModel achava que estava fechado.
+                viewModel.openSidebar()
+            }
+            true // Permite a mudança de estado do drawer (pode retornar false para impedir)
         }
-    }
-    // Sincroniza o estado do drawer com o uiState se o usuário fechar arrastando
-    LaunchedEffect(drawerState.currentValue) {
-        if (drawerState.currentValue == DrawerValue.Closed && uiState.isSidebarOpen) {
-            viewModel.closeSidebar()
+    )
+
+    // ATUALIZADO: LaunchedEffect para sincronizar o drawer quando o ViewModel manda
+    LaunchedEffect(uiState.isSidebarOpen, drawerState.isAnimationRunning) {
+        // Só executa se não houver uma animação em andamento para evitar conflitos
+        if (!drawerState.isAnimationRunning) {
+            if (uiState.isSidebarOpen && !drawerState.isOpen) {
+                scope.launch {
+                    try { drawerState.open() } catch (e: CancellationException) { /* Animação cancelada, ok */ }
+                }
+            } else if (!uiState.isSidebarOpen && drawerState.isOpen) {
+                scope.launch {
+                    try { drawerState.close() } catch (e: CancellationException) { /* Animação cancelada, ok */ }
+                }
+            }
         }
     }
 
     TheBigCalendarTheme(darkTheme = uiState.theme == Theme.DARK) {
         ModalNavigationDrawer(
             drawerState = drawerState,
-            gesturesEnabled = drawerState.isOpen,
+            gesturesEnabled = true, // ATUALIZADO: Permite gestos para abrir e fechar
             drawerContent = {
                 Sidebar(
                     uiState = uiState,
@@ -73,7 +94,7 @@ fun CalendarScreen(
                     onOpenSettingsModal = { viewModel.openSettingsModal(it) },
                     onBackup = { viewModel.onBackupRequest() },
                     onRestore = { viewModel.onRestoreRequest() },
-                    onRequestClose = { viewModel.closeSidebar() }
+                    onRequestClose = { viewModel.closeSidebar() } // ViewModel controla o fechamento
                 )
             }
         ) {
@@ -81,7 +102,6 @@ fun CalendarScreen(
                 topBar = {
                     TopAppBar(
                         title = {
-                            // ATUALIZADO: Título dinâmico baseado no ViewMode
                             when (uiState.viewMode) {
                                 ViewMode.MONTHLY -> {
                                     val monthName = uiState.displayedYearMonth.month
@@ -97,15 +117,21 @@ fun CalendarScreen(
                             }
                         },
                         navigationIcon = {
-                            IconButton(onClick = { viewModel.openSidebar() }) {
+                            IconButton(onClick = {
+                                // Ação do botão de menu: se estiver fechado, manda abrir; se aberto, manda fechar.
+                                if (drawerState.isClosed) {
+                                    viewModel.openSidebar()
+                                } else {
+                                    viewModel.closeSidebar()
+                                }
+                            }) {
                                 Icon(
                                     imageVector = Icons.Default.Menu,
-                                    contentDescription = "Abrir menu"
+                                    contentDescription = "Abrir/Fechar menu"
                                 )
                             }
                         },
                         actions = {
-                            // ATUALIZADO: Ações dinâmicas baseadas no ViewMode
                             when (uiState.viewMode) {
                                 ViewMode.MONTHLY -> {
                                     IconButton(onClick = { viewModel.onPreviousMonth() }) {
@@ -139,7 +165,6 @@ fun CalendarScreen(
                         .padding(paddingValues)
                         .fillMaxSize()
                 ) {
-                    // ATUALIZADO: Alterna entre visualização mensal e anual
                     when (uiState.viewMode) {
                         ViewMode.MONTHLY -> {
                             MonthlyCalendar(
