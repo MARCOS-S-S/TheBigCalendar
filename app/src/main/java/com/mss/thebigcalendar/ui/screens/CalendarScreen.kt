@@ -34,7 +34,7 @@ import com.mss.thebigcalendar.ui.components.Sidebar
 import com.mss.thebigcalendar.ui.components.YearlyCalendarView
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
-import kotlinx.coroutines.launch 
+import kotlinx.coroutines.launch
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.coroutines.cancellation.CancellationException
