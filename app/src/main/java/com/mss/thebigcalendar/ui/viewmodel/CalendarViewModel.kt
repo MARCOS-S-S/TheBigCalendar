@@ -11,7 +11,7 @@ import com.mss.thebigcalendar.data.model.CalendarUiState
 import com.mss.thebigcalendar.data.model.FilterOptions
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
-import com.mss.thebigcalendar.data.repository.HolidayRepository // Supondo que esta classe exista
+import com.mss.thebigcalendar.data.repository.HolidayRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,70 +25,38 @@ import java.util.UUID
 
 class CalendarViewModel : ViewModel() {
 
-    // Supondo que HolidayRepository exista. Se não, você pode comentar esta linha
-    // e a chamada a loadInitialData() por enquanto.
-    private val holidayRepository = HolidayRepository()
+    private val holidayRepository = HolidayRepository() // Supondo que esta classe exista
 
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
     init {
-        // Carrega os dias do calendário para o mês/ano inicial
         updateCalendarDays()
-        // loadInitialData() // Carrega dados de feriados, etc. (podemos habilitar depois)
+        // loadInitialData() // Descomentar quando o repositório estiver funcional
     }
 
     private fun loadInitialData() {
         viewModelScope.launch {
-            // Exemplo de como carregar feriados (precisa que os métodos no repositório existam)
-            // val nationalHolidays = holidayRepository.getNationalHolidays()
-            //     .associateBy { LocalDate.parse(it.date) } // Supondo que Holiday.date é String
-            // val saintDays = holidayRepository.getSaintDays()
-            //     .associateBy { it.date } // Supondo que Holiday.date é String "MM-dd"
-            // val commemorativeDates = holidayRepository.getCommemorativeDates()
-            //     .associateBy { LocalDate.parse(it.date) }
-
-            _uiState.update {
-                it.copy(
-                    // nationalHolidays = nationalHolidays,
-                    // saintDays = saintDays,
-                    // commemorativeDates = commemorativeDates
-                )
-            }
+            // Lógica para carregar feriados, etc.
         }
     }
 
-    /**
-     * Atualiza a lista de CalendarDay no uiState com base no displayedYearMonth e selectedDate.
-     */
     private fun updateCalendarDays() {
         val currentYearMonth = _uiState.value.displayedYearMonth
         val currentSelectedDate = _uiState.value.selectedDate
-
         val firstDayOfMonth = currentYearMonth.atDay(1)
-        // DayOfWeek.MONDAY.value é 1, DayOfWeek.SUNDAY.value é 7.
-        // Queremos que a grade comece no domingo.
-        // Se o primeiro dia do mês é domingo (valor 7), o offset é 0.
-        // Se o primeiro dia do mês é segunda (valor 1), o offset é 1.
         val daysFromPrevMonthOffset = (firstDayOfMonth.dayOfWeek.value % 7)
-
         val gridStartDate = firstDayOfMonth.minusDays(daysFromPrevMonthOffset.toLong())
-
-        val newCalendarDays = mutableListOf<CalendarDay>()
-        var dateIterator = gridStartDate
-        repeat(42) { // 6 semanas * 7 dias
-            newCalendarDays.add(
-                CalendarDay(
-                    date = dateIterator,
-                    isCurrentMonth = dateIterator.month == currentYearMonth.month,
-                    isSelected = dateIterator.isEqual(currentSelectedDate)
-                )
+        val newCalendarDays = List(42) { i ->
+            val date = gridStartDate.plusDays(i.toLong())
+            CalendarDay(
+                date = date,
+                isCurrentMonth = date.month == currentYearMonth.month,
+                isSelected = date.isEqual(currentSelectedDate)
             )
-            dateIterator = dateIterator.plusDays(1)
         }
         _uiState.update { it.copy(calendarDays = newCalendarDays) }
     }
-
 
     // --- MÉTODOS PÚBLICOS (EVENTOS VINDOS DA UI) ---
 
@@ -102,9 +70,19 @@ class CalendarViewModel : ViewModel() {
         updateCalendarDays()
     }
 
+    // NOVO: Navegação Anual
+    fun onPreviousYear() {
+        _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.minusYears(1)) }
+        // Para a visualização anual, não precisamos recalcular os 'calendarDays' do mês
+    }
+
+    // NOVO: Navegação Anual
+    fun onNextYear() {
+        _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.plusYears(1)) }
+    }
+
     fun onDateSelected(date: LocalDate) {
         val currentUiState = _uiState.value
-        // Verifica se a data clicada é a mesma já selecionada E se é do mês corrente da visualização
         val shouldOpenModal = currentUiState.selectedDate.isEqual(date) &&
                 date.month == currentUiState.displayedYearMonth.month &&
                 date.year == currentUiState.displayedYearMonth.year
@@ -113,17 +91,30 @@ class CalendarViewModel : ViewModel() {
             it.copy(
                 selectedDate = date,
                 displayedYearMonth = if (it.displayedYearMonth.month != date.month || it.displayedYearMonth.year != date.year) {
-                    YearMonth.from(date) // Muda o mês/ano da visualização se a data selecionada for de outro mês
+                    YearMonth.from(date)
                 } else {
-                    it.displayedYearMonth // Mantém o mês/ano da visualização
+                    it.displayedYearMonth
                 }
             )
         }
-        updateCalendarDays() // Sempre atualiza os dias para refletir a nova seleção
+        updateCalendarDays()
 
         if (shouldOpenModal) {
             openCreateActivityModal()
         }
+    }
+
+    // NOVO: Ação quando um mês é clicado na visualização anual
+    fun onYearlyMonthClicked(yearMonth: YearMonth) {
+        _uiState.update {
+            it.copy(
+                displayedYearMonth = yearMonth,
+                selectedDate = yearMonth.atDay(1), // Seleciona o dia 1 do mês clicado
+                viewMode = ViewMode.MONTHLY, // Muda para a visualização mensal
+                isSidebarOpen = false // Fecha a sidebar
+            )
+        }
+        updateCalendarDays() // Prepara os dias para a nova visualização mensal
     }
 
     fun onViewModeChange(newMode: ViewMode) {
@@ -145,7 +136,6 @@ class CalendarViewModel : ViewModel() {
 
     fun onThemeChange(newTheme: Theme) {
         _uiState.update { it.copy(theme = newTheme) }
-        // Lógica futura para salvar no DataStore
     }
 
     fun onSaveActivity(activityData: Activity) {
@@ -156,7 +146,6 @@ class CalendarViewModel : ViewModel() {
             } else {
                 activityData
             }
-
             val existingIndex = currentActivities.indexOfFirst { it.id == activityToSave.id }
             if (existingIndex != -1) {
                 currentActivities[existingIndex] = activityToSave
@@ -166,7 +155,7 @@ class CalendarViewModel : ViewModel() {
             _uiState.update {
                 it.copy(
                     activities = currentActivities.sortedBy { act -> act.startTime ?: LocalTime.MIN },
-                    activityToEdit = null // Fecha o modal
+                    activityToEdit = null
                 )
             }
         }
@@ -178,7 +167,7 @@ class CalendarViewModel : ViewModel() {
             _uiState.update {
                 it.copy(
                     activities = it.activities.filterNot { act -> act.id == activityId },
-                    activityIdToDelete = null // Fecha o modal de confirmação
+                    activityIdToDelete = null
                 )
             }
         }
@@ -186,20 +175,10 @@ class CalendarViewModel : ViewModel() {
 
     fun onSaveSettings(username: String, theme: Theme) {
         _uiState.update { it.copy(username = username, theme = theme, isSettingsModalOpen = false) }
-        // Lógica futura para salvar no DataStore
     }
 
-    fun onBackupRequest() {
-        println("ViewModel: Pedido de backup recebido.")
-        // Implementar lógica de backup
-    }
-
-    fun onRestoreRequest() {
-        println("ViewModel: Pedido de restauração recebido.")
-        // Implementar lógica de restauração
-    }
-
-    // --- Funções para controlar a visibilidade de componentes da UI ---
+    fun onBackupRequest() { println("ViewModel: Pedido de backup recebido.") }
+    fun onRestoreRequest() { println("ViewModel: Pedido de restauração recebido.") }
 
     fun openSidebar() = _uiState.update { it.copy(isSidebarOpen = true) }
     fun closeSidebar() = _uiState.update { it.copy(isSidebarOpen = false) }
@@ -212,15 +191,15 @@ class CalendarViewModel : ViewModel() {
     fun openCreateActivityModal(activity: Activity? = null) {
         val templateDate = _uiState.value.selectedDate
         val newActivityTemplate = Activity(
-            id = "new", // ID temporário para nova atividade
+            id = "new",
             title = "",
             description = null,
-            date = templateDate.toString(), // Converte LocalDate para String "yyyy-MM-dd"
+            date = templateDate.toString(),
             startTime = null,
             endTime = null,
             isAllDay = true,
             location = null,
-            categoryColor = "#F43F5E", // Cor padrão (exemplo: rosa)
+            categoryColor = "#F43F5E",
             activityType = ActivityType.EVENT,
             recurrenceRule = null
         )
@@ -228,7 +207,6 @@ class CalendarViewModel : ViewModel() {
     }
 
     fun closeCreateActivityModal() = _uiState.update { it.copy(activityToEdit = null) }
-
     fun requestDeleteActivity(activityId: String) = _uiState.update { it.copy(activityIdToDelete = activityId) }
     fun cancelDeleteActivity() = _uiState.update { it.copy(activityIdToDelete = null) }
 }
