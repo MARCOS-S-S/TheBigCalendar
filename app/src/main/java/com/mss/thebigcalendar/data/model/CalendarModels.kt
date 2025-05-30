@@ -1,65 +1,42 @@
+// Caminho: app/src/main/java/com/mss/thebigcalendar/data/model/CalendarModels.kt
+
 package com.mss.thebigcalendar.data.model
 
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.YearMonth
 
-/**
- * Enums que definem estados e tipos fixos no aplicativo.
- */
-enum class ViewMode { MONTHLY, YEARLY }
-
-enum class Theme { LIGHT, DARK }
-
-enum class ActivityType(val displayName: String) {
-    EVENT("Evento"),
-    TASK("Tarefa"),
-    BIRTHDAY("Aniversário")
+// Enum para os diferentes tipos de atividade
+enum class ActivityType {
+    EVENT,
+    TASK,
+    BIRTHDAY
 }
 
-enum class RecurrenceOption(val displayName: String) {
-    NONE("Não se repete"),
-    DAILY("Todos os dias"),
-    WEEKLY("Toda semana"),
-    MONTHLY("Todo mês"),
-    YEARLY("Todo ano"),
-    CUSTOM("Personalizado...")
-}
-
-enum class HolidayType { NATIONAL, SAINT, COMMEMORATIVE }
-
-enum class FrequencyUnit(val displayName: String) {
-    DAY("dia(s)"),
-    WEEK("semana(s)"),
-    MONTH("mês(es)"),
-    YEAR("ano(s)")
-}
-
-
-/**
- * Data classes que representam os modelos de dados principais.
- * São o equivalente das suas 'interfaces' em TypeScript.
- */
+// Classe de modelo para Atividades (ATUALIZADA)
 data class Activity(
     val id: String,
-    val date: LocalDate, // Usamos o tipo nativo do Java para datas. Mais seguro!
     val title: String,
-    val isAllDay: Boolean,
-    val startTime: LocalTime?, // Tipo nativo para horas, pode ser nulo.
-    val endTime: LocalTime?,
-    val location: String?,
     val description: String?,
-    val categoryColor: Long, // Usamos o tipo Color do Compose, em vez de uma string de classe CSS.
+    val date: String, // Usando String "yyyy-MM-dd"
+    val startTime: LocalTime?,
+    val endTime: LocalTime?,
+    val isAllDay: Boolean,
+    val location: String?,
+    val categoryColor: String, // Usando String, ex: "#FF0000"
     val activityType: ActivityType,
     val recurrenceRule: String?
 )
 
-data class Holiday(
-    val date: String, // Mantido como String para facilitar o parsing dos dados mocados (ex: "01-01")
-    val name: String,
-    val type: HolidayType
+// Representa cada célula individual na grade do calendário
+data class CalendarDay(
+    val date: LocalDate,
+    val isCurrentMonth: Boolean,
+    val isSelected: Boolean = false
 )
 
-data class CalendarFilterOptions(
+// Definição da classe de filtros
+data class FilterOptions(
     val showHolidays: Boolean = true,
     val showSaintDays: Boolean = true,
     val showCommemorativeDates: Boolean = true,
@@ -67,27 +44,28 @@ data class CalendarFilterOptions(
     val showTasks: Boolean = true
 )
 
-data class CustomRecurrenceValues(
-    val interval: Int = 1,
-    val frequencyUnit: FrequencyUnit = FrequencyUnit.WEEK,
-    val daysOfWeek: List<String> = emptyList(), // "SU", "MO", etc.
-    val endsOn: String = "never", // "never", "date", "occurrences"
-    val endDate: LocalDate? = null,
-    val occurrences: Int? = null
+// Classe de estado principal da UI (ATUALIZADA)
+data class CalendarUiState(
+    val displayedYearMonth: YearMonth = YearMonth.now(),
+    val selectedDate: LocalDate = LocalDate.now(),
+    val viewMode: ViewMode = ViewMode.MONTHLY,
+    val theme: Theme = Theme.LIGHT,
+    val username: String = "Usuário",
+    val activities: List<Activity> = emptyList(),
+    val nationalHolidays: Map<LocalDate, Holiday> = emptyMap(),
+    val saintDays: Map<String, Holiday> = emptyMap(), // MM-dd -> Holiday
+    val commemorativeDates: Map<LocalDate, Holiday> = emptyMap(),
+    val filterOptions: FilterOptions = FilterOptions(), // Nome correto
+    val isSidebarOpen: Boolean = false,
+    val activityToEdit: Activity? = null,
+    val activityIdToDelete: String? = null,
+    val isSettingsModalOpen: Boolean = false,
+    val settingsCategory: String = "General"
 )
 
-/**
- * Constantes de UI.
- */
-val MONTH_NAMES_PT = listOf(
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-)
+// --- Enums e outras classes de modelo ---
 
-val DAY_ABBREVIATIONS_PT = listOf("D", "S", "T", "Q", "Q", "S", "S")
-
-val DAY_NAMES_PT = listOf(
-    "Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"
-)
-
-val CUSTOM_RECURRENCE_DAY_CODES = listOf("SU", "MO", "TU", "WE", "TH", "FR", "SA")
+enum class Theme { LIGHT, DARK }
+enum class ViewMode { MONTHLY, YEARLY }
+enum class HolidayType { NATIONAL, COMMEMORATIVE, SAINT }
+data class Holiday(val name: String, val date: String, val type: HolidayType)

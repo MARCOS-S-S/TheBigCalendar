@@ -1,8 +1,8 @@
 package com.mss.thebigcalendar.data.repository
 
-import com.mss.thebigcalendar.data.model.Holiday
 import com.mss.thebigcalendar.data.model.HolidayType
-
+import com.mss.thebigcalendar.data.model.Holiday
+//import com.mss.thebigcalendar.data.model.HolidayType // Vamos adicionar este também, pois você provavelmente precisará dele.
 /**
  * Uma classe responsável por fornecer os dados de feriados.
  * Atualmente usa dados mocados, mas no futuro pode buscar de uma API ou banco de dados.

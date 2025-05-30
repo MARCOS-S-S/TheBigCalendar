@@ -24,7 +24,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.ui.components.Sidebar
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
-import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 
 // A anotação OptIn é necessária para usar a TopAppBar, que é experimental

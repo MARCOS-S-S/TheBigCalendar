@@ -1,6 +1,9 @@
+// Caminho: app/build.gradle.kts
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    // CORREÇÃO: Este plugin é agora OBRIGATÓRIO com as versões recentes do Kotlin/Compose.
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -35,7 +38,19 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        // Esta linha continua sendo necessária para o Android Gradle Plugin
         compose = true
+    }
+
+    // CORREÇÃO: Este bloco foi removido, pois o novo plugin gerencia isso.
+    // composeOptions {
+    //     kotlinCompilerExtensionVersion = "1.5.10"
+    // }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
@@ -49,6 +64,12 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Dependências de ViewModel e Ícones
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.compose.material:material-icons-extended")
+
+    // Dependências de Teste
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -56,11 +77,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
-
-    // GARANTA QUE ESTA LINHA EXISTA!
-    // Ela contém os ícones Outlined e outros.
-    implementation("androidx.compose.material:material-icons-extended-android:1.6.7") // Use a versão mais recente
-
 }

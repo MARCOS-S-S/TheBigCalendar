@@ -31,12 +31,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
-import com.mss.thebigcalendar.ui.viewmodel.CalendarUiState
 
 private val filterItems = listOf(
     "showHolidays" to "Feriados nacionais",
@@ -48,7 +45,7 @@ private val filterItems = listOf(
 
 @Composable
 fun Sidebar(
-    uiState: CalendarUiState,
+    uiState: com.mss.thebigcalendar.data.model.CalendarUiState,
     onViewModeChange: (ViewMode) -> Unit,
     onFilterChange: (key: String, value: Boolean) -> Unit,
     onThemeChange: (Theme) -> Unit,
@@ -142,7 +139,6 @@ fun Sidebar(
                 FilterCheckboxItem(
                     label = label,
                     checked = isChecked,
-                    // A chamada aqui está correta, a correção é no componente abaixo
                     onCheckedChange = { onFilterChange(key, it) }
                 )
             }
@@ -178,8 +174,6 @@ fun Sidebar(
                 selected = false,
                 onClick = onBackup
             )
-
-            // ERRO 1 CORRIGIDO: Item de menu "Restaurar Backup" completado
             NavigationDrawerItem(
                 label = { Text("Restaurar Backup") },
                 icon = { Icon(Icons.Outlined.Restore, contentDescription = null) },
@@ -191,9 +185,8 @@ fun Sidebar(
 }
 
 /**
- * ERRO 2 CORRIGIDO: Lógica de clique consolidada.
- * A Row inteira é clicável e o Checkbox apenas reflete o estado,
- * evitando a lógica de clique duplicada.
+ * Versão 1: Linha toda clicável, Checkbox só reflete o estado.
+ * (Se preferir só o clique no Checkbox, use a versão comentada abaixo)
  */
 @Composable
 private fun FilterCheckboxItem(
@@ -205,13 +198,13 @@ private fun FilterCheckboxItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) } // A linha inteira dispara o evento de mudança
+            .clickable { onCheckedChange(!checked) }
             .padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
         Checkbox(
             checked = checked,
-            // O callback do Checkbox é nulo, pois a Row já cuida do clique.
-            onCheckedChange = null
+            onCheckedChange = null,
+            enabled = false // Desabilita interação direta no checkbox
         )
         Spacer(Modifier.width(16.dp))
         Text(
@@ -220,3 +213,30 @@ private fun FilterCheckboxItem(
         )
     }
 }
+
+/*
+Versão 2: Só o Checkbox é clicável (padrão Compose)
+@Composable
+private fun FilterCheckboxItem(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+        Spacer(Modifier.width(16.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
+*/
