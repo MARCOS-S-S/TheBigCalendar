@@ -25,6 +25,8 @@ import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.ui.components.Sidebar
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
+import com.mss.thebigcalendar.ui.components.MonthlyCalendar
+import androidx.compose.ui.unit.dp
 
 // A anotação OptIn é necessária para usar a TopAppBar, que é experimental
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,7 +89,13 @@ fun CalendarScreen(
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Tela Principal do Calendário")
+                    MonthlyCalendar(
+                        modifier = Modifier.padding(16.dp), // Adicione um padding ao redor do calendário
+                        calendarDays = uiState.calendarDays,
+                        onDateSelected = { date ->
+                            viewModel.onDateSelected(date)
+                        }
+                    )
                 }
 
                 // A lógica dos modais continua aqui, dentro do Box, se necessário

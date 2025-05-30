@@ -13,7 +13,7 @@ enum class ActivityType {
     BIRTHDAY
 }
 
-// Classe de modelo para Atividades (ATUALIZADA)
+// Classe de modelo para Atividades
 data class Activity(
     val id: String,
     val title: String,
@@ -44,7 +44,15 @@ data class FilterOptions(
     val showTasks: Boolean = true
 )
 
-// Classe de estado principal da UI (ATUALIZADA)
+// --- Enums ---
+enum class Theme { LIGHT, DARK }
+enum class ViewMode { MONTHLY, YEARLY }
+enum class HolidayType { NATIONAL, COMMEMORATIVE, SAINT }
+
+// Classe de dados para representar um feriado ou data especial
+data class Holiday(val name: String, val date: String, val type: HolidayType)
+
+// Classe de estado principal da UI
 data class CalendarUiState(
     val displayedYearMonth: YearMonth = YearMonth.now(),
     val selectedDate: LocalDate = LocalDate.now(),
@@ -55,17 +63,11 @@ data class CalendarUiState(
     val nationalHolidays: Map<LocalDate, Holiday> = emptyMap(),
     val saintDays: Map<String, Holiday> = emptyMap(), // MM-dd -> Holiday
     val commemorativeDates: Map<LocalDate, Holiday> = emptyMap(),
-    val filterOptions: FilterOptions = FilterOptions(), // Nome correto
+    val filterOptions: FilterOptions = FilterOptions(),
     val isSidebarOpen: Boolean = false,
     val activityToEdit: Activity? = null,
     val activityIdToDelete: String? = null,
     val isSettingsModalOpen: Boolean = false,
-    val settingsCategory: String = "General"
+    val settingsCategory: String = "General",
+    val calendarDays: List<CalendarDay> = emptyList()
 )
-
-// --- Enums e outras classes de modelo ---
-
-enum class Theme { LIGHT, DARK }
-enum class ViewMode { MONTHLY, YEARLY }
-enum class HolidayType { NATIONAL, COMMEMORATIVE, SAINT }
-data class Holiday(val name: String, val date: String, val type: HolidayType)

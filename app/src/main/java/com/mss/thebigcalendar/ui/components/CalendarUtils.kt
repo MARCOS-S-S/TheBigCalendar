@@ -1,0 +1,57 @@
+package com.mss.thebigcalendar.ui.components
+
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.TextStyle
+import java.util.Locale
+
+/**
+ * Retorna uma lista com as abreviações dos dias da semana, começando por Domingo.
+ * Ex: [DOM, SEG, TER, QUA, QUI, SEX, SAB]
+ */
+fun getWeekDayAbbreviations(locale: Locale = Locale("pt", "BR")): List<String> {
+    // DayOfWeek.values() retorna [MONDAY, TUESDAY, ..., SUNDAY]
+    // Queremos [SUNDAY, MONDAY, ..., SATURDAY] para a exibição comum de calendários.
+    val daysOfWeek = DayOfWeek.values()
+    val sunday = daysOfWeek.first { it == DayOfWeek.SUNDAY }
+    val otherDays = daysOfWeek.filterNot { it == DayOfWeek.SUNDAY }
+    val orderedDays = listOf(sunday) + otherDays // Domingo primeiro
+
+    return orderedDays.map {
+        it.getDisplayName(TextStyle.SHORT_STANDALONE, locale).uppercase(locale)
+    }
+}
+
+/**
+ * Retorna uma lista de objetos CalendarDay para o mês/ano especificado.
+ * Inclui dias do mês anterior/seguinte para preencher a grade de 6 semanas.
+ */
+fun generateCalendarDays(
+    yearMonth: YearMonth,
+    selectedDate: LocalDate
+): List<com.mss.thebigcalendar.data.model.CalendarDay> {
+    val firstDayOfMonth = yearMonth.atDay(1)
+    // DayOfWeek.MONDAY.value é 1, DayOfWeek.SUNDAY.value é 7.
+    // Queremos que nossa grade comece no Domingo. Se o primeiro dia é Domingo (7), offset 0.
+    // Se é Segunda (1), offset 1. Se é Sábado (6), offset 6.
+    val firstDayOfWeekValue = firstDayOfMonth.dayOfWeek.value // MONDAY (1) to SUNDAY (7)
+    val daysFromPrevMonthOffset = (firstDayOfWeekValue % 7) // Offset para iniciar a semana no Domingo
+
+    val gridStartDate = firstDayOfMonth.minusDays(daysFromPrevMonthOffset.toLong())
+
+    val calendarDays = mutableListOf<com.mss.thebigcalendar.data.model.CalendarDay>()
+    var currentDateIterator = gridStartDate
+
+    // Gera 42 dias (6 semanas * 7 dias)
+    repeat(42) {
+        val day = com.mss.thebigcalendar.data.model.CalendarDay(
+            date = currentDateIterator,
+            isCurrentMonth = currentDateIterator.month == yearMonth.month,
+            isSelected = currentDateIterator.isEqual(selectedDate)
+        )
+        calendarDays.add(day)
+        currentDateIterator = currentDateIterator.plusDays(1)
+    }
+    return calendarDays
+}
