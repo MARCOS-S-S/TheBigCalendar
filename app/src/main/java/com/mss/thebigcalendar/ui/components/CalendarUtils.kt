@@ -5,11 +5,24 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 
 /**
  * Retorna uma lista com as abreviações dos dias da semana, começando por Domingo.
  * Ex: [DOM, SEG, TER, QUA, QUI, SEX, SAB]
  */
+
+fun getContrastingTextColor(backgroundColor: Color): Color {
+    // Fórmula simples de luminância percebida
+    val luminance = (0.299 * backgroundColor.red +
+            0.587 * backgroundColor.green +
+            0.114 * backgroundColor.blue)
+    // Se a luminância for maior que 0.5, a cor de fundo é considerada "clara",
+    // então usamos texto preto. Caso contrário, texto branco.
+    return if (luminance > 0.5) Color.Black else Color.White
+}
+
 fun getWeekDayAbbreviations(locale: Locale = Locale("pt", "BR")): List<String> {
     // DayOfWeek.values() retorna [MONDAY, TUESDAY, ..., SUNDAY]
     // Queremos [SUNDAY, MONDAY, ..., SATURDAY] para a exibição comum de calendários.

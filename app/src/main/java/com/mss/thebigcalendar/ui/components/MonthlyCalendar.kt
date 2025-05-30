@@ -30,6 +30,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mss.thebigcalendar.data.model.CalendarDay
 import java.time.LocalDate
+import androidx.compose.foundation.shape.RoundedCornerShape // Import para RoundedCornerShape
+import androidx.compose.runtime.remember // Import para remember
+import com.mss.thebigcalendar.data.model.Activity
+import androidx.compose.foundation.layout.size // Para Modifier.size()
+import androidx.compose.foundation.layout.width  // Para Modifier.width()
+
+
 
 @Composable
 fun MonthlyCalendar(
@@ -111,24 +118,45 @@ private fun DayCell(
         )
 
         if (day.isCurrentMonth && day.tasks.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(2.dp)) // Espaço entre o número do dia e a primeira tarefa
 
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                // ATUALIZADO: Reduzindo o espaçamento entre as tarefas.
-                // Experimente 0.dp para nenhum espaço extra, ou um valor bem pequeno.
-                verticalArrangement = Arrangement.spacedBy(0.dp)
+                horizontalAlignment = Alignment.CenterHorizontally, // Centraliza as Rows das tarefas
+                verticalArrangement = Arrangement.spacedBy(1.dp) // Espaço vertical entre as tarefas
             ) {
+                val fallbackColor = MaterialTheme.colorScheme.secondaryContainer
                 day.tasks.take(2).forEach { task ->
-                    Text(
-                        text = task.title,
-                        fontSize = 7.sp,
-                        color = if (day.isSelected) LocalContentColor.current.copy(alpha = 0.85f)
-                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.Center
-                    )
+                    val taskColor = remember(task.categoryColor, fallbackColor) {
+                        try {
+                            Color(android.graphics.Color.parseColor(task.categoryColor))
+                        } catch (e: Exception) {
+                            fallbackColor
+                        }
+                    }
+
+                    // ATUALIZADO: Row para alinhar a linha colorida e o texto
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        // Se quiser que todas as linhas de tarefa comecem na mesma posição horizontal:
+                        // modifier = Modifier.fillMaxWidth(),
+                        // horizontalArrangement = Arrangement.Start // Ou CenterHorizontally para centralizar o conjunto linha+texto
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(width = 3.dp, height = 7.dp) // Tamanho da linha colorida
+                                .background(taskColor, RoundedCornerShape(2.dp))
+                        )
+                        Spacer(Modifier.width(3.dp)) // Espaço entre a linha e o texto
+                        Text(
+                            text = task.title,
+                            // ATUALIZADO: Cor do texto padrão, sem fundo no próprio Text
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                            fontSize = 7.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            // textAlign = TextAlign.Start // Se a Row preencher a largura
+                        )
+                    }
                 }
             }
         }
