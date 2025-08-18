@@ -34,7 +34,7 @@ data class CalendarDay(
     val tasks: List<Activity> = emptyList() // NOVO: Lista de tarefas para este dia
 )
 
-// Definição da classe de filtros (já deve existir)
+// Definição da classe de filtros
 data class FilterOptions(
     val showHolidays: Boolean = true,
     val showSaintDays: Boolean = true,
@@ -50,7 +50,7 @@ data class CalendarUiState(
     val viewMode: ViewMode = ViewMode.MONTHLY,
     val theme: Theme = Theme.LIGHT,
     val username: String = "Usuário",
-    val activities: List<Activity> = emptyList(), // Lista principal de todas as atividades (eventos, tarefas)
+    val activities: List<Activity> = emptyList(),
     val nationalHolidays: Map<LocalDate, Holiday> = emptyMap(),
     val saintDays: Map<String, Holiday> = emptyMap(), // MM-dd -> Holiday
     val commemorativeDates: Map<LocalDate, Holiday> = emptyMap(),
@@ -64,7 +64,6 @@ data class CalendarUiState(
     val tasksForSelectedDate: List<Activity> = emptyList() // NOVO: Lista de tarefas para o dia selecionado
 )
 
-// --- Enums e outras classes de modelo (já devem existir) ---
 enum class Theme { LIGHT, DARK }
 enum class ViewMode { MONTHLY, YEARLY }
 enum class HolidayType { NATIONAL, COMMEMORATIVE, SAINT }

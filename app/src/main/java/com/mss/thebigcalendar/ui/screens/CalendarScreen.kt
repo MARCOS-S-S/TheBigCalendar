@@ -163,7 +163,7 @@ fun CalendarScreen(
                                 viewModel.openCreateActivityModal(activityType = ActivityType.TASK)
                             }
                         ) {
-                            Icon(Icons.Filled.Add, "Adicionar Tarefa")
+                            Icon(Icons.Filled.Add, "Adicionar Agendamento")
                         }
                     }
                 }

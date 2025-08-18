@@ -55,7 +55,7 @@ fun TasksForSelectedDaySection(
             // horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Tarefas para ${selectedDate.format(dateFormatter)}",
+                text = "Agendamentos para ${selectedDate.format(dateFormatter)}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f) // Permite que o texto ocupe o espaço disponível
@@ -68,7 +68,7 @@ fun TasksForSelectedDaySection(
 
         if (tasks.isEmpty()) {
             Text(
-                text = "Nenhuma tarefa para este dia.",
+                text = "Mó paz.",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)

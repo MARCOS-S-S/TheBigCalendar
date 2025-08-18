@@ -45,9 +45,6 @@ fun generateCalendarDays(
     selectedDate: LocalDate
 ): List<com.mss.thebigcalendar.data.model.CalendarDay> {
     val firstDayOfMonth = yearMonth.atDay(1)
-    // DayOfWeek.MONDAY.value é 1, DayOfWeek.SUNDAY.value é 7.
-    // Queremos que nossa grade comece no Domingo. Se o primeiro dia é Domingo (7), offset 0.
-    // Se é Segunda (1), offset 1. Se é Sábado (6), offset 6.
     val firstDayOfWeekValue = firstDayOfMonth.dayOfWeek.value // MONDAY (1) to SUNDAY (7)
     val daysFromPrevMonthOffset = (firstDayOfWeekValue % 7) // Offset para iniciar a semana no Domingo
 

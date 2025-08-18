@@ -42,7 +42,7 @@ fun CreateActivityModal(
     onDismissRequest: () -> Unit,
     onSaveActivity: (Activity) -> Unit
 ) {
-    val currentActivity = activityToEdit ?: return // Não deve ser nulo devido à lógica do ViewModel
+    val currentActivity = activityToEdit ?: return
 
     var title by remember(currentActivity.id) { mutableStateOf(currentActivity.title) }
     // ATUALIZADO: Estado para a cor selecionada, inicializado com a cor da atividade
@@ -65,7 +65,7 @@ fun CreateActivityModal(
         title = {
             Text(
                 text = if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
-                    if (currentActivity.activityType == ActivityType.TASK) "Nova Tarefa" else "Novo Evento"
+                    if (currentActivity.activityType == ActivityType.TASK) "Agendamento para " else "Novo Evento"
                 } else {
                     if (currentActivity.activityType == ActivityType.TASK) "Editar Tarefa" else "Editar Evento"
                 }
@@ -76,7 +76,7 @@ fun CreateActivityModal(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Nome da Tarefa") }, // Ou "Nome do Evento"
+                    label = { Text("Título") }, // Ou "Nome do Evento"
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
