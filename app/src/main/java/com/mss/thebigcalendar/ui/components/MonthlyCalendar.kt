@@ -35,7 +35,7 @@ import androidx.compose.runtime.remember // Import para remember
 import com.mss.thebigcalendar.data.model.Activity
 import androidx.compose.foundation.layout.size // Para Modifier.size()
 import androidx.compose.foundation.layout.width  // Para Modifier.width()
-
+import androidx.compose.ui.graphics.computeHorizontalBounds
 
 
 @Composable
@@ -85,7 +85,7 @@ private fun DayCell(
 ) {
     val cellModifier = modifier
         .padding(1.dp)
-        .aspectRatio(1f / 1.25f)
+        .aspectRatio(1f / 1.35f)
         .clip(MaterialTheme.shapes.small)
         .clickable(enabled = day.isCurrentMonth) {
             onDateSelected(day.date)
@@ -118,12 +118,12 @@ private fun DayCell(
         )
 
         if (day.isCurrentMonth && day.tasks.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(1.dp)) // Espaço entre o número do dia e a primeira tarefa
+            Spacer(modifier = Modifier.height(1.dp))
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(0.dp) // Espaço vertical entre as tarefas
+                verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 val fallbackColor = MaterialTheme.colorScheme.secondaryContainer
                 day.tasks.take(2).forEach { task ->
@@ -135,7 +135,6 @@ private fun DayCell(
                         }
                     }
 
-                    // ATUALIZADO: Row para alinhar a linha colorida e o texto
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         // Se quiser que todas as linhas de tarefa comecem na mesma posição horizontal:
@@ -156,6 +155,22 @@ private fun DayCell(
                             overflow = TextOverflow.Ellipsis,
                             //textAlign = TextAlign.Start // Se a Row preencher a largura
                         )
+                    }
+                }
+                if (day.tasks.size > 2) {
+                    Row (
+                        modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        repeat(3) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 1.dp)
+                                    .size(3.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                            )
+                        }
                     }
                 }
             }
