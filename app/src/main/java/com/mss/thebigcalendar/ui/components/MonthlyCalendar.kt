@@ -97,7 +97,7 @@ private fun DayCell(
                 Modifier
             }
         )
-        .padding(vertical = 4.dp, horizontal = 2.dp)
+        .padding(vertical = 0.dp, horizontal = 2.dp)
 
     Column(
         modifier = cellModifier,
@@ -118,11 +118,12 @@ private fun DayCell(
         )
 
         if (day.isCurrentMonth && day.tasks.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(2.dp)) // Espaço entre o número do dia e a primeira tarefa
+            Spacer(modifier = Modifier.height(1.dp)) // Espaço entre o número do dia e a primeira tarefa
 
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally, // Centraliza as Rows das tarefas
-                verticalArrangement = Arrangement.spacedBy(1.dp) // Espaço vertical entre as tarefas
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(0.dp) // Espaço vertical entre as tarefas
             ) {
                 val fallbackColor = MaterialTheme.colorScheme.secondaryContainer
                 day.tasks.take(2).forEach { task ->
@@ -149,12 +150,11 @@ private fun DayCell(
                         Spacer(Modifier.width(3.dp)) // Espaço entre a linha e o texto
                         Text(
                             text = task.title,
-                            // ATUALIZADO: Cor do texto padrão, sem fundo no próprio Text
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                            fontSize = 7.sp,
+                            fontSize = 9.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            // textAlign = TextAlign.Start // Se a Row preencher a largura
+                            //textAlign = TextAlign.Start // Se a Row preencher a largura
                         )
                     }
                 }
