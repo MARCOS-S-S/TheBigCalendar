@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">The Big Calendar</string>
+    <string name="create_activity_modal_scheduling_for">Scheduling for </string>
+    <string name="create_activity_modal_edit_task">Edit Task</string>
+    <string name="create_activity_modal_title">Title</string>
+    <string name="create_activity_modal_color">Set color</string>
+    <string name="create_activity_modal_save">Save</string>
+    <string name="create_activity_modal_cancel">Cancel</string>
+    <string name="create_activity_modal_new_event"> New Event</string>
+    <string name="create_activity_modal_edit_event"> Edit Event</string>
+
 </resources>

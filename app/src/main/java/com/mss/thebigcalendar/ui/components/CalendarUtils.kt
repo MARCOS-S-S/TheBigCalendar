@@ -14,12 +14,9 @@ import androidx.compose.ui.graphics.toArgb
  */
 
 fun getContrastingTextColor(backgroundColor: Color): Color {
-    // Fórmula simples de luminância percebida
     val luminance = (0.299 * backgroundColor.red +
             0.587 * backgroundColor.green +
             0.114 * backgroundColor.blue)
-    // Se a luminância for maior que 0.5, a cor de fundo é considerada "clara",
-    // então usamos texto preto. Caso contrário, texto branco.
     return if (luminance > 0.5) Color.Black else Color.White
 }
 

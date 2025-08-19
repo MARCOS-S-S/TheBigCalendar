@@ -21,7 +21,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
 
@@ -65,9 +67,9 @@ fun CreateActivityModal(
         title = {
             Text(
                 text = if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
-                    if (currentActivity.activityType == ActivityType.TASK) "Agendamento para " else "Novo Evento"
+                    if (currentActivity.activityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_scheduling_for) else stringResource(id = R.string.create_activity_modal_new_event)
                 } else {
-                    if (currentActivity.activityType == ActivityType.TASK) "Editar Tarefa" else "Editar Evento"
+                    if (currentActivity.activityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_edit_task) else stringResource(id = R.string.create_activity_modal_edit_event)
                 }
             )
         },
@@ -76,7 +78,7 @@ fun CreateActivityModal(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Título") }, // Ou "Nome do Evento"
+                    label = { Text(stringResource(id = R.string.create_activity_modal_title)) }, // Ou "Nome do Evento"
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
@@ -85,7 +87,7 @@ fun CreateActivityModal(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // NOVO: Seletor de Cores
-                Text("Cor:", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(id = R.string.create_activity_modal_color), style = MaterialTheme.typography.labelMedium)
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -117,12 +119,12 @@ fun CreateActivityModal(
                 },
                 enabled = title.isNotBlank()
             ) {
-                Text("Salvar")
+                Text(stringResource(id = R.string.create_activity_modal_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text("Cancelar")
+                Text(stringResource(id = R.string.create_activity_modal_cancel))
             }
         }
     )
