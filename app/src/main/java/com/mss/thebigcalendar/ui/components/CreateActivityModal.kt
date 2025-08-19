@@ -28,14 +28,14 @@ import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
 
 // Lista de cores padrão
-val defaultTaskColorsHex = listOf(
-    "#F43F5E", "#EF4444", // Rosa, Vermelho
-    "#F97316", "#EAB308", // Laranja, Amarelo
-    "#22C55E", "#10B981", // Verde Lima, Verde Esmeralda
-    "#0EA5E9", "#3B82F6", // Azul Céu, Azul Padrão
-    "#8B5CF6", "#A855F7", // Roxo, Púrpura
-    "#64748B", "#475569"  // Cinza Ardósia, Cinza Azulado
-)
+//val defaultTaskColorsHex = listOf(
+//    "#F43F5E", "#EF4444", // Rosa, Vermelho
+//    "#F97316", "#EAB308", // Laranja, Amarelo
+//    "#22C55E", "#10B981", // Verde Lima, Verde Esmeralda
+//    "#0EA5E9", "#3B82F6", // Azul Céu, Azul Padrão
+//    "#8B5CF6", "#A855F7", // Roxo, Púrpura
+//    "#64748B", "#475569"  // Cinza Ardósia, Cinza Azulado
+//)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,16 +48,21 @@ fun CreateActivityModal(
 
     var title by remember(currentActivity.id) { mutableStateOf(currentActivity.title) }
     // ATUALIZADO: Estado para a cor selecionada, inicializado com a cor da atividade
-    var selectedColorHex by remember(currentActivity.id) { mutableStateOf(currentActivity.categoryColor) }
+    var selectedPriority by remember(currentActivity.id) { mutableStateOf(currentActivity.categoryColor) }
 
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(currentActivity.id) {
         if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
             focusRequester.requestFocus()
-            // Se for uma nova tarefa, e a cor padrão não estiver na lista, seleciona a primeira da lista
-            if (!defaultTaskColorsHex.contains(selectedColorHex)) {
-                selectedColorHex = defaultTaskColorsHex.firstOrNull() ?: currentActivity.categoryColor
+
+            // Define as prioridades válidas
+            val validPriorities = listOf("1", "2", "3", "4")
+
+            // Se for uma nova tarefa e a prioridade atual não for uma das válidas,
+            // define a primeira da lista ("1") como padrão.
+            if (selectedPriority !in validPriorities) {
+                selectedPriority = validPriorities.first()
             }
         }
     }
@@ -87,22 +92,27 @@ fun CreateActivityModal(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // NOVO: Seletor de Cores
-                Text(stringResource(id = R.string.create_activity_modal_color), style = MaterialTheme.typography.labelMedium)
-                Spacer(modifier = Modifier.height(8.dp))
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 4.dp)
-                ) {
-                    items(defaultTaskColorsHex) { colorHex ->
-                        val color = Color(android.graphics.Color.parseColor(colorHex))
-                        ColorSwatch(
-                            color = color,
-                            isSelected = colorHex == selectedColorHex,
-                            onClick = { selectedColorHex = colorHex }
-                        )
-                    }
-                }
-                // Aqui você adicionaria mais campos no futuro (descrição, data, hora, etc.)
+//                Text(stringResource(id = R.string.create_activity_modal_color), style = MaterialTheme.typography.labelMedium)
+//                Spacer(modifier = Modifier.height(8.dp))
+//                LazyRow(
+//                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+//                    contentPadding = PaddingValues(horizontal = 4.dp)
+//                ) {
+//                    items(defaultTaskColorsHex) { colorHex ->
+//                        val color = Color(android.graphics.Color.parseColor(colorHex))
+//                        ColorSwatch(
+//                            color = color,
+//                            isSelected = colorHex == selectedColorHex,
+//                            onClick = { selectedColorHex = colorHex }
+//                        )
+//                    }
+//                }
+                PrioritySelector(
+                    selectedPriority = selectedPriority,
+                    onPrioritySelected = { selectedPriority = it }
+                )
+
+                // Adicionar mais campos no futuro (descrição, data, hora, etc.)
             }
         },
         confirmButton = {
@@ -110,7 +120,7 @@ fun CreateActivityModal(
                 onClick = {
                     val updatedActivity = currentActivity.copy(
                         title = title.trim(),
-                        categoryColor = selectedColorHex // ATUALIZADO: Salva a cor selecionada
+                        categoryColor = selectedPriority // ATUALIZADO: Salva a cor selecionada
                     )
                     if (updatedActivity.title.isNotBlank()) {
                         onSaveActivity(updatedActivity)
@@ -131,26 +141,68 @@ fun CreateActivityModal(
 }
 
 @Composable
-private fun ColorSwatch(
-    color: Color,
-    isSelected: Boolean,
-    onClick: () -> Unit,
+fun PrioritySelector(
+    selectedPriority: String,
+    onPrioritySelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface( // Usando Surface para aplicar borda condicionalmente
-        modifier = modifier
-            .size(32.dp)
-            .clip(CircleShape)
-            .clickable(onClick = onClick),
-        shape = CircleShape,
-        color = color,
-        border = if (isSelected) {
-            BorderStroke(2.dp, MaterialTheme.colorScheme.outline) // Destaque para cor selecionada
-        } else {
-            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+    val priorities = mapOf(
+        "1" to Color.White,
+        "2" to Color.Blue,
+        "3" to Color.Yellow,
+        "4" to Color.Red
+    )
+
+    Column(modifier = modifier) {
+        Text("Prioridade:", style = MaterialTheme.typography.labelMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            priorities.forEach { (priority, color) ->
+                val isSelected = selectedPriority == priority
+                Surface(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .clickable { onPrioritySelected(priority) },
+                    shape = CircleShape,
+                    color = color,
+                    border = if (isSelected) {
+                        BorderStroke(2.dp, MaterialTheme.colorScheme.outline)
+                    } else if (color == Color.White) {
+                        BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    } else {
+                        null
+                    }
+                ) {}
+            }
         }
-    ) {
-        // O conteúdo do Box é opcional, o Surface já tem a cor.
-        // Box(modifier = Modifier.fillMaxSize())
     }
 }
+
+//@Composable
+//private fun ColorSwatch(
+//    color: Color,
+//    isSelected: Boolean,
+//    onClick: () -> Unit,
+//    modifier: Modifier = Modifier
+//) {
+//    Surface( // Usando Surface para aplicar borda condicionalmente
+//        modifier = modifier
+//            .size(32.dp)
+//            .clip(CircleShape)
+//            .clickable(onClick = onClick),
+//        shape = CircleShape,
+//        color = color,
+//        border = if (isSelected) {
+//            BorderStroke(2.dp, MaterialTheme.colorScheme.outline) // Destaque para cor selecionada
+//        } else {
+//            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+//        }
+//    ) {
+//        // O conteúdo do Box é opcional, o Surface já tem a cor.
+//        // Box(modifier = Modifier.fillMaxSize())
+//    }
+//}

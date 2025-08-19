@@ -1,6 +1,7 @@
 package com.mss.thebigcalendar.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -60,10 +61,6 @@ fun TasksForSelectedDaySection(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f) // Permite que o texto ocupe o espaço disponível
             )
-            // ATUALIZADO: Botão de adicionar tarefa REMOVIDO desta seção
-            // IconButton(onClick = onAddTaskClick) {
-            //     Icon(Icons.Filled.Add, contentDescription = "Adicionar Tarefa")
-            // }
         }
 
         if (tasks.isEmpty()) {
@@ -93,13 +90,20 @@ fun TasksForSelectedDaySection(
 @Composable
 fun TaskItem(
     task: Activity,
+    //onClick: (Activity) -> Unit,
     onTaskClick: (Activity) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val taskColor = try {
-        Color(android.graphics.Color.parseColor(task.categoryColor))
-    } catch (e: IllegalArgumentException) {
-        MaterialTheme.colorScheme.secondary // Cor fallback
+    val fallbackColor = MaterialTheme.colorScheme.secondary // Cor fallback
+
+    val taskColor = remember(task.categoryColor) {
+        when (task.categoryColor) {
+            "1" -> Color.White
+            "2" -> Color.Blue
+            "3" -> Color.Yellow
+            "4" -> Color.Red
+            else -> fallbackColor
+        }
     }
 
     Row(
@@ -111,13 +115,22 @@ fun TaskItem(
             .padding(start = 8.dp), // Padding inicial para a barra de cor
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // NOVO: Barra vertical com a cor da tarefa
-        Box(
-            modifier = Modifier
+        // Barra vertical com a cor da tarefa
+        val boxModifier = if (taskColor == Color.White) {
+            Modifier
                 .width(4.dp)
                 .height(36.dp) // Altura da barra, ajuste conforme necessário
                 .background(taskColor, shape = RoundedCornerShape(2.dp))
-        )
+                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp))
+        } else {
+            Modifier
+                .width(4.dp)
+                .height(36.dp)
+                .background(taskColor, shape = RoundedCornerShape(2.dp))
+        }
+
+        Box(modifier = boxModifier)
+
         Spacer(modifier = Modifier.width(12.dp)) // Espaço entre a barra e o texto
 
         Column(modifier = Modifier.weight(1f).padding(vertical = 12.dp)) { // Adicionado padding vertical aqui
