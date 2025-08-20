@@ -2,64 +2,57 @@ package com.mss.thebigcalendar.data.repository
 
 import com.mss.thebigcalendar.data.model.HolidayType
 import com.mss.thebigcalendar.data.model.Holiday
-//import com.mss.thebigcalendar.data.model.HolidayType // Vamos adicionar este também, pois você provavelmente precisará dele.
-/**
- * Uma classe responsável por fornecer os dados de feriados.
- * Atualmente usa dados mocados, mas no futuro pode buscar de uma API ou banco de dados.
- */
+
 class HolidayRepository {
 
     fun getNationalHolidays(): List<Holiday> {
         return listOf(
-            Holiday("2024-01-01", "Confraternização Universal", HolidayType.NATIONAL),
-            Holiday("2024-02-13", "Carnaval (Ponto Facultativo Nacional)", HolidayType.NATIONAL),
-            Holiday("2024-03-29", "Sexta-feira Santa", HolidayType.NATIONAL),
-            Holiday("2024-04-21", "Tiradentes", HolidayType.NATIONAL),
-            Holiday("2024-05-01", "Dia do Trabalho", HolidayType.NATIONAL),
-            Holiday("2024-05-30", "Corpus Christi (Ponto Facultativo Nacional)", HolidayType.NATIONAL),
-            Holiday("2024-09-07", "Independência do Brasil", HolidayType.NATIONAL),
-            Holiday("2024-10-12", "Nossa Senhora Aparecida", HolidayType.NATIONAL),
-            Holiday("2024-11-02", "Finados", HolidayType.NATIONAL),
-            Holiday("2024-11-15", "Proclamação da República", HolidayType.NATIONAL),
-            Holiday("2024-12-25", "Natal", HolidayType.NATIONAL),
+            Holiday("Confraternização Universal", "2024-01-01", HolidayType.NATIONAL),
+            Holiday("Carnaval (Ponto Facultativo Nacional)", "2024-02-13", HolidayType.NATIONAL),
+            Holiday("Sexta-feira Santa", "2024-03-29", HolidayType.NATIONAL),
+            Holiday("Tiradentes", "2024-04-21", HolidayType.NATIONAL),
+            Holiday("Dia do Trabalho", "2024-05-01", HolidayType.NATIONAL),
+            Holiday("Corpus Christi (Ponto Facultativo Nacional)", "2024-05-30", HolidayType.NATIONAL),
+            Holiday("Independência do Brasil", "2024-09-07", HolidayType.NATIONAL),
+            Holiday("Nossa Senhora Aparecida", "2024-10-12", HolidayType.NATIONAL),
+            Holiday("Finados", "2024-11-02", HolidayType.NATIONAL),
+            Holiday("Proclamação da República", "2024-11-15", HolidayType.NATIONAL),
+            Holiday("Natal", "2024-12-25", HolidayType.NATIONAL),
 
-            Holiday("2025-01-01", "Confraternização Universal", HolidayType.NATIONAL),
-            Holiday("2025-03-04", "Carnaval (Ponto Facultativo Nacional)", HolidayType.NATIONAL),
-            Holiday("2025-04-18", "Sexta-feira Santa", HolidayType.NATIONAL),
-            Holiday("2025-04-21", "Tiradentes", HolidayType.NATIONAL),
-            Holiday("2025-05-01", "Dia do Trabalho", HolidayType.NATIONAL),
-            Holiday("2025-06-19", "Corpus Christi (Ponto Facultativo Nacional)", HolidayType.NATIONAL),
-            Holiday("2025-09-07", "Independência do Brasil", HolidayType.NATIONAL),
-            Holiday("2025-10-12", "Nossa Senhora Aparecida", HolidayType.NATIONAL),
-            Holiday("2025-11-02", "Finados", HolidayType.NATIONAL),
-            Holiday("2025-11-15", "Proclamação da República", HolidayType.NATIONAL),
-            Holiday("2025-12-25", "Natal", HolidayType.NATIONAL),
-            // ...cole o resto dos feriados nacionais aqui
+            Holiday("Confraternização Universal", "2025-01-01", HolidayType.NATIONAL),
+            Holiday("Carnaval (Ponto Facultativo Nacional)", "2025-03-04", HolidayType.NATIONAL),
+            Holiday("Sexta-feira Santa", "2025-04-18", HolidayType.NATIONAL),
+            Holiday("Tiradentes", "2025-04-21", HolidayType.NATIONAL),
+            Holiday("Dia do Trabalho", "2025-05-01", HolidayType.NATIONAL),
+            Holiday("Corpus Christi (Ponto Facultativo Nacional)", "2025-06-19", HolidayType.NATIONAL),
+            Holiday("Independência do Brasil", "2025-09-07", HolidayType.NATIONAL),
+            Holiday("Nossa Senhora Aparecida", "2025-10-12", HolidayType.NATIONAL),
+            Holiday("Finados", "2025-11-02", HolidayType.NATIONAL),
+            Holiday("Proclamação da República", "2025-11-15", HolidayType.NATIONAL),
+            Holiday("Natal", "2025-12-25", HolidayType.NATIONAL)
         )
     }
 
     fun getSaintDays(): List<Holiday> {
         return listOf(
-            Holiday("01-01", "Santa Maria, Mãe de Deus", HolidayType.SAINT),
-            Holiday("01-17", "Santo Antão, abade", HolidayType.SAINT),
-            Holiday("01-20", "São Sebastião, mártir", HolidayType.SAINT),
-            Holiday("01-21", "Santa Inês, virgem e mártir", HolidayType.SAINT),
-            // ...cole o resto dos dias de santos aqui
+            Holiday("Santa Maria, Mãe de Deus", "01-01", HolidayType.SAINT),
+            Holiday("Santo Antão, abade", "01-17", HolidayType.SAINT),
+            Holiday("São Sebastião, mártir", "01-20", HolidayType.SAINT),
+            Holiday("Santa Inês, virgem e mártir", "01-21", HolidayType.SAINT)
         )
     }
 
     fun getCommemorativeDates(): List<Holiday> {
         return listOf(
-            Holiday("2024-03-08", "Dia Internacional da Mulher", HolidayType.COMMEMORATIVE),
-            Holiday("2024-05-12", "Dia das Mães", HolidayType.COMMEMORATIVE),
-            Holiday("2024-06-12", "Dia dos Namorados", HolidayType.COMMEMORATIVE),
-            Holiday("2024-07-20", "Dia do Amigo", HolidayType.COMMEMORATIVE),
-            Holiday("2024-08-11", "Dia dos Pais", HolidayType.COMMEMORATIVE),
-            Holiday("2024-10-12", "Dia das Crianças", HolidayType.COMMEMORATIVE),
+            Holiday("Dia Internacional da Mulher", "2024-03-08", HolidayType.COMMEMORATIVE),
+            Holiday("Dia das Mães", "2024-05-12", HolidayType.COMMEMORATIVE),
+            Holiday("Dia dos Namorados", "2024-06-12", HolidayType.COMMEMORATIVE),
+            Holiday("Dia do Amigo", "2024-07-20", HolidayType.COMMEMORATIVE),
+            Holiday("Dia dos Pais", "2024-08-11", HolidayType.COMMEMORATIVE),
+            Holiday("Dia das Crianças", "2024-10-12", HolidayType.COMMEMORATIVE),
 
-            Holiday("2025-03-08", "Dia Internacional da Mulher", HolidayType.COMMEMORATIVE),
-            Holiday("2025-05-11", "Dia das Mães", HolidayType.COMMEMORATIVE),
-            // ...cole o resto das datas comemorativas aqui
+            Holiday("Dia Internacional da Mulher", "2025-03-08", HolidayType.COMMEMORATIVE),
+            Holiday("Dia das Mães", "2025-05-11", HolidayType.COMMEMORATIVE)
         )
     }
 }

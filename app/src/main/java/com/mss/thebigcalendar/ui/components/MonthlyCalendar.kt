@@ -117,6 +117,17 @@ private fun DayCell(
             modifier = Modifier.padding(top = 2.dp)
         )
 
+        if (day.holiday != null) {
+            Text(
+                text = day.holiday.name,
+                color = MaterialTheme.colorScheme.secondary,
+                fontSize = 8.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = 1.dp)
+            )
+        }
+
         if (day.isCurrentMonth && day.tasks.isNotEmpty()) {
             Spacer(modifier = Modifier.height(1.dp))
 

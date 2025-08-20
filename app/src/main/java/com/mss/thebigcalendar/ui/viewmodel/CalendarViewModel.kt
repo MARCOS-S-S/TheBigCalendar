@@ -33,25 +33,18 @@ class CalendarViewModel : ViewModel() {
     init {
         updateCalendarDays()
         updateTasksForSelectedDate()
-        // loadInitialData() // Descomente quando os métodos no HolidayRepository estiverem prontos
+        loadInitialData()
     }
 
     private fun loadInitialData() {
         viewModelScope.launch {
-            // Exemplo (precisa que os métodos no repositório retornem List<Holiday>):
-            // val nationalHolidaysList = holidayRepository.getNationalHolidays()
-            // val saintDaysList = holidayRepository.getSaintDays()
-            // val commemorativeDatesList = holidayRepository.getCommemorativeDates()
+            val nationalHolidaysList = holidayRepository.getNationalHolidays()
 
             _uiState.update { currentState ->
                 currentState.copy(
-                    // nationalHolidays = nationalHolidaysList.associateBy { LocalDate.parse(it.date) },
-                    // saintDays = saintDaysList.associateBy { it.date }, // Assumindo que Holiday.date é "MM-dd"
-                    // commemorativeDates = commemorativeDatesList.associateBy { LocalDate.parse(it.date) }
+                    nationalHolidays = nationalHolidaysList.associateBy { LocalDate.parse(it.date) },
                 )
             }
-            // Após carregar feriados, etc., pode ser necessário atualizar os dias do calendário
-            // se a exibição deles depender desses dados (ex: marcar dias de feriado).
             updateCalendarDays()
         }
     }
@@ -75,11 +68,19 @@ class CalendarViewModel : ViewModel() {
                 activity.activityType == ActivityType.TASK &&
                         LocalDate.parse(activity.date).isEqual(date)
             }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
+            
+            val holidayForThisDay = if (currentUiStateValue.filterOptions.showHolidays) {
+                currentUiStateValue.nationalHolidays[date]
+            } else {
+                null
+            }
+
             CalendarDay(
                 date = date,
                 isCurrentMonth = date.month == currentYearMonth.month,
                 isSelected = date.isEqual(currentSelectedDate),
-                tasks = tasksForThisDay
+                tasks = tasksForThisDay,
+                holiday = holidayForThisDay
             )
         }
         _uiState.update { it.copy(calendarDays = newCalendarDays) }
@@ -96,6 +97,7 @@ class CalendarViewModel : ViewModel() {
                     LocalDate.parse(activity.date).isEqual(selectedDate)
         }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }
             .thenBy { it.startTime ?: LocalTime.MIN })
+        
         _uiState.update { it.copy(tasksForSelectedDate = tasks) }
     }
 
@@ -179,7 +181,7 @@ class CalendarViewModel : ViewModel() {
         }
         _uiState.update { it.copy(filterOptions = newFilters) }
         // Re-filtrar os dias do calendário e tarefas do dia se a visibilidade das tarefas mudar
-        if (key == "showTasks" || key == "showEvents") { // Adicione outros filtros se necessário
+        if (key == "showTasks" || key == "showEvents" || key == "showHolidays") { // Adicione outros filtros se necessário
             updateCalendarDays()
             updateTasksForSelectedDate()
         }
