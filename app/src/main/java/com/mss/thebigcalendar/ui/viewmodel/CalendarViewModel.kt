@@ -33,6 +33,7 @@ class CalendarViewModel : ViewModel() {
     init {
         updateCalendarDays()
         updateTasksForSelectedDate()
+        updateHolidaysForSelectedDate()
         loadInitialData()
     }
 
@@ -101,18 +102,30 @@ class CalendarViewModel : ViewModel() {
         _uiState.update { it.copy(tasksForSelectedDate = tasks) }
     }
 
+    private fun updateHolidaysForSelectedDate() {
+        val currentUiStateValue = _uiState.value
+        val selectedDate = currentUiStateValue.selectedDate
+        val holidays = mutableListOf<Holiday>()
+        if (currentUiStateValue.filterOptions.showHolidays) {
+            currentUiStateValue.nationalHolidays[selectedDate]?.let { holidays.add(it) }
+        }
+        _uiState.update { it.copy(holidaysForSelectedDate = holidays) }
+    }
+
     // --- MÉTODOS PÚBLICOS (EVENTOS VINDOS DA UI) ---
 
     fun onPreviousMonth() {
         _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.minusMonths(1)) }
         updateCalendarDays()
         updateTasksForSelectedDate()
+        updateHolidaysForSelectedDate()
     }
 
     fun onNextMonth() {
         _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.plusMonths(1)) }
         updateCalendarDays()
         updateTasksForSelectedDate()
+        updateHolidaysForSelectedDate()
     }
 
     fun onPreviousYear() {
@@ -144,6 +157,7 @@ class CalendarViewModel : ViewModel() {
         }
         updateCalendarDays()
         updateTasksForSelectedDate()
+        updateHolidaysForSelectedDate()
 
         if (shouldOpenModal) {
             // Decidimos se abrimos para criar evento ou tarefa baseado em algum critério
@@ -163,6 +177,7 @@ class CalendarViewModel : ViewModel() {
         }
         updateCalendarDays()
         updateTasksForSelectedDate()
+        updateHolidaysForSelectedDate()
     }
 
     fun onViewModeChange(newMode: ViewMode) {
@@ -184,6 +199,7 @@ class CalendarViewModel : ViewModel() {
         if (key == "showTasks" || key == "showEvents" || key == "showHolidays") { // Adicione outros filtros se necessário
             updateCalendarDays()
             updateTasksForSelectedDate()
+        updateHolidaysForSelectedDate()
         }
     }
 
@@ -215,6 +231,7 @@ class CalendarViewModel : ViewModel() {
             }
             updateCalendarDays()
             updateTasksForSelectedDate()
+        updateHolidaysForSelectedDate()
         }
     }
 
@@ -229,6 +246,7 @@ class CalendarViewModel : ViewModel() {
             }
             updateCalendarDays()
             updateTasksForSelectedDate()
+        updateHolidaysForSelectedDate()
         }
     }
 

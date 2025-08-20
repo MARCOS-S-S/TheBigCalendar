@@ -62,7 +62,8 @@ data class CalendarUiState(
     val isSettingsModalOpen: Boolean = false,
     val settingsCategory: String = "General",
     val calendarDays: List<CalendarDay> = emptyList(),
-    val tasksForSelectedDate: List<Activity> = emptyList() // NOVO: Lista de tarefas para o dia selecionado
+    val tasksForSelectedDate: List<Activity> = emptyList(), // NOVO: Lista de tarefas para o dia selecionado
+    val holidaysForSelectedDate: List<Holiday> = emptyList()
 )
 
 enum class Theme { LIGHT, DARK }

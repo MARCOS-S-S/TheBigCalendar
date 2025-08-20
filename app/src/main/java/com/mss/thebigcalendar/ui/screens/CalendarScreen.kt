@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -33,9 +34,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
+import com.mss.thebigcalendar.ui.components.CreateActivityModal
+import com.mss.thebigcalendar.ui.components.HolidaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.MonthlyCalendar
 import com.mss.thebigcalendar.ui.components.Sidebar
-import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection // NOVO: Import
+import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.YearlyCalendarView
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
@@ -43,7 +46,6 @@ import kotlinx.coroutines.launch
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.coroutines.cancellation.CancellationException
-import com.mss.thebigcalendar.ui.components.CreateActivityModal
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -175,35 +177,55 @@ fun CalendarScreen(
                 ) {
                     when (uiState.viewMode) {
                         ViewMode.MONTHLY -> {
-                            MonthlyCalendar(
-                                modifier = Modifier
-                                    .fillMaxWidth() // Ocupa a largura
-                                    .padding(horizontal = 8.dp, vertical = 16.dp),
-                                // Removido .weight(1f) para permitir que a lista de tarefas apareça logo abaixo
-                                calendarDays = uiState.calendarDays,
-                                onDateSelected = { date -> viewModel.onDateSelected(date) }
-                            )
-                            // Seção de tarefas para o dia selecionado
-                            TasksForSelectedDaySection(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp, vertical = 8.dp)
-                                    .weight(1f), // Faz a lista de tarefas ocupar o espaço restante
-                                tasks = uiState.tasksForSelectedDate,
-                                selectedDate = uiState.selectedDate,
-                                onTaskClick = { task ->
-                                    viewModel.openCreateActivityModal(task, ActivityType.TASK)
-                                },
-                                onAddTaskClick = {
-                                    viewModel.openCreateActivityModal(activityType = ActivityType.TASK)
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                item {
+                                    MonthlyCalendar(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp, vertical = 16.dp),
+                                        calendarDays = uiState.calendarDays,
+                                        onDateSelected = { date -> viewModel.onDateSelected(date) }
+                                    )
                                 }
-                            )
+                                item {
+                                    TasksForSelectedDaySection(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                                        tasks = uiState.tasksForSelectedDate,
+                                        selectedDate = uiState.selectedDate,
+                                        onTaskClick = { task ->
+                                            viewModel.openCreateActivityModal(
+                                                task,
+                                                ActivityType.TASK
+                                            )
+                                        },
+                                        onAddTaskClick = {
+                                            viewModel.openCreateActivityModal(activityType = ActivityType.TASK)
+                                        }
+                                    )
+                                }
+                                if (uiState.holidaysForSelectedDate.isNotEmpty()) {
+                                    item {
+                                        HolidaysForSelectedDaySection(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 8.dp, vertical = 8.dp),
+                                            holidays = uiState.holidaysForSelectedDate
+                                        )
+                                    }
+                                }
+                            }
                         }
                         ViewMode.YEARLY -> {
                             YearlyCalendarView(
                                 modifier = Modifier.fillMaxSize(),
                                 year = uiState.displayedYearMonth.year,
-                                onMonthClicked = { yearMonth -> viewModel.onYearlyMonthClicked(yearMonth) },
+                                onMonthClicked = { yearMonth ->
+                                    viewModel.onYearlyMonthClicked(
+                                        yearMonth
+                                    )
+                                },
                                 onNavigateYear = { delta ->
                                     if (delta > 0) viewModel.onNextYear() else viewModel.onPreviousYear()
                                 }

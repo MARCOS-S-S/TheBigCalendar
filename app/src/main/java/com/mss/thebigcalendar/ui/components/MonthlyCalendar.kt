@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape // Ou RectangleShape se preferir células mais quadradas no geral
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -62,15 +59,21 @@ fun MonthlyCalendar(
             }
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            userScrollEnabled = false
-        ) {
-            items(calendarDays) { day ->
-                DayCell(
-                    day = day,
-                    onDateSelected = onDateSelected
-                )
+        Column {
+            calendarDays.chunked(7).forEach { week ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    week.forEach { day ->
+                        Box(modifier = Modifier.weight(1f)) {
+                            DayCell(
+                                day = day,
+                                onDateSelected = onDateSelected
+                            )
+                        }
+                    }
+                }
             }
         }
     }
