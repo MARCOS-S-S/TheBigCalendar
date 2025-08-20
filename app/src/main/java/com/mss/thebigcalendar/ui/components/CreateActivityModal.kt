@@ -23,6 +23,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
@@ -111,6 +116,56 @@ fun CreateActivityModal(
                     selectedPriority = selectedPriority,
                     onPrioritySelected = { selectedPriority = it }
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                var isRepetitionMenuExpanded by remember { mutableStateOf(false) }
+                val repetitionOptions = listOf("Não repetir", "Todos os dias", "Todas as semanas", "Todos os meses", "Todos os anos", "Personalizado...")
+                var selectedRepetition by remember { mutableStateOf(repetitionOptions.first()) }
+
+                Box {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { isRepetitionMenuExpanded = true },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Repetir",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = selectedRepetition,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (selectedRepetition != "Não repetir") {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            }
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = isRepetitionMenuExpanded,
+                        onDismissRequest = { isRepetitionMenuExpanded = false }
+                    ) {
+                        repetitionOptions.forEach { option ->
+                            DropdownMenuItem(
+                                text = { 
+                                    Text(
+                                        text = option, 
+                                        color = if (option == selectedRepetition) MaterialTheme.colorScheme.primary else Color.Unspecified
+                                    )
+                                },
+                                onClick = {
+                                    selectedRepetition = option
+                                    isRepetitionMenuExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 // Adicionar mais campos no futuro (descrição, data, hora, etc.)
             }
