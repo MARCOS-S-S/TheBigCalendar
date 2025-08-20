@@ -28,9 +28,13 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.text.intl.Locale
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 // Lista de cores padrão
 //val defaultTaskColorsHex = listOf(
@@ -52,20 +56,21 @@ fun CreateActivityModal(
     val currentActivity = activityToEdit ?: return
 
     var title by remember(currentActivity.id) { mutableStateOf(currentActivity.title) }
-    // ATUALIZADO: Estado para a cor selecionada, inicializado com a cor da atividade
     var selectedPriority by remember(currentActivity.id) { mutableStateOf(currentActivity.categoryColor) }
+    var selectedActivityType by remember(currentActivity.id) { mutableStateOf(currentActivity.activityType) }
 
     val focusRequester = remember { FocusRequester() }
+
+    val date = LocalDate.parse(currentActivity.date)
+    val formatter = DateTimeFormatter.ofPattern("d 'de' MMM", java.util.Locale("pt", "BR"))
+    val formattedDate = date.format(formatter)
 
     LaunchedEffect(currentActivity.id) {
         if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
             focusRequester.requestFocus()
 
-            // Define as prioridades válidas
             val validPriorities = listOf("1", "2", "3", "4")
 
-            // Se for uma nova tarefa e a prioridade atual não for uma das válidas,
-            // define a primeira da lista ("1") como padrão.
             if (selectedPriority !in validPriorities) {
                 selectedPriority = validPriorities.first()
             }
@@ -75,20 +80,20 @@ fun CreateActivityModal(
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = {
-            Text(
-                text = if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
-                    if (currentActivity.activityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_scheduling_for) else stringResource(id = R.string.create_activity_modal_new_event)
+            val titleText = if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
+                    if (selectedActivityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_scheduling_for) else stringResource(id = R.string.create_activity_modal_new_event)
                 } else {
-                    if (currentActivity.activityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_edit_task) else stringResource(id = R.string.create_activity_modal_edit_event)
+                    if (selectedActivityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_edit_task) else stringResource(id = R.string.create_activity_modal_edit_event)
                 }
-            )
+            Text(text = titleText)
+            Text(text = "$titleText $formattedDate")
         },
         text = {
             Column {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text(stringResource(id = R.string.create_activity_modal_title)) }, // Ou "Nome do Evento"
+                    label = { Text(stringResource(id = R.string.create_activity_modal_title)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
@@ -96,26 +101,32 @@ fun CreateActivityModal(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // NOVO: Seletor de Cores
-//                Text(stringResource(id = R.string.create_activity_modal_color), style = MaterialTheme.typography.labelMedium)
-//                Spacer(modifier = Modifier.height(8.dp))
-//                LazyRow(
-//                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-//                    contentPadding = PaddingValues(horizontal = 4.dp)
-//                ) {
-//                    items(defaultTaskColorsHex) { colorHex ->
-//                        val color = Color(android.graphics.Color.parseColor(colorHex))
-//                        ColorSwatch(
-//                            color = color,
-//                            isSelected = colorHex == selectedColorHex,
-//                            onClick = { selectedColorHex = colorHex }
-//                        )
-//                    }
-//                }
                 PrioritySelector(
                     selectedPriority = selectedPriority,
                     onPrioritySelected = { selectedPriority = it }
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf(ActivityType.TASK, ActivityType.EVENT).forEach { type ->
+                        val isSelected = selectedActivityType == type
+                        TextButton(
+                            onClick = { selectedActivityType = type },
+                            modifier = Modifier.weight(1f),
+                            shape = MaterialTheme.shapes.medium,
+                            colors = ButtonDefaults.textButtonColors(
+                                containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest,
+                                contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                            )
+                        ) {
+                            Text(text = if (type == ActivityType.TASK) "Tarefa" else "Evento")
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -166,8 +177,6 @@ fun CreateActivityModal(
                         }
                     }
                 }
-
-                // Adicionar mais campos no futuro (descrição, data, hora, etc.)
             }
         },
         confirmButton = {
@@ -175,7 +184,8 @@ fun CreateActivityModal(
                 onClick = {
                     val updatedActivity = currentActivity.copy(
                         title = title.trim(),
-                        categoryColor = selectedPriority // ATUALIZADO: Salva a cor selecionada
+                        categoryColor = selectedPriority,
+                        activityType = selectedActivityType
                     )
                     if (updatedActivity.title.isNotBlank()) {
                         onSaveActivity(updatedActivity)

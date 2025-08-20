@@ -1,13 +1,13 @@
 <resources>
-    <string name="app_name">The Big Calendar</string>
-    <string name="create_activity_modal_scheduling_for">Scheduling for </string>
-    <string name="create_activity_modal_edit_task">Edit Task</string>
-    <string name="create_activity_modal_title">Title</string>
-    <string name="create_activity_modal_color">Set color</string>
-    <string name="create_activity_modal_save">Save</string>
-    <string name="create_activity_modal_cancel">Cancel</string>
-    <string name="create_activity_modal_new_event"> New Event</string>
-    <string name="create_activity_modal_edit_event"> Edit Event</string>
+    <string name="app_name">TBCalendar</string>
+    <string name="create_activity_modal_scheduling_for">Nova tarefa </string>
+    <string name="create_activity_modal_edit_task">Editar Atividade</string>
+    <string name="create_activity_modal_title">Título</string>
+    <string name="create_activity_modal_color">Definir cor</string>
+    <string name="create_activity_modal_save">Salvar</string>
+    <string name="create_activity_modal_cancel">Cancelar</string>
+    <string name="create_activity_modal_new_event"> Novo evento </string>
+    <string name="create_activity_modal_edit_event"> Editar evento</string>
 
     <!-- CreateActivityModal.kt -->
     <string name="priority">Prioridade:</string>

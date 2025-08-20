@@ -36,11 +36,11 @@ data class CalendarDay(
 
 // Definição da classe de filtros
 data class FilterOptions(
-    val showHolidays: Boolean = true,
-    val showSaintDays: Boolean = true,
-    val showCommemorativeDates: Boolean = true,
-    val showEvents: Boolean = true,
-    val showTasks: Boolean = true // Importante para filtrar tarefas
+    val showHolidays: Boolean = false,
+    val showSaintDays: Boolean = false,
+    val showCommemorativeDates: Boolean = false,
+    val showEvents: Boolean = false,
+    val showTasks: Boolean = false // Importante para filtrar tarefas
 )
 
 // Classe de estado principal da UI
