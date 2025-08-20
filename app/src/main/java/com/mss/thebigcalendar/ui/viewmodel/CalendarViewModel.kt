@@ -93,7 +93,9 @@ class CalendarViewModel : ViewModel() {
         val tasks = currentUiStateValue.activities.filter { activity ->
             activity.activityType == ActivityType.TASK &&
                     LocalDate.parse(activity.date).isEqual(selectedDate)
-        }.sortedBy { it.startTime ?: LocalTime.MIN }
+        }.sortedWith(compareByDescending<Activity> {
+            it.categoryColor?.toIntOrNull() ?: 0
+        }.thenBy { it.startTime ?: LocalTime.MIN })
         _uiState.update { it.copy(tasksForSelectedDate = tasks) }
     }
 
