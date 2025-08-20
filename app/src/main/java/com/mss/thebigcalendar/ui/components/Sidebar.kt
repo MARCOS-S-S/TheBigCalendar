@@ -31,9 +31,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
+import com.mss.thebigcalendar.R
+
 
 private val filterItems = listOf(
     "showHolidays" to "Feriados nacionais",
@@ -169,13 +172,13 @@ fun Sidebar(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             NavigationDrawerItem(
-                label = { Text("Fazer Backup") },
+                label = { Text(stringResource(id = R.string.do_backup)) },
                 icon = { Icon(Icons.Outlined.Backup, contentDescription = null) },
                 selected = false,
                 onClick = onBackup
             )
             NavigationDrawerItem(
-                label = { Text("Restaurar Backup") },
+                label = { Text(stringResource(id = R.string.restore_backup)) },
                 icon = { Icon(Icons.Outlined.Restore, contentDescription = null) },
                 selected = false,
                 onClick = onRestore

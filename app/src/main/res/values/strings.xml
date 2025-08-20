@@ -9,4 +9,66 @@
     <string name="create_activity_modal_new_event"> New Event</string>
     <string name="create_activity_modal_edit_event"> Edit Event</string>
 
+    <!-- CreateActivityModal.kt -->
+    <string name="priority">Prioridade:</string>
+
+    <!-- Sidebar.kt -->
+    <string name="national_holidays">Feriados nacionais</string>
+    <string name="catholic_saint_days">Dias de Santos Católicos</string>
+    <string name="commemorative_dates">Datas comemorativas</string>
+    <string name="events">Eventos</string>
+    <string name="tasks">Tarefas</string>
+    <string name="close_menu">Fechar menu</string>
+    <string name="dark_mode">Modo escuro</string>
+    <string name="light_mode">Modo claro</string>
+    <string name="visualization">Visualização</string>
+    <string name="monthly">Mensal</string>
+    <string name="yearly">Anual</string>
+    <string name="show_on_calendar">Mostrar no Calendário</string>
+    <string name="settings">Configurações</string>
+    <string name="general">Geral</string>
+    <string name="backup_and_restore">Backup e Restauração</string>
+    <string name="do_backup">Backup</string>
+    <string name="restore_backup">Restaurar</string>
+
+    <!-- TasksForSelectedDaySection.kt -->
+    <string name="date_format_day_month">dd \'de\' MMMM</string>
+    <string name="appointments_for">Agendamentos para</string>
+    <string name="no_appointments">Mó paz.</string>
+    <string name="at_time">Às</string>
+
+    <!-- YearlyCalendarView.kt -->
+    <string name="previous_year">Ano Anterior</string>
+    <string name="next_year">Próximo Ano</string>
+
+    <!-- CalendarScreen.kt -->
+    <string name="month_year_separator"> de </string>
+    <string name="open_close_menu">Abrir/Fechar menu</string>
+    <string name="previous_month">Mês Anterior</string>
+    <string name="next_month">Próximo Mês</string>
+    <string name="add_appointment">Adicionar Agendamento</string>
+
+    <!-- HolidayRepository.kt -->
+    <string name="new_year">Confraternização Universal</string>
+    <string name="carnival">Carnaval (Ponto Facultativo Nacional)</string>
+    <string name="good_friday">Sexta-feira Santa</string>
+    <string name="tiradentes">Tiradentes</string>
+    <string name="labor_day">Dia do Trabalho</string>
+    <string name="corpus_christi">Corpus Christi (Ponto Facultativo Nacional)</string>
+    <string name="independence_day">Independência do Brasil</string>
+    <string name="our_lady_of_aparecida">Nossa Senhora Aparecida</string>
+    <string name="all_souls_day">Finados</string>
+    <string name="republic_proclamation_day">Proclamação da República</string>
+    <string name="christmas">Natal</string>
+    <string name="saint_mary_mother_of_god">Santa Maria, Mãe de Deus</string>
+    <string name="saint_anthony_abbot">Santo Antão, abade</string>
+    <string name="saint_sebastian_martyr">São Sebastião, mártir</string>
+    <string name="saint_agnes_virgin_and_martyr">Santa Inês, virgem e mártir</string>
+    <string name="international_womens_day">Dia Internacional da Mulher</string>
+    <string name="mothers_day">Dia das Mães</string>
+    <string name="valentines_day">Dia dos Namorados</string>
+    <string name="friends_day">Dia do Amigo</string>
+    <string name="fathers_day">Dia dos Pais</string>
+    <string name="childrens_day">Dia das Crianças</string>
+
 </resources>
