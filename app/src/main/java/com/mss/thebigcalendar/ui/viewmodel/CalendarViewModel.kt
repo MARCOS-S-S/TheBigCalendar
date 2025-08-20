@@ -20,6 +20,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
 import java.util.UUID
+import kotlin.comparisons.*
 
 class CalendarViewModel : ViewModel() {
 
@@ -73,7 +74,7 @@ class CalendarViewModel : ViewModel() {
             val tasksForThisDay = currentActivities.filter { activity ->
                 activity.activityType == ActivityType.TASK &&
                         LocalDate.parse(activity.date).isEqual(date)
-            }
+            }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
             CalendarDay(
                 date = date,
                 isCurrentMonth = date.month == currentYearMonth.month,
@@ -93,9 +94,8 @@ class CalendarViewModel : ViewModel() {
         val tasks = currentUiStateValue.activities.filter { activity ->
             activity.activityType == ActivityType.TASK &&
                     LocalDate.parse(activity.date).isEqual(selectedDate)
-        }.sortedWith(compareByDescending<Activity> {
-            it.categoryColor?.toIntOrNull() ?: 0
-        }.thenBy { it.startTime ?: LocalTime.MIN })
+        }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }
+            .thenBy { it.startTime ?: LocalTime.MIN })
         _uiState.update { it.copy(tasksForSelectedDate = tasks) }
     }
 
