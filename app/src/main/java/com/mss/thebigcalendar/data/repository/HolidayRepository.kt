@@ -7,28 +7,18 @@ class HolidayRepository {
 
     fun getNationalHolidays(): List<Holiday> {
         return listOf(
-            Holiday("Confraternização Universal", "2024-01-01", HolidayType.NATIONAL),
-            Holiday("Carnaval (Ponto Facultativo Nacional)", "2024-02-13", HolidayType.NATIONAL),
-            Holiday("Sexta-feira Santa", "2024-03-29", HolidayType.NATIONAL),
-            Holiday("Tiradentes", "2024-04-21", HolidayType.NATIONAL),
-            Holiday("Dia do Trabalho", "2024-05-01", HolidayType.NATIONAL),
-            Holiday("Corpus Christi (Ponto Facultativo Nacional)", "2024-05-30", HolidayType.NATIONAL),
-            Holiday("Independência do Brasil", "2024-09-07", HolidayType.NATIONAL),
-            Holiday("Nossa Senhora Aparecida", "2024-10-12", HolidayType.NATIONAL),
-            Holiday("Finados", "2024-11-02", HolidayType.NATIONAL),
-            Holiday("Proclamação da República", "2024-11-15", HolidayType.NATIONAL),
-            Holiday("Natal", "2024-12-25", HolidayType.NATIONAL),
-
             Holiday("Confraternização Universal", "2025-01-01", HolidayType.NATIONAL),
-            Holiday("Carnaval (Ponto Facultativo Nacional)", "2025-03-04", HolidayType.NATIONAL),
-            Holiday("Sexta-feira Santa", "2025-04-18", HolidayType.NATIONAL),
+            Holiday("Carnaval", "2025-03-03", HolidayType.NATIONAL),
+            Holiday("Carnaval", "2025-03-04", HolidayType.NATIONAL),
+            Holiday("Paixão de Cristo", "2025-04-18", HolidayType.NATIONAL),
             Holiday("Tiradentes", "2025-04-21", HolidayType.NATIONAL),
             Holiday("Dia do Trabalho", "2025-05-01", HolidayType.NATIONAL),
-            Holiday("Corpus Christi (Ponto Facultativo Nacional)", "2025-06-19", HolidayType.NATIONAL),
+            Holiday("Corpus Christi", "2025-06-19", HolidayType.NATIONAL),
             Holiday("Independência do Brasil", "2025-09-07", HolidayType.NATIONAL),
-            Holiday("Nossa Senhora Aparecida", "2025-10-12", HolidayType.NATIONAL),
+            Holiday("Nossa Sr.a Aparecida - Padroeira do Brasil", "2025-10-12", HolidayType.NATIONAL),
             Holiday("Finados", "2025-11-02", HolidayType.NATIONAL),
             Holiday("Proclamação da República", "2025-11-15", HolidayType.NATIONAL),
+            Holiday("Dia Nacional de Zumbi e da Consciência Negra", "2025-11-20", HolidayType.NATIONAL),
             Holiday("Natal", "2025-12-25", HolidayType.NATIONAL)
         )
     }

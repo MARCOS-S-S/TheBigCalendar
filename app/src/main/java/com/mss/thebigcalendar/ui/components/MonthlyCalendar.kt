@@ -2,6 +2,7 @@ package com.mss.thebigcalendar.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,13 +34,17 @@ import com.mss.thebigcalendar.data.model.Activity
 import androidx.compose.foundation.layout.size // Para Modifier.size()
 import androidx.compose.foundation.layout.width  // Para Modifier.width()
 import androidx.compose.ui.graphics.computeHorizontalBounds
+import androidx.compose.ui.graphics.computeHorizontalBounds
 
+
+import androidx.compose.foundation.isSystemInDarkTheme
 
 @Composable
 fun MonthlyCalendar(
     modifier: Modifier = Modifier,
     calendarDays: List<CalendarDay>,
-    onDateSelected: (LocalDate) -> Unit
+    onDateSelected: (LocalDate) -> Unit,
+    theme: com.mss.thebigcalendar.data.model.Theme
 ) {
     val weekDayAbbreviations = getWeekDayAbbreviations()
 
@@ -69,7 +74,8 @@ fun MonthlyCalendar(
                         Box(modifier = Modifier.weight(1f)) {
                             DayCell(
                                 day = day,
-                                onDateSelected = onDateSelected
+                                onDateSelected = onDateSelected,
+                                theme = theme
                             )
                         }
                     }
@@ -84,7 +90,8 @@ fun MonthlyCalendar(
 private fun DayCell(
     day: CalendarDay,
     onDateSelected: (LocalDate) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    theme: com.mss.thebigcalendar.data.model.Theme
 ) {
     val cellModifier = modifier
         .padding(1.dp)
@@ -114,6 +121,12 @@ private fun DayCell(
             else MaterialTheme.typography.bodySmall,
             color = when {
                 day.isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
+                day.isSaintDay -> when (theme) {
+                    com.mss.thebigcalendar.data.model.Theme.DARK -> Color.Yellow
+                    com.mss.thebigcalendar.data.model.Theme.LIGHT -> Color.Blue
+                    com.mss.thebigcalendar.data.model.Theme.SYSTEM -> if (isSystemInDarkTheme()) Color.Yellow else Color.Blue
+                }
+                day.isWeekend || day.isNationalHoliday -> MaterialTheme.colorScheme.primary
                 day.isCurrentMonth -> MaterialTheme.colorScheme.onSurface
                 else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
             },

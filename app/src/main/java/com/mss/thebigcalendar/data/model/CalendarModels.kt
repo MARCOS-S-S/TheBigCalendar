@@ -32,7 +32,10 @@ data class CalendarDay(
     val isCurrentMonth: Boolean,
     val isSelected: Boolean = false,
     val tasks: List<Activity> = emptyList(), // NOVO: Lista de tarefas para este dia
-    val holiday: Holiday? = null
+    val holiday: Holiday? = null,
+    val isWeekend: Boolean = false,
+    val isNationalHoliday: Boolean = false,
+    val isSaintDay: Boolean = false
 )
 
 // Definição da classe de filtros
@@ -67,7 +70,7 @@ data class CalendarUiState(
     val saintDaysForSelectedDate: List<Holiday> = emptyList()
 )
 
-enum class Theme { LIGHT, DARK }
+enum class Theme { LIGHT, DARK, SYSTEM }
 enum class ViewMode { MONTHLY, YEARLY }
 enum class HolidayType { NATIONAL, COMMEMORATIVE, SAINT }
 data class Holiday(val name: String, val date: String, val type: HolidayType)

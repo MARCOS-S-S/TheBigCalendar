@@ -1,6 +1,7 @@
 package com.mss.thebigcalendar.ui.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -86,12 +87,16 @@ fun Sidebar(
                     .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
                 Text(
-                    text = if (uiState.theme == Theme.LIGHT) "Modo escuro" else "Modo claro",
+                    text = stringResource(id = R.string.sidebar_change_theme),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Switch(
-                    checked = uiState.theme == Theme.DARK,
+                    checked = when (uiState.theme) {
+                        Theme.LIGHT -> false
+                        Theme.DARK -> true
+                        Theme.SYSTEM -> isSystemInDarkTheme()
+                    },
                     onCheckedChange = { isChecked ->
                         onThemeChange(if (isChecked) Theme.DARK else Theme.LIGHT)
                     }

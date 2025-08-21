@@ -27,7 +27,7 @@ class CalendarViewModel : ViewModel() {
     // Supondo que HolidayRepository exista.
     private val holidayRepository = HolidayRepository()
 
-    private val _uiState = MutableStateFlow(CalendarUiState())
+    private val _uiState = MutableStateFlow(CalendarUiState(theme = Theme.SYSTEM))
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
     init {
@@ -78,12 +78,22 @@ class CalendarViewModel : ViewModel() {
                 null
             }
 
+            val saintDayForThisDay = if (currentUiStateValue.filterOptions.showSaintDays) {
+                val monthDay = date.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd"))
+                currentUiStateValue.saintDays[monthDay]
+            } else {
+                null
+            }
+
             CalendarDay(
                 date = date,
                 isCurrentMonth = date.month == currentYearMonth.month,
                 isSelected = date.isEqual(currentSelectedDate),
                 tasks = tasksForThisDay,
-                holiday = holidayForThisDay
+                holiday = holidayForThisDay ?: saintDayForThisDay,
+                isWeekend = date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY,
+                isNationalHoliday = holidayForThisDay?.type == com.mss.thebigcalendar.data.model.HolidayType.NATIONAL,
+                isSaintDay = saintDayForThisDay != null
             )
         }
         _uiState.update { it.copy(calendarDays = newCalendarDays) }

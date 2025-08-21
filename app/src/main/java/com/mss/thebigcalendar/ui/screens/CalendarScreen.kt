@@ -1,5 +1,6 @@
 package com.mss.thebigcalendar.ui.screens
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -83,7 +84,11 @@ fun CalendarScreen(
         }
     }
 
-    TheBigCalendarTheme(darkTheme = uiState.theme == Theme.DARK) {
+    TheBigCalendarTheme(darkTheme = when (uiState.theme) {
+        Theme.LIGHT -> false
+        Theme.DARK -> true
+        Theme.SYSTEM -> isSystemInDarkTheme()
+    }) {
         ModalNavigationDrawer(
             // ... (configuração do ModalNavigationDrawer) ...
             drawerState = drawerState,
@@ -185,7 +190,8 @@ fun CalendarScreen(
                                             .fillMaxWidth()
                                             .padding(horizontal = 8.dp, vertical = 16.dp),
                                         calendarDays = uiState.calendarDays,
-                                        onDateSelected = { date -> viewModel.onDateSelected(date) }
+                                        onDateSelected = { date -> viewModel.onDateSelected(date) },
+                                        theme = uiState.theme
                                     )
                                 }
                                 item {
