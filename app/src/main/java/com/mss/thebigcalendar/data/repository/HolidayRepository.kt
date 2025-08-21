@@ -35,10 +35,96 @@ class HolidayRepository {
 
     fun getSaintDays(): List<Holiday> {
         return listOf(
-            Holiday("Santa Maria, Mãe de Deus", "01-01", HolidayType.SAINT),
-            Holiday("Santo Antão, abade", "01-17", HolidayType.SAINT),
-            Holiday("São Sebastião, mártir", "01-20", HolidayType.SAINT),
-            Holiday("Santa Inês, virgem e mártir", "01-21", HolidayType.SAINT)
+            Holiday("Nossa Senhora da Defesa", "01-18", HolidayType.SAINT),
+            Holiday("São Sebastião", "01-20", HolidayType.SAINT),
+            Holiday("Santa Inês", "01-21", HolidayType.SAINT),
+            Holiday("Dom Bosco", "01-31", HolidayType.SAINT),
+
+            Holiday("São Braz", "02-03", HolidayType.SAINT),
+            Holiday("Santa Josefina Bakhita", "02-08", HolidayType.SAINT),
+            Holiday("Santa Apolônia", "02-09", HolidayType.SAINT),
+            Holiday("Nossa Senhora de Lourdes", "02-11", HolidayType.SAINT),
+
+            Holiday("São Longuinho", "03-15", HolidayType.SAINT),
+            Holiday("São José", "03-19", HolidayType.SAINT),
+
+            Holiday("Santo Expedito", "04-19", HolidayType.SAINT),
+            Holiday("São Jorge", "04-23", HolidayType.SAINT),
+            Holiday("São Marcos", "04-25", HolidayType.SAINT),
+
+            Holiday("São José Carpinteiro", "05-01", HolidayType.SAINT),
+            Holiday("São Peregrino", "05-04", HolidayType.SAINT),
+            Holiday("Nossa Senhora de Fátima", "05-13", HolidayType.SAINT),
+            Holiday("Santo Ivo", "05-19", HolidayType.SAINT),
+            Holiday("Santa Rita", "05-22", HolidayType.SAINT),
+
+            Holiday("Santo Antônio", "06-13", HolidayType.SAINT),
+            Holiday("São João Batista", "06-24", HolidayType.SAINT),
+            Holiday("São Paulo", "06-29", HolidayType.SAINT),
+            Holiday("São Pedro", "06-29", HolidayType.SAINT),
+
+            Holiday("Santa Isabel", "07-04", HolidayType.SAINT),
+            Holiday("Santa Paulina", "07-09", HolidayType.SAINT),
+            Holiday("São Bento", "07-11", HolidayType.SAINT),
+            Holiday("Santa Verônica", "07-12", HolidayType.SAINT),
+            Holiday("Nossa Senhora da Rosa Mística", "07-13", HolidayType.SAINT),
+            Holiday("São Camilo de Lellis", "07-14", HolidayType.SAINT),
+            Holiday("Nossa Senhora do Carmo", "07-16", HolidayType.SAINT),
+            Holiday("São Cristovão", "07-25", HolidayType.SAINT),
+            Holiday("Santa Ana", "07-26", HolidayType.SAINT),
+            Holiday("Santa Marta", "07-29", HolidayType.SAINT),
+            Holiday("São Lazaro", "07-29", HolidayType.SAINT),
+
+            Holiday("Santa Clara", "08-11", HolidayType.SAINT),
+            Holiday("Santa Filomena", "08-11", HolidayType.SAINT),
+            Holiday("Nossa Senhora da Assunção", "08-15", HolidayType.SAINT),
+            Holiday("Nossa Senhora do Sorriso", "08-15", HolidayType.SAINT),
+            Holiday("São Roque", "08-16", HolidayType.SAINT),
+            Holiday("Santa Helena", "08-18", HolidayType.SAINT),
+            Holiday("Santa Mônica", "08-27", HolidayType.SAINT),
+            Holiday("Santo Agostinho", "08-28", HolidayType.SAINT),
+            Holiday("Santa Rosa de Lima", "08-30", HolidayType.SAINT),
+
+            Holiday("Santa Rosália", "09-04", HolidayType.SAINT),
+            Holiday("Nossa Senhora da Piedade", "09-15", HolidayType.SAINT),
+            Holiday("Nossa Senhora das Angústias", "09-15", HolidayType.SAINT),
+            Holiday("Nossa Senhora das Dores", "09-15", HolidayType.SAINT),
+            Holiday("Nossa Senhora do Calvário", "09-15", HolidayType.SAINT),
+            Holiday("Nossa Senhora do Pranto", "09-15", HolidayType.SAINT),
+            Holiday("Nossa Senhora da Salete", "09-19", HolidayType.SAINT),
+            Holiday("São Mateus", "09-21", HolidayType.SAINT),
+            Holiday("Padre Pio", "09-23", HolidayType.SAINT),
+            Holiday("Nossa Senhora das Mercês", "09-24", HolidayType.SAINT),
+            Holiday("São Cosme e São Damião", "09-26", HolidayType.SAINT),
+            Holiday("São Cosme e Damião", "09-26", HolidayType.SAINT),
+            Holiday("São Miguel", "09-29", HolidayType.SAINT),
+            Holiday("São Rafael", "09-29", HolidayType.SAINT),
+            Holiday("São Gabriel", "09-29", HolidayType.SAINT),
+
+            Holiday("Santa Teresa", "10-01", HolidayType.SAINT),
+            Holiday("Anjo da Guarda", "10-02", HolidayType.SAINT),
+            Holiday("São Francisco de Assis", "10-04", HolidayType.SAINT),
+            Holiday("São Benedito", "10-05", HolidayType.SAINT),
+            Holiday("Nossa Senhora do Rosário", "10-07", HolidayType.SAINT),
+            Holiday("Nossa Senhora Aparecida", "10-12", HolidayType.SAINT),
+            Holiday("Nossa Senhora de Nazaré", "10-12", HolidayType.SAINT),
+            Holiday("Santa Edwiges", "10-16", HolidayType.SAINT),
+            Holiday("São Geraldo", "10-16", HolidayType.SAINT),
+            Holiday("São Lucas", "10-18", HolidayType.SAINT),
+            Holiday("Frei Galvão", "10-25", HolidayType.SAINT),
+            Holiday("São Judas Tadeu", "10-28", HolidayType.SAINT),
+
+            Holiday("Santa Cecília", "11-22", HolidayType.SAINT),
+            Holiday("Santa Catarina", "11-25", HolidayType.SAINT),
+            Holiday("Nossa Senhora das Graças", "11-27", HolidayType.SAINT),
+            Holiday("Santo André", "11-30", HolidayType.SAINT),
+
+            Holiday("Santa Barbara", "12-04", HolidayType.SAINT),
+            Holiday("Nossa Senhora da Conceição", "12-08", HolidayType.SAINT),
+            Holiday("Nossa Senhora Imaculada Conceição", "12-08", HolidayType.SAINT),
+            Holiday("Nossa Senhora de Guadalupe", "12-12", HolidayType.SAINT),
+            Holiday("Santa Luzia", "12-13", HolidayType.SAINT),
+            Holiday("São João", "12-27", HolidayType.SAINT)
         )
     }
 

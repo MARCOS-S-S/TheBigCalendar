@@ -66,8 +66,7 @@ class CalendarViewModel : ViewModel() {
         val newCalendarDays = List(42) { i ->
             val date = gridStartDate.plusDays(i.toLong())
             val tasksForThisDay = currentActivities.filter { activity ->
-                activity.activityType == ActivityType.TASK &&
-                        LocalDate.parse(activity.date).isEqual(date)
+                LocalDate.parse(activity.date).isEqual(date)
             }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
             
             val holidayForThisDay = if (currentUiStateValue.filterOptions.showHolidays) {
@@ -94,11 +93,10 @@ class CalendarViewModel : ViewModel() {
         val currentUiStateValue = _uiState.value
         val selectedDate = currentUiStateValue.selectedDate
         val tasks = currentUiStateValue.activities.filter { activity ->
-            activity.activityType == ActivityType.TASK &&
-                    LocalDate.parse(activity.date).isEqual(selectedDate)
+            LocalDate.parse(activity.date).isEqual(selectedDate)
         }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }
             .thenBy { it.startTime ?: LocalTime.MIN })
-        
+
         _uiState.update { it.copy(tasksForSelectedDate = tasks) }
     }
 

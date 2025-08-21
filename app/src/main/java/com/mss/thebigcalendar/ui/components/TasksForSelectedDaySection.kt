@@ -49,7 +49,6 @@ fun TasksForSelectedDaySection(
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            // ATUALIZADO: Removido Arrangement.SpaceBetween para que o título possa centralizar ou alinhar à esquerda
             // horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -65,7 +64,6 @@ fun TasksForSelectedDaySection(
                 text = "Mó paz.",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
                     .padding(vertical = 16.dp)
             )
             // Você poderia adicionar um botão "Adicionar Tarefa" aqui se quisesse,
