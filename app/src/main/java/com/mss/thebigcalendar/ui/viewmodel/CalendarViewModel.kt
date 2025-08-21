@@ -34,16 +34,19 @@ class CalendarViewModel : ViewModel() {
         updateCalendarDays()
         updateTasksForSelectedDate()
         updateHolidaysForSelectedDate()
+        updateSaintDaysForSelectedDate()
         loadInitialData()
     }
 
     private fun loadInitialData() {
         viewModelScope.launch {
             val nationalHolidaysList = holidayRepository.getNationalHolidays()
+            val saintDaysList = holidayRepository.getSaintDays()
 
             _uiState.update { currentState ->
                 currentState.copy(
                     nationalHolidays = nationalHolidaysList.associateBy { LocalDate.parse(it.date) },
+                    saintDays = saintDaysList.associateBy { it.date } // MM-dd -> Holiday
                 )
             }
             updateCalendarDays()
@@ -110,6 +113,17 @@ class CalendarViewModel : ViewModel() {
         _uiState.update { it.copy(holidaysForSelectedDate = holidays) }
     }
 
+    private fun updateSaintDaysForSelectedDate() {
+        val currentUiStateValue = _uiState.value
+        val selectedDate = currentUiStateValue.selectedDate
+        val saints = mutableListOf<Holiday>()
+        if (currentUiStateValue.filterOptions.showSaintDays) {
+            val monthDay = selectedDate.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd"))
+            currentUiStateValue.saintDays[monthDay]?.let { saints.add(it) }
+        }
+        _uiState.update { it.copy(saintDaysForSelectedDate = saints) }
+    }
+
     // --- MÉTODOS PÚBLICOS (EVENTOS VINDOS DA UI) ---
 
     fun onPreviousMonth() {
@@ -117,6 +131,7 @@ class CalendarViewModel : ViewModel() {
         updateCalendarDays()
         updateTasksForSelectedDate()
         updateHolidaysForSelectedDate()
+        updateSaintDaysForSelectedDate()
     }
 
     fun onNextMonth() {
@@ -124,6 +139,7 @@ class CalendarViewModel : ViewModel() {
         updateCalendarDays()
         updateTasksForSelectedDate()
         updateHolidaysForSelectedDate()
+        updateSaintDaysForSelectedDate()
     }
 
     fun onPreviousYear() {
@@ -156,6 +172,7 @@ class CalendarViewModel : ViewModel() {
         updateCalendarDays()
         updateTasksForSelectedDate()
         updateHolidaysForSelectedDate()
+        updateSaintDaysForSelectedDate()
 
         if (shouldOpenModal) {
             // Decidimos se abrimos para criar evento ou tarefa baseado em algum critério
@@ -176,6 +193,7 @@ class CalendarViewModel : ViewModel() {
         updateCalendarDays()
         updateTasksForSelectedDate()
         updateHolidaysForSelectedDate()
+        updateSaintDaysForSelectedDate()
     }
 
     fun onViewModeChange(newMode: ViewMode) {
@@ -194,10 +212,11 @@ class CalendarViewModel : ViewModel() {
         }
         _uiState.update { it.copy(filterOptions = newFilters) }
         // Re-filtrar os dias do calendário e tarefas do dia se a visibilidade das tarefas mudar
-        if (key == "showTasks" || key == "showEvents" || key == "showHolidays") { // Adicione outros filtros se necessário
+        if (key == "showTasks" || key == "showEvents" || key == "showHolidays" || key == "showSaintDays") { // Adicione outros filtros se necessário
             updateCalendarDays()
             updateTasksForSelectedDate()
-        updateHolidaysForSelectedDate()
+            updateHolidaysForSelectedDate()
+            updateSaintDaysForSelectedDate()
         }
     }
 
@@ -229,7 +248,8 @@ class CalendarViewModel : ViewModel() {
             }
             updateCalendarDays()
             updateTasksForSelectedDate()
-        updateHolidaysForSelectedDate()
+            updateHolidaysForSelectedDate()
+            updateSaintDaysForSelectedDate()
         }
     }
 
@@ -244,7 +264,8 @@ class CalendarViewModel : ViewModel() {
             }
             updateCalendarDays()
             updateTasksForSelectedDate()
-        updateHolidaysForSelectedDate()
+            updateHolidaysForSelectedDate()
+            updateSaintDaysForSelectedDate()
         }
     }
 

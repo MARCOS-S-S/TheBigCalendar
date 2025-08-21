@@ -39,6 +39,7 @@ import com.mss.thebigcalendar.ui.components.HolidaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.MonthlyCalendar
 import com.mss.thebigcalendar.ui.components.Sidebar
 import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection
+import com.mss.thebigcalendar.ui.components.SaintDaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.YearlyCalendarView
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
@@ -212,6 +213,16 @@ fun CalendarScreen(
                                                 .fillMaxWidth()
                                                 .padding(horizontal = 8.dp, vertical = 8.dp),
                                             holidays = uiState.holidaysForSelectedDate
+                                        )
+                                    }
+                                }
+                                if (uiState.saintDaysForSelectedDate.isNotEmpty()) {
+                                    item {
+                                        SaintDaysForSelectedDaySection(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 8.dp, vertical = 8.dp),
+                                            saints = uiState.saintDaysForSelectedDate
                                         )
                                     }
                                 }
