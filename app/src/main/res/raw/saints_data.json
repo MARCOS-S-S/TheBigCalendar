@@ -1,0 +1,428 @@
+[
+    {
+        "name": "Nossa Senhora da Defesa",
+        "date": "01-18",
+        "summary": "A devoção a Nossa Senhora da Defesa (ou Notre-Dame de la Défense) tem origem na França e se popularizou em várias partes do mundo. O título remete à proteção da Virgem Maria em momentos de perigo, como guerras, epidemias e calamidades. Ela é invocada como a defensora dos fiéis, aquela que intercede e protege seus filhos contra todos os males.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_da_Defesa"
+    },
+    {
+        "name": "São Sebastião",
+        "date": "01-20",
+        "summary": "Sebastião foi um soldado romano que, secretamente, era cristão. Ele usava sua posição para apoiar outros cristãos presos e converter pagãos. Ao ser descoberto, o Imperador Diocleciano ordenou sua execução por flechas. Ele sobreviveu, foi cuidado por Santa Irene, e reapresentou-se ao imperador para criticá-lo por sua crueldade, sendo então açoitado até a morte. É conhecido como protetor contra a fome, a peste e a guerra.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/S%C3%A3o_Sebasti%C3%A3o"
+    },
+    {
+        "name": "Santa Inês",
+        "date": "01-21",
+        "summary": "Inês foi uma jovem nobre romana que, aos 12 anos, consagrou sua virgindade a Deus. Rejeitando a proposta de casamento do filho do prefeito de Roma, foi denunciada como cristã. Foi submetida a diversas humilhações, incluindo ser exposta nua em um prostíbulo, mas sua fé a protegeu milagrosamente. Por fim, foi martirizada por decapitação. É a padroeira da pureza e das virgens.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Santa_In%C3%AAs"
+    },
+    {
+        "name": "Dom Bosco",
+        "date": "01-31",
+        "summary": "João Bosco, conhecido como Dom Bosco, foi um sacerdote italiano fundador da Congregação Salesiana. Dedicou sua vida à educação e evangelização de jovens pobres e abandonados em Turim, utilizando um método educativo baseado no amor, na razão e na religião. Sua obra se espalhou pelo mundo, com escolas, oratórios e centros de formação profissional.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Dom_Bosco"
+    },
+    {
+        "name": "São Braz",
+        "date": "02-03",
+        "summary": "Brás foi um médico e bispo de Sebaste, na Armênia. Durante a perseguição aos cristãos, viveu como eremita em uma caverna. É conhecido pelo milagre de ter curado uma criança que estava engasgada com uma espinha de peixe. Por isso, é invocado como o protetor contra as doenças da garganta. Foi preso e martirizado.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Br%C3%A1s_de_Sebaste"
+    },
+    {
+        "name": "Santa Josefina Bakhita",
+        "date": "02-08",
+        "summary": "Nascida no Sudão, Bakhita foi sequestrada e vendida como escrava ainda criança, sofrendo violências indescritíveis. Após ser comprada por um cônsul italiano, foi levada para a Itália, onde conheceu a fé cristã e lutou por sua liberdade. Tornou-se freira canossiana e viveu o resto de sua vida em serviço, sendo um exemplo de perdão e esperança.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Josefina_Bakhita"
+    },
+    {
+        "name": "Santa Apolônia",
+        "date": "02-09",
+        "summary": "Apolônia foi uma virgem consagrada de Alexandria, no Egito, que foi martirizada durante um levante contra os cristãos. Antes de ser queimada viva, teve todos os seus dentes violentamente arrancados. Por essa razão, é venerada como a padroeira dos dentistas e daqueles que sofrem de dor de dente.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Apol%C3%B4nia_de_Alexandria"
+    },
+    {
+        "name": "Nossa Senhora de Lourdes",
+        "date": "02-11",
+        "summary": "Em 1858, a Virgem Maria apareceu 18 vezes para uma jovem camponesa chamada Bernadette Soubirous, em uma gruta em Lourdes, na França. Apresentando-se como a \"Imaculada Conceição\", Maria pediu oração e penitência pela conversão dos pecadores e fez brotar uma fonte de água milagrosa no local. Lourdes se tornou um dos maiores centros de peregrinação do mundo.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_de_Lourdes"
+    },
+    {
+        "name": "São Longuinho",
+        "date": "03-15",
+        "summary": "Longuinho (Longinus) é o nome tradicionalmente atribuído ao soldado romano que perfurou o lado de Jesus com uma lança durante a crucificação. Segundo a tradição, ele sofria de uma doença nos olhos e foi curado pelo sangue e água que jorraram do corpo de Cristo. Converteu-se, abandonou o exército e tornou-se monge, sendo posteriormente martirizado.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Longinus"
+    },
+    {
+        "name": "São José",
+        "date": "03-19",
+        "summary": "Esposo da Virgem Maria e pai adotivo de Jesus, São José é descrito nos Evangelhos como um \"homem justo\". Carpinteiro de profissão, foi o guardião da Sagrada Família, protegendo Jesus e Maria com sua vida e trabalho. É venerado como o padroeiro da Igreja Universal, dos trabalhadores e das famílias.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Jos%C3%A9_de_Nazar%C3%A9"
+    },
+    {
+        "name": "Santo Expedito",
+        "date": "04-19",
+        "summary": "Expedito teria sido um comandante de uma legião romana na Armênia. Vivendo uma vida devassa, um dia foi tocado pela graça de Deus e decidiu se converter. Segundo a lenda, o espírito do mal apareceu em forma de corvo, grasnando \"cras, cras\" (amanhã, em latim), para que ele adiasse sua conversão. Expedito pisoteou o corvo, dizendo \"hodie\" (hoje), simbolizando sua decisão imediata. Por isso, é o santo das causas urgentes. Foi martirizado por sua fé.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Santo_Expedito"
+    },
+    {
+        "name": "São Jorge",
+        "date": "04-23",
+        "summary": "Jorge foi um soldado romano de alta patente que, durante a perseguição de Diocleciano, se recusou a renunciar à sua fé cristã. Foi torturado de várias formas, mas não cedeu, sendo finalmente decapitado. A famosa lenda em que ele mata um dragão para salvar uma princesa é uma alegoria da vitória da fé sobre o mal.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/S%C3%A3o_Jorge"
+    },
+    {
+        "name": "São Marcos",
+        "date": "04-25",
+        "summary": "Marcos é o autor de um dos quatro Evangelhos e discípulo dos apóstolos Pedro e Paulo. Embora não fosse um dos Doze, sua convivência com eles, especialmente com Pedro, foi fundamental para escrever seu relato da vida de Jesus. Tradicionalmente, é considerado o fundador da Igreja de Alexandria, no Egito, onde foi martirizado.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Marcos,_o_Evangelista"
+    },
+    {
+        "name": "São José Carpinteiro",
+        "date": "05-01",
+        "summary": "Esta festa foi instituída pelo Papa Pio XII em 1955 para dar um sentido cristão ao Dia do Trabalho, sob o título de \"São José Operário\". Honra São José em sua profissão de carpinteiro, destacando a dignidade do trabalho humano como forma de colaboração com a obra criadora de Deus. São José é apresentado como modelo e protetor de todos os trabalhadores.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/S%C3%A3o_Jos%C3%A9_Oper%C3%A1rio"
+    },
+    {
+        "name": "São Peregrino",
+        "date": "05-04",
+        "summary": "Peregrino Laziosi, quando jovem, era anticlerical e chegou a agredir São Filipe Benizi. Arrependido, ingressou na Ordem dos Servos de Maria. Mais tarde, desenvolveu um câncer em sua perna, e os médicos decidiram pela amputação. Na noite anterior à cirurgia, ele passou horas em oração diante de um crucifixo e, ao acordar, estava completamente curado. Tornou-se o santo protetor contra o câncer e doenças das pernas.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Peregrino_Laziosi"
+    },
+    {
+        "name": "Nossa Senhora de Fátima",
+        "date": "05-13",
+        "summary": "Em 1917, a Virgem Maria apareceu a três crianças pastoras — Lúcia, Francisco e Jacinta — em Fátima, Portugal. Em suas aparições, ela pediu a oração do terço pela paz no mundo, a conversão dos pecadores e a consagração da Rússia ao seu Imaculado Coração. A mensagem de Fátima é um dos pilares da devoção mariana moderna.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_de_F%C3%A1tima"
+    },
+    {
+        "name": "Santo Ivo",
+        "date": "05-19",
+        "summary": "Ivo de Kermartin foi um sacerdote e juiz na Bretanha (França) no século XIII. Ficou conhecido como o \"advogado dos pobres\" por sua incansável defesa dos menos favorecidos nos tribunais, muitas vezes pagando as custas processuais do próprio bolso. Sua vida foi marcada pela caridade, justiça e integridade, tornando-se o padroeiro dos advogados, juízes e da magistratura.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Ivo_de_Kermartin"
+    },
+    {
+        "name": "Santa Rita",
+        "date": "05-22",
+        "summary": "Rita desejou ser freira desde jovem, mas foi obrigada a se casar. Viveu um casamento infeliz com um marido violento, que ela converteu com sua paciência e oração. Após o assassinato do marido e a morte dos filhos, conseguiu entrar para o convento agostiniano. É conhecida como a \"santa das causas impossíveis\" devido aos muitos milagres atribuídos à sua intercessão e por ter recebido um estigma na testa, a marca de um espinho da coroa de Cristo.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Rita_de_C%C3%A1ssia"
+    },
+    {
+        "name": "Santo Antônio",
+        "date": "06-13",
+        "summary": "Nascido em Lisboa, Fernando de Bulhões tornou-se um frade franciscano com o nome de Antônio. Foi um grande teólogo e pregador, com um profundo conhecimento das Escrituras. Sua capacidade de explicar a fé de forma simples e clara atraía multidões. É popularmente conhecido como \"santo casamenteiro\", mas também é invocado para encontrar objetos perdidos.",
+        "wikipediaLink": "https://www.google.com/search?q=https://pt.wikipedia.org/wiki/Ant%25C3%25B3nio_de_Lisboa"
+    },
+    {
+        "name": "São João Batista",
+        "date": "06-24",
+        "summary": "João Batista foi o precursor de Jesus, aquele que anunciou a vinda do Messias. Filho de Zacarias e Isabel, viveu no deserto em penitência e pregava um batismo de conversão. Ele batizou Jesus no rio Jordão. Sua vida terminou com o martírio, decapitado a pedido de Herodíades. É o único santo, além da Virgem Maria, cujo nascimento é celebrado pela Igreja.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Jo%C3%A3o_Batista"
+    },
+    {
+        "name": "São Paulo",
+        "date": "06-29",
+        "summary": "Saulo de Tarso, um perseguidor de cristãos, teve uma conversão fulminante a caminho de Damasco e tornou-se Paulo, o \"Apóstolo dos Gentios\". Realizou diversas viagens missionárias, fundou comunidades cristãs por todo o Império Romano e escreveu muitas das epístolas do Novo Testamento. Foi martirizado em Roma.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Paulo_de_Tarso"
+    },
+    {
+        "name": "São Pedro",
+        "date": "06-29",
+        "summary": "Simão, um pescador da Galileia, foi chamado por Jesus e recebeu o nome de Pedro (rocha). Foi escolhido para ser o líder dos apóstolos e a pedra fundamental da Igreja. Após a ressurreição de Cristo, liderou a comunidade cristã em Jerusalém e depois em Roma, onde foi o primeiro bispo e foi martirizado, crucificado de cabeça para baixo.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/S%C3%A3o_Pedro"
+    },
+    {
+        "name": "Santa Isabel",
+        "date": "07-04",
+        "summary": "Rainha de Portugal no século XIII, Isabel de Aragão ficou conhecida por sua imensa caridade e por seu papel como pacificadora em conflitos políticos envolvendo seu marido, o Rei D. Dinis, e outros reinos. A lenda mais famosa a seu respeito é o \"milagre das rosas\", quando transformou em rosas os pães que levava escondidos para os pobres. Após a morte do rei, tornou-se franciscana da Ordem Terceira.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Isabel_de_Arag%C3%A3o,_Rainha_de_Portugal"
+    },
+    {
+        "name": "Santa Paulina",
+        "date": "07-09",
+        "summary": "Nascida na Itália como Amábile Lúcia Visintainer, imigrou para o Brasil ainda criança. Em Santa Catarina, junto com outras jovens, fundou a Congregação das Irmãzinhas da Imaculada Conceição para cuidar de doentes e órfãos. Sua vida foi marcada pela humildade, caridade e obediência, mesmo quando foi injustamente afastada da liderança de sua própria congregação. Foi a primeira santa canonizada a ter vivido no Brasil.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Paulina_do_Cora%C3%A7%C3%A3o_Agonizante_de_Jesus"
+    },
+    {
+        "name": "São Bento",
+        "date": "07-11",
+        "summary": "Bento de Núrsia é o fundador da Ordem Beneditina e Patriarca dos monges do Ocidente. Deixou a vida de nobreza em Roma para viver como eremita. Sua fama de santidade atraiu discípulos, para os quais escreveu a famosa \"Regra de São Bento\", um guia para a vida monástica que equilibra oração (ora), trabalho (labora) e estudo (lectio divina). A Medalha de São Bento é um sacramental popular para proteção contra o mal.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Bento_de_N%C3%BArsia"
+    },
+    {
+        "name": "Santa Verônica",
+        "date": "07-12",
+        "summary": "Verônica é a mulher piedosa que, segundo a tradição cristã, teria enxugado o rosto de Jesus com um véu durante a Via Crucis. Milagrosamente, a imagem da face de Cristo teria ficado impressa no tecido. Este véu é conhecido como o \"Véu de Verônica\". Embora não seja mencionada nos Evangelhos canônicos, sua história é um elemento central da Sexta Estação da Via Sacra.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Santa_Ver%C3%B4nica"
+    },
+    {
+        "name": "Nossa Senhora da Rosa Mística",
+        "date": "07-13",
+        "summary": "Esta devoção está ligada às aparições da Virgem Maria a Pierina Gilli, uma enfermeira, em Montichiari, na Itália, a partir de 1947. A Virgem apareceu com três rosas no peito (branca, vermelha e dourada), simbolizando oração, sacrifício e penitência. Ela se apresentou como a \"Rosa Mística\" e pediu a consagração de uma hora de graça no dia 8 de dezembro.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Rosa_M%C3%ADstica"
+    },
+    {
+        "name": "São Camilo de Lellis",
+        "date": "07-14",
+        "summary": "Após uma juventude como soldado e jogador, Camilo converteu-se e dedicou sua vida aos doentes. Horrorizado com as condições precárias dos hospitais da época, fundou a Ordem dos Ministros dos Enfermos (Camilianos), que revolucionou o cuidado aos enfermos, tratando-os com dignidade e amor. É o padroeiro dos doentes, dos hospitais e dos profissionais da saúde.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Camilo_de_Lellis"
+    },
+    {
+        "name": "Nossa Senhora do Carmo",
+        "date": "07-16",
+        "summary": "A devoção tem origem no Monte Carmelo, na Terra Santa, onde profetas como Elias já demonstravam amor à futura Mãe do Salvador. No século XII, eremitas se reuniram no local, formando a Ordem dos Carmelitas. A Virgem teria aparecido a São Simão Stock, em 1251, entregando-lhe o Escapulário com a promessa de proteção e salvação para quem o usasse com devoção.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_do_Carmo"
+    },
+    {
+        "name": "São Cristovão",
+        "date": "07-25",
+        "summary": "Segundo a lenda, Cristóvão era um homem de grande estatura e força que desejava servir ao rei mais poderoso. Um eremita o instruiu a servir a Cristo, ajudando pessoas a atravessar um rio perigoso. Certo dia, ele carregou um menino que se tornava cada vez mais pesado. O menino revelou ser Jesus, carregando o peso do mundo. Seu nome significa \"aquele que carrega Cristo\". É o padroeiro dos viajantes e motoristas.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/S%C3%A3o_Crist%C3%B3v%C3%A3o"
+    },
+    {
+        "name": "Santa Ana",
+        "date": "07-26",
+        "summary": "Santa Ana e São Joaquim são os pais da Virgem Maria e, portanto, avós de Jesus. Embora não sejam mencionados na Bíblia, suas histórias são narradas em textos apócrifos, como o Protoevangelho de Tiago. São venerados como padroeiros dos avós e exemplos de fé e perseverança, pois teriam concebido Maria em idade avançada. A festa celebra ambos os santos.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Santa_Ana"
+    },
+    {
+        "name": "Santa Marta",
+        "date": "07-29",
+        "summary": "Irmã de Maria e Lázaro, Marta era amiga de Jesus e o acolheu em sua casa em Betânia. O Evangelho a descreve como uma mulher trabalhadora e solícita, às vezes ansiosa com os afazeres domésticos, mas de fé profunda. Sua profissão de fé \"Sim, Senhor, eu creio que tu és o Cristo, o Filho de Deus\" é um dos momentos mais importantes do Evangelho de João. É padroeira das donas de casa, cozinheiras e hoteleiros.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Marta_de_Bet%C3%A2nia"
+    },
+    {
+        "name": "São Lazaro",
+        "date": "07-29",
+        "summary": "Lázaro de Betânia, irmão de Marta e Maria, foi o homem a quem Jesus ressuscitou dos mortos, no que é considerado um de seus maiores milagres. Essa ressurreição demonstrou o poder de Jesus sobre a morte e prefigurou sua própria Ressurreição.",
+        "wikipediaLink": "https://www.google.com/search?q=https://pt.wikipedia.org/wiki/L%25C3%25A1%25zaro_de_Bet%25C3%25A2nia"
+    },
+    {
+        "name": "Santa Clara",
+        "date": "08-11",
+        "summary": "Clara de Assis, inspirada por São Francisco de Assis, abandonou sua vida nobre para viver na pobreza. Fundou a Ordem das Clarissas, um ramo feminino do movimento franciscano, vivendo em estrita clausura e pobreza. É conhecida por sua profunda fé na Eucaristia; certa vez, enfrentou invasores sarracenos segurando o ostensório, e eles recuaram. É a padroeira da televisão, pois no fim de sua vida, doente, conseguiu assistir à missa projetada na parede de seu quarto.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Clara_de_Assis"
+    },
+    {
+        "name": "Santa Filomena",
+        "date": "08-11",
+        "summary": "Santa Filomena é uma jovem virgem mártir dos primeiros séculos do cristianismo, cujas relíquias foram encontradas nas catacumbas de Priscila, em Roma, em 1802. A devoção a ela se espalhou rapidamente devido aos muitos milagres atribuídos à sua intercessão. Foi uma santa de grande devoção popular no século XIX, venerada por santos como o Cura d\u0027Ars e São João Maria Vianney.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Santa_Filomena"
+    },
+    {
+        "name": "Nossa Senhora da Assunção",
+        "date": "08-15",
+        "summary": "A Assunção de Maria é um dogma da Igreja Católica que afirma que a Virgem Maria, ao final de sua vida terrena, foi elevada de corpo e alma à glória do céu. Este título celebra Maria como a primeira a participar plenamente da ressurreição de Cristo, sendo um sinal de esperança para todos os cristãos.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Assun%C3%A7%C3%A3o_de_Maria"
+    },
+    {
+        "name": "Nossa Senhora do Sorriso",
+        "date": "08-15",
+        "summary": "Este título está ligado à vida de Santa Teresinha do Menino Jesus. Quando criança, Teresinha ficou gravemente doente e, segundo seu relato, foi curada após ver uma imagem da Virgem Maria em seu quarto sorrir para ela. A partir desse evento, sua família e, posteriormente, os devotos, passaram a invocar a Virgem sob o título de \"Nossa Senhora do Sorriso\" para pedir alegria e cura, especialmente em casos de depressão e tristeza.",
+        "wikipediaLink": ""
+    },
+    {
+        "name": "São Roque",
+        "date": "08-16",
+        "summary": "Roque nasceu nobre na França, mas distribuiu seus bens aos pobres e partiu em peregrinação a Roma. No caminho, dedicou-se a cuidar dos doentes atingidos pela peste, curando muitos com o sinal da cruz. Ele mesmo contraiu a doença e se isolou em uma floresta, onde, segundo a tradição, foi alimentado por um cão que lhe trazia pão. É o protetor contra doenças contagiosas e padroeiro dos cães.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/S%C3%A3o_Roque"
+    },
+    {
+        "name": "Santa Helena",
+        "date": "08-18",
+        "summary": "Helena foi a mãe do Imperador Constantino, o Grande. Após a conversão de seu filho ao cristianismo, ela mesma se tornou uma cristã devota. Em idade avançada, viajou para a Terra Santa em busca das relíquias da Paixão de Cristo. A tradição cristã atribui a ela a descoberta da Verdadeira Cruz, a cruz onde Jesus foi crucificado.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Helena_de_Constantinopla"
+    },
+    {
+        "name": "Santa Mônica",
+        "date": "08-27",
+        "summary": "Mônica foi a mãe de Santo Agostinho. Durante anos, ela rezou e chorou incansavelmente pela conversão de seu filho, que levava uma vida intelectualmente brilhante, mas moralmente desregrada e distante da fé cristã. Sua persistência na oração e seu exemplo de fé foram fundamentais para a conversão de Agostinho. É a padroeira das mães, especialmente daquelas que rezam pela conversão de seus filhos.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/M%C3%B4nica_de_Hipona"
+    },
+    {
+        "name": "Santo Agostinho",
+        "date": "08-28",
+        "summary": "Agostinho de Hipona foi um dos mais importantes filósofos e teólogos da história do cristianismo. Após uma juventude marcada pela busca de conhecimento em diversas filosofias e e por uma vida pecaminosa, converteu-se ao cristianismo, influenciado pelas orações de sua mãe, Mônica, e pela pregação de Santo Ambrósio. Tornou-se bispo de Hipona e deixou uma vasta obra escrita, como \"Confissões\" e \"A Cidade de Deus\".",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Agostinho_de_Hipona"
+    },
+    {
+        "name": "Santa Rosa de Lima",
+        "date": "08-30",
+        "summary": "Nascida em Lima, no Peru, Isabel Flores de Oliva ficou conhecida como Rosa. Desde cedo, dedicou-se a uma vida de extrema penitência e oração, vivendo em uma pequena cela no jardim de sua casa. Foi a primeira pessoa nascida nas Américas a ser canonizada pela Igreja Católica. É a padroeira da América Latina, do Peru e das Filipinas.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Rosa_de_Lima"
+    },
+    {
+        "name": "Santa Rosália",
+        "date": "09-04",
+        "summary": "Rosália foi uma jovem nobre de Palermo, na Sicília, que abandonou a vida na corte para viver como eremita em uma caverna no Monte Pellegrino, dedicando-se à oração e penitência. Séculos após sua morte, durante uma epidemia de peste em Palermo, suas relíquias foram descobertas e levadas em procissão pela cidade, e a praga cessou milagrosamente.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Santa_Ros%C3%A1lia"
+    },
+    {
+        "name": "Nossa Senhora das Dores (e Piedade, Angústias, Calvário, Pranto)",
+        "date": "09-15",
+        "summary": "Todos esses títulos se referem à mesma devoção: a Virgem Maria em seu sofrimento durante a Paixão e Morte de seu filho, Jesus. A devoção foca nas \"Sete Dores de Maria\", desde a profecia de Simeão até o sepultamento de Jesus. Ela é a mãe que sofre ao pé da cruz (Nossa Senhora do Calvário), que chora a morte do filho (do Pranto), que sente a angústia da perda (das Angústias) e que o acolhe morto nos braços com amor e piedade (Piedade).",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_das_Dores"
+    },
+    {
+        "name": "Nossa Senhora da Salete",
+        "date": "09-19",
+        "summary": "Em 1846, a Virgem Maria apareceu a duas crianças pastoras, Maximino Giraud e Mélanie Calvat, em La Salette, nos Alpes franceses. Ela apareceu chorando e transmitiu uma mensagem de advertência sobre a falta de respeito ao domingo e os pecados do povo, pedindo oração e penitência para evitar grandes castigos.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_da_Salete"
+    },
+    {
+        "name": "São Mateus",
+        "date": "09-21",
+        "summary": "Mateus, também chamado de Levi, era um cobrador de impostos (publicano), uma profissão desprezada pelos judeus. Jesus o viu em sua banca de cobrança e o chamou com as simples palavras: \"Segue-me\". Mateus abandonou tudo e se tornou um dos Doze Apóstolos. É tradicionalmente considerado o autor do primeiro Evangelho.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Mateus,_o_Evangelista"
+    },
+    {
+        "name": "Padre Pio",
+        "date": "09-23",
+        "summary": "Francesco Forgione, conhecido como Padre Pio de Pietrelcina, foi um frade capuchinho italiano. Sua vida foi marcada por fenômenos místicos, incluindo os estigmas (as chagas de Cristo), que he carregou por 50 anos. Passava horas no confessionário, tinha o dom da bilocação e da leitura das consciências. É um dos santos mais populares do século XX.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Pio_de_Pietrelcina"
+    },
+    {
+        "name": "Nossa Senhora das Mercês",
+        "date": "09-24",
+        "summary": "A devoção originou-se com uma aparição da Virgem Maria a São Pedro Nolasco, em 1218. Ela pediu que ele fundasse uma ordem religiosa dedicada a libertar os cristãos que eram feitos escravos pelos mouros. Assim nasceu a Ordem dos Mercedários, cujos membros faziam um voto de entregar a própria vida, se necessário, em troca da liberdade de um cativo. \"Mercês\" significa \"misericórdia\", \"graça\".",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_das_Merc%C3%AAs"
+    },
+    {
+        "name": "São Cosme e São Damião",
+        "date": "09-26",
+        "summary": "Irmãos gêmeos e médicos de profissão, Cosme e Damião exerciam a medicina gratuitamente, por amor a Deus e ao próximo, o que lhes rendeu o apelido de \"anárgiros\" (inimigos da prata). Por sua fé cristã e por converterem muitos pacientes, foram perseguidos e martirizados durante o império de Diocleciano. São os padroeiros dos médicos, farmacêuticos e das crianças.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Cosme_e_Dami%C3%A3o"
+    },
+    {
+        "name": "São Miguel, São Gabriel e São Rafael",
+        "date": "09-29",
+        "summary": "A Igreja celebra em uma única festa os três Arcanjos cujos nomes são mencionados na Bíblia. São Miguel (\"Quem como Deus?\") é o líder do exército celestial que combateu e venceu Lúcifer. São Gabriel (\"Força de Deus\") é o mensageiro divino, que anunciou a Zacarias o nascimento de João Batista e a Maria o nascimento de Jesus. São Rafael (\"Deus cura\") é o arcanjo que acompanhou e protegeu Tobias em sua jornada, curando seu pai da cegueira.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Rafael_(arcanjo"
+    },
+    {
+        "name": "Santa Teresa",
+        "date": "10-01",
+        "summary": "Teresa de Lisieux, também conhecida como Santa Teresinha do Menino Jesus e da Sagrada Face, foi uma freira carmelita francesa. Viveu uma vida simples e oculta no convento, mas desenvolveu uma profunda espiritualidade conhecida como a \"Pequena Via\", o caminho da confiança e do amor, que consiste em fazer pequenas coisas com grande amor. É Doutora da Igreja e padroeira das missões.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Teresa_de_Lisieux"
+    },
+    {
+        "name": "Anjo da Guarda",
+        "date": "10-02",
+        "summary": "A festa dos Santos Anjos da Guarda celebra a crença cristã de que cada pessoa é confiada por Deus a um anjo protetor, que a guarda, guia e protege ao longo da vida, desde o nascimento até a morte. A devoção aos anjos da guarda é uma expressão da providência e do amor de Deus por cada um de seus filhos.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Anjo_da_guarda"
+    },
+    {
+        "name": "São Francisco de Assis",
+        "date": "10-04",
+        "summary": "Nascido em uma família rica, Francisco abandonou tudo para viver na pobreza, imitando Cristo. Fundou a Ordem dos Frades Menores (Franciscanos) e inspirou a fundação das Clarissas. Tinha um profundo amor por toda a criação de Deus, referindo-se aos animais e à natureza como irmãos e irmãs. Recebeu os estigmas e é um dos santos mais amados e influentes da história. É o padroeiro dos animais e da ecologia.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Francisco_de_Assis"
+    },
+    {
+        "name": "São Benedito",
+        "date": "10-05",
+        "summary": "Benedito, o Mouro, nasceu na Sicília, filho de escravos africanos. Tornou-se eremita e depois ingressou na ordem franciscana como irmão leigo. Apesar de analfabeto, sua sabedoria, humildade e dons místicos eram tão grandes que foi nomeado superior do convento. É um santo de imensa devoção popular, especialmente no Brasil, conhecido por sua simplicidade e caridade.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Benedito,_o_Mouro"
+    },
+    {
+        "name": "Nossa Senhora do Rosário",
+        "date": "10-07",
+        "summary": "Esta festa foi instituída para celebrar a vitória da frota cristã contra o Império Otomano na Batalha de Lepanto, em 7 de outubro de 1571. O Papa São Pio V atribuiu a vitória à intercessão da Virgem Maria, invocada por meio da oração do Santo Rosário. A data celebra o poder desta oração mariana.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_do_Ros%C3%A1rio"
+    },
+    {
+        "name": "Nossa Senhora Aparecida",
+        "date": "10-12",
+        "summary": "Em 1717, três pescadores encontraram a imagem de Nossa Senhora da Conceição no rio Paraíba do Sul, no Brasil. A imagem veio em duas partes: primeiro o corpo, depois a cabeça. Após o achado, a pesca, que estava fraca, tornou-se milagrosamente abundante. A devoção cresceu e ela se tornou a Padroeira do Brasil.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_Aparecida"
+    },
+    {
+        "name": "Nossa Senhora de Nazaré",
+        "date": "10-12",
+        "summary": "A devoção tem origem em Nazaré, na Galileia, mas se tornou muito popular em Portugal e, especialmente, no Brasil, em Belém do Pará. A tradição conta que uma pequena imagem da Virgem com o Menino foi encontrada por um caçador chamado Plácido às margens de um igarapé. O Círio de Nazaré, em Belém, é uma das maiores procissões religiosas do mundo.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_de_Nazar%C3%A9"
+    },
+    {
+        "name": "Santa Edwiges",
+        "date": "10-16",
+        "summary": "Edwiges foi duquesa da Silésia (na atual Polônia). Usou sua riqueza e influência para ajudar os pobres, fundando hospitais e mosteiros. Após a morte do marido, ingressou em um mosteiro cisterciense. Ficou conhecida como a protetora dos pobres e endividados, pois costumava pagar as dívidas daqueles que estavam presos, devolvendo-lhes a liberdade.",
+        "wikipediaLink": "https://www.google.com/search?q=https://pt.wikipedia.org/wiki/Edwiges_da_Sil%25C3%25A9sia"
+    },
+    {
+        "name": "São Geraldo",
+        "date": "10-16",
+        "summary": "Geraldo Majella foi um irmão leigo redentorista italiano. Sua vida foi marcada pela obediência, humildade e por dons extraordinários, como bilocação, profecia e milagres. Uma vez, foi falsamente acusado de ter engravidado uma mulher, mas suportou a calúnia em silêncio até que a verdade viesse à tona. Por isso, tornou-se o padroeiro das gestantes, das mães e do parto.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Geraldo_Majella"
+    },
+    {
+        "name": "São Lucas",
+        "date": "10-18",
+        "summary": "Lucas foi um médico grego, companheiro de viagens de São Paulo e autor do terceiro Evangelho e dos Atos dos Apóstolos. Seu Evangelho é conhecido pela ênfase na misericórdia de Jesus, na oração e na ação do Espírito Santo. É o padroeiro dos médicos e dos artistas, pois uma antiga tradição diz que ele teria pintado um retrato da Virgem Maria.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Lucas,_o_Evangelista"
+    },
+    {
+        "name": "Frei Galvão",
+        "date": "10-25",
+        "summary": "Antônio de Sant'Anna Galvão, conhecido como Frei Galvão, foi um frade franciscano brasileiro. Dedicou sua vida à pregação e à caridade, fundando o Mosteiro da Luz, em São Paulo. É conhecido pelas \"pílulas de Frei Galvão\", pequenos pedaços de papel com uma oração à Virgem Maria, que ele dava aos doentes e que são associadas a muitas curas. Foi o primeiro santo nascido no Brasil.",
+        "wikipediaLink": "https://www.google.com/search?q=https://pt.wikipedia.org/wiki/Ant%25C3%25B4nio_de_Sant%2527Anna_Galv%25C3%25A3o"
+    },
+    {
+        "name": "São Judas Tadeu",
+        "date": "10-28",
+        "summary": "Um dos Doze Apóstolos, Judas Tadeu é o autor da Epístola de Judas no Novo Testamento. Ele é frequentemente confundido com Judas Iscariotes, o traidor, e por isso, segundo a tradição, sua devoção foi pouco popular por séculos. Acredita-se que, por ter sido \"esquecido\", ele intercede prontamente por aqueles que o invocam nas situações mais desesperadoras. É o santo das causas perdidas e desesperadas.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Judas_Tadeu"
+    },
+    {
+        "name": "Santa Cecília",
+        "date": "11-22",
+        "summary": "Cecília foi uma nobre romana dos primeiros séculos do cristianismo, que consagrou sua virgindade a Deus. Forçada a se casar, convenceu seu marido, Valeriano, a respeitar seu voto e a se converter. Ambos, junto com o irmão de Valeriano, foram martirizados por sua fé. A tradição diz que, durante seu casamento, enquanto os músicos tocavam, ela \"cantava em seu coração ao Senhor\". Por isso, é a padroeira da música e dos músicos.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Santa_Cec%C3%ADlia"
+    },
+    {
+        "name": "Santa Catarina",
+        "date": "11-25",
+        "summary": "Catarina de Alexandria foi uma jovem nobre e de grande sabedoria que, segundo a tradição, debateu e converteu cinquenta filósofos pagãos. Recusou-se a casar com o imperador e a renunciar à sua fé. Foi condenada a ser torturada em uma roda com lâminas, mas a roda se quebrou milagrosamente. Por fim, foi decapitada. É padroeira dos estudantes, filósofos e das jovens.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Catarina_de_Alexandria"
+    },
+    {
+        "name": "Nossa Senhora das Graças",
+        "date": "11-27",
+        "summary": "A devoção está ligada às aparições da Virgem Maria a Santa Catarina Labouré, em 1830, em Paris. A Virgem apareceu sobre um globo, com raios de luz (graças) saindo de suas mãos, e pediu que uma medalha fosse cunhada com a inscrição: \"Ó Maria, concebida sem pecado, rogai por nós que recorremos a vós\". Essa medalha ficou conhecida como a \"Medalha Milagrosa\".",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_das_Gra%C3%A7as"
+    },
+    {
+        "name": "Santo André",
+        "date": "11-30",
+        "summary": "André era um pescador, irmão de São Pedro. Foi o primeiro apóstolo a ser chamado por Jesus. Segundo o Evangelho de João, foi ele quem apresentou Pedro a Jesus. Após Pentecostes, pregou em várias regiões e, segundo a tradição, foi martirizado em Patras, na Grécia, em uma cruz em forma de X, que hoje é conhecida como a \"Cruz de Santo André\".",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Andr%C3%A9,_o_Ap%C3%B3stolo"
+    },
+    {
+        "name": "Santa Bárbara",
+        "date": "12-04",
+        "summary": "Segundo a tradição, Bárbara era filha de um nobre pagão que a trancou em uma torre para protegê-la do mundo. Ela se converteu secretamente ao cristianismo. Ao descobrir, seu pai a denunciou e ele mesmo a decapitou. Imediatamente após o ato, ele foi atingido e morto por um raio. Por essa razão, Santa Bárbara é invocada como protetora contra raios, tempestades e morte súbita.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Santa_B%C3%A1rbara"
+    },
+    {
+        "name": "Nossa Senhora da Conceição (Imaculada Conceição)",
+        "date": "12-08",
+        "summary": "Este título celebra o dogma da Imaculada Conceição, que afirma que a Virgem Maria, desde o primeiro instante de sua concepção no ventre de sua mãe, Santa Ana, foi preservada livre de toda mancha do pecado original. Ela foi concebida \"sem pecado\" para ser a mãe digna do Salvador. É a padroeira de Portugal e de muitos outros lugares.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Imaculada_Concei%C3%A7%C3%A3o"
+    },
+    {
+        "name": "Nossa Senhora de Guadalupe",
+        "date": "12-12",
+        "summary": "Em 1531, a Virgem Maria apareceu a um índio asteca chamado Juan Diego, no monte Tepeyac, perto da Cidade do México. Ela pediu que uma igreja fosse construída em sua honra. Como prova para o bispo, ela fez florescer rosas em pleno inverno e deixou sua imagem milagrosamente impressa no manto (tilma) de Juan Diego. É a padroeira das Américas.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Nossa_Senhora_de_Guadalupe"
+    },
+    {
+        "name": "Santa Luzia",
+        "date": "12-13",
+        "summary": "Luzia foi uma jovem de Siracusa, na Sicília, que consagrou sua virgindade a Deus e distribuiu seus bens aos pobres. Rejeitando um pretendente, foi denunciada como cristã durante a perseguição de Diocleciano. Segundo a tradição, antes de ser martirizada, seus olhos foram arrancados, mas ela continuou a ver. Por isso, é a protetora da visão e invocada contra as doenças dos olhos.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Santa_Luzia"
+    },
+    {
+        "name": "São João",
+        "date": "12-27",
+        "summary": "João, o Apóstolo e Evangelista, era irmão de Tiago Maior e um dos discípulos mais próximos de Jesus, conhecido como o \"discípulo amado\". Ele esteve presente em momentos cruciais, como a Transfiguração e a Crucificação, quando Jesus lhe confiou sua mãe, Maria. É o autor do quarto Evangelho, de três Epístolas e do livro do Apocalipse. Foi o único apóstolo que não morreu martirizado.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Jo%C3%A3o,_o_Evangelista"
+    }
+]

@@ -73,4 +73,4 @@ data class CalendarUiState(
 enum class Theme { LIGHT, DARK, SYSTEM }
 enum class ViewMode { MONTHLY, YEARLY }
 enum class HolidayType { NATIONAL, COMMEMORATIVE, SAINT }
-data class Holiday(val name: String, val date: String, val type: HolidayType)
+data class Holiday(val name: String, val date: String, val type: HolidayType, val summary: String? = null, val wikipediaLink: String? = null)
