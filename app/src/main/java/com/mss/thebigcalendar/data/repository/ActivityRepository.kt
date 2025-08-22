@@ -5,7 +5,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.mss.thebigcalendar.data.model.proto.Activities
 import com.mss.thebigcalendar.data.model.Activity
-import com.mss.thebigcalendar.data.model.ActivityProto
 import com.mss.thebigcalendar.data.model.proto.ActivityProto
 import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.proto.ActivityTypeProto
