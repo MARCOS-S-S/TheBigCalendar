@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option java_package = "com.mss.thebigcalendar.data.model.proto";
+option java_multiple_files = true;
+
+message ActivityProto {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string date = 4; // "yyyy-MM-dd"
+  string start_time = 5; // "HH:mm"
+  string end_time = 6; // "HH:mm"
+  bool is_all_day = 7;
+  string location = 8;
+  string category_color = 9;
+  ActivityTypeProto activity_type = 10;
+  string recurrence_rule = 11;
+}
+
+enum ActivityTypeProto {
+  EVENT = 0;
+  TASK = 1;
+  BIRTHDAY = 2;
+}
+
+message Activities {
+  repeated ActivityProto activities = 1;
+}

@@ -5,11 +5,18 @@ plugins {
     alias(libs.plugins.kotlin.android)
     // CORREÇÃO: Este plugin é agora OBRIGATÓRIO com as versões recentes do Kotlin/Compose.
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.protobuf)
 }
 
 android {
     namespace = "com.mss.thebigcalendar"
     compileSdk = 35
+
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("build/generated/source/proto/main/java")
+        }
+    }
 
     defaultConfig {
         applicationId = "com.mss.thebigcalendar"
@@ -54,6 +61,21 @@ android {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = libs.protobuf.protoc.get().toString()
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.plugins {
+                create("java") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -68,6 +90,13 @@ dependencies {
     // Dependências de ViewModel e Ícones
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
     implementation("androidx.compose.material:material-icons-extended")
+
+    // Dependências do DataStore
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.core)
+
+    // Dependência do Protobuf para o Proto DataStore
+    implementation(libs.protobuf.kotlin.lite)
 
     // Dependências de Teste
     testImplementation(libs.junit)

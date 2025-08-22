@@ -1,5 +1,7 @@
 package com.mss.thebigcalendar.ui.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mss.thebigcalendar.data.model.Activity
@@ -10,9 +12,11 @@ import com.mss.thebigcalendar.data.model.FilterOptions
 import com.mss.thebigcalendar.data.model.Holiday // Import para Holiday se for usar no loadInitialData
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
+import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import com.mss.thebigcalendar.data.repository.SettingsRepository
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -22,17 +26,35 @@ import java.time.YearMonth
 import java.util.UUID
 import kotlin.comparisons.*
 
-class CalendarViewModel : ViewModel() {
+class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
-    // Supondo que HolidayRepository exista.
+    private val settingsRepository = SettingsRepository(application)
+    private val activityRepository = ActivityRepository(application)
     private val holidayRepository = HolidayRepository()
 
     private val _uiState = MutableStateFlow(CalendarUiState(theme = Theme.SYSTEM))
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
     init {
-        updateCalendarDays()
-        updateTasksForSelectedDate()
+        viewModelScope.launch {
+            settingsRepository.theme.collect { theme ->
+                _uiState.update { it.copy(theme = theme) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.username.collect { username ->
+                _uiState.update { it.copy(username = username) }
+            }
+        }
+
+        viewModelScope.launch {
+            activityRepository.activities.collect { activities ->
+                _uiState.update { it.copy(activities = activities) }
+                updateCalendarDays()
+                updateTasksForSelectedDate()
+            }
+        }
+
         updateHolidaysForSelectedDate()
         updateSaintDaysForSelectedDate()
         loadInitialData()
@@ -231,57 +253,32 @@ class CalendarViewModel : ViewModel() {
     }
 
     fun onThemeChange(newTheme: Theme) {
-        _uiState.update { it.copy(theme = newTheme) }
-        // Lógica futura para salvar no DataStore
+        viewModelScope.launch {
+            settingsRepository.saveTheme(newTheme)
+        }
     }
 
     fun onSaveActivity(activityData: Activity) {
         viewModelScope.launch {
-            val currentActivities = _uiState.value.activities.toMutableList()
-            val activityToSave = if (activityData.id == "new" || activityData.id.isBlank()) {
-                activityData.copy(id = UUID.randomUUID().toString())
-            } else {
-                activityData
-            }
-
-            val existingIndex = currentActivities.indexOfFirst { it.id == activityToSave.id }
-            if (existingIndex != -1) {
-                currentActivities[existingIndex] = activityToSave
-            } else {
-                currentActivities.add(activityToSave)
-            }
-            _uiState.update {
-                it.copy(
-                    activities = currentActivities, // A ordenação acontece em updateTasksForSelectedDate
-                    activityToEdit = null
-                )
-            }
-            updateCalendarDays()
-            updateTasksForSelectedDate()
-            updateHolidaysForSelectedDate()
-            updateSaintDaysForSelectedDate()
+            activityRepository.saveActivity(activityData)
+            _uiState.update { it.copy(activityToEdit = null) }
         }
     }
 
     fun onDeleteActivityConfirm() {
         viewModelScope.launch {
             val activityId = _uiState.value.activityIdToDelete ?: return@launch
-            _uiState.update {
-                it.copy(
-                    activities = it.activities.filterNot { act -> act.id == activityId },
-                    activityIdToDelete = null
-                )
-            }
-            updateCalendarDays()
-            updateTasksForSelectedDate()
-            updateHolidaysForSelectedDate()
-            updateSaintDaysForSelectedDate()
+            activityRepository.deleteActivity(activityId)
+            _uiState.update { it.copy(activityIdToDelete = null) }
         }
     }
 
     fun onSaveSettings(username: String, theme: Theme) {
-        _uiState.update { it.copy(username = username, theme = theme, isSettingsModalOpen = false) }
-        // Lógica futura para salvar no DataStore
+        viewModelScope.launch {
+            settingsRepository.saveUsername(username)
+            settingsRepository.saveTheme(theme)
+        }
+        _uiState.update { it.copy(isSettingsModalOpen = false) }
     }
 
     fun onBackupRequest() { println("ViewModel: Pedido de backup recebido.") }
