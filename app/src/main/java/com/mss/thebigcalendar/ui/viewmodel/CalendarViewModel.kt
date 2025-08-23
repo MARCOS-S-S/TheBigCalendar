@@ -2,29 +2,26 @@ package com.mss.thebigcalendar.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.CalendarDay
+import com.mss.thebigcalendar.data.model.CalendarFilterOptions
 import com.mss.thebigcalendar.data.model.CalendarUiState
-import com.mss.thebigcalendar.data.model.FilterOptions
-import com.mss.thebigcalendar.data.model.Holiday // Import para Holiday se for usar no loadInitialData
+import com.mss.thebigcalendar.data.model.Holiday
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
+import com.mss.thebigcalendar.data.repository.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import com.mss.thebigcalendar.data.repository.SettingsRepository
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
-import java.util.UUID
-import kotlin.comparisons.*
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -32,10 +29,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val activityRepository = ActivityRepository(application)
     private val holidayRepository = HolidayRepository()
 
-    private val _uiState = MutableStateFlow(CalendarUiState(theme = Theme.SYSTEM))
+    private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
     init {
+        loadSettings()
+        loadData()
+    }
+
+    private fun loadSettings() {
         viewModelScope.launch {
             settingsRepository.theme.collect { theme ->
                 _uiState.update { it.copy(theme = theme) }
@@ -46,21 +48,25 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 _uiState.update { it.copy(username = username) }
             }
         }
+        viewModelScope.launch {
+            settingsRepository.filterOptions.collect { filterOptions ->
+                _uiState.update { it.copy(filterOptions = filterOptions) }
+                updateAllDateDependentUI()
+            }
+        }
+    }
 
+    private fun loadData() {
         viewModelScope.launch {
             activityRepository.activities.collect { activities ->
                 _uiState.update { it.copy(activities = activities) }
-                updateCalendarDays()
-                updateTasksForSelectedDate()
+                updateAllDateDependentUI()
             }
         }
-
-        updateHolidaysForSelectedDate()
-        updateSaintDaysForSelectedDate()
-        loadInitialData()
+        loadInitialHolidaysAndSaints()
     }
 
-    private fun loadInitialData() {
+    private fun loadInitialHolidaysAndSaints() {
         viewModelScope.launch {
             val nationalHolidaysList = holidayRepository.getNationalHolidays()
             val saintDaysList = holidayRepository.getSaintDays()
@@ -68,49 +74,39 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             _uiState.update { currentState ->
                 currentState.copy(
                     nationalHolidays = nationalHolidaysList.associateBy { LocalDate.parse(it.date) },
-                    saintDays = saintDaysList.associateBy { it.date } // MM-dd -> Holiday
+                    saintDays = saintDaysList.associateBy { it.date }
                 )
             }
             updateCalendarDays()
         }
     }
 
-    /**
-     * Atualiza a lista de CalendarDay no uiState com base no displayedYearMonth, selectedDate e atividades.
-     */
     private fun updateCalendarDays() {
-        val currentUiStateValue = _uiState.value
-        val currentActivities = currentUiStateValue.activities
-        val currentYearMonth = currentUiStateValue.displayedYearMonth
-        val currentSelectedDate = currentUiStateValue.selectedDate
-
-        val firstDayOfMonth = currentYearMonth.atDay(1)
+        val state = _uiState.value
+        val firstDayOfMonth = state.displayedYearMonth.atDay(1)
         val daysFromPrevMonthOffset = (firstDayOfMonth.dayOfWeek.value % 7)
         val gridStartDate = firstDayOfMonth.minusDays(daysFromPrevMonthOffset.toLong())
 
         val newCalendarDays = List(42) { i ->
             val date = gridStartDate.plusDays(i.toLong())
-            val tasksForThisDay = currentActivities.filter { activity ->
-                LocalDate.parse(activity.date).isEqual(date)
-            }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
-            
-            val holidayForThisDay = if (currentUiStateValue.filterOptions.showHolidays) {
-                currentUiStateValue.nationalHolidays[date]
+            val tasksForThisDay = if (state.filterOptions.showTasks || state.filterOptions.showEvents) {
+                state.activities.filter { activity ->
+                    val activityDate = LocalDate.parse(activity.date)
+                    val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
+                            (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT)
+                    activityDate.isEqual(date) && typeMatches
+                }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
             } else {
-                null
+                emptyList()
             }
 
-            val saintDayForThisDay = if (currentUiStateValue.filterOptions.showSaintDays) {
-                val monthDay = date.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd"))
-                currentUiStateValue.saintDays[monthDay]
-            } else {
-                null
-            }
+            val holidayForThisDay = if (state.filterOptions.showHolidays) state.nationalHolidays[date] else null
+            val saintDayForThisDay = if (state.filterOptions.showSaintDays) state.saintDays[date.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd"))] else null
 
             CalendarDay(
                 date = date,
-                isCurrentMonth = date.month == currentYearMonth.month,
-                isSelected = date.isEqual(currentSelectedDate),
+                isCurrentMonth = date.month == state.displayedYearMonth.month,
+                isSelected = date.isEqual(state.selectedDate),
                 tasks = tasksForThisDay,
                 holiday = holidayForThisDay ?: saintDayForThisDay,
                 isWeekend = date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY,
@@ -121,64 +117,61 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(calendarDays = newCalendarDays) }
     }
 
-    /**
-     * Atualiza a lista de tarefas para o dia atualmente selecionado.
-     */
     private fun updateTasksForSelectedDate() {
-        val currentUiStateValue = _uiState.value
-        val selectedDate = currentUiStateValue.selectedDate
-        val tasks = currentUiStateValue.activities.filter { activity ->
-            LocalDate.parse(activity.date).isEqual(selectedDate)
-        }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }
-            .thenBy { it.startTime ?: LocalTime.MIN })
-
+        val state = _uiState.value
+        val tasks = if (state.filterOptions.showTasks || state.filterOptions.showEvents) {
+            state.activities.filter { activity ->
+                val activityDate = LocalDate.parse(activity.date)
+                val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
+                        (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT)
+                activityDate.isEqual(state.selectedDate) && typeMatches
+            }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
+        } else {
+            emptyList()
+        }
         _uiState.update { it.copy(tasksForSelectedDate = tasks) }
     }
 
     private fun updateHolidaysForSelectedDate() {
-        val currentUiStateValue = _uiState.value
-        val selectedDate = currentUiStateValue.selectedDate
-        val holidays = mutableListOf<Holiday>()
-        if (currentUiStateValue.filterOptions.showHolidays) {
-            currentUiStateValue.nationalHolidays[selectedDate]?.let { holidays.add(it) }
+        val state = _uiState.value
+        val holidays = if (state.filterOptions.showHolidays) {
+            state.nationalHolidays[state.selectedDate]?.let { listOf(it) } ?: emptyList()
+        } else {
+            emptyList()
         }
         _uiState.update { it.copy(holidaysForSelectedDate = holidays) }
     }
 
     private fun updateSaintDaysForSelectedDate() {
-        val currentUiStateValue = _uiState.value
-        val selectedDate = currentUiStateValue.selectedDate
-        val saints = mutableListOf<Holiday>()
-        if (currentUiStateValue.filterOptions.showSaintDays) {
-            val monthDay = selectedDate.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd"))
-            currentUiStateValue.saintDays[monthDay]?.let { saints.add(it) }
+        val state = _uiState.value
+        val saints = if (state.filterOptions.showSaintDays) {
+            val monthDay = state.selectedDate.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd"))
+            state.saintDays[monthDay]?.let { listOf(it) } ?: emptyList()
+        } else {
+            emptyList()
         }
         _uiState.update { it.copy(saintDaysForSelectedDate = saints) }
     }
 
-    // --- MÉTODOS PÚBLICOS (EVENTOS VINDOS DA UI) ---
-
-    fun onPreviousMonth() {
-        _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.minusMonths(1)) }
+    private fun updateAllDateDependentUI() {
         updateCalendarDays()
         updateTasksForSelectedDate()
         updateHolidaysForSelectedDate()
         updateSaintDaysForSelectedDate()
+    }
+
+    fun onPreviousMonth() {
+        _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.minusMonths(1)) }
+        updateAllDateDependentUI()
     }
 
     fun onNextMonth() {
         _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.plusMonths(1)) }
-        updateCalendarDays()
-        updateTasksForSelectedDate()
-        updateHolidaysForSelectedDate()
-        updateSaintDaysForSelectedDate()
+        updateAllDateDependentUI()
     }
 
     fun onPreviousYear() {
         _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.minusYears(1)) }
-        // Para visualização anual, não precisamos recalcular os 'calendarDays' do mês imediatamente,
-        // mas a YearlyCalendarView vai redesenhar com o novo ano.
-        // Se voltarmos para a visualização mensal, os dias corretos serão calculados.
     }
 
     fun onNextYear() {
@@ -186,10 +179,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onDateSelected(date: LocalDate) {
-        val currentUiStateValue = _uiState.value
-        val shouldOpenModal = currentUiStateValue.selectedDate.isEqual(date) &&
-                date.month == currentUiStateValue.displayedYearMonth.month &&
-                date.year == currentUiStateValue.displayedYearMonth.year
+        val state = _uiState.value
+        val shouldOpenModal = state.selectedDate.isEqual(date) && date.month == state.displayedYearMonth.month
 
         _uiState.update {
             it.copy(
@@ -198,18 +189,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     YearMonth.from(date)
                 } else {
                     it.displayedYearMonth
-                }
+                },
+                activityIdWithDeleteButtonVisible = null // Esconde o botão ao selecionar nova data
             )
         }
-        updateCalendarDays()
-        updateTasksForSelectedDate()
-        updateHolidaysForSelectedDate()
-        updateSaintDaysForSelectedDate()
+        updateAllDateDependentUI()
 
         if (shouldOpenModal) {
-            // Decidimos se abrimos para criar evento ou tarefa baseado em algum critério
-            // ou oferecemos opções. Por agora, vamos focar em tarefas.
-            openCreateActivityModal(activityType = ActivityType.TASK)
+            openCreateActivityModal()
         }
     }
 
@@ -222,10 +209,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 isSidebarOpen = false
             )
         }
-        updateCalendarDays()
-        updateTasksForSelectedDate()
-        updateHolidaysForSelectedDate()
-        updateSaintDaysForSelectedDate()
+        updateAllDateDependentUI()
     }
 
     fun onViewModeChange(newMode: ViewMode) {
@@ -242,13 +226,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             "showTasks" -> currentFilters.copy(showTasks = value)
             else -> currentFilters
         }
-        _uiState.update { it.copy(filterOptions = newFilters) }
-        // Re-filtrar os dias do calendário e tarefas do dia se a visibilidade das tarefas mudar
-        if (key == "showTasks" || key == "showEvents" || key == "showHolidays" || key == "showSaintDays") { // Adicione outros filtros se necessário
-            updateCalendarDays()
-            updateTasksForSelectedDate()
-            updateHolidaysForSelectedDate()
-            updateSaintDaysForSelectedDate()
+        viewModelScope.launch {
+            settingsRepository.saveFilterOptions(newFilters)
         }
     }
 
@@ -261,15 +240,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun onSaveActivity(activityData: Activity) {
         viewModelScope.launch {
             activityRepository.saveActivity(activityData)
-            _uiState.update { it.copy(activityToEdit = null) }
+            closeCreateActivityModal()
         }
     }
 
     fun onDeleteActivityConfirm() {
         viewModelScope.launch {
-            val activityId = _uiState.value.activityIdToDelete ?: return@launch
-            activityRepository.deleteActivity(activityId)
-            _uiState.update { it.copy(activityIdToDelete = null) }
+            _uiState.value.activityIdToDelete?.let { activityRepository.deleteActivity(it) }
+            cancelDeleteActivity()
         }
     }
 
@@ -278,13 +256,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             settingsRepository.saveUsername(username)
             settingsRepository.saveTheme(theme)
         }
-        _uiState.update { it.copy(isSettingsModalOpen = false) }
+        closeSettingsModal()
     }
 
     fun onBackupRequest() { println("ViewModel: Pedido de backup recebido.") }
     fun onRestoreRequest() { println("ViewModel: Pedido de restauração recebido.") }
-
-    // --- Funções para controlar a visibilidade de componentes da UI ---
 
     fun openSidebar() = _uiState.update { it.copy(isSidebarOpen = true) }
     fun closeSidebar() = _uiState.update { it.copy(isSidebarOpen = false) }
@@ -295,24 +271,35 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun closeSettingsModal() = _uiState.update { it.copy(isSettingsModalOpen = false) }
 
     fun openCreateActivityModal(activity: Activity? = null, activityType: ActivityType = ActivityType.EVENT) {
-        val templateDate = _uiState.value.selectedDate
-        val newActivityTemplate = Activity(
+        val template = activity ?: Activity(
             id = "new",
             title = "",
             description = null,
-            date = templateDate.toString(), // Converte LocalDate para String "yyyy-MM-dd"
+            date = _uiState.value.selectedDate.toString(),
             startTime = null,
             endTime = null,
             isAllDay = true,
             location = null,
-            categoryColor = if (activityType == ActivityType.TASK) "#3B82F6" else "#F43F5E", // Azul para tarefa, Rosa para evento
+            categoryColor = if (activityType == ActivityType.TASK) "#3B82F6" else "#F43F5E",
             activityType = activityType,
             recurrenceRule = null
         )
-        _uiState.update { it.copy(activityToEdit = activity ?: newActivityTemplate) }
+        _uiState.update { it.copy(activityToEdit = template, activityIdWithDeleteButtonVisible = null) }
     }
 
     fun closeCreateActivityModal() = _uiState.update { it.copy(activityToEdit = null) }
-    fun requestDeleteActivity(activityId: String) = _uiState.update { it.copy(activityIdToDelete = activityId) }
+
+    fun onTaskLongPressed(activityId: String) {
+        _uiState.update { it.copy(activityIdWithDeleteButtonVisible = activityId) }
+    }
+
+    fun hideDeleteButton() {
+        _uiState.update { it.copy(activityIdWithDeleteButtonVisible = null) }
+    }
+
+    fun requestDeleteActivity(activityId: String) {
+        _uiState.update { it.copy(activityIdToDelete = activityId, activityIdWithDeleteButtonVisible = null) }
+    }
+
     fun cancelDeleteActivity() = _uiState.update { it.copy(activityIdToDelete = null) }
 }

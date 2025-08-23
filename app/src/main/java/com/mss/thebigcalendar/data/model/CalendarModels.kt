@@ -58,10 +58,11 @@ data class CalendarUiState(
     val nationalHolidays: Map<LocalDate, Holiday> = emptyMap(),
     val saintDays: Map<String, Holiday> = emptyMap(), // MM-dd -> Holiday
     val commemorativeDates: Map<LocalDate, Holiday> = emptyMap(),
-    val filterOptions: FilterOptions = FilterOptions(),
+    val filterOptions: CalendarFilterOptions = CalendarFilterOptions(),
     val isSidebarOpen: Boolean = false,
     val activityToEdit: Activity? = null,
     val activityIdToDelete: String? = null,
+    val activityIdWithDeleteButtonVisible: String? = null,
     val isSettingsModalOpen: Boolean = false,
     val settingsCategory: String = "General",
     val calendarDays: List<CalendarDay> = emptyList(),
