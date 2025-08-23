@@ -1,6 +1,7 @@
 package com.mss.thebigcalendar.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +13,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape // Ou RectangleShape se preferir células mais quadradas no geral
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,16 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mss.thebigcalendar.data.model.CalendarDay
 import java.time.LocalDate
-import androidx.compose.foundation.shape.RoundedCornerShape // Import para RoundedCornerShape
-import androidx.compose.runtime.remember // Import para remember
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.remember
 import com.mss.thebigcalendar.data.model.Activity
-import androidx.compose.foundation.layout.size // Para Modifier.size()
-import androidx.compose.foundation.layout.width  // Para Modifier.width()
-import androidx.compose.ui.graphics.computeHorizontalBounds
-import androidx.compose.ui.graphics.computeHorizontalBounds
-
-
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 
 @Composable
 fun MonthlyCalendar(
@@ -85,7 +81,6 @@ fun MonthlyCalendar(
     }
 }
 
-
 @Composable
 private fun DayCell(
     day: CalendarDay,
@@ -97,16 +92,23 @@ private fun DayCell(
         .padding(1.dp)
         .aspectRatio(1f / 1.35f)
         .clip(MaterialTheme.shapes.small)
-        .clickable(enabled = day.isCurrentMonth) {
-            onDateSelected(day.date)
-        }
         .then(
-            if (day.isSelected) {
-                Modifier.background(MaterialTheme.colorScheme.primaryContainer)
+            if (day.isToday) {
+                Modifier.border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small)
             } else {
                 Modifier
             }
         )
+        .background(
+            when {
+                day.isSelected -> MaterialTheme.colorScheme.primaryContainer
+                day.isToday -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                else -> Color.Transparent
+            }
+        )
+        .clickable(enabled = day.isCurrentMonth) {
+            onDateSelected(day.date)
+        }
         .padding(vertical = 0.dp, horizontal = 2.dp)
 
     Column(

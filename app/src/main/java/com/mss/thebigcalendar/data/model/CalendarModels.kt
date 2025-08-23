@@ -31,6 +31,7 @@ data class CalendarDay(
     val date: LocalDate,
     val isCurrentMonth: Boolean,
     val isSelected: Boolean = false,
+    val isToday: Boolean = false,
     val tasks: List<Activity> = emptyList(), // NOVO: Lista de tarefas para este dia
     val holiday: Holiday? = null,
     val isWeekend: Boolean = false,

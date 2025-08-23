@@ -107,6 +107,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 date = date,
                 isCurrentMonth = date.month == state.displayedYearMonth.month,
                 isSelected = date.isEqual(state.selectedDate),
+                isToday = date.isEqual(LocalDate.now()),
                 tasks = tasksForThisDay,
                 holiday = holidayForThisDay ?: saintDayForThisDay,
                 isWeekend = date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY,
