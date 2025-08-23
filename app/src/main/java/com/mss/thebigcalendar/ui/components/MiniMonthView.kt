@@ -31,7 +31,7 @@ fun MiniMonthView(
     modifier: Modifier = Modifier,
     yearMonth: YearMonth,
     onMonthClicked: (YearMonth) -> Unit,
-    highlightSundays: Boolean = true // Para destacar domingos em vermelho, como na imagem
+    highlightWeekends: Boolean = true
 ) {
     val monthName = yearMonth.month.getDisplayName(TextStyle.FULL, Locale("pt", "BR"))
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale("pt", "BR")) else it.toString() }
@@ -89,6 +89,7 @@ fun MiniMonthView(
                     week.forEach { date ->
                         val isCurrentMonth = date.month == yearMonth.month
                         val isSunday = date.dayOfWeek == DayOfWeek.SUNDAY
+                        val isSaturday = date.dayOfWeek == DayOfWeek.SATURDAY
 
                         Box(
                             modifier = Modifier
@@ -102,7 +103,7 @@ fun MiniMonthView(
                                 textAlign = TextAlign.Center,
                                 color = when {
                                     !isCurrentMonth -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-                                    highlightSundays && isSunday -> Color.Red.copy(alpha = 0.8f)
+                                    highlightWeekends && (isSunday || isSaturday) -> Color.Red.copy(alpha = 0.8f)
                                     else -> MaterialTheme.colorScheme.onSurface
                                 }
                             )

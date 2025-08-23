@@ -123,12 +123,13 @@ private fun DayCell(
             else MaterialTheme.typography.bodySmall,
             color = when {
                 day.isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
+                day.isNationalHoliday -> MaterialTheme.colorScheme.error
                 day.isSaintDay -> when (theme) {
                     com.mss.thebigcalendar.data.model.Theme.DARK -> Color.Yellow
                     com.mss.thebigcalendar.data.model.Theme.LIGHT -> Color.Blue
                     com.mss.thebigcalendar.data.model.Theme.SYSTEM -> if (isSystemInDarkTheme()) Color.Yellow else Color.Blue
                 }
-                day.isWeekend || day.isNationalHoliday -> MaterialTheme.colorScheme.primary
+                day.isWeekend -> MaterialTheme.colorScheme.primary
                 day.isCurrentMonth -> MaterialTheme.colorScheme.onSurface
                 else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
             },
