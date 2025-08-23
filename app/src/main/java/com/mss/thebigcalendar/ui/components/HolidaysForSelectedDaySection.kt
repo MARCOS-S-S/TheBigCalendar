@@ -15,7 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Holiday
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun HolidaysForSelectedDaySection(
@@ -25,7 +27,7 @@ fun HolidaysForSelectedDaySection(
     if (holidays.isNotEmpty()) {
         Column(modifier = modifier) {
             Text(
-                text = "Feriados",
+                text = stringResource(id = R.string.holidays),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)

@@ -31,22 +31,11 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.ui.text.intl.Locale
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-
-// Lista de cores padrão
-//val defaultTaskColorsHex = listOf(
-//    "#F43F5E", "#EF4444", // Rosa, Vermelho
-//    "#F97316", "#EAB308", // Laranja, Amarelo
-//    "#22C55E", "#10B981", // Verde Lima, Verde Esmeralda
-//    "#0EA5E9", "#3B82F6", // Azul Céu, Azul Padrão
-//    "#8B5CF6", "#A855F7", // Roxo, Púrpura
-//    "#64748B", "#475569"  // Cinza Ardósia, Cinza Azulado
-//)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +53,7 @@ fun CreateActivityModal(
     val focusRequester = remember { FocusRequester() }
 
     val date = LocalDate.parse(currentActivity.date)
-    val formatter = DateTimeFormatter.ofPattern("d 'de' MMM", java.util.Locale("pt", "BR"))
+    val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_day_month), java.util.Locale("pt", "BR"))
     val formattedDate = date.format(formatter)
 
     LaunchedEffect(currentActivity.id) {
@@ -83,11 +72,10 @@ fun CreateActivityModal(
         onDismissRequest = onDismissRequest,
         title = {
             val titleText = if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
-                    if (selectedActivityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_scheduling_for) else stringResource(id = R.string.create_activity_modal_new_event)
-                } else {
-                    if (selectedActivityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_edit_task) else stringResource(id = R.string.create_activity_modal_edit_event)
-                }
-            Text(text = titleText)
+                if (selectedActivityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_scheduling_for) else stringResource(id = R.string.create_activity_modal_new_event)
+            } else {
+                if (selectedActivityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_edit_task) else stringResource(id = R.string.create_activity_modal_edit_event)
+            }
             Text(text = "$titleText $formattedDate")
         },
         text = {
@@ -125,7 +113,7 @@ fun CreateActivityModal(
                                 contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                             )
                         ) {
-                            Text(text = if (type == ActivityType.TASK) "Tarefa" else "Evento")
+                            Text(text = if (type == ActivityType.TASK) stringResource(id = R.string.task) else stringResource(id = R.string.event))
                         }
                     }
                 }
@@ -133,7 +121,14 @@ fun CreateActivityModal(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 var isRepetitionMenuExpanded by remember { mutableStateOf(false) }
-                val repetitionOptions = listOf("Não repetir", "Todos os dias", "Todas as semanas", "Todos os meses", "Todos os anos", "Personalizado...")
+                val repetitionOptions = listOf(
+                    stringResource(id = R.string.repetition_dont_repeat),
+                    stringResource(id = R.string.repetition_every_day),
+                    stringResource(id = R.string.repetition_every_week),
+                    stringResource(id = R.string.repetition_every_month),
+                    stringResource(id = R.string.repetition_every_year),
+                    stringResource(id = R.string.repetition_custom)
+                )
                 var selectedRepetition by remember { mutableStateOf(repetitionOptions.first()) }
 
                 Box {
@@ -146,13 +141,13 @@ fun CreateActivityModal(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
-                            contentDescription = "Repetir",
+                            contentDescription = stringResource(id = R.string.repeat),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             text = selectedRepetition,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = if (selectedRepetition != "Não repetir") {
+                            color = if (selectedRepetition != stringResource(id = R.string.repetition_dont_repeat)) {
                                 MaterialTheme.colorScheme.primary
                             } else {
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
@@ -221,7 +216,7 @@ fun PrioritySelector(
     )
 
     Column(modifier = modifier) {
-        Text("Prioridade:", style = MaterialTheme.typography.labelMedium)
+        Text(stringResource(id = R.string.priority), style = MaterialTheme.typography.labelMedium)
         Spacer(modifier = Modifier.height(8.dp))
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),

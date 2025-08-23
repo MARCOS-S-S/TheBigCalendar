@@ -40,11 +40,11 @@ import com.mss.thebigcalendar.R
 
 
 private val filterItems = listOf(
-    "showHolidays" to "Feriados nacionais",
-    "showSaintDays" to "Dias de Santos Católicos",
-    "showCommemorativeDates" to "Datas comemorativas",
-    "showEvents" to "Eventos",
-    "showTasks" to "Tarefas"
+    "showHolidays" to R.string.national_holidays,
+    "showSaintDays" to R.string.catholic_saint_days,
+    "showCommemorativeDates" to R.string.commemorative_dates,
+    "showEvents" to R.string.events,
+    "showTasks" to R.string.tasks
 )
 
 @Composable
@@ -72,7 +72,7 @@ fun Sidebar(
                 IconButton(onClick = onRequestClose) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Fechar menu"
+                        contentDescription = stringResource(id = R.string.close_menu)
                     )
                 }
             }
@@ -107,19 +107,19 @@ fun Sidebar(
 
             // Seção de Visualização (Mensal/Anual)
             Text(
-                text = "Visualização",
+                text = stringResource(id = R.string.visualization),
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             NavigationDrawerItem(
-                label = { Text("Mensal") },
+                label = { Text(stringResource(id = R.string.monthly)) },
                 icon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) },
                 selected = uiState.viewMode == ViewMode.MONTHLY,
                 onClick = { onViewModeChange(ViewMode.MONTHLY) }
             )
             NavigationDrawerItem(
-                label = { Text("Anual") },
+                label = { Text(stringResource(id = R.string.yearly)) },
                 icon = { Icon(Icons.Filled.DateRange, contentDescription = null) },
                 selected = uiState.viewMode == ViewMode.YEARLY,
                 onClick = { onViewModeChange(ViewMode.YEARLY) }
@@ -129,13 +129,13 @@ fun Sidebar(
 
             // Seção de Filtros
             Text(
-                text = "Mostrar no Calendário",
+                text = stringResource(id = R.string.show_on_calendar),
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            filterItems.forEach { (key, label) ->
+            filterItems.forEach { (key, labelResId) ->
                 val isChecked = when (key) {
                     "showHolidays" -> uiState.filterOptions.showHolidays
                     "showSaintDays" -> uiState.filterOptions.showSaintDays
@@ -145,7 +145,7 @@ fun Sidebar(
                     else -> false
                 }
                 FilterCheckboxItem(
-                    label = label,
+                    label = stringResource(id = labelResId),
                     checked = isChecked,
                     onCheckedChange = { onFilterChange(key, it) }
                 )
@@ -155,13 +155,13 @@ fun Sidebar(
 
             // Seção de Configurações
             Text(
-                text = "Configurações",
+                text = stringResource(id = R.string.settings),
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             NavigationDrawerItem(
-                label = { Text("Geral") },
+                label = { Text(stringResource(id = R.string.general)) },
                 icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
                 selected = false,
                 onClick = { onOpenSettingsModal("General") }
@@ -171,7 +171,7 @@ fun Sidebar(
 
             // Seção de Backup
             Text(
-                text = "Backup e Restauração",
+                text = stringResource(id = R.string.backup_and_restore),
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant

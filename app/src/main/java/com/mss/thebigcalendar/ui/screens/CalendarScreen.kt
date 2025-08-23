@@ -32,8 +32,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
@@ -121,7 +123,7 @@ fun CalendarScreen(
                                     val monthName = uiState.displayedYearMonth.month
                                         .getDisplayName(TextStyle.FULL, Locale("pt", "BR"))
                                         .replaceFirstChar { it.titlecase(Locale("pt", "BR")) }
-                                    "$monthName de ${uiState.displayedYearMonth.year}"
+                                    stringResource(id = R.string.month_year_format, monthName, uiState.displayedYearMonth.year)
                                 }
                                 ViewMode.YEARLY -> uiState.displayedYearMonth.year.toString()
                             }
@@ -129,7 +131,7 @@ fun CalendarScreen(
                         },
                         navigationIcon = {
                             IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                Icon(Icons.Default.Menu, "Abrir menu")
+                                Icon(Icons.Default.Menu, stringResource(id = R.string.open_close_menu))
                             }
                         },
                         actions = {
@@ -138,10 +140,10 @@ fun CalendarScreen(
                                 ViewMode.YEARLY -> Pair({ viewModel.onPreviousYear() }, { viewModel.onNextYear() })
                             }
                             IconButton(onClick = prevAction) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Anterior")
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.previous))
                             }
                             IconButton(onClick = nextAction) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowForward, "Próximo")
+                                Icon(Icons.AutoMirrored.Filled.ArrowForward, stringResource(id = R.string.next))
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(
@@ -154,7 +156,7 @@ fun CalendarScreen(
                         FloatingActionButton(
                             onClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
                         ) {
-                            Icon(Icons.Filled.Add, "Adicionar Agendamento")
+                            Icon(Icons.Filled.Add, stringResource(id = R.string.add_appointment))
                         }
                     }
                 }

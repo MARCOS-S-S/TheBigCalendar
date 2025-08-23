@@ -32,10 +32,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun TasksForSelectedDaySection(
@@ -48,7 +50,8 @@ fun TasksForSelectedDaySection(
     onDeleteClick: (String) -> Unit,
     onAddTaskClick: () -> Unit
 ) {
-    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd 'de' MMMM", Locale("pt", "BR")) }
+    val dateFormat = stringResource(id = R.string.date_format_day_month)
+    val dateFormatter = remember(dateFormat) { DateTimeFormatter.ofPattern(dateFormat, Locale("pt", "BR")) }
 
     Column(modifier = modifier) {
         Row(
@@ -58,7 +61,7 @@ fun TasksForSelectedDaySection(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Agendamentos para ${selectedDate.format(dateFormatter)}",
+                text = stringResource(id = R.string.appointments_for, selectedDate.format(dateFormatter)),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
@@ -67,7 +70,7 @@ fun TasksForSelectedDaySection(
 
         if (tasks.isEmpty()) {
             Text(
-                text = "Mó paz.",
+                text = stringResource(id = R.string.no_appointments),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = 16.dp)
             )
@@ -147,7 +150,7 @@ fun TaskItem(
             Text(text = task.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             if (task.startTime != null) {
                 Text(
-                    text = "Às ${task.startTime.format(DateTimeFormatter.ofPattern("HH:mm"))}",
+                    text = stringResource(id = R.string.at_time, task.startTime.format(DateTimeFormatter.ofPattern("HH:mm"))),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -161,7 +164,7 @@ fun TaskItem(
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                Icon(Icons.Default.Delete, contentDescription = "Apagar")
+                Icon(Icons.Default.Delete, contentDescription = stringResource(id = R.string.delete))
             }
         }
     }

@@ -13,7 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Holiday
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun SaintDaysForSelectedDaySection(
@@ -29,7 +31,7 @@ fun SaintDaysForSelectedDaySection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Dias de Santos Católicos",
+                text = stringResource(id = R.string.saint_days),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
