@@ -99,10 +99,18 @@ fun TaskItem(
 ) {
     val fallbackColor = MaterialTheme.colorScheme.secondary
     val taskColor = remember(task.categoryColor) {
-        try {
-            Color(android.graphics.Color.parseColor(task.categoryColor))
-        } catch (e: IllegalArgumentException) {
-            fallbackColor
+        when (task.categoryColor) {
+            "1" -> Color.White
+            "2" -> Color.Blue
+            "3" -> Color.Yellow
+            "4" -> Color.Red
+            else -> {
+                try {
+                    Color(android.graphics.Color.parseColor(task.categoryColor))
+                } catch (e: IllegalArgumentException) {
+                    fallbackColor
+                }
+            }
         }
     }
 
