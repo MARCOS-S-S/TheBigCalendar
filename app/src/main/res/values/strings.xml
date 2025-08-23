@@ -1,16 +1,41 @@
 <resources>
     <string name="app_name">TBCalendar</string>
-    <string name="create_activity_modal_scheduling_for">Nova tarefa </string>
+
+    <!-- CreateActivityModal.kt -->
+    <string name="create_activity_modal_scheduling_for">Nova tarefa</string>
     <string name="create_activity_modal_edit_task">Editar Atividade</string>
     <string name="create_activity_modal_title">Título</string>
     <string name="create_activity_modal_color">Definir cor</string>
     <string name="create_activity_modal_save">Salvar</string>
     <string name="create_activity_modal_cancel">Cancelar</string>
-    <string name="create_activity_modal_new_event"> Novo evento </string>
-    <string name="create_activity_modal_edit_event"> Editar evento</string>
-
-    <!-- CreateActivityModal.kt -->
+    <string name="create_activity_modal_new_event">Novo evento</string>
+    <string name="create_activity_modal_edit_event">Editar evento</string>
     <string name="priority">Prioridade:</string>
+    <string name="task">Tarefa</string>
+    <string name="event">Evento</string>
+    <string name="repetition_dont_repeat">Não repetir</string>
+    <string name="repetition_every_day">Todos os dias</string>
+    <string name="repetition_every_week">Todas as semanas</string>
+    <string name="repetition_every_month">Todos os meses</string>
+    <string name="repetition_every_year">Todos os anos</string>
+    <string name="repetition_custom">Personalizado...</string>
+    <string name="repeat">Repetir</string>
+
+    <!-- DeleteConfirmationDialog.kt -->
+    <string name="delete_confirmation_title">Confirmar Exclusão</string>
+    <string name="delete_confirmation_message">Tem certeza que deseja apagar "%1$s"?</string>
+    <string name="delete">Apagar</string>
+
+    <!-- HolidaysForSelectedDaySection.kt -->
+    <string name="holidays">Feriados</string>
+
+    <!-- SaintDaysForSelectedDaySection.kt -->
+    <string name="saint_days">Dias de Santos Católicos</string>
+
+    <!-- SaintInfoDialog.kt -->
+    <string name="no_information_available">Nenhuma informação disponível.</string>
+    <string name="open_in_wikipedia">Abrir na Wikipedia</string>
+    <string name="close">Fechar</string>
 
     <!-- Sidebar.kt -->
     <string name="national_holidays">Feriados nacionais</string>
@@ -30,23 +55,26 @@
     <string name="backup_and_restore">Backup e Restauração</string>
     <string name="do_backup">Backup</string>
     <string name="restore_backup">Restaurar</string>
+    <string name="sidebar_change_theme">Tema escuro</string>
 
     <!-- TasksForSelectedDaySection.kt -->
     <string name="date_format_day_month">dd \'de\' MMMM</string>
-    <string name="appointments_for">Agendamentos para</string>
+    <string name="appointments_for">Agendamentos para %1$s</string>
     <string name="no_appointments">Mó paz.</string>
-    <string name="at_time">Às</string>
+    <string name="at_time">Às %1$s</string>
 
     <!-- YearlyCalendarView.kt -->
     <string name="previous_year">Ano Anterior</string>
     <string name="next_year">Próximo Ano</string>
 
     <!-- CalendarScreen.kt -->
-    <string name="month_year_separator"> de </string>
+    <string name="month_year_format">%1$s de %2$s</string>
     <string name="open_close_menu">Abrir/Fechar menu</string>
     <string name="previous_month">Mês Anterior</string>
     <string name="next_month">Próximo Mês</string>
     <string name="add_appointment">Adicionar Agendamento</string>
+    <string name="previous">Anterior</string>
+    <string name="next">Próximo</string>
 
     <!-- HolidayRepository.kt -->
     <string name="new_year">Confraternização Universal</string>
@@ -70,6 +98,5 @@
     <string name="friends_day">Dia do Amigo</string>
     <string name="fathers_day">Dia dos Pais</string>
     <string name="childrens_day">Dia das Crianças</string>
-    <string name="sidebar_change_theme">Tema escuro</string>"
 
 </resources>
