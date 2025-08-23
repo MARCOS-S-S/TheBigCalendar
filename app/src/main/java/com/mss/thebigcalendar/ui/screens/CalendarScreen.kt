@@ -1,5 +1,7 @@
 package com.mss.thebigcalendar.ui.screens
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -12,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -51,9 +54,7 @@ import com.mss.thebigcalendar.ui.components.YearlyCalendarView
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import kotlinx.coroutines.launch
-import java.time.format.TextStyle
 import java.util.Locale
-import kotlin.coroutines.cancellation.CancellationException
 
 // Função para lidar com cliques fora dos itens interativos
 fun Modifier.clickableWithoutRipple(onClick: () -> Unit): Modifier = composed {
@@ -71,24 +72,22 @@ fun CalendarScreen(
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(
-        initialValue = if (uiState.isSidebarOpen) DrawerValue.Open else DrawerValue.Closed,
+        initialValue = DrawerValue.Closed,
         confirmStateChange = { newDrawerValue ->
-            if (newDrawerValue == DrawerValue.Closed && uiState.isSidebarOpen) {
+            if (newDrawerValue == DrawerValue.Closed) {
                 viewModel.closeSidebar()
-            } else if (newDrawerValue == DrawerValue.Open && !uiState.isSidebarOpen) {
+            } else {
                 viewModel.openSidebar()
             }
             true
         }
     )
 
-    LaunchedEffect(uiState.isSidebarOpen, drawerState.isAnimationRunning) {
-        if (!drawerState.isAnimationRunning) {
-            if (uiState.isSidebarOpen && !drawerState.isOpen) {
-                scope.launch { try { drawerState.open() } catch (e: CancellationException) { /* ok */ } }
-            } else if (!uiState.isSidebarOpen && drawerState.isOpen) {
-                scope.launch { try { drawerState.close() } catch (e: CancellationException) { /* ok */ } }
-            }
+    LaunchedEffect(uiState.isSidebarOpen) {
+        if (uiState.isSidebarOpen) {
+            drawerState.open()
+        } else {
+            drawerState.close()
         }
     }
 
@@ -121,7 +120,7 @@ fun CalendarScreen(
                             val text = when (uiState.viewMode) {
                                 ViewMode.MONTHLY -> {
                                     val monthName = uiState.displayedYearMonth.month
-                                        .getDisplayName(TextStyle.FULL, Locale("pt", "BR"))
+                                        .getDisplayName(java.time.format.TextStyle.FULL, Locale("pt", "BR"))
                                         .replaceFirstChar { it.titlecase(Locale("pt", "BR")) }
                                     stringResource(id = R.string.month_year_format, monthName, uiState.displayedYearMonth.year)
                                 }
