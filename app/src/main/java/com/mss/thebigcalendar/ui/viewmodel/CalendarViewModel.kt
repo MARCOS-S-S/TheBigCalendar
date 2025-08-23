@@ -302,4 +302,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun cancelDeleteActivity() = _uiState.update { it.copy(activityIdToDelete = null) }
+
+    fun onSaintDayClick(saint: Holiday) {
+        _uiState.update { it.copy(saintInfoToShow = saint) }
+    }
+
+    fun onSaintInfoDialogDismiss() {
+        _uiState.update { it.copy(saintInfoToShow = null) }
+    }
 }

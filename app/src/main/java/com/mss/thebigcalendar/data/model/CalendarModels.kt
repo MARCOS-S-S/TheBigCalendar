@@ -63,6 +63,7 @@ data class CalendarUiState(
     val activityToEdit: Activity? = null,
     val activityIdToDelete: String? = null,
     val activityIdWithDeleteButtonVisible: String? = null,
+    val saintInfoToShow: Holiday? = null,
     val isSettingsModalOpen: Boolean = false,
     val settingsCategory: String = "General",
     val calendarDays: List<CalendarDay> = emptyList(),

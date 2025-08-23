@@ -18,7 +18,8 @@ import com.mss.thebigcalendar.data.model.Holiday
 @Composable
 fun SaintDaysForSelectedDaySection(
     modifier: Modifier = Modifier,
-    saints: List<Holiday>
+    saints: List<Holiday>,
+    onSaintClick: (Holiday) -> Unit
 ) {
     Column(modifier = modifier) {
         Row(
@@ -36,7 +37,7 @@ fun SaintDaysForSelectedDaySection(
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             saints.forEach { saint ->
-                TextButton(onClick = { /*TODO*/ }) {
+                TextButton(onClick = { onSaintClick(saint) }) {
                     Text(
                         text = saint.name,
                         style = MaterialTheme.typography.bodyMedium
