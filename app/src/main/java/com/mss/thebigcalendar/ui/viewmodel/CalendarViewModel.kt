@@ -27,7 +27,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     private val settingsRepository = SettingsRepository(application)
     private val activityRepository = ActivityRepository(application)
-    private val holidayRepository = HolidayRepository()
+    private val holidayRepository = HolidayRepository(application)
 
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
