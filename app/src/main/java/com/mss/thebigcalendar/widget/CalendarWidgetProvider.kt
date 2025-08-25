@@ -36,15 +36,20 @@ class CalendarWidgetProvider : AppWidgetProvider() {
     ) {
         val views = RemoteViews(context.packageName, R.layout.calendar_widget)
         
-        // Atualizar horário
+        // Atualizar horário com cor de contraste para a hora
         val currentTime = LocalTime.now()
-        val timeFormat = DateTimeFormatter.ofPattern("H:mm", Locale.getDefault())
-        views.setTextViewText(R.id.widget_time, currentTime.format(timeFormat))
+        val hour = currentTime.hour.toString()
+        val minutes = String.format("%02d", currentTime.minute)
         
-        // Atualizar data
+        // Usar cor de contraste real para a hora e branco para minutos
+        val coloredTime = "<font color='@android:color/system_accent3_100'>$hour</font><font color='#FFFFFF'>:$minutes</font>"
+        views.setTextViewText(R.id.widget_time, android.text.Html.fromHtml(coloredTime, android.text.Html.FROM_HTML_MODE_COMPACT))
+        
+        // Atualizar data com cor branca
         val currentDate = LocalDate.now()
         val dateFormat = DateTimeFormatter.ofPattern("EEE., dd 'de' MMM.", Locale("pt", "BR"))
-        views.setTextViewText(R.id.widget_date, currentDate.format(dateFormat))
+        val whiteDate = "<font color='#FFFFFF'>${currentDate.format(dateFormat)}</font>"
+        views.setTextViewText(R.id.widget_date, android.text.Html.fromHtml(whiteDate, android.text.Html.FROM_HTML_MODE_COMPACT))
         
         // Intent para abrir o app ao clicar
         val intent = Intent(context, MainActivity::class.java)
@@ -86,22 +91,25 @@ class CalendarWidgetProvider : AppWidgetProvider() {
                         val tasksText = if (todayTasks.isEmpty()) {
                             "Nenhuma tarefa para hoje"
                         } else {
-                            todayTasks.take(2).joinToString("\n") { task ->
+                            todayTasks.take(2).joinToString("<br>") { task ->
                                 if (task.startTime != null) {
                                     "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} ${task.title}"
                                 } else {
                                     task.title
                                 }
-                            } + if (todayTasks.size > 2) "\n..." else ""
+                            } + if (todayTasks.size > 2) "<br>..." else ""
                         }
                         
-                        views.setTextViewText(R.id.widget_tasks, tasksText)
+                        // Aplicar cor branca às tarefas
+                        val whiteTasks = "<font color='#FFFFFF'>$tasksText</font>"
+                        views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml(whiteTasks, android.text.Html.FROM_HTML_MODE_COMPACT))
                         appWidgetManager.updateAppWidget(appWidgetId, views)
                     }
                 }
             } catch (e: Exception) {
                 CoroutineScope(Dispatchers.Main).launch {
-                    views.setTextViewText(R.id.widget_tasks, "Erro ao carregar tarefas")
+                    val errorText = "<font color='#FFFFFF'>Erro ao carregar tarefas</font>"
+                    views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml(errorText, android.text.Html.FROM_HTML_MODE_COMPACT))
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
             }

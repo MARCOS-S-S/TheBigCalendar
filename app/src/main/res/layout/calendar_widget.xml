@@ -21,7 +21,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="12:34"
-            android:textColor="@android:color/system_accent1_600"
             android:textSize="57sp"
             android:textStyle="bold"
             android:fontFamily="sans-serif-condensed" />
@@ -32,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Seg., 25 de ago."
-            android:textColor="@android:color/system_accent1_400"
+            android:textColor="#FFFFFF"
             android:textSize="10sp"
             android:layout_marginTop="1dp" />
 
@@ -42,7 +41,7 @@
     <View
         android:layout_width="1dp"
         android:layout_height="match_parent"
-        android:background="@android:color/system_accent1_200"
+        android:background="#FFFFFF"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
         android:layout_marginTop="4dp"
@@ -55,11 +54,11 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="Carregando tarefas..."
-        android:textColor="@android:color/system_accent1_700"
+        android:textColor="#FFFFFF"
         android:textSize="12sp"
         android:maxLines="2"
         android:ellipsize="end"
         android:lineSpacingMultiplier="1.1"
-        android:gravity="start|center_vertical" />
+        android:gravity="start|top" />
 
 </LinearLayout>

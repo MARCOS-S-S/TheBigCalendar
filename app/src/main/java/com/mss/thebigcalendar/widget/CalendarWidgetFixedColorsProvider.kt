@@ -90,22 +90,23 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                         val tasksText = if (todayTasks.isEmpty()) {
                             "Nenhuma tarefa para hoje"
                         } else {
-                            todayTasks.take(2).joinToString("\n") { task ->
+                            todayTasks.take(2).joinToString("<br>") { task ->
                                 if (task.startTime != null) {
                                     "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} ${task.title}"
                                 } else {
                                     task.title
                                 }
-                            } + if (todayTasks.size > 2) "\n..." else ""
+                            } + if (todayTasks.size > 2) "<br>..." else ""
                         }
                         
-                        views.setTextViewText(R.id.widget_tasks, tasksText)
+                        // Aplicar HTML para quebras de linha funcionarem
+                        views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml(tasksText, android.text.Html.FROM_HTML_MODE_COMPACT))
                         appWidgetManager.updateAppWidget(appWidgetId, views)
                     }
                 }
             } catch (e: Exception) {
                 CoroutineScope(Dispatchers.Main).launch {
-                    views.setTextViewText(R.id.widget_tasks, "Erro ao carregar tarefas")
+                    views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml("Erro ao carregar tarefas", android.text.Html.FROM_HTML_MODE_COMPACT))
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
             }
