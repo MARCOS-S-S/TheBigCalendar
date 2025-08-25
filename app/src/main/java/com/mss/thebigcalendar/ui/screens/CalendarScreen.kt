@@ -1,5 +1,7 @@
 package com.mss.thebigcalendar.ui.screens
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -11,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -64,25 +67,27 @@ fun CalendarScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
-    val drawerState = rememberDrawerState(
-        initialValue = DrawerValue.Closed,
-        confirmStateChange = { newDrawerValue ->
-            if (newDrawerValue == DrawerValue.Closed) {
-                viewModel.closeSidebar()
-            } else {
-                viewModel.openSidebar()
-            }
-            true
-        }
-    )
+    val drawerState = remember(viewModel) {
+        DrawerState(initialValue = DrawerValue.Closed)
+    }
 
-    LaunchedEffect(uiState.isSidebarOpen) {
-        if (uiState.isSidebarOpen) {
-            drawerState.open()
+    LaunchedEffect(drawerState.currentValue) {
+        if (drawerState.currentValue == DrawerValue.Closed) {
+            viewModel.closeSidebar()
         } else {
-            drawerState.close()
+            viewModel.openSidebar()
         }
     }
+    LaunchedEffect(uiState.isSidebarOpen) {
+        if (uiState.isSidebarOpen != drawerState.isOpen) {
+            if (uiState.isSidebarOpen) {
+                drawerState.open()
+            } else {
+                drawerState.close()
+            }
+        }
+    }
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -157,7 +162,11 @@ fun MainCalendarView(
                     Text(text)
                 },
                 navigationIcon = {
-                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                    IconButton(onClick = { 
+                        scope.launch {
+                            drawerState.animateTo(DrawerValue.Open, anim = tween(durationMillis = 300, easing = FastOutSlowInEasing))
+                        }
+                    }) {
                         Icon(Icons.Default.Menu, stringResource(id = R.string.open_close_menu))
                     }
                 },
