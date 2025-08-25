@@ -56,8 +56,8 @@
         android:layout_weight="1"
         android:text="Carregando tarefas..."
         android:textColor="@android:color/system_accent1_700"
-        android:textSize="12sp"
-        android:maxLines="2"
+        android:textSize="13sp"
+        android:maxLines="5"
         android:ellipsize="end"
         android:lineSpacingMultiplier="1.1"
         android:gravity="start|center_vertical" />

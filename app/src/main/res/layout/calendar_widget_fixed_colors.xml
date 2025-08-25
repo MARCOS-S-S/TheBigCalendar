@@ -41,7 +41,7 @@
     <View
         android:layout_width="1dp"
         android:layout_height="match_parent"
-        android:background="#FFFFFF"
+        android:background="#FFFFF"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp" />
 
@@ -54,7 +54,7 @@
         android:text="Carregando tarefas..."
         android:textColor="#FFFFFF"
         android:textSize="13sp"
-        android:lineSpacingMultiplier="0.8"
+        android:lineSpacingMultiplier="1.0"
         android:gravity="start|top"
         android:singleLine="false" />
 
