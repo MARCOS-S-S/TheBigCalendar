@@ -91,16 +91,20 @@ class CalendarWidgetProvider : AppWidgetProvider() {
                         val tasksText = if (todayTasks.isEmpty()) {
                             "Nenhuma tarefa para hoje"
                         } else {
-                            todayTasks.take(2).joinToString("<br>") { task ->
+                            todayTasks.take(7).joinToString("<br>") { task ->
                                 if (task.startTime != null) {
                                     "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} ${task.title}"
                                 } else {
                                     task.title
                                 }
-                            } + if (todayTasks.size > 2) "<br>..." else ""
+                            } + if (todayTasks.size > 7) "<br>..." else ""
                         }
-                        
-                        // Aplicar cor branca às tarefas
+
+                        // Aplicar HTML para quebras de linha funcionarem
+                        views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml(tasksText, android.text.Html.FROM_HTML_MODE_COMPACT))
+                        appWidgetManager.updateAppWidget(appWidgetId, views)
+
+                    // Aplicar cor branca às tarefas
                         val whiteTasks = "<font color='#FFFFFF'>$tasksText</font>"
                         views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml(whiteTasks, android.text.Html.FROM_HTML_MODE_COMPACT))
                         appWidgetManager.updateAppWidget(appWidgetId, views)

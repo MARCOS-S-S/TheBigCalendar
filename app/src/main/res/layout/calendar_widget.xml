@@ -43,22 +43,19 @@
         android:layout_height="match_parent"
         android:background="#FFFFFF"
         android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginEnd="12dp" />
 
     <!-- Tarefas do dia -->
     <TextView
         android:id="@+id/widget_tasks"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:text="Carregando tarefas..."
         android:textColor="#FFFFFF"
-        android:textSize="12sp"
-        android:maxLines="2"
-        android:ellipsize="end"
-        android:lineSpacingMultiplier="1.1"
-        android:gravity="start|top" />
+        android:textSize="8sp"
+        android:lineSpacingMultiplier="0.8"
+        android:gravity="start|top"
+        android:singleLine="false" />
 
 </LinearLayout>

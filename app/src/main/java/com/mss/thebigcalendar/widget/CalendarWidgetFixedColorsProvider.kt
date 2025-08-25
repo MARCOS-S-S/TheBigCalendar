@@ -90,13 +90,13 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                         val tasksText = if (todayTasks.isEmpty()) {
                             "Nenhuma tarefa para hoje"
                         } else {
-                            todayTasks.take(2).joinToString("<br>") { task ->
+                            todayTasks.take(7).joinToString("<br>") { task ->
                                 if (task.startTime != null) {
                                     "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} ${task.title}"
                                 } else {
                                     task.title
                                 }
-                            } + if (todayTasks.size > 2) "<br>..." else ""
+                            } + if (todayTasks.size > 7) "<br>..." else ""
                         }
                         
                         // Aplicar HTML para quebras de linha funcionarem
