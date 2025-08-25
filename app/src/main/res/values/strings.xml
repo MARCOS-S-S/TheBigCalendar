@@ -18,7 +18,7 @@
     <string name="repetition_every_week">Todas as semanas</string>
     <string name="repetition_every_month">Todos os meses</string>
     <string name="repetition_every_year">Todos os anos</string>
-    <string name="repetition_custom">Personalizado...</string>
+    <string name="repetition_custom">Personalizado…</string>
     <string name="repeat">Repetir</string>
 
     <!-- DeleteConfirmationDialog.kt -->
@@ -75,6 +75,7 @@
     <string name="add_appointment">Adicionar Agendamento</string>
     <string name="previous">Anterior</string>
     <string name="next">Próximo</string>
+    <string name="back">Voltar</string>
 
     <!-- HolidayRepository.kt -->
     <string name="new_year">Confraternização Universal</string>
