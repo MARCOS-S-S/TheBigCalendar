@@ -86,13 +86,13 @@ class CalendarWidgetProvider : AppWidgetProvider() {
                         val tasksText = if (todayTasks.isEmpty()) {
                             "Nenhuma tarefa para hoje"
                         } else {
-                            todayTasks.take(3).joinToString(" • ") { task ->
+                            todayTasks.take(2).joinToString("\n") { task ->
                                 if (task.startTime != null) {
                                     "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} ${task.title}"
                                 } else {
                                     task.title
                                 }
-                            } + if (todayTasks.size > 3) " • ..." else ""
+                            } + if (todayTasks.size > 2) "\n..." else ""
                         }
                         
                         views.setTextViewText(R.id.widget_tasks, tasksText)

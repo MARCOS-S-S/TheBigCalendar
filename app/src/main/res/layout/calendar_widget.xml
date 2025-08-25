@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:text="12:34"
             android:textColor="#000000"
-            android:textSize="32sp"
+            android:textSize="57sp"
             android:textStyle="bold"
             android:fontFamily="sans-serif-condensed" />
 
