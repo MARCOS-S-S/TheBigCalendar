@@ -67,24 +67,21 @@ fun CalendarScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
-    val drawerState = remember(viewModel) {
-        DrawerState(initialValue = DrawerValue.Closed)
-    }
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
 
-    LaunchedEffect(drawerState.currentValue) {
-        if (drawerState.currentValue == DrawerValue.Closed) {
-            viewModel.closeSidebar()
-        } else {
-            viewModel.openSidebar()
+    // Sincronização bidirecional entre ViewModel e DrawerState
+    LaunchedEffect(uiState.isSidebarOpen) {
+        if (uiState.isSidebarOpen && !drawerState.isOpen) {
+            drawerState.open()
+        } else if (!uiState.isSidebarOpen && drawerState.isOpen) {
+            drawerState.close()
         }
     }
-    LaunchedEffect(uiState.isSidebarOpen) {
-        if (uiState.isSidebarOpen != drawerState.isOpen) {
-            if (uiState.isSidebarOpen) {
-                drawerState.open()
-            } else {
-                drawerState.close()
-            }
+    
+    // Detecta quando o drawer é fechado por gesto e atualiza o ViewModel
+    LaunchedEffect(drawerState.currentValue) {
+        if (drawerState.currentValue == DrawerValue.Closed && uiState.isSidebarOpen) {
+            viewModel.closeSidebar()
         }
     }
 
@@ -93,15 +90,21 @@ fun CalendarScreen(
         drawerState = drawerState,
         gesturesEnabled = uiState.currentSettingsScreen == null,
         drawerContent = {
-            Sidebar(
-                uiState = uiState,
-                onViewModeChange = { viewModel.onViewModeChange(it) },
-                onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
-                onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
-                onBackup = { viewModel.onBackupRequest() },
-                onRestore = { viewModel.onRestoreRequest() },
-                onRequestClose = { viewModel.closeSidebar() }
-            )
+            // Renderização condicional para melhor performance
+            if (drawerState.targetValue == DrawerValue.Open || drawerState.isOpen) {
+                Sidebar(
+                    uiState = uiState,
+                    onViewModeChange = { viewModel.onViewModeChange(it) },
+                    onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
+                    onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
+                    onBackup = { viewModel.onBackupRequest() },
+                    onRestore = { viewModel.onRestoreRequest() },
+                    onRequestClose = { 
+                        scope.launch { drawerState.close() }
+                        viewModel.closeSidebar() 
+                    }
+                )
+            }
         }
     ) {
         when (uiState.currentSettingsScreen) {
@@ -163,9 +166,7 @@ fun MainCalendarView(
                 },
                 navigationIcon = {
                     IconButton(onClick = { 
-                        scope.launch {
-                            drawerState.animateTo(DrawerValue.Open, anim = tween(durationMillis = 300, easing = FastOutSlowInEasing))
-                        }
+                        viewModel.openSidebar()
                     }) {
                         Icon(Icons.Default.Menu, stringResource(id = R.string.open_close_menu))
                     }

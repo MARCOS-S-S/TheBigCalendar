@@ -30,6 +30,7 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -110,7 +111,12 @@ fun Sidebar(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            filterItems.forEach { (key, labelResId) ->
+            // Cache dos recursos de string para evitar recomposição
+            val filterLabels = remember {
+                filterItems.associate { (key, labelResId) -> key to labelResId }
+            }
+            
+            filterLabels.forEach { (key, labelResId) ->
                 val isChecked = when (key) {
                     "showHolidays" -> uiState.filterOptions.showHolidays
                     "showSaintDays" -> uiState.filterOptions.showSaintDays
