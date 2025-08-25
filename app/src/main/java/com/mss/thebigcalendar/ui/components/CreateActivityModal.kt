@@ -55,10 +55,11 @@ fun CreateActivityModal(
     var selectedActivityType by remember(currentActivity.id) { mutableStateOf(currentActivity.activityType) }
 
     val focusRequester = remember { FocusRequester() }
-    val startTime by remember(currentActivity.id) { mutableStateOf(currentActivity.endTime) }
-    val endTime by remember(currentActivity.id) { mutableStateOf(currentActivity.endTime) }
+    var startTime by remember(currentActivity.id) { mutableStateOf(currentActivity.startTime) }
+    var endTime by remember(currentActivity.id) { mutableStateOf(currentActivity.endTime) }
     var showTimePicker by remember { mutableStateOf(false) }
     var isPickingStartTime by remember { mutableStateOf(true) }
+    var hasScheduledTime by remember(currentActivity.id) { mutableStateOf(currentActivity.startTime != null) }
 
     val date = LocalDate.parse(currentActivity.date)
     val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_day_month), java.util.Locale("pt", "BR"))
@@ -99,13 +100,6 @@ fun CreateActivityModal(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                PrioritySelector(
-                    selectedPriority = selectedPriority,
-                    onPrioritySelected = { selectedPriority = it }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -125,6 +119,26 @@ fun CreateActivityModal(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                PrioritySelector(
+                    selectedPriority = selectedPriority,
+                    onPrioritySelected = { selectedPriority = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                TimeSelector(
+                    hasScheduledTime = hasScheduledTime,
+                    startTime = startTime,
+                    endTime = endTime,
+                    onScheduleToggle = { hasScheduledTime = it },
+                    onTimeClick = { isStart ->
+                        isPickingStartTime = isStart
+                        showTimePicker = true
+                    }
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -183,6 +197,45 @@ fun CreateActivityModal(
                     }
                 }
             }
+
+            // TimePicker Modal
+            if (showTimePicker) {
+                val timePickerState = rememberTimePickerState(
+                    initialHour = if (isPickingStartTime) startTime?.hour ?: 9 else endTime?.hour ?: 10,
+                    initialMinute = if (isPickingStartTime) startTime?.minute ?: 0 else endTime?.minute ?: 0,
+                    is24Hour = true
+                )
+                
+                AlertDialog(
+                    onDismissRequest = { showTimePicker = false },
+                    title = {
+                        Text(text = if (isPickingStartTime) "Horário de Início" else "Horário de Fim")
+                    },
+                    text = {
+                        TimePicker(state = timePickerState)
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                val selectedTime = java.time.LocalTime.of(timePickerState.hour, timePickerState.minute)
+                                if (isPickingStartTime) {
+                                    startTime = selectedTime
+                                } else {
+                                    endTime = selectedTime
+                                }
+                                showTimePicker = false
+                            }
+                        ) {
+                            Text("OK")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showTimePicker = false }) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
+            }
         },
         confirmButton = {
             TextButton(
@@ -191,8 +244,9 @@ fun CreateActivityModal(
                         title = title.trim(),
                         categoryColor = selectedPriority,
                         activityType = selectedActivityType,
-                        startTime = startTime,
-                        endTime = endTime
+                        startTime = if (hasScheduledTime) startTime else null,
+                        endTime = if (hasScheduledTime) endTime else null,
+                        isAllDay = !hasScheduledTime
                     )
                     if (updatedActivity.title.isNotBlank()) {
                         onSaveActivity(updatedActivity)
@@ -249,6 +303,89 @@ fun PrioritySelector(
                         null
                     }
                 ) {}
+            }
+        }
+    }
+}
+
+@Composable
+fun TimeSelector(
+    hasScheduledTime: Boolean,
+    startTime: java.time.LocalTime?,
+    endTime: java.time.LocalTime?,
+    onScheduleToggle: (Boolean) -> Unit,
+    onTimeClick: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Horário",
+                style = MaterialTheme.typography.labelMedium
+            )
+            androidx.compose.material3.Switch(
+                checked = hasScheduledTime,
+                onCheckedChange = onScheduleToggle
+            )
+        }
+        
+        if (hasScheduledTime) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Botão de horário de início
+                Button(
+                    onClick = { onTimeClick(true) },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AccessTime,
+                        contentDescription = "Horário de início",
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = if (startTime != null) {
+                            String.format("%02d:%02d", startTime.hour, startTime.minute)
+                        } else {
+                            "Início"
+                        }
+                    )
+                }
+                
+                // Botão de horário de fim
+                Button(
+                    onClick = { onTimeClick(false) },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AccessTime,
+                        contentDescription = "Horário de fim",
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = if (endTime != null) {
+                            String.format("%02d:%02d", endTime.hour, endTime.minute)
+                        } else {
+                            "Fim"
+                        }
+                    )
+                }
             }
         }
     }

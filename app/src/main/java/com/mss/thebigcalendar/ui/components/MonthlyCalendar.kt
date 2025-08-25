@@ -106,7 +106,8 @@ private fun DayCell(
                 else -> Color.Transparent
             }
         )
-        .clickable(enabled = day.isCurrentMonth) {
+        //Dias possiveis de serem clicados:
+        .clickable {
             onDateSelected(day.date)
         }
         .padding(vertical = 0.dp, horizontal = 2.dp)
@@ -147,7 +148,7 @@ private fun DayCell(
             )
         }
 
-        if (day.isCurrentMonth && day.tasks.isNotEmpty()) {
+        if (day.tasks.isNotEmpty()) {
             Spacer(modifier = Modifier.height(1.dp))
 
             Column(
