@@ -97,6 +97,7 @@ dependencies {
 
     // Dependência do Protobuf para o Proto DataStore
     implementation(libs.protobuf.kotlin.lite)
+    implementation(libs.places)
 
     // Dependências de Teste
     testImplementation(libs.junit)
