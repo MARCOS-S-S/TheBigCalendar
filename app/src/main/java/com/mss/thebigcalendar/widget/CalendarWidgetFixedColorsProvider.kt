@@ -1,5 +1,6 @@
 package com.mss.thebigcalendar.widget
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -29,6 +30,7 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
         }
     }
 
+    @SuppressLint("RemoteViewLayout")
     private fun updateAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
