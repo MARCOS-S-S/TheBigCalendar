@@ -52,8 +52,7 @@ fun Sidebar(
     uiState: com.mss.thebigcalendar.data.model.CalendarUiState,
     onViewModeChange: (ViewMode) -> Unit,
     onFilterChange: (key: String, value: Boolean) -> Unit,
-    onThemeChange: (Theme) -> Unit,
-    onOpenSettingsModal: (String) -> Unit,
+    onNavigateToSettings: (String) -> Unit,
     onBackup: () -> Unit,
     onRestore: () -> Unit,
     onRequestClose: () -> Unit
@@ -79,31 +78,7 @@ fun Sidebar(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Seção de Tema (Modo Escuro/Claro)
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.sidebar_change_theme),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Switch(
-                    checked = when (uiState.theme) {
-                        Theme.LIGHT -> false
-                        Theme.DARK -> true
-                        Theme.SYSTEM -> isSystemInDarkTheme()
-                    },
-                    onCheckedChange = { isChecked ->
-                        onThemeChange(if (isChecked) Theme.DARK else Theme.LIGHT)
-                    }
-                )
-            }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+            
 
             // Seção de Visualização (Mensal/Anual)
             Text(
@@ -164,7 +139,7 @@ fun Sidebar(
                 label = { Text(stringResource(id = R.string.general)) },
                 icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
                 selected = false,
-                onClick = { onOpenSettingsModal("General") }
+                onClick = { onNavigateToSettings("General") }
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))

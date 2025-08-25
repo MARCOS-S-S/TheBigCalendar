@@ -104,8 +104,7 @@ fun CalendarScreen(
                     uiState = uiState,
                     onViewModeChange = { viewModel.onViewModeChange(it) },
                     onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
-                    onThemeChange = { viewModel.onThemeChange(it) },
-                    onOpenSettingsModal = { viewModel.openSettingsModal(it) },
+                    onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
                     onBackup = { viewModel.onBackupRequest() },
                     onRestore = { viewModel.onRestoreRequest() },
                     onRequestClose = { viewModel.closeSidebar() }
@@ -165,63 +164,73 @@ fun CalendarScreen(
                         .padding(paddingValues)
                         .fillMaxSize()
                 ) {
-                    when (uiState.viewMode) {
-                        ViewMode.MONTHLY -> {
-                            LazyColumn(modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() }) {
-                                item {
-                                    MonthlyCalendar(
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
-                                        calendarDays = uiState.calendarDays,
-                                        onDateSelected = { viewModel.onDateSelected(it) },
-                                        theme = uiState.theme
-                                    )
-                                }
-                                item {
-                                    TasksForSelectedDaySection(
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                        tasks = uiState.tasksForSelectedDate,
-                                        selectedDate = uiState.selectedDate,
-                                        activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
-                                        onTaskClick = {
-                                            if (uiState.activityIdWithDeleteButtonVisible != null) {
-                                                viewModel.hideDeleteButton()
-                                            } else {
-                                                viewModel.openCreateActivityModal(it, it.activityType)
+                    when (uiState.currentSettingsScreen) {
+                        "General" -> {
+                            GeneralSettingsScreen(
+                                currentTheme = uiState.theme,
+                                onThemeChange = { viewModel.onThemeChange(it) }
+                            )
+                        }
+                        else -> {
+                            when (uiState.viewMode) {
+                                ViewMode.MONTHLY -> {
+                                    LazyColumn(modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() }) {
+                                        item {
+                                            MonthlyCalendar(
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
+                                                calendarDays = uiState.calendarDays,
+                                                onDateSelected = { viewModel.onDateSelected(it) },
+                                                theme = uiState.theme
+                                            )
+                                        }
+                                        item {
+                                            TasksForSelectedDaySection(
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                                tasks = uiState.tasksForSelectedDate,
+                                                selectedDate = uiState.selectedDate,
+                                                activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
+                                                onTaskClick = {
+                                                    if (uiState.activityIdWithDeleteButtonVisible != null) {
+                                                        viewModel.hideDeleteButton()
+                                                    } else {
+                                                        viewModel.openCreateActivityModal(it, it.activityType)
+                                                    }
+                                                },
+                                                onTaskLongClick = { viewModel.onTaskLongPressed(it) },
+                                                onDeleteClick = { viewModel.requestDeleteActivity(it) },
+                                                onAddTaskClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
+                                            )
+                                        }
+                                        if (uiState.holidaysForSelectedDate.isNotEmpty()) {
+                                            item {
+                                                HolidaysForSelectedDaySection(
+                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                                    holidays = uiState.holidaysForSelectedDate
+                                                )
                                             }
-                                        },
-                                        onTaskLongClick = { viewModel.onTaskLongPressed(it) },
-                                        onDeleteClick = { viewModel.requestDeleteActivity(it) },
-                                        onAddTaskClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
+                                        }
+                                        if (uiState.saintDaysForSelectedDate.isNotEmpty()) {
+                                            item {
+                                                SaintDaysForSelectedDaySection(
+                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                                    saints = uiState.saintDaysForSelectedDate,
+                                                    onSaintClick = { viewModel.onSaintDayClick(it) }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                ViewMode.YEARLY -> {
+                                    YearlyCalendarView(
+                                        modifier = Modifier.fillMaxSize(),
+                                        year = uiState.displayedYearMonth.year,
+                                        onMonthClicked = { viewModel.onYearlyMonthClicked(it) },
+                                        onNavigateYear = { delta ->
+                                            if (delta > 0) viewModel.onNextYear() else viewModel.onPreviousYear()
+                                        }
                                     )
-                                }
-                                if (uiState.holidaysForSelectedDate.isNotEmpty()) {
-                                    item {
-                                        HolidaysForSelectedDaySection(
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                            holidays = uiState.holidaysForSelectedDate
-                                        )
-                                    }
-                                }
-                                if (uiState.saintDaysForSelectedDate.isNotEmpty()) {
-                                    item {
-                                        SaintDaysForSelectedDaySection(
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                            saints = uiState.saintDaysForSelectedDate,
-                                            onSaintClick = { viewModel.onSaintDayClick(it) }
-                                        )
-                                    }
                                 }
                             }
-                        }
-                        ViewMode.YEARLY -> {
-                            YearlyCalendarView(
-                                modifier = Modifier.fillMaxSize(),
-                                year = uiState.displayedYearMonth.year,
-                                onMonthClicked = { viewModel.onYearlyMonthClicked(it) },
-                                onNavigateYear = { delta ->
-                                    if (delta > 0) viewModel.onNextYear() else viewModel.onPreviousYear()
-                                }
-                            )
                         }
                     }
                 }

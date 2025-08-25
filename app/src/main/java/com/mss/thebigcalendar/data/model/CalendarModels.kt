@@ -65,8 +65,7 @@ data class CalendarUiState(
     val activityIdToDelete: String? = null,
     val activityIdWithDeleteButtonVisible: String? = null,
     val saintInfoToShow: Holiday? = null,
-    val isSettingsModalOpen: Boolean = false,
-    val settingsCategory: String = "General",
+    val currentSettingsScreen: String? = null,
     val calendarDays: List<CalendarDay> = emptyList(),
     val tasksForSelectedDate: List<Activity> = emptyList(), // NOVO: Lista de tarefas para o dia selecionado
     val holidaysForSelectedDate: List<Holiday> = emptyList(),

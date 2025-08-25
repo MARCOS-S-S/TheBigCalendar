@@ -252,13 +252,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun onSaveSettings(username: String, theme: Theme) {
-        viewModelScope.launch {
-            settingsRepository.saveUsername(username)
-            settingsRepository.saveTheme(theme)
-        }
-        closeSettingsModal()
-    }
+    
 
     fun onBackupRequest() { println("ViewModel: Pedido de backup recebido.") }
     fun onRestoreRequest() { println("ViewModel: Pedido de restauração recebido.") }
@@ -266,10 +260,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun openSidebar() = _uiState.update { it.copy(isSidebarOpen = true) }
     fun closeSidebar() = _uiState.update { it.copy(isSidebarOpen = false) }
 
-    fun openSettingsModal(category: String) = _uiState.update {
-        it.copy(isSettingsModalOpen = true, settingsCategory = category, isSidebarOpen = false)
+    fun onNavigateToSettings(screen: String?) {
+        _uiState.update { it.copy(currentSettingsScreen = screen, isSidebarOpen = false) }
     }
-    fun closeSettingsModal() = _uiState.update { it.copy(isSettingsModalOpen = false) }
 
     fun openCreateActivityModal(activity: Activity? = null, activityType: ActivityType = ActivityType.EVENT) {
         val template = activity ?: Activity(
