@@ -100,4 +100,7 @@
     <string name="fathers_day">Dia dos Pais</string>
     <string name="childrens_day">Dia das Crianças</string>
 
+    <!-- Widget strings -->
+    <string name="widget_description">Widget do calendário com relógio e tarefas do dia</string>
+
 </resources>
