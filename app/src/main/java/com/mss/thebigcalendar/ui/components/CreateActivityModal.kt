@@ -32,6 +32,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.ButtonDefaults
 import com.mss.thebigcalendar.R
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material3.Button
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberTimePickerState
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
 import java.time.LocalDate
@@ -51,6 +55,10 @@ fun CreateActivityModal(
     var selectedActivityType by remember(currentActivity.id) { mutableStateOf(currentActivity.activityType) }
 
     val focusRequester = remember { FocusRequester() }
+    val startTime by remember(currentActivity.id) { mutableStateOf(currentActivity.endTime) }
+    val endTime by remember(currentActivity.id) { mutableStateOf(currentActivity.endTime) }
+    var showTimePicker by remember { mutableStateOf(false) }
+    var isPickingStartTime by remember { mutableStateOf(true) }
 
     val date = LocalDate.parse(currentActivity.date)
     val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_day_month), java.util.Locale("pt", "BR"))
@@ -182,7 +190,9 @@ fun CreateActivityModal(
                     val updatedActivity = currentActivity.copy(
                         title = title.trim(),
                         categoryColor = selectedPriority,
-                        activityType = selectedActivityType
+                        activityType = selectedActivityType,
+                        startTime = startTime,
+                        endTime = endTime
                     )
                     if (updatedActivity.title.isNotBlank()) {
                         onSaveActivity(updatedActivity)
