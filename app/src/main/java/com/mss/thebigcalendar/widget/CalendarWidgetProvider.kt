@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
@@ -61,7 +62,21 @@ class CalendarWidgetProvider : AppWidgetProvider() {
             intent, 
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
+        views.setOnClickPendingIntent(R.id.widget_main_content, pendingIntent)
+
+        // Intent para o botão de refresh
+        val refreshIntent = Intent(context, CalendarWidgetProvider::class.java).apply {
+            action = ACTION_APPWIDGET_REFRESH
+            component = ComponentName(context, CalendarWidgetProvider::class.java)
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        }
+        val refreshPendingIntent = PendingIntent.getBroadcast(
+            context,
+            appWidgetId,
+            refreshIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        views.setOnClickPendingIntent(R.id.widget_refresh_button, refreshPendingIntent)
         
         // Carregar tarefas do dia
         loadTodayTasks(context, views, appWidgetManager, appWidgetId)
@@ -128,5 +143,25 @@ class CalendarWidgetProvider : AppWidgetProvider() {
 
     override fun onDisabled(context: Context) {
         // Enter relevant functionality for when the last widget is disabled
+    }
+
+    override fun onReceive(context: Context?, intent: Intent?) {
+        super.onReceive(context, intent)
+        if (ACTION_APPWIDGET_REFRESH == intent?.action) {
+            val appWidgetId = intent.getIntExtra(
+                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                AppWidgetManager.INVALID_APPWIDGET_ID
+            )
+            if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                context?.let {
+                    val appWidgetManager = AppWidgetManager.getInstance(it)
+                    updateAppWidget(it, appWidgetManager, appWidgetId)
+                }
+            }
+        }
+    }
+
+    companion object {
+        private const val ACTION_APPWIDGET_REFRESH = "com.mss.thebigcalendar.ACTION_APPWIDGET_REFRESH"
     }
 }
