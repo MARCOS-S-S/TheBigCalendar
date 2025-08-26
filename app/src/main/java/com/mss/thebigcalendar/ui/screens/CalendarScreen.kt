@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.ActivityType
+import com.mss.thebigcalendar.data.model.SearchResult
 import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.ui.components.CreateActivityModal
 import com.mss.thebigcalendar.ui.components.DeleteConfirmationDialog
@@ -55,6 +56,7 @@ import com.mss.thebigcalendar.ui.components.HolidaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.MonthlyCalendar
 import com.mss.thebigcalendar.ui.components.SaintDaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.SaintInfoDialog
+import com.mss.thebigcalendar.ui.components.SearchBar
 import com.mss.thebigcalendar.ui.components.Sidebar
 import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.YearlyCalendarView
@@ -217,12 +219,23 @@ fun MainCalendarView(
                 }
             }
         }
-    ) { paddingValues ->
+            ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
+            // Barra de pesquisa
+            if (uiState.viewMode == ViewMode.MONTHLY) {
+                SearchBar(
+                    query = uiState.searchQuery,
+                    onQueryChange = { viewModel.onSearchQueryChange(it) },
+                    searchResults = uiState.searchResults,
+                    onSearchResultClick = { viewModel.onSearchResultClick(it) },
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+            
             when (uiState.viewMode) {
                 ViewMode.MONTHLY -> {
                     LazyColumn(modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() }) {

@@ -5,6 +5,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
+import com.mss.thebigcalendar.data.model.SearchResult
 
 // Enum para os diferentes tipos de atividade (já deve existir)
 enum class ActivityType {
@@ -82,7 +83,9 @@ data class CalendarUiState(
     val holidaysForSelectedDate: List<Holiday> = emptyList(),
     val saintDaysForSelectedDate: List<Holiday> = emptyList(),
     val googleSignInAccount: GoogleSignInAccount? = null,
-    val signInIntent: Intent? = null
+    val signInIntent: Intent? = null,
+    val searchQuery: String = "",
+    val searchResults: List<SearchResult> = emptyList()
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

@@ -12,6 +12,7 @@ import com.mss.thebigcalendar.data.model.CalendarDay
 import com.mss.thebigcalendar.data.model.CalendarFilterOptions
 import com.mss.thebigcalendar.data.model.CalendarUiState
 import com.mss.thebigcalendar.data.model.Holiday
+import com.mss.thebigcalendar.data.model.SearchResult
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.data.repository.ActivityRepository
@@ -19,6 +20,7 @@ import com.mss.thebigcalendar.data.repository.HolidayRepository
 import com.mss.thebigcalendar.data.repository.SettingsRepository
 import com.mss.thebigcalendar.service.GoogleAuthService
 import com.mss.thebigcalendar.service.NotificationService
+import com.mss.thebigcalendar.service.SearchService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +36,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val activityRepository = ActivityRepository(application)
     private val holidayRepository = HolidayRepository(application)
     private val googleAuthService = GoogleAuthService(application)
+    private val searchService = SearchService()
 
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
@@ -363,5 +366,59 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     fun onSaintInfoDialogDismiss() {
         _uiState.update { it.copy(saintInfoToShow = null) }
+    }
+
+    // Funções de pesquisa
+    fun onSearchQueryChange(query: String) {
+        _uiState.update { it.copy(searchQuery = query) }
+        
+        if (query.isBlank()) {
+            _uiState.update { it.copy(searchResults = emptyList()) }
+            return
+        }
+        
+        // Realizar pesquisa
+        val results = searchService.search(
+            query = query,
+            activities = _uiState.value.activities,
+            nationalHolidays = _uiState.value.nationalHolidays,
+            saintDays = _uiState.value.saintDays,
+            commemorativeDates = _uiState.value.commemorativeDates
+        )
+        
+        _uiState.update { it.copy(searchResults = results) }
+    }
+
+    fun onSearchResultClick(result: SearchResult) {
+        result.date?.let { targetDate ->
+            // Navegar para o mês da data encontrada
+            val targetYearMonth = java.time.YearMonth.from(targetDate)
+            _uiState.update { 
+                it.copy(
+                    displayedYearMonth = targetYearMonth,
+                    selectedDate = targetDate
+                )
+            }
+            
+            // Atualizar a UI para mostrar o mês correto
+            updateAllDateDependentUI()
+        }
+        
+        // Limpar pesquisa
+        _uiState.update { 
+            it.copy(
+                searchQuery = "",
+                searchResults = emptyList()
+            )
+        }
+    }
+
+    fun clearSearch() {
+        _uiState.update { 
+            it.copy(
+                searchQuery = "",
+                searchResults = emptyList()
+            )
+        }
     }
 }
