@@ -34,7 +34,7 @@ class WidgetUpdateService : Service() {
     
     private fun updateAllWidgets() {
         val appWidgetManager = AppWidgetManager.getInstance(this)
-        val componentName = ComponentName(this, CalendarWidgetProvider::class.java)
+        val componentName = ComponentName(this, CalendarWidgetFixedColorsProvider::class.java)
         val widgetIds = appWidgetManager.getAppWidgetIds(componentName)
         
         if (widgetIds.isNotEmpty()) {
