@@ -32,7 +32,7 @@ data class Activity(
     val activityType: ActivityType, // Importante para diferenciar tarefas
     val recurrenceRule: String?,
     val notificationSettings: NotificationSettings = NotificationSettings(),
-    val visibility: VisibilityLevel = VisibilityLevel.MEDIUM // Nova opção de visibilidade
+    val visibility: VisibilityLevel = VisibilityLevel.LOW // Nova opção de visibilidade
 )
 
 // Representa cada célula individual na grade do calendário
