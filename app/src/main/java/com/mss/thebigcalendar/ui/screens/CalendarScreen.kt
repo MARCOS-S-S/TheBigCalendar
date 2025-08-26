@@ -3,6 +3,7 @@ package com.mss.thebigcalendar.ui.screens
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,10 +31,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -148,6 +153,7 @@ fun MainCalendarView(
     scope: kotlinx.coroutines.CoroutineScope,
     drawerState: androidx.compose.material3.DrawerState
 ) {
+    var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
     Scaffold(
         modifier = Modifier.clickableWithoutRipple { viewModel.hideDeleteButton() },
         topBar = {
@@ -208,7 +214,24 @@ fun MainCalendarView(
                     LazyColumn(modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() }) {
                         item {
                             MonthlyCalendar(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp),
+                                modifier = Modifier
+                                    .padding(horizontal = 8.dp, vertical = 16.dp)
+                                    .pointerInput(Unit) {
+                                        detectHorizontalDragGestures(
+                                            onHorizontalDrag = { _, dragAmount ->
+                                                horizontalDragOffset += dragAmount
+                                            },
+                                            onDragEnd = {
+                                                val swipeThreshold = 100f
+                                                if (horizontalDragOffset > swipeThreshold) {
+                                                    viewModel.onPreviousMonth()
+                                                } else if (horizontalDragOffset < -swipeThreshold) {
+                                                    viewModel.onNextMonth()
+                                                }
+                                                horizontalDragOffset = 0f
+                                            }
+                                        )
+                                    },
                                 calendarDays = uiState.calendarDays,
                                 onDateSelected = { viewModel.onDateSelected(it) },
                                 theme = uiState.theme
