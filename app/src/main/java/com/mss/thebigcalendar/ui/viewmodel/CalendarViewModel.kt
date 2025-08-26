@@ -180,6 +180,16 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.plusYears(1)) }
     }
 
+    fun onGoToToday() {
+        _uiState.update {
+            it.copy(
+                displayedYearMonth = YearMonth.now(),
+                selectedDate = LocalDate.now()
+            )
+        }
+        updateAllDateDependentUI()
+    }
+
     fun onDateSelected(date: LocalDate) {
         val state = _uiState.value
         val shouldOpenModal = state.selectedDate.isEqual(date) && date.month == state.displayedYearMonth.month

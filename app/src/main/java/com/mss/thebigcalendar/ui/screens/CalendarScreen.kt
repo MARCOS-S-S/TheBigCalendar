@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +39,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.input.pointer.pointerInput
@@ -160,16 +163,23 @@ fun MainCalendarView(
         topBar = {
             TopAppBar(
                 title = {
-                    val text = when (uiState.viewMode) {
-                        ViewMode.MONTHLY -> {
-                            val monthName = uiState.displayedYearMonth.month
-                                .getDisplayName(java.time.format.TextStyle.FULL, Locale("pt", "BR"))
-                                .replaceFirstChar { it.titlecase(Locale("pt", "BR")) }
-                            stringResource(id = R.string.month_year_format, monthName, uiState.displayedYearMonth.year)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val text = when (uiState.viewMode) {
+                            ViewMode.MONTHLY -> {
+                                val monthName = uiState.displayedYearMonth.month
+                                    .getDisplayName(java.time.format.TextStyle.FULL, Locale("pt", "BR"))
+                                    .replaceFirstChar { it.titlecase(Locale("pt", "BR")) }
+                                stringResource(id = R.string.month_year_format, monthName, uiState.displayedYearMonth.year)
+                            }
+                            ViewMode.YEARLY -> uiState.displayedYearMonth.year.toString()
                         }
-                        ViewMode.YEARLY -> uiState.displayedYearMonth.year.toString()
+                        Text(text)
+                        if (uiState.viewMode == ViewMode.MONTHLY) {
+                            IconButton(onClick = { viewModel.onGoToToday() }) {
+                                Icon(Icons.Default.Today, contentDescription = stringResource(id = R.string.go_to_today))
+                            }
+                        }
                     }
-                    Text(text)
                 },
                 navigationIcon = {
                     IconButton(onClick = { 
