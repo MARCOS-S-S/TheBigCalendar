@@ -7,6 +7,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.text.Html
 import android.widget.RemoteViews
 import com.mss.thebigcalendar.MainActivity
 import com.mss.thebigcalendar.R
@@ -14,6 +15,7 @@ import com.mss.thebigcalendar.data.repository.ActivityRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -40,18 +42,20 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.calendar_widget_fixed_colors)
         
         // Atualizar horário com cores diferentes para hora e minutos
-        val currentTime = LocalTime.now()
-        val hour = currentTime.hour.toString()
-        val minutes = String.format("%02d", currentTime.minute)
+        val hoje = LocalDate.now()
+        val dia: DayOfWeek = hoje.dayOfWeek
+        val formatador = DateTimeFormatter.ofPattern("dd ' de ' MMMM", Locale("pt", "BR"))
+        val dataFormatada = hoje.format(formatador)
+//        val minutes = String.format("%02d", currentTime.minute)
         
         // Criar texto HTML com cores diferentes
-        val coloredTime = "<font color='#FF0000'>$hour</font><font color='#FFFFFF'>:$minutes</font>"
-        views.setTextViewText(R.id.widget_time, android.text.Html.fromHtml(coloredTime, android.text.Html.FROM_HTML_MODE_COMPACT))
-        
-        // Atualizar data
-        val currentDate = LocalDate.now()
-        val dateFormat = DateTimeFormatter.ofPattern("EEE., dd 'de' MMM.", Locale("pt", "BR"))
-        views.setTextViewText(R.id.widget_date, currentDate.format(dateFormat))
+//        val coloredTime = "<font color='#FF0000'>$dia</font><font color='#FFFFFF'>:$dataFormatada</font>"
+//        views.setTextViewText(R.id.widget_date, Html.fromHtml(dataFormatada, Html.FROM_HTML_MODE_COMPACT))
+//
+//        // Atualizar data
+//        val currentDate = LocalDate.now()
+//        val dateFormat = DateTimeFormatter.ofPattern("EEE., dd 'de' MMM.", Locale("pt", "BR"))
+//        views.setTextViewText(R.id.widget_date, currentDate.format(dateFormat))
         
         // Intent para abrir o app ao clicar
         val intent = Intent(context, MainActivity::class.java)
