@@ -120,8 +120,8 @@ private fun DayCell(
         Text(
             text = day.date.dayOfMonth.toString(),
             textAlign = TextAlign.Center,
-            style = if (day.isSelected) MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold)
-            else MaterialTheme.typography.bodySmall,
+            style = if (day.isSelected) MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+            else MaterialTheme.typography.bodyMedium,
             color = when {
                 day.isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
                 day.isNationalHoliday -> MaterialTheme.colorScheme.error
