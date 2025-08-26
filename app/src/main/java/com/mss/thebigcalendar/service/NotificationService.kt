@@ -1,0 +1,247 @@
+package com.mss.thebigcalendar.service
+
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.util.Log
+import androidx.core.app.NotificationCompat
+import com.mss.thebigcalendar.data.model.Activity
+import com.mss.thebigcalendar.data.model.NotificationType
+import java.time.LocalDateTime
+import java.time.ZoneId
+
+class NotificationService(private val context: Context) {
+
+    private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+    companion object {
+        private const val TAG = "NotificationService"
+        const val CHANNEL_ID = "calendar_notifications"
+        const val CHANNEL_NAME = "Lembretes do Calendário"
+        const val CHANNEL_DESCRIPTION = "Notificações para atividades e tarefas do calendário"
+        
+        // Ações para as notificações
+        const val ACTION_VIEW_ACTIVITY = "com.mss.thebigcalendar.VIEW_ACTIVITY"
+        const val ACTION_SNOOZE = "com.mss.thebigcalendar.SNOOZE"
+        const val ACTION_DISMISS = "com.mss.thebigcalendar.DISMISS"
+        
+        // Extras para as notificações
+        const val EXTRA_ACTIVITY_ID = "activity_id"
+        const val EXTRA_ACTIVITY_TITLE = "activity_title"
+        const val EXTRA_ACTIVITY_DATE = "activity_date"
+        const val EXTRA_ACTIVITY_TIME = "activity_time"
+    }
+
+    init {
+        createNotificationChannel()
+    }
+
+    /**
+     * Cria o canal de notificação (necessário para Android 8.0+)
+     */
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = CHANNEL_DESCRIPTION
+                enableVibration(true)
+                enableLights(true)
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    /**
+     * Agenda uma notificação para uma atividade
+     */
+    fun scheduleNotification(activity: Activity) {
+        Log.d(TAG, "Tentando agendar notificação para: ${activity.title}")
+        Log.d(TAG, "Notificação habilitada: ${activity.notificationSettings.isEnabled}")
+        Log.d(TAG, "Tipo de notificação: ${activity.notificationSettings.notificationType}")
+        Log.d(TAG, "Horário de início: ${activity.startTime}")
+        
+        if (!activity.notificationSettings.isEnabled || 
+            activity.notificationSettings.notificationType == com.mss.thebigcalendar.data.model.NotificationType.NONE ||
+            activity.startTime == null) {
+            Log.d(TAG, "Notificação não será agendada - condições não atendidas")
+            return
+        }
+
+        val notificationTime = calculateNotificationTime(activity)
+        val triggerTime = getTriggerTime(activity.date, notificationTime)
+        
+        // Cancelar notificação anterior se existir
+        cancelNotification(activity.id)
+        
+        // ✅ Criar intent para exibir a notificação visual
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
+            action = ACTION_VIEW_ACTIVITY
+            putExtra(EXTRA_ACTIVITY_ID, activity.id)
+            putExtra(EXTRA_ACTIVITY_TITLE, activity.title)
+            putExtra(EXTRA_ACTIVITY_DATE, activity.date)
+            putExtra(EXTRA_ACTIVITY_TIME, activity.startTime.toString())
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            activity.id.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // ✅ Agendar o alarme para exibir a notificação visual
+        Log.d(TAG, "Agendando alarme para: ${java.time.Instant.ofEpochMilli(triggerTime)}")
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            triggerTime,
+            pendingIntent
+        )
+        Log.d(TAG, "Notificação agendada com sucesso para: ${activity.title}")
+    }
+
+    /**
+     * Cancela uma notificação agendada
+     */
+    fun cancelNotification(activityId: String) {
+        val intent = Intent(context, NotificationReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            activityId.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        alarmManager.cancel(pendingIntent)
+    }
+
+    /**
+     * Calcula o horário da notificação baseado nas configurações
+     */
+    private fun calculateNotificationTime(activity: Activity): LocalDateTime {
+        val activityDateTime = LocalDateTime.parse("${activity.date}T${activity.startTime}")
+        val notificationType = activity.notificationSettings.notificationType
+        
+        return when (notificationType) {
+            com.mss.thebigcalendar.data.model.NotificationType.NONE -> activityDateTime
+            com.mss.thebigcalendar.data.model.NotificationType.BEFORE_ACTIVITY -> activityDateTime
+            com.mss.thebigcalendar.data.model.NotificationType.CUSTOM -> {
+                val customMinutes = activity.notificationSettings.customMinutesBefore ?: 15
+                activityDateTime.minusMinutes(customMinutes.toLong())
+            }
+            else -> {
+                val minutes = notificationType.minutesBefore ?: 15
+                activityDateTime.minusMinutes(minutes.toLong())
+            }
+        }
+    }
+
+    /**
+     * Converte LocalDateTime para timestamp do sistema
+     */
+    private fun getTriggerTime(date: String, notificationTime: LocalDateTime): Long {
+        return notificationTime
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
+    }
+
+    /**
+     * Mostra uma notificação imediatamente (para testes)
+     */
+    fun showNotification(activity: Activity) {
+        Log.d(TAG, "Exibindo notificação para: ${activity.title}")
+        
+        // ✅ Intent para abrir a MainActivity quando tocar na notificação
+        val mainIntent = Intent(context, com.mss.thebigcalendar.MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("selected_activity_id", activity.id)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            activity.id.hashCode(),
+            mainIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle("🔔 Lembrete: ${activity.title}")
+            .setContentText(getNotificationText(activity))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .addAction(
+                android.R.drawable.ic_menu_revert,
+                "Adiar 5 min",
+                createSnoozePendingIntent(activity, 5)
+            )
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel,
+                "Cancelar",
+                createDismissPendingIntent(activity)
+            )
+            .setVibrate(longArrayOf(0, 500, 200, 500)) // ✅ Adicionar vibração
+            .setLights(0xFF0000FF.toInt(), 1000, 1000) // ✅ Adicionar luz LED
+            .build()
+
+        notificationManager.notify(activity.id.hashCode(), notification)
+        Log.d(TAG, "Notificação exibida com sucesso para: ${activity.title}")
+    }
+
+    /**
+     * Gera o texto da notificação
+     */
+    private fun getNotificationText(activity: Activity): String {
+        val timeText = if (activity.startTime != null) {
+            " às ${String.format("%02d:%02d", activity.startTime.hour, activity.startTime.minute)}"
+        } else {
+            ""
+        }
+        
+        return "Atividade programada para hoje$timeText"
+    }
+
+    /**
+     * Cria intent para adiar notificação
+     */
+    private fun createSnoozePendingIntent(activity: Activity, minutes: Int): PendingIntent {
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
+            action = ACTION_SNOOZE
+            putExtra(EXTRA_ACTIVITY_ID, activity.id)
+            putExtra("snooze_minutes", minutes)
+        }
+        
+        return PendingIntent.getBroadcast(
+            context,
+            (activity.id + "_snooze").hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    /**
+     * Cria intent para cancelar notificação
+     */
+    private fun createDismissPendingIntent(activity: Activity): PendingIntent {
+        val intent = Intent(context, NotificationReceiver::class.java).apply {
+            action = ACTION_DISMISS
+            putExtra(EXTRA_ACTIVITY_ID, activity.id)
+        }
+        
+        return PendingIntent.getBroadcast(
+            context,
+            (activity.id + "_dismiss").hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+}

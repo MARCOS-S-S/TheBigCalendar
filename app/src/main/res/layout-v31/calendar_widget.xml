@@ -16,15 +16,15 @@
         android:gravity="center">
 
         <!-- Relógio -->
-        <TextView
-            android:id="@+id/widget_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="12:34"
-            android:textColor="@android:color/system_accent1_600"
-            android:textSize="57sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-condensed" />
+<!--        <TextView-->
+<!--            android:id="@+id/widget_time"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="12:34"-->
+<!--            android:textColor="@android:color/system_accent1_600"-->
+<!--            android:textSize="57sp"-->
+<!--            android:textStyle="bold"-->
+<!--            android:fontFamily="sans-serif-condensed" />-->
 
         <!-- Data -->
         <TextView
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:text="Seg., 25 de ago."
             android:textColor="@android:color/system_accent1_400"
-            android:textSize="10sp"
+            android:textSize="15sp"
             android:layout_marginTop="1dp" />
 
     </LinearLayout>

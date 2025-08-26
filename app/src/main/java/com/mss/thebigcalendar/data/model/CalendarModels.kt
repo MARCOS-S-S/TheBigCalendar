@@ -23,7 +23,8 @@ data class Activity(
     val location: String?,
     val categoryColor: String,
     val activityType: ActivityType, // Importante para diferenciar tarefas
-    val recurrenceRule: String?
+    val recurrenceRule: String?,
+    val notificationSettings: NotificationSettings = NotificationSettings()
 )
 
 // Representa cada célula individual na grade do calendário

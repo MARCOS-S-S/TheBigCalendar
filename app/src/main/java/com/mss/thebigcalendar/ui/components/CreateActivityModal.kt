@@ -60,6 +60,21 @@ fun CreateActivityModal(
     var showTimePicker by remember { mutableStateOf(false) }
     var isPickingStartTime by remember { mutableStateOf(true) }
     var hasScheduledTime by remember(currentActivity.id) { mutableStateOf(currentActivity.startTime != null) }
+    
+    // Estado para configurações de notificação
+    var notificationSettings by remember(currentActivity.id) { 
+        mutableStateOf(
+            if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
+                // ✅ Habilitar notificações por padrão para novas atividades
+                currentActivity.notificationSettings.copy(
+                    isEnabled = true,
+                    notificationType = com.mss.thebigcalendar.data.model.NotificationType.FIFTEEN_MINUTES_BEFORE
+                )
+            } else {
+                currentActivity.notificationSettings
+            }
+        ) 
+    }
 
     val date = LocalDate.parse(currentActivity.date)
     val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_day_month), java.util.Locale("pt", "BR"))
@@ -141,6 +156,16 @@ fun CreateActivityModal(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                // Seletor de notificações (visível apenas quando há horário agendado)
+                if (hasScheduledTime) {
+                    NotificationSelector(
+                        notificationSettings = notificationSettings,
+                        onNotificationSettingsChanged = { notificationSettings = it }
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
                 var isRepetitionMenuExpanded by remember { mutableStateOf(false) }
                 val repetitionOptions = listOf(
@@ -246,7 +271,8 @@ fun CreateActivityModal(
                         activityType = selectedActivityType,
                         startTime = if (hasScheduledTime) startTime else null,
                         endTime = if (hasScheduledTime) endTime else null,
-                        isAllDay = !hasScheduledTime
+                        isAllDay = !hasScheduledTime,
+                        notificationSettings = notificationSettings // ✅ Adicionar configurações de notificação
                     )
                     if (updatedActivity.title.isNotBlank()) {
                         onSaveActivity(updatedActivity)

@@ -14,6 +14,7 @@ import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
 import com.mss.thebigcalendar.data.repository.SettingsRepository
+import com.mss.thebigcalendar.service.NotificationService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -241,13 +242,29 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun onSaveActivity(activityData: Activity) {
         viewModelScope.launch {
             activityRepository.saveActivity(activityData)
+            
+            // ✅ Agendar notificação se configurada
+            if (activityData.notificationSettings.isEnabled && 
+                activityData.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE &&
+                activityData.startTime != null) {
+                
+                val notificationService = NotificationService(getApplication())
+                notificationService.scheduleNotification(activityData)
+            }
+            
             closeCreateActivityModal()
         }
     }
 
     fun onDeleteActivityConfirm() {
         viewModelScope.launch {
-            _uiState.value.activityIdToDelete?.let { activityRepository.deleteActivity(it) }
+            _uiState.value.activityIdToDelete?.let { activityId ->
+                // ✅ Cancelar notificação antes de deletar
+                val notificationService = NotificationService(getApplication())
+                notificationService.cancelNotification(activityId)
+                
+                activityRepository.deleteActivity(activityId)
+            }
             cancelDeleteActivity()
         }
     }

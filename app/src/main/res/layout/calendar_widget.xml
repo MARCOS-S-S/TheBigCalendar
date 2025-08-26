@@ -27,22 +27,12 @@
         android:layout_marginRight="40dp"
         android:layout_marginBottom="40dp">
 
-        <!-- Seção do Relógio -->
+        <!-- Seção da Data e Previsão do Tempo -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center">
-
-            <!-- Relógio -->
-            <TextView
-                android:id="@+id/widget_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="12:34"
-                android:textSize="57sp"
-                android:textStyle="bold"
-                android:fontFamily="sans-serif-condensed" />
 
             <!-- Data -->
             <TextView
@@ -51,8 +41,19 @@
                 android:layout_height="wrap_content"
                 android:text="Seg., 25 de ago."
                 android:textColor="#FFFFFF"
-                android:textSize="10sp"
-                android:layout_marginTop="1dp" />
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Previsão do Tempo -->
+            <TextView
+                android:id="@+id/widget_weather"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="☀️ 25°C"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:gravity="center" />
 
         </LinearLayout>
 

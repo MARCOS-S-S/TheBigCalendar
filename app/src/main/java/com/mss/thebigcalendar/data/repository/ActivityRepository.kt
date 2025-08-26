@@ -89,7 +89,8 @@ class ActivityRepository(private val context: Context) {
             location = this.location.takeIf { it.isNotEmpty() },
             categoryColor = this.categoryColor,
             activityType = this.activityType.toActivityType(),
-            recurrenceRule = this.recurrenceRule.takeIf { it.isNotEmpty() }
+            recurrenceRule = this.recurrenceRule.takeIf { it.isNotEmpty() },
+            notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings()
         )
     }
 

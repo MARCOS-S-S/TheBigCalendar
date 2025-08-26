@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permissões para notificações -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -23,6 +29,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Notification Receiver para notificações do calendário -->
+        <receiver
+            android:name=".service.NotificationReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.mss.thebigcalendar.VIEW_ACTIVITY" />
+                <action android:name="com.mss.thebigcalendar.SNOOZE" />
+                <action android:name="com.mss.thebigcalendar.DISMISS" />
+            </intent-filter>
+        </receiver>
 
         <!-- Widget Provider - Cores Dinâmicas -->
         <receiver
