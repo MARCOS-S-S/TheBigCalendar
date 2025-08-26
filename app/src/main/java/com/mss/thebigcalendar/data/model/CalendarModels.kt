@@ -85,7 +85,8 @@ data class CalendarUiState(
     val googleSignInAccount: GoogleSignInAccount? = null,
     val signInIntent: Intent? = null,
     val searchQuery: String = "",
-    val searchResults: List<SearchResult> = emptyList()
+    val searchResults: List<SearchResult> = emptyList(),
+    val isSearchModalOpen: Boolean = false
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

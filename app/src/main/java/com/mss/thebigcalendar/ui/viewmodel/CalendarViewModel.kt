@@ -421,4 +421,18 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             )
         }
     }
+
+    fun onSearchIconClick() {
+        _uiState.update { it.copy(isSearchModalOpen = true) }
+    }
+
+    fun closeSearchModal() {
+        _uiState.update { 
+            it.copy(
+                isSearchModalOpen = false,
+                searchQuery = "",
+                searchResults = emptyList()
+            )
+        }
+    }
 }

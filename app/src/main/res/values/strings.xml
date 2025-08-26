@@ -112,5 +112,6 @@
     <string name="widget_description">Widget do calendário com relógio e tarefas do dia (cores dinâmicas)</string>
     <string name="widget_fixed_colors_description">Widget do calendário com relógio e tarefas do dia (cores fixas)</string>
     <string name="go_to_today">Ir para hoje</string>
+    <string name="search">Pesquisar</string>
 
 </resources>

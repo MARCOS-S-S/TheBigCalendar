@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -56,7 +57,7 @@ import com.mss.thebigcalendar.ui.components.HolidaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.MonthlyCalendar
 import com.mss.thebigcalendar.ui.components.SaintDaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.SaintInfoDialog
-import com.mss.thebigcalendar.ui.components.SearchBar
+import com.mss.thebigcalendar.ui.components.SearchModal
 import com.mss.thebigcalendar.ui.components.Sidebar
 import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.YearlyCalendarView
@@ -198,6 +199,14 @@ fun MainCalendarView(
                         ViewMode.MONTHLY -> Pair({ viewModel.onPreviousMonth() }, { viewModel.onNextMonth() })
                         ViewMode.YEARLY -> Pair({ viewModel.onPreviousYear() }, { viewModel.onNextYear() })
                     }
+                    
+                    // Botão de pesquisa (apenas na visualização mensal)
+                    if (uiState.viewMode == ViewMode.MONTHLY) {
+                        IconButton(onClick = { viewModel.onSearchIconClick() }) {
+                            Icon(Icons.Default.Search, stringResource(id = R.string.search))
+                        }
+                    }
+                    
                     IconButton(onClick = prevAction) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.previous))
                     }
@@ -225,17 +234,6 @@ fun MainCalendarView(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            // Barra de pesquisa
-            if (uiState.viewMode == ViewMode.MONTHLY) {
-                SearchBar(
-                    query = uiState.searchQuery,
-                    onQueryChange = { viewModel.onSearchQueryChange(it) },
-                    searchResults = uiState.searchResults,
-                    onSearchResultClick = { viewModel.onSearchResultClick(it) },
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-            }
-            
             when (uiState.viewMode) {
                 ViewMode.MONTHLY -> {
                     LazyColumn(modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() }) {
@@ -345,5 +343,15 @@ fun MainCalendarView(
                 onDismiss = { viewModel.onSaintInfoDialogDismiss() }
             )
         }
+
+        // Modal de pesquisa
+        SearchModal(
+            isVisible = uiState.isSearchModalOpen,
+            searchQuery = uiState.searchQuery,
+            onQueryChange = { viewModel.onSearchQueryChange(it) },
+            searchResults = uiState.searchResults,
+            onSearchResultClick = { viewModel.onSearchResultClick(it) },
+            onDismiss = { viewModel.closeSearchModal() }
+        )
     }
 }
