@@ -11,6 +11,13 @@ enum class ActivityType {
     BIRTHDAY
 }
 
+// Enum para os níveis de visibilidade
+enum class VisibilityLevel {
+    LOW,    // Baixa
+    MEDIUM, // Média
+    HIGH    // Alta
+}
+
 // Classe de modelo para Atividades (já deve existir)
 data class Activity(
     val id: String,
@@ -24,7 +31,8 @@ data class Activity(
     val categoryColor: String,
     val activityType: ActivityType, // Importante para diferenciar tarefas
     val recurrenceRule: String?,
-    val notificationSettings: NotificationSettings = NotificationSettings()
+    val notificationSettings: NotificationSettings = NotificationSettings(),
+    val visibility: VisibilityLevel = VisibilityLevel.MEDIUM // Nova opção de visibilidade
 )
 
 // Representa cada célula individual na grade do calendário

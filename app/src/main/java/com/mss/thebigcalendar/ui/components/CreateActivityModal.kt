@@ -53,6 +53,7 @@ fun CreateActivityModal(
     var title by remember(currentActivity.id) { mutableStateOf(currentActivity.title) }
     var selectedPriority by remember(currentActivity.id) { mutableStateOf(currentActivity.categoryColor) }
     var selectedActivityType by remember(currentActivity.id) { mutableStateOf(currentActivity.activityType) }
+    var selectedVisibility by remember(currentActivity.id) { mutableStateOf(currentActivity.visibility) }
 
     val focusRequester = remember { FocusRequester() }
     var startTime by remember(currentActivity.id) { mutableStateOf(currentActivity.startTime) }
@@ -140,6 +141,13 @@ fun CreateActivityModal(
                 PrioritySelector(
                     selectedPriority = selectedPriority,
                     onPrioritySelected = { selectedPriority = it }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                VisibilitySelector(
+                    selectedVisibility = selectedVisibility,
+                    onVisibilitySelected = { selectedVisibility = it }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -272,7 +280,8 @@ fun CreateActivityModal(
                         startTime = if (hasScheduledTime) startTime else null,
                         endTime = if (hasScheduledTime) endTime else null,
                         isAllDay = !hasScheduledTime,
-                        notificationSettings = notificationSettings // ✅ Adicionar configurações de notificação
+                        notificationSettings = notificationSettings, // ✅ Adicionar configurações de notificação
+                        visibility = selectedVisibility // ✅ Adicionar visibilidade
                     )
                     if (updatedActivity.title.isNotBlank()) {
                         onSaveActivity(updatedActivity)
@@ -409,6 +418,84 @@ fun TimeSelector(
                             String.format("%02d:%02d", endTime.hour, endTime.minute)
                         } else {
                             "Fim"
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun VisibilitySelector(
+    selectedVisibility: com.mss.thebigcalendar.data.model.VisibilityLevel,
+    onVisibilitySelected: (com.mss.thebigcalendar.data.model.VisibilityLevel) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isVisibilityMenuExpanded by remember { mutableStateOf(false) }
+    
+    val visibilityOptions = listOf(
+        com.mss.thebigcalendar.data.model.VisibilityLevel.LOW,
+        com.mss.thebigcalendar.data.model.VisibilityLevel.MEDIUM,
+        com.mss.thebigcalendar.data.model.VisibilityLevel.HIGH
+    )
+    
+    val getVisibilityDescription = @androidx.compose.runtime.Composable { visibility: com.mss.thebigcalendar.data.model.VisibilityLevel ->
+        when (visibility) {
+            com.mss.thebigcalendar.data.model.VisibilityLevel.LOW -> stringResource(id = R.string.visibility_low_description)
+            com.mss.thebigcalendar.data.model.VisibilityLevel.MEDIUM -> stringResource(id = R.string.visibility_medium_description)
+            com.mss.thebigcalendar.data.model.VisibilityLevel.HIGH -> stringResource(id = R.string.visibility_high_description)
+        }
+    }
+    
+    val getVisibilityLabel = @androidx.compose.runtime.Composable { visibility: com.mss.thebigcalendar.data.model.VisibilityLevel ->
+        when (visibility) {
+            com.mss.thebigcalendar.data.model.VisibilityLevel.LOW -> stringResource(id = R.string.visibility_low)
+            com.mss.thebigcalendar.data.model.VisibilityLevel.MEDIUM -> stringResource(id = R.string.visibility_medium)
+            com.mss.thebigcalendar.data.model.VisibilityLevel.HIGH -> stringResource(id = R.string.visibility_high)
+        }
+    }
+
+    Column(modifier = modifier) {
+        Text(stringResource(id = R.string.visibility), style = MaterialTheme.typography.labelMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Box {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { isVisibilityMenuExpanded = true },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = getVisibilityLabel(selectedVisibility),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = getVisibilityDescription(selectedVisibility),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            DropdownMenu(
+                expanded = isVisibilityMenuExpanded,
+                onDismissRequest = { isVisibilityMenuExpanded = false }
+            ) {
+                visibilityOptions.forEach { option ->
+                    DropdownMenuItem(
+                        text = { 
+                            Text(
+                                text = getVisibilityLabel(option), 
+                                color = if (option == selectedVisibility) MaterialTheme.colorScheme.primary else Color.Unspecified
+                            )
+                        },
+                        onClick = {
+                            onVisibilitySelected(option)
+                            isVisibilityMenuExpanded = false
                         }
                     )
                 }

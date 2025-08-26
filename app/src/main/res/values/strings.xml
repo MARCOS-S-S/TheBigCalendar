@@ -11,6 +11,13 @@
     <string name="create_activity_modal_new_event">Novo evento</string>
     <string name="create_activity_modal_edit_event">Editar evento</string>
     <string name="priority">Prioridade:</string>
+    <string name="visibility">Visibilidade:</string>
+    <string name="visibility_low">Baixa</string>
+    <string name="visibility_medium">Média</string>
+    <string name="visibility_high">Alta</string>
+    <string name="visibility_low_description">Envia uma notificação</string>
+    <string name="visibility_medium_description">Mostrar um alerta na parte inferior da tela</string>
+    <string name="visibility_high_description">Aparecerá uma mensagem na tela inteira</string>
     <string name="task">Tarefa</string>
     <string name="event">Evento</string>
     <string name="notifications">Notificações</string>
