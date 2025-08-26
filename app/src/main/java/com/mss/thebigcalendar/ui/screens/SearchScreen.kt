@@ -114,7 +114,7 @@ fun SearchScreen(
             // Resultados da pesquisa
             if (searchResults.isNotEmpty()) {
                 Text(
-                    text = "Resultados (${searchResults.size})",
+                    text = stringResource(R.string.search_results, searchResults.size),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -145,7 +145,7 @@ fun SearchScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Nenhum resultado encontrado para \"$searchQuery\"",
+                        text = stringResource(R.string.no_results_found, searchQuery),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -169,13 +169,13 @@ fun SearchScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Digite para pesquisar",
+                            text = stringResource(R.string.type_to_search),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Eventos, tarefas, feriados, dias de santos...",
+                            text = stringResource(R.string.search_hints),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -212,7 +212,7 @@ fun SearchInputField(
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier,
-        placeholder = { Text("Pesquisar agendamentos, feriados...") },
+        placeholder = { Text(stringResource(R.string.search_placeholder)) },
         leadingIcon = {
             Icon(
                 Icons.Default.Search,
@@ -229,7 +229,7 @@ fun SearchInputField(
                 ) {
                     Icon(
                         Icons.Default.Clear,
-                        contentDescription = "Limpar pesquisa"
+                        contentDescription = stringResource(R.string.clear_search)
                     )
                 }
             }

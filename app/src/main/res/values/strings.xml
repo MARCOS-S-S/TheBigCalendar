@@ -114,4 +114,12 @@
     <string name="go_to_today">Ir para hoje</string>
     <string name="search">Pesquisar</string>
 
+    <!-- SearchScreen.kt -->
+    <string name="search_results">Resultados (%1$d)</string>
+    <string name="no_results_found">Nenhum resultado encontrado para "%1$s"</string>
+    <string name="type_to_search"> </string>
+    <string name="search_hints">Basta digitar :)</string>
+    <string name="search_placeholder">Pesquisar agendamentos, feriados...</string>
+    <string name="clear_search">Limpar pesquisa</string>
+
 </resources>
