@@ -1,9 +1,11 @@
 package com.mss.thebigcalendar
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -12,8 +14,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.mss.thebigcalendar.data.model.Theme
-import com.mss.thebigcalendar.service.NotificationTestService
 import com.mss.thebigcalendar.ui.screens.CalendarScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
@@ -22,6 +24,14 @@ import kotlinx.coroutines.flow.first
 class MainActivity : ComponentActivity() {
 
     private lateinit var viewModel: CalendarViewModel
+
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data: Intent? = result.data
+        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+        viewModel.handleSignInResult(task)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +46,13 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(Unit) {
                 viewModel.uiState.first()
                 isThemeLoaded = true
+            }
+
+            LaunchedEffect(uiState.signInIntent) {
+                uiState.signInIntent?.let {
+                    googleSignInLauncher.launch(it)
+                    viewModel.onSignInLaunched() // Consome o evento
+                }
             }
 
             if (isThemeLoaded) {

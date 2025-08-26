@@ -56,7 +56,7 @@ android {
 
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/{AL2.0,LGPL2.1,DEPENDENCIES}"
         }
     }
 }
@@ -98,6 +98,11 @@ dependencies {
     // Dependência do Protobuf para o Proto DataStore
     implementation(libs.protobuf.kotlin.lite)
     implementation(libs.places)
+
+    // Dependências para o Login com Google e API do Calendar
+    implementation(libs.google.auth)
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.api.services.calendar)
 
     // Dependências de Teste
     testImplementation(libs.junit)

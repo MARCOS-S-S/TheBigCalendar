@@ -137,7 +137,10 @@ fun CalendarScreen(
                     ) {
                         GeneralSettingsScreen(
                             currentTheme = uiState.theme,
-                            onThemeChange = { viewModel.onThemeChange(it) }
+                            onThemeChange = { viewModel.onThemeChange(it) },
+                            googleAccount = uiState.googleSignInAccount,
+                            onSignInClicked = { viewModel.onSignInClicked() },
+                            onSignOutClicked = { viewModel.signOut() }
                         )
                     }
                 }

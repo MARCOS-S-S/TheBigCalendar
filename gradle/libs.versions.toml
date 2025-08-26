@@ -12,6 +12,9 @@ datastore = "1.1.1"
 protobuf = "4.27.2"
 protobufPlugin = "0.9.4"
 places = "4.4.1"
+googleAuth = "21.1.0"
+googleApiClient = "2.2.0"
+googleApiCalendar = "v3-rev20220715-2.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,6 +36,9 @@ androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core
 protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
 protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
 places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
+google-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googleAuth" }
+google-api-client-android = { group = "com.google.api-client", name = "google-api-client-android", version.ref = "googleApiClient" }
+google-api-services-calendar = { group = "com.google.apis", name = "google-api-services-calendar", version.ref = "googleApiCalendar" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

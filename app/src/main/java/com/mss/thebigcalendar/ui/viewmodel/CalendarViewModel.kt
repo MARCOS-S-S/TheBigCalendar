@@ -1,8 +1,11 @@
 package com.mss.thebigcalendar.ui.viewmodel
 
 import android.app.Application
+import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.tasks.Task
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.CalendarDay
@@ -14,6 +17,7 @@ import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
 import com.mss.thebigcalendar.data.repository.SettingsRepository
+import com.mss.thebigcalendar.service.GoogleAuthService
 import com.mss.thebigcalendar.service.NotificationService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +33,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val settingsRepository = SettingsRepository(application)
     private val activityRepository = ActivityRepository(application)
     private val holidayRepository = HolidayRepository(application)
+    private val googleAuthService = GoogleAuthService(application)
 
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
@@ -36,6 +41,34 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     init {
         loadSettings()
         loadData()
+        checkForExistingSignIn()
+    }
+
+    private fun checkForExistingSignIn() {
+        val account = googleAuthService.getLastSignedInAccount()
+        if (account != null) {
+            _uiState.update { it.copy(googleSignInAccount = account) }
+        }
+    }
+
+    fun onSignInClicked() {
+        val signInIntent = googleAuthService.getSignInIntent()
+        _uiState.update { it.copy(signInIntent = signInIntent) }
+    }
+
+    fun onSignInLaunched() {
+        _uiState.update { it.copy(signInIntent = null) }
+    }
+
+    fun handleSignInResult(task: Task<GoogleSignInAccount>) {
+        val account = googleAuthService.handleSignInResult(task)
+        _uiState.update { it.copy(googleSignInAccount = account) }
+    }
+
+    fun signOut() {
+        googleAuthService.signOut {
+            _uiState.update { it.copy(googleSignInAccount = null) }
+        }
     }
 
     private fun loadSettings() {

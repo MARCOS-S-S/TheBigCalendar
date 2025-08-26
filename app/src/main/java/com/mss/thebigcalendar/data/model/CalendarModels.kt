@@ -1,5 +1,7 @@
 package com.mss.thebigcalendar.data.model
 
+import android.content.Intent
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
@@ -78,7 +80,9 @@ data class CalendarUiState(
     val calendarDays: List<CalendarDay> = emptyList(),
     val tasksForSelectedDate: List<Activity> = emptyList(), // NOVO: Lista de tarefas para o dia selecionado
     val holidaysForSelectedDate: List<Holiday> = emptyList(),
-    val saintDaysForSelectedDate: List<Holiday> = emptyList()
+    val saintDaysForSelectedDate: List<Holiday> = emptyList(),
+    val googleSignInAccount: GoogleSignInAccount? = null,
+    val signInIntent: Intent? = null
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }
