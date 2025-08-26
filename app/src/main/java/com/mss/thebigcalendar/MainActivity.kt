@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.ui.screens.CalendarScreen
+import com.mss.thebigcalendar.ui.screens.SearchScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import kotlinx.coroutines.flow.first
@@ -63,7 +64,18 @@ class MainActivity : ComponentActivity() {
                         else -> isSystemInDarkTheme()
                     }
                 ) {
-                    CalendarScreen(viewModel)
+                    when {
+                        uiState.isSearchScreenOpen -> {
+                            SearchScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = { viewModel.closeSearchScreen() },
+                                onSearchResultClick = { result -> viewModel.onSearchResultClick(result) }
+                            )
+                        }
+                        else -> {
+                            CalendarScreen(viewModel)
+                        }
+                    }
                 }
             }
         }

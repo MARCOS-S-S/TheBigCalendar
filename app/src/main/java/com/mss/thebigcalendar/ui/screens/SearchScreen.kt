@@ -1,11 +1,6 @@
-package com.mss.thebigcalendar.ui.components
+package com.mss.thebigcalendar.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -24,22 +19,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,147 +43,147 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.SearchResult
+import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchModal(
-    isVisible: Boolean,
-    searchQuery: String,
-    onQueryChange: (String) -> Unit,
-    searchResults: List<SearchResult>,
-    onSearchResultClick: (SearchResult) -> Unit,
-    onDismiss: () -> Unit
+fun SearchScreen(
+    viewModel: CalendarViewModel,
+    onNavigateBack: () -> Unit,
+    onSearchResultClick: (SearchResult) -> Unit
 ) {
-    if (isVisible) {
-        val sheetState = rememberModalBottomSheetState()
-        
-        ModalBottomSheet(
-            onDismissRequest = onDismiss,
-            sheetState = sheetState,
-            modifier = Modifier.fillMaxSize(0.9f),
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                // Cabeçalho do modal
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Pesquisar",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Clear, contentDescription = "Fechar")
+    val uiState by viewModel.uiState.collectAsState()
+    var searchQuery = uiState.searchQuery
+    val searchResults = uiState.searchResults
+    
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.search)) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // Campo de pesquisa
-                SearchInputField(
-                    query = searchQuery,
-                    onQueryChange = onQueryChange,
-                    modifier = Modifier.fillMaxWidth()
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+            // Campo de pesquisa
+            SearchInputField(
+                query = searchQuery,
+                onQueryChange = { query ->
+                    searchQuery = query
+                    viewModel.onSearchQueryChange(query)
+                },
+                modifier = Modifier.fillMaxWidth().focusRequester(focusRequester)
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Resultados da pesquisa
+            if (searchResults.isNotEmpty()) {
+                Text(
+                    text = "Resultados (${searchResults.size})",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // Resultados da pesquisa
-                if (searchResults.isNotEmpty()) {
-                    Text(
-                        text = "Resultados (${searchResults.size})",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    
-                    LazyColumn(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        items(searchResults) { result ->
-                            SearchResultItem(
-                                result = result,
-                                onClick = { 
-                                    onSearchResultClick(result)
-                                    onDismiss()
-                                }
-                            )
-                            if (result != searchResults.last()) {
-                                Divider(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    color = MaterialTheme.colorScheme.outlineVariant
-                                )
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(searchResults) { result ->
+                        SearchResultItem(
+                            result = result,
+                            onClick = { 
+                                onSearchResultClick(result)
+                                onNavigateBack()
                             }
+                        )
+                        if (result != searchResults.last()) {
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
-                } else if (searchQuery.isNotEmpty()) {
-                    // Nenhum resultado encontrado
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        contentAlignment = Alignment.Center
+                }
+            } else if (searchQuery.isNotEmpty()) {
+                // Nenhum resultado encontrado
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Nenhum resultado encontrado para \"$searchQuery\"",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                // Dicas de pesquisa
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Nenhum resultado encontrado para \"$searchQuery\"",
+                            text = "Digite para pesquisar",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Eventos, tarefas, feriados, dias de santos...",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                } else {
-                    // Dicas de pesquisa
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Digite para pesquisar",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Eventos, tarefas, feriados, dias de santos...",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
                 }
             }
         }
+    }
+    
+    // Foca automaticamente no campo de pesquisa
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 }
 
@@ -199,18 +193,17 @@ fun SearchInputField(
     onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
-        modifier = modifier.focusRequester(focusRequester),
+        modifier = modifier,
         placeholder = { Text("Pesquisar agendamentos, feriados...") },
         leadingIcon = {
             Icon(
                 Icons.Default.Search,
-                contentDescription = "Pesquisar",
+                contentDescription = stringResource(R.string.search),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
@@ -219,7 +212,6 @@ fun SearchInputField(
                 IconButton(
                     onClick = {
                         onQueryChange("")
-                        focusRequester.requestFocus()
                     }
                 ) {
                     Icon(
@@ -245,11 +237,6 @@ fun SearchInputField(
             unfocusedBorderColor = MaterialTheme.colorScheme.outline
         )
     )
-    
-    // Foca automaticamente quando o modal é aberto
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
 }
 
 @Composable
@@ -262,7 +249,7 @@ fun SearchResultItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Ícone baseado no tipo de resultado
@@ -302,7 +289,7 @@ fun SearchResultItem(
                 color = MaterialTheme.colorScheme.onSurface
             )
             
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             
             Text(
                 text = result.subtitle,
@@ -311,7 +298,7 @@ fun SearchResultItem(
             )
             
             if (result.date != null) {
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = formatDate(result.date),
                     style = MaterialTheme.typography.bodySmall,

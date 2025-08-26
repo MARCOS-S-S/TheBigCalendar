@@ -370,12 +370,20 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     // Funções de pesquisa
     fun onSearchQueryChange(query: String) {
+        println("🔍 Pesquisando por: '$query'")
         _uiState.update { it.copy(searchQuery = query) }
         
         if (query.isBlank()) {
             _uiState.update { it.copy(searchResults = emptyList()) }
             return
         }
+        
+        // Verificar dados disponíveis
+        println("📊 Dados disponíveis para pesquisa:")
+        println("  - Atividades: ${_uiState.value.activities.size}")
+        println("  - Feriados nacionais: ${_uiState.value.nationalHolidays.size}")
+        println("  - Dias de santos: ${_uiState.value.saintDays.size}")
+        println("  - Datas comemorativas: ${_uiState.value.commemorativeDates.size}")
         
         // Realizar pesquisa
         val results = searchService.search(
@@ -386,11 +394,18 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             commemorativeDates = _uiState.value.commemorativeDates
         )
         
+        println("🔍 Resultados encontrados: ${results.size}")
+        results.forEach { result ->
+            println("  - ${result.title} (${result.type})")
+        }
+        
         _uiState.update { it.copy(searchResults = results) }
     }
 
     fun onSearchResultClick(result: SearchResult) {
+        println("🎯 Resultado selecionado: ${result.title} (${result.type})")
         result.date?.let { targetDate ->
+            println("📅 Navegando para data: $targetDate")
             // Navegar para o mês da data encontrada
             val targetYearMonth = java.time.YearMonth.from(targetDate)
             _uiState.update { 
@@ -423,13 +438,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onSearchIconClick() {
-        _uiState.update { it.copy(isSearchModalOpen = true) }
+        println("🔍 Abrindo tela de pesquisa")
+        _uiState.update { it.copy(isSearchScreenOpen = true) }
     }
 
-    fun closeSearchModal() {
+    fun closeSearchScreen() {
+        println("🚪 Fechando tela de pesquisa")
         _uiState.update { 
             it.copy(
-                isSearchModalOpen = false,
+                isSearchScreenOpen = false,
                 searchQuery = "",
                 searchResults = emptyList()
             )

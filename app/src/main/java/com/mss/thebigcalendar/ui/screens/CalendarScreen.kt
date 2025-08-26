@@ -57,7 +57,6 @@ import com.mss.thebigcalendar.ui.components.HolidaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.MonthlyCalendar
 import com.mss.thebigcalendar.ui.components.SaintDaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.SaintInfoDialog
-import com.mss.thebigcalendar.ui.components.SearchModal
 import com.mss.thebigcalendar.ui.components.Sidebar
 import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.YearlyCalendarView
@@ -344,14 +343,6 @@ fun MainCalendarView(
             )
         }
 
-        // Modal de pesquisa
-        SearchModal(
-            isVisible = uiState.isSearchModalOpen,
-            searchQuery = uiState.searchQuery,
-            onQueryChange = { viewModel.onSearchQueryChange(it) },
-            searchResults = uiState.searchResults,
-            onSearchResultClick = { viewModel.onSearchResultClick(it) },
-            onDismiss = { viewModel.closeSearchModal() }
-        )
+
     }
 }

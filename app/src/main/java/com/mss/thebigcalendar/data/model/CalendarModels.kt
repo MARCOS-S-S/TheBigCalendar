@@ -86,7 +86,7 @@ data class CalendarUiState(
     val signInIntent: Intent? = null,
     val searchQuery: String = "",
     val searchResults: List<SearchResult> = emptyList(),
-    val isSearchModalOpen: Boolean = false
+    val isSearchScreenOpen: Boolean = false
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }
