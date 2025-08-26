@@ -2,6 +2,7 @@ package com.mss.thebigcalendar.ui.screens
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -216,6 +217,12 @@ fun MainCalendarView(
                             MonthlyCalendar(
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp, vertical = 16.dp)
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.outline,
+                                        shape = MaterialTheme.shapes.medium
+                                    )
+                                    .padding(vertical = 8.dp)
                                     .pointerInput(Unit) {
                                         detectHorizontalDragGestures(
                                             onHorizontalDrag = { _, dragAmount ->
