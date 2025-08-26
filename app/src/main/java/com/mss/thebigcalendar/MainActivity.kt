@@ -6,6 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,6 +41,19 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         viewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
+        
+        // Configurar callback para o botão de voltar do sistema
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Se estiver na tela de pesquisa, fechar a pesquisa
+                if (viewModel.uiState.value.isSearchScreenOpen) {
+                    viewModel.closeSearchScreen()
+                } else {
+                    // Se estiver no calendário, fechar o app
+                    finish()
+                }
+            }
+        })
 
         setContent {
             val uiState by viewModel.uiState.collectAsState()
@@ -69,7 +84,8 @@ class MainActivity : ComponentActivity() {
                             SearchScreen(
                                 viewModel = viewModel,
                                 onNavigateBack = { viewModel.closeSearchScreen() },
-                                onSearchResultClick = { result -> viewModel.onSearchResultClick(result) }
+                                onSearchResultClick = { result -> viewModel.onSearchResultClick(result) },
+                                onBackPressedDispatcher = onBackPressedDispatcher
                             )
                         }
                         else -> {

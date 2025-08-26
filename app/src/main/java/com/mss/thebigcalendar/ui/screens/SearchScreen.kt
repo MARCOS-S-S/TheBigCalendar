@@ -38,17 +38,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.activity.OnBackPressedDispatcher
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.SearchResult
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
@@ -62,7 +65,8 @@ import java.util.Locale
 fun SearchScreen(
     viewModel: CalendarViewModel,
     onNavigateBack: () -> Unit,
-    onSearchResultClick: (SearchResult) -> Unit
+    onSearchResultClick: (SearchResult) -> Unit,
+    onBackPressedDispatcher: OnBackPressedDispatcher
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var searchQuery = uiState.searchQuery
@@ -184,6 +188,15 @@ fun SearchScreen(
     // Foca automaticamente no campo de pesquisa
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+    }
+    
+    // Interceptar o botão de voltar do sistema
+    LaunchedEffect(Unit) {
+        onBackPressedDispatcher.addCallback(object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onNavigateBack()
+            }
+        })
     }
 }
 
