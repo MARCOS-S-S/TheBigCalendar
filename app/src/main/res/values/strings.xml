@@ -76,7 +76,7 @@
     <string name="next_year">Próximo Ano</string>
 
     <!-- CalendarScreen.kt -->
-    <string name="month_year_format">%1$s de %2$s</string>
+    <string name="month_year_format">%1$s %2$s</string>
     <string name="open_close_menu">Abrir/Fechar menu</string>
     <string name="previous_month">Mês Anterior</string>
     <string name="next_month">Próximo Mês</string>
