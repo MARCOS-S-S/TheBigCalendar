@@ -40,6 +40,18 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
         appWidgetId: Int
     ) {
         val views = RemoteViews(context.packageName, R.layout.calendar_widget_fixed_colors)
+
+        // Atualiza a data
+        val locale = Locale("pt", "BR")
+        val dayOfWeekFormat = java.text.SimpleDateFormat("EEEE", locale)
+        val dayMonthFormat = java.text.SimpleDateFormat("dd/MM", locale)
+        val date = java.util.Date()
+
+        val dayOfWeek = dayOfWeekFormat.format(date).let { it.first().uppercase() + it.substring(1) }
+        val dayMonth = dayMonthFormat.format(date)
+
+        views.setTextViewText(R.id.widget_day_of_week, dayOfWeek)
+        views.setTextViewText(R.id.widget_day_month, dayMonth)
         
         // Atualizar horário com cores diferentes para hora e minutos
         val hoje = LocalDate.now()

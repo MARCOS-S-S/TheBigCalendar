@@ -7,14 +7,15 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.text.Html
 import android.widget.RemoteViews
 import com.mss.thebigcalendar.MainActivity
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.repository.ActivityRepository
-import com.mss.thebigcalendar.data.repository.WeatherRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -39,15 +40,34 @@ class CalendarWidgetProvider : AppWidgetProvider() {
         appWidgetId: Int
     ) {
         val views = RemoteViews(context.packageName, R.layout.calendar_widget)
+
+        // Atualiza a data
+        val locale = Locale("pt", "BR")
+        val dayOfWeekFormat = java.text.SimpleDateFormat("EEEE", locale)
+        val dayMonthFormat = java.text.SimpleDateFormat("dd/MM", locale)
+        val date = java.util.Date()
+
+        val dayOfWeek = dayOfWeekFormat.format(date).let { it.first().uppercase() + it.substring(1) }
+        val dayMonth = dayMonthFormat.format(date)
+
+        views.setTextViewText(R.id.widget_day_of_week, dayOfWeek)
+        views.setTextViewText(R.id.widget_day_month, dayMonth)
         
-        // Atualizar data com cor branca e tamanho maior
-        val currentDate = LocalDate.now()
-        val dateFormat = DateTimeFormatter.ofPattern("EEE., dd 'de' MMM.", Locale("pt", "BR"))
-        val whiteDate = "<font color='#FFFFFF'>${currentDate.format(dateFormat)}</font>"
-        views.setTextViewText(R.id.widget_date, android.text.Html.fromHtml(whiteDate, android.text.Html.FROM_HTML_MODE_COMPACT))
+        // Atualizar horário com cores diferentes para hora e minutos
+        val hoje = LocalDate.now()
+        val dia: DayOfWeek = hoje.dayOfWeek
+        val formatador = DateTimeFormatter.ofPattern("dd ' de ' MMMM", Locale("pt", "BR"))
+        val dataFormatada = hoje.format(formatador)
+//        val minutes = String.format("%02d", currentTime.minute)
         
-        // Atualizar previsão do tempo
-        updateWeatherInfo(context, views, appWidgetManager, appWidgetId)
+        // Criar texto HTML com cores diferentes
+//        val coloredTime = "<font color='#FF0000'>$dia</font><font color='#FFFFFF'>:$dataFormatada</font>"
+//        views.setTextViewText(R.id.widget_date, Html.fromHtml(dataFormatada, Html.FROM_HTML_MODE_COMPACT))
+//
+//        // Atualizar data
+//        val currentDate = LocalDate.now()
+//        val dateFormat = DateTimeFormatter.ofPattern("EEE., dd 'de' MMM.", Locale("pt", "BR"))
+//        views.setTextViewText(R.id.widget_date, currentDate.format(dateFormat))
         
         // Intent para abrir o app ao clicar
         val intent = Intent(context, MainActivity::class.java)
@@ -77,34 +97,6 @@ class CalendarWidgetProvider : AppWidgetProvider() {
         loadTodayTasks(context, views, appWidgetManager, appWidgetId)
     }
     
-    private fun updateWeatherInfo(
-        context: Context,
-        views: RemoteViews,
-        appWidgetManager: AppWidgetManager,
-        appWidgetId: Int
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val weatherRepository = WeatherRepository()
-                weatherRepository.getCurrentWeather().collect { weatherInfo ->
-                    val weatherText = "${weatherInfo.emoji} ${weatherInfo.temperature}°C"
-                    
-                    CoroutineScope(Dispatchers.Main).launch {
-                        views.setTextViewText(R.id.widget_weather, weatherText)
-                        appWidgetManager.updateAppWidget(appWidgetId, views)
-                    }
-                }
-            } catch (e: Exception) {
-                // Em caso de erro, mostrar informação padrão
-                CoroutineScope(Dispatchers.Main).launch {
-                    val defaultWeather = "🌤️ --°C"
-                    views.setTextViewText(R.id.widget_weather, defaultWeather)
-                    appWidgetManager.updateAppWidget(appWidgetId, views)
-                }
-            }
-        }
-    }
-    
     private fun loadTodayTasks(
         context: Context,
         views: RemoteViews,
@@ -123,7 +115,7 @@ class CalendarWidgetProvider : AppWidgetProvider() {
                         compareByDescending<com.mss.thebigcalendar.data.model.Activity> { 
                             it.categoryColor?.toIntOrNull() ?: 0 
                         }.thenBy { 
-                            it.startTime ?: LocalTime.MIN
+                            it.startTime ?: LocalTime.MIN 
                         }
                     )
                     
@@ -139,17 +131,15 @@ class CalendarWidgetProvider : AppWidgetProvider() {
                                 }
                             } + if (todayTasks.size > 7) "<br>..." else ""
                         }
-
-                        // Aplicar cor branca às tarefas
-                        val whiteTasks = "<font color='#FFFFFF'>$tasksText</font>"
-                        views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml(whiteTasks, android.text.Html.FROM_HTML_MODE_COMPACT))
+                        
+                        // Aplicar HTML para quebras de linha funcionarem
+                        views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml(tasksText, android.text.Html.FROM_HTML_MODE_COMPACT))
                         appWidgetManager.updateAppWidget(appWidgetId, views)
                     }
                 }
             } catch (e: Exception) {
                 CoroutineScope(Dispatchers.Main).launch {
-                    val errorText = "<font color='#FFFFFF'>Erro ao carregar tarefas</font>"
-                    views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml(errorText, android.text.Html.FROM_HTML_MODE_COMPACT))
+                    views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml("Erro ao carregar tarefas", android.text.Html.FROM_HTML_MODE_COMPACT))
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
             }
@@ -181,6 +171,6 @@ class CalendarWidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
-        private const val ACTION_APPWIDGET_REFRESH = "com.mss.thebigcalendar.ACTION_APPWIDGET_REFRESH"
+        private const val ACTION_APPWIDGET_REFRESH = "com.mss.thebigcalendar.ACTION_APPWIDGET_REFRESH_DYNAMIC_COLORS"
     }
 }
