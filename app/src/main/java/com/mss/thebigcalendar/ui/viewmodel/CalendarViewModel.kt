@@ -413,6 +413,26 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun hideDeleteButton() {
         _uiState.update { it.copy(activityIdWithDeleteButtonVisible = null) }
     }
+    
+    fun markActivityAsCompleted(activityId: String) {
+        viewModelScope.launch {
+            val activityToComplete = _uiState.value.activities.find { it.id == activityId }
+            
+            if (activityToComplete != null) {
+                // Marcar como concluída
+                val completedActivity = activityToComplete.copy(isCompleted = true)
+                activityRepository.saveActivity(completedActivity)
+                
+                // Mover para a lixeira
+                deletedActivityRepository.addDeletedActivity(completedActivity)
+                
+                // Remover da lista principal
+                activityRepository.deleteActivity(activityId)
+                
+                println("✅ Tarefa marcada como concluída: ${completedActivity.title}")
+            }
+        }
+    }
 
     fun requestDeleteActivity(activityId: String) {
         _uiState.update { it.copy(activityIdToDelete = activityId, activityIdWithDeleteButtonVisible = null) }

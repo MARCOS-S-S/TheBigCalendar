@@ -310,6 +310,7 @@ fun MainCalendarView(
                                 },
                                 onTaskLongClick = { viewModel.onTaskLongPressed(it) },
                                 onDeleteClick = { viewModel.requestDeleteActivity(it) },
+                                onCompleteClick = { viewModel.markActivityAsCompleted(it) },
                                 onAddTaskClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
                             )
                         }

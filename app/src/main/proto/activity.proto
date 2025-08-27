@@ -15,6 +15,7 @@ message ActivityProto {
   string category_color = 9;
   ActivityTypeProto activity_type = 10;
   string recurrence_rule = 11;
+  bool is_completed = 12;
 }
 
 enum ActivityTypeProto {

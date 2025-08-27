@@ -36,6 +36,7 @@ data class Activity(
     val activityType: ActivityType, // Importante para diferenciar tarefas
     val recurrenceRule: String?,
     val notificationSettings: NotificationSettings = NotificationSettings(),
+    val isCompleted: Boolean = false,
     val visibility: VisibilityLevel = VisibilityLevel.LOW // Nova opção de visibilidade
 )
 

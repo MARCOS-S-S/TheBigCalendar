@@ -6,23 +6,28 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -48,6 +53,7 @@ fun TasksForSelectedDaySection(
     onTaskClick: (Activity) -> Unit,
     onTaskLongClick: (String) -> Unit,
     onDeleteClick: (String) -> Unit,
+    onCompleteClick: (String) -> Unit,
     onAddTaskClick: () -> Unit
 ) {
     val dateFormat = stringResource(id = R.string.date_format_day_month)
@@ -82,7 +88,8 @@ fun TasksForSelectedDaySection(
                         deleteButtonVisible = activityIdWithDeleteVisible == task.id,
                         onTaskClick = onTaskClick,
                         onTaskLongClick = onTaskLongClick,
-                        onDeleteClick = onDeleteClick
+                        onDeleteClick = onDeleteClick,
+                        onCompleteClick = onCompleteClick
                     )
                 }
             }
@@ -98,6 +105,7 @@ fun TaskItem(
     onTaskClick: (Activity) -> Unit,
     onTaskLongClick: (String) -> Unit,
     onDeleteClick: (String) -> Unit,
+    onCompleteClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val fallbackColor = MaterialTheme.colorScheme.secondary
@@ -157,15 +165,54 @@ fun TaskItem(
             }
         }
 
-        AnimatedVisibility(visible = deleteButtonVisible, enter = fadeIn(), exit = fadeOut()) {
-            Button(
-                onClick = { onDeleteClick(task.id) },
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+        if (deleteButtonVisible) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                Icon(Icons.Default.Delete, contentDescription = stringResource(id = R.string.delete))
+                // Botão de concluir
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable { onCompleteClick(task.id) }
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "OK",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                
+                // Botão de deletar
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable { onDeleteClick(task.id) }
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "DEL",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onError,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
         }
     }
 }
+

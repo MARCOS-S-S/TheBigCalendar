@@ -33,6 +33,7 @@
     <string name="delete_confirmation_title">Confirmar Exclusão</string>
     <string name="delete_confirmation_message">Tem certeza que deseja apagar "%1$s"?</string>
     <string name="delete">Apagar</string>
+    <string name="mark_as_completed">Marcar como concluída</string>
 
     <!-- HolidaysForSelectedDaySection.kt -->
     <string name="holidays">Feriados</string>

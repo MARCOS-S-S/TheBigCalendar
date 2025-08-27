@@ -74,6 +74,7 @@ class ActivityRepository(private val context: Context) {
             .setCategoryColor(this.categoryColor)
             .setActivityType(this.activityType.toProto())
             .setRecurrenceRule(this.recurrenceRule ?: "")
+            .setIsCompleted(this.isCompleted)
             .build()
     }
 
@@ -90,7 +91,8 @@ class ActivityRepository(private val context: Context) {
             categoryColor = this.categoryColor,
             activityType = this.activityType.toActivityType(),
             recurrenceRule = this.recurrenceRule.takeIf { it.isNotEmpty() },
-            notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings()
+            notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings(),
+            isCompleted = this.isCompleted
         )
     }
 

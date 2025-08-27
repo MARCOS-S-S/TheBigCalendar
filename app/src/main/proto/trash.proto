@@ -27,6 +27,7 @@ message TrashActivityDataProto {
   string category_color = 9;
   TrashActivityTypeProto activity_type = 10;
   string recurrence_rule = 11;
+  bool is_completed = 12;
 }
 
 enum TrashActivityTypeProto {
