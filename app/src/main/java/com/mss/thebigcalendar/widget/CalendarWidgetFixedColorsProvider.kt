@@ -107,6 +107,11 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
             try {
                 val repository = ActivityRepository(context)
                 val today = LocalDate.now()
+                val tomorrow = today.plusDays(1)
+                val currentTime = LocalTime.now()
+                
+                // Verificar se está no período noturno (pôr do sol até meia-noite)
+                val isNightTime = isNightTime(currentTime)
                 
                 repository.activities.collect { activities ->
                     val todayTasks = activities.filter { activity ->
@@ -119,18 +124,22 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                         }
                     )
                     
+                    val tomorrowTasks = if (isNightTime) {
+                        activities.filter { activity ->
+                            LocalDate.parse(activity.date) == tomorrow
+                        }.sortedWith(
+                            compareByDescending<com.mss.thebigcalendar.data.model.Activity> { 
+                                it.categoryColor?.toIntOrNull() ?: 0 
+                            }.thenBy { 
+                                it.startTime ?: LocalTime.MIN 
+                            }
+                        )
+                    } else {
+                        emptyList()
+                    }
+                    
                     CoroutineScope(Dispatchers.Main).launch {
-                        val tasksText = if (todayTasks.isEmpty()) {
-                            "Nenhuma tarefa para hoje"
-                        } else {
-                            todayTasks.take(7).joinToString("<br>") { task ->
-                                if (task.startTime != null) {
-                                    "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} ${task.title}"
-                                } else {
-                                    task.title
-                                }
-                            } + if (todayTasks.size > 7) "<br>..." else ""
-                        }
+                        val tasksText = buildTasksText(todayTasks, tomorrowTasks, isNightTime)
                         
                         // Aplicar HTML para quebras de linha funcionarem
                         views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml(tasksText, android.text.Html.FROM_HTML_MODE_COMPACT))
@@ -145,26 +154,225 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
             }
         }
     }
+    
+    /**
+     * Verifica se está no período noturno (pôr do sol até meia-noite)
+     * Considera o horário real do pôr do sol baseado na estação do ano
+     */
+    private fun isNightTime(currentTime: LocalTime): Boolean {
+        val currentDate = LocalDate.now()
+        val month = currentDate.monthValue
+        
+        // Horários de pôr do sol aproximados por estação (Brasil)
+        val sunsetTime = when (month) {
+            in 12..2 -> LocalTime.of(19, 30) // Verão (dez-fev): ~19:30
+            in 3..5 -> LocalTime.of(18, 30)  // Outono (mar-mai): ~18:30
+            in 6..8 -> LocalTime.of(17, 30)  // Inverno (jun-ago): ~17:30
+            in 9..11 -> LocalTime.of(18, 0)  // Primavera (set-nov): ~18:00
+            else -> LocalTime.of(18, 0)      // Padrão
+        }
+        
+        val midnight = LocalTime.of(0, 0) // 00:00 (meia-noite)
+        
+        return currentTime.isAfter(sunsetTime) || currentTime.isBefore(midnight)
+    }
+    
+    /**
+     * Constrói o texto das tarefas incluindo as de amanhã se for noite
+     */
+    private fun buildTasksText(
+        todayTasks: List<com.mss.thebigcalendar.data.model.Activity>,
+        tomorrowTasks: List<com.mss.thebigcalendar.data.model.Activity>,
+        isNightTime: Boolean
+    ): String {
+        val maxTasksPerDay = 5 // Máximo de tarefas por dia para não sobrecarregar o widget
+        
+        // Construir texto das tarefas de hoje
+        val todayText = if (todayTasks.isEmpty()) {
+            "Nenhuma tarefa para hoje"
+        } else {
+            val tasksToShow = todayTasks.take(maxTasksPerDay)
+            tasksToShow.joinToString("<br>") { task ->
+                if (task.startTime != null) {
+                    "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} ${task.title}"
+                } else {
+                    task.title
+                }
+            } + if (todayTasks.size > maxTasksPerDay) "<br>..." else ""
+        }
+        
+        // Se não for noite ou não há tarefas de amanhã, retornar apenas as de hoje
+        if (!isNightTime || tomorrowTasks.isEmpty()) {
+            return todayText
+        }
+        
+        // Construir texto das tarefas de amanhã
+        val tomorrowText = if (tomorrowTasks.isEmpty()) {
+            ""
+        } else {
+            val tasksToShow = tomorrowTasks.take(maxTasksPerDay)
+            val tomorrowHeader = "<br><br><b>Amanhã:</b><br>"
+            val tasksList = tasksToShow.joinToString("<br>") { task ->
+                if (task.startTime != null) {
+                    "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} ${task.title}"
+                } else {
+                    task.title
+                }
+            }
+            tomorrowHeader + tasksList + if (tomorrowTasks.size > maxTasksPerDay) "<br>..." else ""
+        }
+        
+        return todayText + tomorrowText
+    }
 
     override fun onEnabled(context: Context) {
-        // Enter relevant functionality for when the first widget is created
+        // Agendar atualizações automáticas do widget
+        scheduleWidgetUpdates(context)
     }
 
     override fun onDisabled(context: Context) {
-        // Enter relevant functionality for when the last widget is disabled
+        // Cancelar atualizações automáticas quando o widget for desabilitado
+        cancelWidgetUpdates(context)
+    }
+    
+    /**
+     * Agenda atualizações automáticas do widget para mostrar tarefas de amanhã à noite
+     */
+    private fun scheduleWidgetUpdates(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+        val intent = Intent(context, CalendarWidgetFixedColorsProvider::class.java).apply {
+            action = ACTION_APPWIDGET_UPDATE_NIGHT
+        }
+        
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        // Calcular próximo horário de pôr do sol
+        val nextSunset = getNextSunsetTime()
+        val initialDelay = java.time.Duration.between(LocalTime.now(), nextSunset).toMillis()
+        
+        // Agendar primeira atualização no pôr do sol
+        if (initialDelay > 0) {
+            alarmManager.setExactAndAllowWhileIdle(
+                android.app.AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + initialDelay,
+                pendingIntent
+            )
+        }
+        
+        // Agendar atualizações diárias às 00:00 para resetar o widget
+        val midnightIntent = Intent(context, CalendarWidgetFixedColorsProvider::class.java).apply {
+            action = ACTION_APPWIDGET_UPDATE_MIDNIGHT
+        }
+        
+        val midnightPendingIntent = PendingIntent.getBroadcast(
+            context,
+            1,
+            midnightIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        val calendar = java.util.Calendar.getInstance().apply {
+            add(java.util.Calendar.DAY_OF_YEAR, 1)
+            set(java.util.Calendar.HOUR_OF_DAY, 0)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+        }
+        
+        alarmManager.setRepeating(
+            android.app.AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            android.app.AlarmManager.INTERVAL_DAY,
+            midnightPendingIntent
+        )
+    }
+    
+    /**
+     * Cancela as atualizações automáticas do widget
+     */
+    private fun cancelWidgetUpdates(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+        
+        val intent = Intent(context, CalendarWidgetFixedColorsProvider::class.java).apply {
+            action = ACTION_APPWIDGET_UPDATE_NIGHT
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        alarmManager.cancel(pendingIntent)
+        
+        val midnightIntent = Intent(context, CalendarWidgetFixedColorsProvider::class.java).apply {
+            action = ACTION_APPWIDGET_UPDATE_MIDNIGHT
+        }
+        val midnightPendingIntent = PendingIntent.getBroadcast(
+            context,
+            1,
+            midnightIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        alarmManager.cancel(midnightPendingIntent)
+    }
+    
+    /**
+     * Calcula o próximo horário de pôr do sol
+     */
+    private fun getNextSunsetTime(): LocalTime {
+        val currentDate = LocalDate.now()
+        val month = currentDate.monthValue
+        
+        return when (month) {
+            in 12..2 -> LocalTime.of(19, 30) // Verão (dez-fev): ~19:30
+            in 3..5 -> LocalTime.of(18, 30)  // Outono (mar-mai): ~18:30
+            in 6..8 -> LocalTime.of(17, 30)  // Inverno (jun-ago): ~17:30
+            in 9..11 -> LocalTime.of(18, 0)  // Primavera (set-nov): ~18:00
+            else -> LocalTime.of(18, 0)      // Padrão
+        }
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
-        if (ACTION_APPWIDGET_REFRESH == intent?.action) {
-            val appWidgetId = intent.getIntExtra(
-                AppWidgetManager.EXTRA_APPWIDGET_ID,
-                AppWidgetManager.INVALID_APPWIDGET_ID
-            )
-            if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+        when (intent?.action) {
+            ACTION_APPWIDGET_REFRESH -> {
+                val appWidgetId = intent.getIntExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID
+                )
+                if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                    context?.let {
+                        val appWidgetManager = AppWidgetManager.getInstance(it)
+                        updateAppWidget(it, appWidgetManager, appWidgetId)
+                    }
+                }
+            }
+            ACTION_APPWIDGET_UPDATE_NIGHT -> {
+                // Atualizar todos os widgets para mostrar tarefas de amanhã
                 context?.let {
                     val appWidgetManager = AppWidgetManager.getInstance(it)
-                    updateAppWidget(it, appWidgetManager, appWidgetId)
+                    val appWidgetIds = appWidgetManager.getAppWidgetIds(
+                        ComponentName(it, CalendarWidgetFixedColorsProvider::class.java)
+                    )
+                    for (appWidgetId in appWidgetIds) {
+                        updateAppWidget(it, appWidgetManager, appWidgetId)
+                    }
+                }
+            }
+            ACTION_APPWIDGET_UPDATE_MIDNIGHT -> {
+                // Atualizar todos os widgets para resetar (não mostrar tarefas de amanhã)
+                context?.let {
+                    val appWidgetManager = AppWidgetManager.getInstance(it)
+                    val appWidgetIds = appWidgetManager.getAppWidgetIds(
+                        ComponentName(it, CalendarWidgetFixedColorsProvider::class.java)
+                    )
+                    for (appWidgetId in appWidgetIds) {
+                        updateAppWidget(it, appWidgetManager, appWidgetId)
+                    }
                 }
             }
         }
@@ -172,5 +380,7 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
 
     companion object {
         private const val ACTION_APPWIDGET_REFRESH = "com.mss.thebigcalendar.ACTION_APPWIDGET_REFRESH_FIXED_COLORS"
+        private const val ACTION_APPWIDGET_UPDATE_NIGHT = "com.mss.thebigcalendar.ACTION_APPWIDGET_UPDATE_NIGHT"
+        private const val ACTION_APPWIDGET_UPDATE_MIDNIGHT = "com.mss.thebigcalendar.ACTION_APPWIDGET_UPDATE_MIDNIGHT"
     }
 }
