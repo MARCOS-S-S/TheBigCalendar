@@ -6,6 +6,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
 import com.mss.thebigcalendar.data.model.SearchResult
+import com.mss.thebigcalendar.data.model.DeletedActivity
 
 // Enum para os diferentes tipos de atividade (já deve existir)
 enum class ActivityType {
@@ -86,7 +87,9 @@ data class CalendarUiState(
     val signInIntent: Intent? = null,
     val searchQuery: String = "",
     val searchResults: List<SearchResult> = emptyList(),
-    val isSearchScreenOpen: Boolean = false
+    val isSearchScreenOpen: Boolean = false,
+    val deletedActivities: List<DeletedActivity> = emptyList(),
+    val isTrashScreenOpen: Boolean = false
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

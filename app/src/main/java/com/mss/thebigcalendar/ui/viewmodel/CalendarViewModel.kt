@@ -21,6 +21,7 @@ import com.mss.thebigcalendar.data.repository.SettingsRepository
 import com.mss.thebigcalendar.service.GoogleAuthService
 import com.mss.thebigcalendar.service.NotificationService
 import com.mss.thebigcalendar.service.SearchService
+import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,6 +38,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val holidayRepository = HolidayRepository(application)
     private val googleAuthService = GoogleAuthService(application)
     private val searchService = SearchService()
+    private val deletedActivityRepository = DeletedActivityRepository(application)
 
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
@@ -100,6 +102,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 updateAllDateDependentUI()
             }
         }
+        
+        viewModelScope.launch {
+            deletedActivityRepository.deletedActivities.collect { deletedActivities ->
+                _uiState.update { it.copy(deletedActivities = deletedActivities) }
+            }
+        }
+        
         loadInitialHolidaysAndSaints()
     }
 
@@ -305,11 +314,19 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun onDeleteActivityConfirm() {
         viewModelScope.launch {
             _uiState.value.activityIdToDelete?.let { activityId ->
-                // ✅ Cancelar notificação antes de deletar
-                val notificationService = NotificationService(getApplication())
-                notificationService.cancelNotification(activityId)
+                val activityToDelete = _uiState.value.activities.find { it.id == activityId }
                 
-                activityRepository.deleteActivity(activityId)
+                if (activityToDelete != null) {
+                    // ✅ Cancelar notificação antes de deletar
+                    val notificationService = NotificationService(getApplication())
+                    notificationService.cancelNotification(activityId)
+                    
+                    // Mover para a lixeira
+                    deletedActivityRepository.addDeletedActivity(activityToDelete)
+                    
+                    // Deletar da lista principal
+                    activityRepository.deleteActivity(activityId)
+                }
             }
             cancelDeleteActivity()
         }
@@ -442,14 +459,55 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(isSearchScreenOpen = true) }
     }
 
-    fun closeSearchScreen() {
+        fun closeSearchScreen() {
         println("🚪 Fechando tela de pesquisa")
-        _uiState.update { 
+        _uiState.update {
             it.copy(
                 isSearchScreenOpen = false,
                 searchQuery = "",
                 searchResults = emptyList()
             )
+        }
+    }
+
+    // --- Lixeira ---
+    
+    fun onTrashIconClick() {
+        println("🗑️ Abrindo lixeira")
+        _uiState.update { it.copy(isTrashScreenOpen = true) }
+    }
+    
+    fun closeTrashScreen() {
+        println("🚪 Fechando lixeira")
+        _uiState.update { it.copy(isTrashScreenOpen = false) }
+    }
+    
+    fun restoreDeletedActivity(deletedActivityId: String) {
+        viewModelScope.launch {
+            val restoredActivity = deletedActivityRepository.restoreActivity(deletedActivityId)
+            if (restoredActivity != null) {
+                // Restaurar a atividade
+                activityRepository.addActivity(restoredActivity)
+                println("✅ Atividade restaurada: ${restoredActivity.title}")
+            }
+        }
+    }
+
+    private suspend fun ActivityRepository.addActivity(activity: Activity) {
+        saveActivity(activity)
+    }
+
+    fun removeDeletedActivity(deletedActivityId: String) {
+        viewModelScope.launch {
+            deletedActivityRepository.removeDeletedActivity(deletedActivityId)
+            println("🗑️ Atividade removida permanentemente da lixeira")
+        }
+    }
+    
+    fun clearAllDeletedActivities() {
+        viewModelScope.launch {
+            deletedActivityRepository.clearAllDeletedActivities()
+            println("🗑️ Lixeira esvaziada")
         }
     }
 }

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">TBCalendar</string>
 
     <!-- CreateActivityModal.kt -->
@@ -18,8 +18,8 @@
     <string name="visibility_low_description">Envia uma notificação</string>
     <string name="visibility_medium_description">Mostrar um alerta na parte inferior da tela</string>
     <string name="visibility_high_description">Aparecerá uma mensagem na tela inteira</string>
-    <string name="task">Tarefa</string>
-    <string name="event">Evento</string>
+<!--    <string name="task" tools:ignore="DuplicateDefinition">Tarefa</string>-->
+<!--    <string name="event" tools:ignore="DuplicateDefinition">Evento</string>-->
     <string name="notifications">Notificações</string>
     <string name="repetition_dont_repeat">Não repetir</string>
     <string name="repetition_every_day">Todos os dias</string>
@@ -83,7 +83,7 @@
     <string name="add_appointment">Adicionar Agendamento</string>
     <string name="previous">Anterior</string>
     <string name="next">Próximo</string>
-    <string name="back">Voltar</string>
+<!--    <string name="back" tools:ignore="DuplicateDefinition">Voltar</string>-->
 
     <!-- HolidayRepository.kt -->
     <string name="new_year">Confraternização Universal</string>
@@ -121,5 +121,19 @@
     <string name="search_hints">Basta digitar :)</string>
     <string name="search_placeholder">Pesquisar agendamentos, feriados...</string>
     <string name="clear_search">Limpar pesquisa</string>
+    
+    <!-- TrashScreen.kt -->
+    <string name="trash">Lixeira</string>
+    <string name="back">Voltar</string>
+    <string name="empty_trash">Esvaziar lixeira</string>
+    <string name="deleted_activities_count">Atividades apagadas (%1$d)</string>
+    <string name="trash_empty">Lixeira vazia</string>
+    <string name="trash_empty_description">As atividades apagadas aparecerão aqui</string>
+    <string name="event">Evento</string>
+    <string name="task">Tarefa</string>
+    <string name="birthday">Aniversário</string>
+    <string name="restore_activity">Restaurar atividade</string>
+    <string name="delete_permanently">Excluir permanentemente</string>
+    <string name="deleted_at">Apagado em %1$s</string>
 
 </resources>

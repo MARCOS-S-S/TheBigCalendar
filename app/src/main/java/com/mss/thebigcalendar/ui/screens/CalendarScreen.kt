@@ -8,13 +8,17 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Today
@@ -220,10 +224,34 @@ fun MainCalendarView(
         },
         floatingActionButton = {
             if (uiState.viewMode == ViewMode.MONTHLY) {
-                FloatingActionButton(
-                    onClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 ) {
-                    Icon(Icons.Filled.Add, stringResource(id = R.string.add_appointment))
+                    // Botão da lixeira (esquerda) - menor
+                    FloatingActionButton(
+                        onClick = { viewModel.onTrashIconClick() },
+                        modifier = Modifier.size(56.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete, 
+                            stringResource(id = R.string.trash),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.width(16.dp))
+                    
+                    // Botão de criar agendamento (direita) - menor
+                    FloatingActionButton(
+                        onClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) },
+                        modifier = Modifier.size(56.dp)
+                    ) {
+                        Icon(
+                            Icons.Filled.Add, 
+                            stringResource(id = R.string.add_appointment),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
         }

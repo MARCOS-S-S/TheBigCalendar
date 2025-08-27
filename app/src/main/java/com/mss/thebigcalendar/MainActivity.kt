@@ -20,6 +20,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.ui.screens.CalendarScreen
 import com.mss.thebigcalendar.ui.screens.SearchScreen
+import com.mss.thebigcalendar.ui.screens.TrashScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import kotlinx.coroutines.flow.first
@@ -48,6 +49,9 @@ class MainActivity : ComponentActivity() {
                 // Se estiver na tela de pesquisa, fechar a pesquisa
                 if (viewModel.uiState.value.isSearchScreenOpen) {
                     viewModel.closeSearchScreen()
+                } else if (viewModel.uiState.value.isTrashScreenOpen) {
+                    // Se estiver na lixeira, voltar para o calendário
+                    viewModel.closeTrashScreen()
                 } else {
                     // Se estiver no calendário, fechar o app
                     finish()
@@ -86,6 +90,12 @@ class MainActivity : ComponentActivity() {
                                 onNavigateBack = { viewModel.closeSearchScreen() },
                                 onSearchResultClick = { result -> viewModel.onSearchResultClick(result) },
                                 onBackPressedDispatcher = onBackPressedDispatcher
+                            )
+                        }
+                        uiState.isTrashScreenOpen -> {
+                            TrashScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = { viewModel.closeTrashScreen() }
                             )
                         }
                         else -> {

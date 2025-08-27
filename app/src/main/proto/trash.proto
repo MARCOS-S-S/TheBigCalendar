@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package com.mss.thebigcalendar.data.model.proto;
+
+option java_multiple_files = true;
+
+message TrashActivities {
+  repeated TrashActivityProto trash_activities = 1;
+}
+
+message TrashActivityProto {
+  string id = 1;
+  TrashActivityDataProto original_activity = 2;
+  string deleted_at = 3;
+  string deleted_by = 4;
+}
+
+message TrashActivityDataProto {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string date = 4;
+  string start_time = 5;
+  string end_time = 6;
+  bool is_all_day = 7;
+  string location = 8;
+  string category_color = 9;
+  TrashActivityTypeProto activity_type = 10;
+  string recurrence_rule = 11;
+}
+
+enum TrashActivityTypeProto {
+  TRASH_EVENT = 0;
+  TRASH_TASK = 1;
+  TRASH_BIRTHDAY = 2;
+}
