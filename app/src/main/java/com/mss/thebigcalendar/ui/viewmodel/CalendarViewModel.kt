@@ -21,6 +21,7 @@ import com.mss.thebigcalendar.data.repository.SettingsRepository
 import com.mss.thebigcalendar.service.GoogleAuthService
 import com.mss.thebigcalendar.service.NotificationService
 import com.mss.thebigcalendar.service.SearchService
+import com.mss.thebigcalendar.service.RecurrenceService
 import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,6 +39,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val holidayRepository = HolidayRepository(application)
     private val googleAuthService = GoogleAuthService(application)
     private val searchService = SearchService()
+    private val recurrenceService = RecurrenceService()
     private val deletedActivityRepository = DeletedActivityRepository(application)
 
     private val _uiState = MutableStateFlow(CalendarUiState())
@@ -296,6 +298,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     fun onSaveActivity(activityData: Activity) {
         viewModelScope.launch {
+            // Salvar a atividade principal
             activityRepository.saveActivity(activityData)
             
             // ✅ Agendar notificação se configurada
@@ -305,6 +308,28 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 
                 val notificationService = NotificationService(getApplication())
                 notificationService.scheduleNotification(activityData)
+            }
+            
+            // Se a atividade tem repetição, gerar instâncias recorrentes
+            if (activityData.recurrenceRule?.isNotEmpty() == true && activityData.recurrenceRule != "CUSTOM") {
+                val startDate = java.time.LocalDate.parse(activityData.date)
+                val endDate = startDate.plusYears(1) // Gerar repetições por 1 ano
+                
+                val recurringInstances = recurrenceService.generateRecurringInstances(
+                    baseActivity = activityData,
+                    startDate = startDate,
+                    endDate = endDate
+                )
+                
+                // Salvar todas as instâncias recorrentes
+                recurringInstances.forEach { instance ->
+                    if (instance.id != activityData.id) { // Não salvar a atividade principal novamente
+                        activityRepository.saveActivity(instance)
+                    }
+                }
+                
+                println("🔄 Atividade recorrente criada: ${activityData.title}")
+                println("📅 Instâncias geradas: ${recurringInstances.size}")
             }
             
             closeCreateActivityModal()
@@ -321,11 +346,29 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     val notificationService = NotificationService(getApplication())
                     notificationService.cancelNotification(activityId)
                     
-                    // Mover para a lixeira
-                    deletedActivityRepository.addDeletedActivity(activityToDelete)
-                    
-                    // Deletar da lista principal
-                    activityRepository.deleteActivity(activityId)
+                    // Se é uma atividade recorrente, deletar todas as instâncias
+                    if (recurrenceService.isRecurring(activityToDelete)) {
+                        val allActivities = _uiState.value.activities
+                        val recurringActivities = allActivities.filter { 
+                            it.title == activityToDelete.title && 
+                            it.recurrenceRule == activityToDelete.recurrenceRule
+                        }
+                        
+                        // Mover todas as instâncias para a lixeira
+                        recurringActivities.forEach { activity ->
+                            deletedActivityRepository.addDeletedActivity(activity)
+                            activityRepository.deleteActivity(activity.id)
+                        }
+                        
+                        println("🗑️ Atividade recorrente deletada: ${activityToDelete.title}")
+                        println("📅 Instâncias deletadas: ${recurringActivities.size}")
+                    } else {
+                        // Mover para a lixeira
+                        deletedActivityRepository.addDeletedActivity(activityToDelete)
+                        
+                        // Deletar da lista principal
+                        activityRepository.deleteActivity(activityId)
+                    }
                 }
             }
             cancelDeleteActivity()

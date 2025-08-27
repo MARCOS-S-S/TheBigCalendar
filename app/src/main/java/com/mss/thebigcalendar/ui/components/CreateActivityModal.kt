@@ -76,6 +76,18 @@ fun CreateActivityModal(
             }
         ) 
     }
+    
+    // Estado para repetições
+    var isRepetitionMenuExpanded by remember { mutableStateOf(false) }
+    val repetitionOptions = listOf(
+        stringResource(id = R.string.repetition_dont_repeat),
+        stringResource(id = R.string.repetition_every_day),
+        stringResource(id = R.string.repetition_every_week),
+        stringResource(id = R.string.repetition_every_month),
+        stringResource(id = R.string.repetition_every_year),
+        stringResource(id = R.string.repetition_custom)
+    )
+    var selectedRepetition by remember { mutableStateOf(repetitionOptions.first()) }
 
     val date = LocalDate.parse(currentActivity.date)
     val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_day_month), java.util.Locale("pt", "BR"))
@@ -175,17 +187,6 @@ fun CreateActivityModal(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                var isRepetitionMenuExpanded by remember { mutableStateOf(false) }
-                val repetitionOptions = listOf(
-                    stringResource(id = R.string.repetition_dont_repeat),
-                    stringResource(id = R.string.repetition_every_day),
-                    stringResource(id = R.string.repetition_every_week),
-                    stringResource(id = R.string.repetition_every_month),
-                    stringResource(id = R.string.repetition_every_year),
-                    stringResource(id = R.string.repetition_custom)
-                )
-                var selectedRepetition by remember { mutableStateOf(repetitionOptions.first()) }
-
                 Box {
                     Row(
                         modifier = Modifier
@@ -281,7 +282,8 @@ fun CreateActivityModal(
                         endTime = if (hasScheduledTime) endTime else null,
                         isAllDay = !hasScheduledTime,
                         notificationSettings = notificationSettings, // ✅ Adicionar configurações de notificação
-                        visibility = selectedVisibility // ✅ Adicionar visibilidade
+                        visibility = selectedVisibility, // ✅ Adicionar visibilidade
+                        recurrenceRule = convertRepetitionOptionToRule(selectedRepetition, repetitionOptions) // ✅ Adicionar regra de repetição
                     )
                     if (updatedActivity.title.isNotBlank()) {
                         onSaveActivity(updatedActivity)
@@ -528,3 +530,18 @@ fun VisibilitySelector(
 //        // Box(modifier = Modifier.fillMaxSize())
 //    }
 //}
+
+/**
+ * Função auxiliar para converter opções de repetição em regras de repetição
+ */
+private fun convertRepetitionOptionToRule(selectedOption: String, allOptions: List<String>): String {
+    return when (selectedOption) {
+        allOptions[0] -> "" // "Não repetir"
+        allOptions[1] -> "DAILY" // "Todos os dias"
+        allOptions[2] -> "WEEKLY" // "Todas as semanas"
+        allOptions[3] -> "MONTHLY" // "Todos os meses"
+        allOptions[4] -> "YEARLY" // "Todos os anos"
+        allOptions[5] -> "CUSTOM" // "Personalizado"
+        else -> ""
+    }
+}
