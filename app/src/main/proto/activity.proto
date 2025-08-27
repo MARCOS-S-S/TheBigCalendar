@@ -16,6 +16,7 @@ message ActivityProto {
   ActivityTypeProto activity_type = 10;
   string recurrence_rule = 11;
   bool is_completed = 12;
+  bool is_from_google = 13;
 }
 
 enum ActivityTypeProto {

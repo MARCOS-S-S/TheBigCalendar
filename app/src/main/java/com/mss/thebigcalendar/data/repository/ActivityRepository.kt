@@ -48,6 +48,22 @@ class ActivityRepository(private val context: Context) {
         }
     }
 
+    suspend fun saveAllActivities(activities: List<Activity>) {
+        context.activitiesDataStore.updateData { currentActivities ->
+            val newActivities = currentActivities.toBuilder()
+            activities.forEach { activity ->
+                val existingIndex = newActivities.activitiesList.indexOfFirst { it.id == activity.id }
+                val proto = activity.toProto()
+                if (existingIndex != -1) {
+                    newActivities.setActivities(existingIndex, proto)
+                } else {
+                    newActivities.addActivities(proto)
+                }
+            }
+            newActivities.build()
+        }
+    }
+
     suspend fun deleteActivity(activityId: String) {
         context.activitiesDataStore.updateData { currentActivities ->
             val newActivities = currentActivities.toBuilder()
@@ -55,6 +71,16 @@ class ActivityRepository(private val context: Context) {
             if (indexToDelete != -1) {
                 newActivities.removeActivities(indexToDelete)
             }
+            newActivities.build()
+        }
+    }
+
+    suspend fun deleteAllActivitiesFromGoogle() {
+        context.activitiesDataStore.updateData { currentActivities ->
+            val newActivities = currentActivities.toBuilder()
+            val activitiesToKeep = currentActivities.activitiesList.filter { !it.isFromGoogle }
+            newActivities.clearActivities()
+            newActivities.addAllActivities(activitiesToKeep)
             newActivities.build()
         }
     }
@@ -75,6 +101,7 @@ class ActivityRepository(private val context: Context) {
             .setActivityType(this.activityType.toProto())
             .setRecurrenceRule(this.recurrenceRule ?: "")
             .setIsCompleted(this.isCompleted)
+            .setIsFromGoogle(this.isFromGoogle)
             .build()
     }
 
@@ -92,7 +119,8 @@ class ActivityRepository(private val context: Context) {
             activityType = this.activityType.toActivityType(),
             recurrenceRule = this.recurrenceRule.takeIf { it.isNotEmpty() },
             notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings(),
-            isCompleted = this.isCompleted
+            isCompleted = this.isCompleted,
+            isFromGoogle = this.isFromGoogle
         )
     }
 

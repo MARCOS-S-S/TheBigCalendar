@@ -6,7 +6,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
+import com.google.api.services.calendar.CalendarScopes
 
 class GoogleAuthService(private val context: Context) {
 
@@ -15,6 +17,7 @@ class GoogleAuthService(private val context: Context) {
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(webClientId)
             .requestEmail()
+            .requestScopes(Scope(CalendarScopes.CALENDAR_READONLY))
             .build()
     }
 

@@ -37,7 +37,8 @@ data class Activity(
     val recurrenceRule: String?,
     val notificationSettings: NotificationSettings = NotificationSettings(),
     val isCompleted: Boolean = false,
-    val visibility: VisibilityLevel = VisibilityLevel.LOW // Nova opção de visibilidade
+    val visibility: VisibilityLevel = VisibilityLevel.LOW, // Nova opção de visibilidade
+    val isFromGoogle: Boolean = false
 )
 
 // Representa cada célula individual na grade do calendário

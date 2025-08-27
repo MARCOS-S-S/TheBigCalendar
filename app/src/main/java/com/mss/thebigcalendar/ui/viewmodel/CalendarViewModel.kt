@@ -19,18 +19,24 @@ import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
 import com.mss.thebigcalendar.data.repository.SettingsRepository
 import com.mss.thebigcalendar.service.GoogleAuthService
+import com.mss.thebigcalendar.service.GoogleCalendarService
 import com.mss.thebigcalendar.service.NotificationService
 import com.mss.thebigcalendar.service.SearchService
 import com.mss.thebigcalendar.service.RecurrenceService
 import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
+import java.time.ZoneId
+import java.util.UUID
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -38,6 +44,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val activityRepository = ActivityRepository(application)
     private val holidayRepository = HolidayRepository(application)
     private val googleAuthService = GoogleAuthService(application)
+    private val googleCalendarService = GoogleCalendarService(application)
     private val searchService = SearchService()
     private val recurrenceService = RecurrenceService()
     private val deletedActivityRepository = DeletedActivityRepository(application)
@@ -55,6 +62,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         val account = googleAuthService.getLastSignedInAccount()
         if (account != null) {
             _uiState.update { it.copy(googleSignInAccount = account) }
+            fetchGoogleCalendarEvents(account)
         }
     }
 
@@ -70,11 +78,54 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun handleSignInResult(task: Task<GoogleSignInAccount>) {
         val account = googleAuthService.handleSignInResult(task)
         _uiState.update { it.copy(googleSignInAccount = account) }
+        if (account != null) {
+            fetchGoogleCalendarEvents(account)
+        }
     }
 
     fun signOut() {
         googleAuthService.signOut {
             _uiState.update { it.copy(googleSignInAccount = null) }
+            viewModelScope.launch {
+                activityRepository.deleteAllActivitiesFromGoogle()
+            }
+        }
+    }
+
+    private fun fetchGoogleCalendarEvents(account: GoogleSignInAccount) {
+        viewModelScope.launch {
+            try {
+                val calendarService = googleCalendarService.getCalendarService(account)
+                val events = withContext(Dispatchers.IO) {
+                    calendarService.events().list("primary").execute()
+                }
+                val activities = events.items.map { event ->
+                    val start = event.start?.dateTime?.value ?: event.start?.date?.value
+                    val end = event.end?.dateTime?.value ?: event.end?.date?.value
+
+                    val startDate = if (start != null) Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalDate() else LocalDate.now()
+                    val startTime = if (start != null) Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalTime() else null
+                    val endTime = if (end != null) Instant.ofEpochMilli(end).atZone(ZoneId.systemDefault()).toLocalTime() else null
+
+                    Activity(
+                        id = event.id ?: UUID.randomUUID().toString(),
+                        title = event.summary ?: "No Title",
+                        description = event.description,
+                        date = startDate.toString(),
+                        startTime = startTime,
+                        endTime = endTime,
+                        isAllDay = event.start?.dateTime == null,
+                        location = event.location,
+                        categoryColor = "#4285F4", // Google Blue
+                        activityType = ActivityType.EVENT,
+                        recurrenceRule = null,
+                        isFromGoogle = true
+                    )
+                }
+                activityRepository.saveAllActivities(activities)
+            } catch (e: Exception) {
+                // Handle error
+            }
         }
     }
 
