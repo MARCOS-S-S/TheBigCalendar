@@ -527,17 +527,35 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             emptyList()
         }
         
-        // Filtrar outras atividades (excluindo aniversários)
-        val otherTasks = if (state.filterOptions.showTasks || state.filterOptions.showEvents || state.filterOptions.showNotes) {
+        // Separar notas das outras atividades
+        val notes = if (state.filterOptions.showNotes) {
             state.activities.filter { activity ->
                 try {
-                    if (activity.activityType == ActivityType.BIRTHDAY) {
-                        false // Excluir aniversários
+                    if (activity.activityType == ActivityType.NOTE) {
+                        val activityDate = LocalDate.parse(activity.date)
+                        activityDate.isEqual(state.selectedDate)
+                    } else {
+                        false
+                    }
+                } catch (e: Exception) {
+                    Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para nota: ${activity.title}", e)
+                    false
+                }
+            }.sortedBy { it.title }
+        } else {
+            emptyList()
+        }
+        
+        // Filtrar outras atividades (excluindo aniversários e notas)
+        val otherTasks = if (state.filterOptions.showTasks || state.filterOptions.showEvents) {
+            state.activities.filter { activity ->
+                try {
+                    if (activity.activityType == ActivityType.BIRTHDAY || activity.activityType == ActivityType.NOTE) {
+                        false // Excluir aniversários e notas
                     } else {
                         val activityDate = LocalDate.parse(activity.date)
                         val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
-                                (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
-                                (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE)
+                                (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT)
                         
                         activityDate.isEqual(state.selectedDate) && typeMatches
                     }
@@ -553,15 +571,20 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         // Log para debug
         Log.d("CalendarViewModel", "📅 Tarefas para ${state.selectedDate}: ${otherTasks.size}")
         Log.d("CalendarViewModel", "🎂 Aniversários para ${state.selectedDate}: ${birthdays.size}")
+        Log.d("CalendarViewModel", "📝 Notas para ${state.selectedDate}: ${notes.size}")
         birthdays.forEach { birthday ->
             Log.d("CalendarViewModel", "🎂 Aniversário: ${birthday.title}")
         }
+        notes.forEach { note ->
+            Log.d("CalendarViewModel", "📝 Nota: ${note.title}")
+        }
         
-        // Atualizar ambas as listas
+        // Atualizar todas as listas
         _uiState.update { 
             it.copy(
                 tasksForSelectedDate = otherTasks,
-                birthdaysForSelectedDate = birthdays
+                birthdaysForSelectedDate = birthdays,
+                notesForSelectedDate = notes
             ) 
         }
     }

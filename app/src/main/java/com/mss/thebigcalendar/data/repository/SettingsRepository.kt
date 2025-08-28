@@ -72,6 +72,8 @@ class SettingsRepository(private val context: Context) {
             preferences[PreferencesKeys.SHOW_COMMEMORATIVE_DATES] = filterOptions.showCommemorativeDates
             preferences[PreferencesKeys.SHOW_EVENTS] = filterOptions.showEvents
             preferences[PreferencesKeys.SHOW_TASKS] = filterOptions.showTasks
+            preferences[PreferencesKeys.SHOW_BIRTHDAYS] = filterOptions.showBirthdays
+            preferences[PreferencesKeys.SHOW_NOTES] = filterOptions.showNotes
         }
     }
 }

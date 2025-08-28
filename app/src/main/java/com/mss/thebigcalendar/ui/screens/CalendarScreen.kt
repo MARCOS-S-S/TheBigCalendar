@@ -67,6 +67,7 @@ import com.mss.thebigcalendar.ui.components.SaintDaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.SaintInfoDialog
 import com.mss.thebigcalendar.ui.components.Sidebar
 import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection
+import com.mss.thebigcalendar.ui.components.NotesForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.YearlyCalendarView
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import kotlinx.coroutines.launch
@@ -326,7 +327,26 @@ fun MainCalendarView(
                             }
                         }
                         
-                        // Seção de Tarefas e Eventos (excluindo aniversários)
+                        // Seção de Notas
+                        if (uiState.notesForSelectedDate.isNotEmpty()) {
+                            item {
+                                NotesForSelectedDaySection(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                    notes = uiState.notesForSelectedDate,
+                                    selectedDate = uiState.selectedDate,
+                                    onNoteClick = {
+                                        if (uiState.activityIdWithDeleteButtonVisible != null) {
+                                            viewModel.hideDeleteButton()
+                                        } else {
+                                            viewModel.openCreateActivityModal(it, it.activityType)
+                                        }
+                                    },
+                                    onAddNoteClick = { viewModel.openCreateActivityModal(activityType = ActivityType.NOTE) }
+                                )
+                            }
+                        }
+                        
+                        // Seção de Tarefas e Eventos (excluindo aniversários e notas)
                         if (uiState.tasksForSelectedDate.isNotEmpty()) {
                             item {
                                 TasksForSelectedDaySection(
