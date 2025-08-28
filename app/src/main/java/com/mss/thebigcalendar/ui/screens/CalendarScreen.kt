@@ -214,13 +214,38 @@ fun MainCalendarView(
                         IconButton(onClick = { viewModel.onSearchIconClick() }) {
                             Icon(Icons.Default.Search, stringResource(id = R.string.search))
                         }
-                    }
-                    
-                    IconButton(onClick = prevAction) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.previous))
-                    }
-                    IconButton(onClick = nextAction) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowForward, stringResource(id = R.string.next))
+                        
+                        // Botão de criar agendamento (menor)
+                        IconButton(
+                            onClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                Icons.Filled.Add, 
+                                contentDescription = stringResource(id = R.string.add_appointment),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        
+                        // Botão da lixeira (menor)
+                        IconButton(
+                            onClick = { viewModel.onTrashIconClick() },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Delete, 
+                                contentDescription = stringResource(id = R.string.trash),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    } else {
+                        // Para visualização anual, manter as setas de navegação
+                        IconButton(onClick = prevAction) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.previous))
+                        }
+                        IconButton(onClick = nextAction) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowForward, stringResource(id = R.string.next))
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -228,46 +253,7 @@ fun MainCalendarView(
                 )
             )
         },
-        floatingActionButton = {
-            if (uiState.viewMode == ViewMode.MONTHLY) {
-                Column(
-                    modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Botão de criar agendamento (por cima) - muda de formato baseado no estado do modal
-                    FloatingActionButton(
-                        onClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) },
-                        modifier = Modifier.size(56.dp),
-                        containerColor = if (uiState.activityToEdit != null) 
-                            MaterialTheme.colorScheme.primaryContainer 
-                        else 
-                            MaterialTheme.colorScheme.primary,
-                        shape = if (uiState.activityToEdit != null) 
-                            CircleShape 
-                        else 
-                            MaterialTheme.shapes.large
-                    ) {
-                        Icon(
-                            Icons.Filled.Add, 
-                            stringResource(id = R.string.add_appointment),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    
-                    // Botão da lixeira (por baixo)
-                    FloatingActionButton(
-                        onClick = { viewModel.onTrashIconClick() },
-                        modifier = Modifier.size(56.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Delete, 
-                            stringResource(id = R.string.trash),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
-            }
-        }
+
             ) { paddingValues ->
         Column(
             modifier = Modifier
