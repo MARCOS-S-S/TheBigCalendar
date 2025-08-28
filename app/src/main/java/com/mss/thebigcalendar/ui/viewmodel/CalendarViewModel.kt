@@ -1193,7 +1193,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     
     fun onBackupIconClick() {
         println("💾 Abrindo tela de backup")
-        _uiState.update { it.copy(isBackupScreenOpen = true) }
+        _uiState.update { it.copy(isBackupScreenOpen = true, isSidebarOpen = false) }
     }
     
     fun closeBackupScreen() {
