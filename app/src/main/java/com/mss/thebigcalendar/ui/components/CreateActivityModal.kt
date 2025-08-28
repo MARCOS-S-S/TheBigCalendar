@@ -146,10 +146,13 @@ fun CreateActivityModal(
                             val text = when (type) {
                                 ActivityType.TASK -> stringResource(id = R.string.task)
                                 ActivityType.EVENT -> stringResource(id = R.string.event)
-                                ActivityType.NOTE -> "Nota"
-                                ActivityType.BIRTHDAY -> "Aniversário"
+                                ActivityType.NOTE -> stringResource(id = R.string.note)
+                                ActivityType.BIRTHDAY -> stringResource(id = R.string.birthday)
                             }
-                            Text(text = text)
+                            Text(
+                                text = text,
+                                style = MaterialTheme.typography.labelSmall
+                            )
                         }
                     }
                 }
