@@ -46,15 +46,13 @@ class MainActivity : ComponentActivity() {
         // Configurar callback para o botão de voltar do sistema
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // Se estiver na tela de pesquisa, fechar a pesquisa
-                if (viewModel.uiState.value.isSearchScreenOpen) {
-                    viewModel.closeSearchScreen()
-                } else if (viewModel.uiState.value.isTrashScreenOpen) {
-                    // Se estiver na lixeira, voltar para o calendário
-                    viewModel.closeTrashScreen()
-                } else {
-                    // Se estiver no calendário, fechar o app
-                    finish()
+                val state = viewModel.uiState.value
+                when {
+                    state.isSidebarOpen -> viewModel.closeSidebar()
+                    state.currentSettingsScreen != null -> viewModel.closeSettingsScreen()
+                    state.isSearchScreenOpen -> viewModel.closeSearchScreen()
+                    state.isTrashScreenOpen -> viewModel.closeTrashScreen()
+                    else -> finish()
                 }
             }
         })

@@ -465,6 +465,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(currentSettingsScreen = screen, isSidebarOpen = false) }
     }
 
+    fun closeSettingsScreen() {
+        _uiState.update { it.copy(currentSettingsScreen = null) }
+    }
+
     fun openCreateActivityModal(activity: Activity? = null, activityType: ActivityType = ActivityType.EVENT) {
         val template = activity ?: Activity(
             id = "new",
