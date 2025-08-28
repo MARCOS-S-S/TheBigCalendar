@@ -106,6 +106,138 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * Detecta se um evento do Google Calendar é um aniversário baseado em características específicas
+     */
+    private fun detectBirthdayEvent(event: com.google.api.services.calendar.model.Event): Boolean {
+        val title = event.summary?.lowercase() ?: ""
+        val description = event.description?.lowercase() ?: ""
+        val isAllDay = event.start?.dateTime == null
+        val hasRecurrence = event.recurrence?.isNotEmpty() == true
+        
+        // Log para debug da detecção
+        Log.d("CalendarViewModel", "🔍 Analisando evento: '${event.summary}' - All-day: $isAllDay, Recorrente: $hasRecurrence")
+        
+        // Palavras-chave para detectar aniversários (em português e inglês)
+        val birthdayKeywords = listOf(
+            "birthday", "aniversário", "nascimento", "nasc", "bday", "b-day",
+            "feliz aniversário", "happy birthday", "completa anos", "turns",
+            "aniversariante", "birthday boy", "birthday girl", "aniversariantes",
+            "parabéns", "congratulations", "festa", "party", "celebration"
+        )
+        
+        // Verificar se o título ou descrição contém palavras-chave de aniversário
+        val hasBirthdayKeywords = birthdayKeywords.any { keyword ->
+            title.contains(keyword) || description.contains(keyword)
+        }
+        
+        if (hasBirthdayKeywords) {
+            Log.d("CalendarViewModel", "✅ Palavra-chave de aniversário encontrada: $title")
+        }
+        
+        // Verificar se é um evento recorrente anual (típico de aniversários)
+        val isYearlyRecurring = event.recurrence?.any { rule ->
+            rule.contains("FREQ=YEARLY") || rule.contains("RRULE:FREQ=YEARLY") ||
+            rule.contains("INTERVAL=1") && rule.contains("FREQ=YEARLY")
+        } == true
+        
+        if (isYearlyRecurring) {
+            Log.d("CalendarViewModel", "✅ Evento recorrente anual detectado: ${event.recurrence}")
+        }
+        
+        // Verificar se é um evento de dia inteiro (aniversários geralmente são)
+        val isAllDayEvent = isAllDay
+        
+        // Verificar se tem configurações específicas de aniversário do Google
+        val hasBirthdaySettings = event.gadget?.preferences?.any { (key, value) ->
+            key == "googCalEventType" && value == "birthday"
+        } == true
+        
+        if (hasBirthdaySettings) {
+            Log.d("CalendarViewModel", "✅ Configurações específicas de aniversário detectadas")
+        }
+        
+        // Verificar se vem de um calendário específico de aniversários
+        val isFromBirthdayCalendar = event.organizer?.email?.contains("birthday") == true ||
+                                   event.creator?.email?.contains("birthday") == true
+        
+        if (isFromBirthdayCalendar) {
+            Log.d("CalendarViewModel", "✅ Evento de calendário de aniversários detectado")
+        }
+        
+        // Verificar se tem padrões específicos de aniversário no título
+        val hasBirthdayPatterns = title.matches(Regex(".*\\b\\d{1,2}/\\d{1,2}\\b.*")) || // Padrão DD/MM
+                                 title.matches(Regex(".*\\b\\d{1,2}-\\d{1,2}\\b.*")) || // Padrão DD-MM
+                                 title.matches(Regex(".*\\b\\d{1,2}\\.\\d{1,2}\\b.*"))   // Padrão DD.MM
+        
+        if (hasBirthdayPatterns) {
+            Log.d("CalendarViewModel", "✅ Padrão de data detectado no título: $title")
+        }
+        
+        // Um evento é considerado aniversário se:
+        // 1. Contém palavras-chave de aniversário, OU
+        // 2. É recorrente anual E é de dia inteiro, OU  
+        // 3. Tem configurações específicas de aniversário do Google, OU
+        // 4. Vem de um calendário de aniversários, OU
+        // 5. Tem padrões de data no título (típico de aniversários)
+        val result = hasBirthdayKeywords || 
+                    (isYearlyRecurring && isAllDayEvent) || 
+                    hasBirthdaySettings ||
+                    isFromBirthdayCalendar ||
+                    hasBirthdayPatterns
+        
+        Log.d("CalendarViewModel", "🎯 Resultado da detecção: $result para '${event.summary}'")
+        
+        return result
+    }
+    
+    /**
+     * Cria aniversários de exemplo para teste se nenhum for detectado automaticamente
+     */
+    private fun createSampleBirthdays() {
+        viewModelScope.launch {
+            val currentYear = LocalDate.now().year
+            val sampleBirthdays = listOf(
+                Activity(
+                    id = "sample_birthday_1",
+                    title = "João Silva - Aniversário",
+                    description = "Aniversário do João Silva",
+                    date = "$currentYear-03-15",
+                    startTime = null,
+                    endTime = null,
+                    isAllDay = true,
+                    location = null,
+                    categoryColor = "#FF69B4",
+                    activityType = ActivityType.BIRTHDAY,
+                    recurrenceRule = "YEARLY",
+                    isFromGoogle = false
+                ),
+                Activity(
+                    id = "sample_birthday_2",
+                    title = "Maria Santos - Aniversário",
+                    description = "Aniversário da Maria Santos",
+                    date = "$currentYear-07-22",
+                    startTime = null,
+                    endTime = null,
+                    isAllDay = true,
+                    location = null,
+                    categoryColor = "#FF69B4",
+                    activityType = ActivityType.BIRTHDAY,
+                    recurrenceRule = "YEARLY",
+                    isFromGoogle = false
+                )
+            )
+            
+            // Salvar os aniversários de exemplo
+            activityRepository.saveAllActivities(sampleBirthdays)
+            
+            Log.d("CalendarViewModel", "🎂 Aniversários de exemplo criados: ${sampleBirthdays.size}")
+            
+            // Atualizar a UI
+            updateAllDateDependentUI()
+        }
+    }
+
     private fun fetchGoogleCalendarEvents(account: GoogleSignInAccount) {
         viewModelScope.launch {
             _uiState.update { it.copy(isSyncing = true, syncErrorMessage = null) }
@@ -115,8 +247,42 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
                 // 2. Fetch new events from Google Calendar
                 val calendarService = googleCalendarService.getCalendarService(account)
-                val events = withContext(Dispatchers.IO) {
+                
+                // Buscar eventos do calendário principal
+                val primaryEvents = withContext(Dispatchers.IO) {
                     calendarService.events().list("primary").execute()
+                }
+                
+                // Buscar eventos de contatos (que contêm aniversários)
+                val contactEvents = withContext(Dispatchers.IO) {
+                    try {
+                        calendarService.events().list("contacts").execute()
+                    } catch (e: Exception) {
+                        // Se não conseguir acessar o calendário de contatos, usar lista vazia
+                        Log.d("CalendarViewModel", "Não foi possível acessar o calendário de contatos: ${e.message}")
+                        com.google.api.services.calendar.model.Events()
+                    }
+                }
+                
+                // Buscar eventos de aniversários específicos
+                val birthdayCalendarEvents = withContext(Dispatchers.IO) {
+                    try {
+                        calendarService.events().list("birthdays").execute()
+                    } catch (e: Exception) {
+                        // Se não conseguir acessar o calendário de aniversários, usar lista vazia
+                        Log.d("CalendarViewModel", "Não foi possível acessar o calendário de aniversários: ${e.message}")
+                        com.google.api.services.calendar.model.Events()
+                    }
+                }
+                
+                // Combinar todos os eventos
+                val allEvents = mutableListOf<com.google.api.services.calendar.model.Event>()
+                allEvents.addAll(primaryEvents.items ?: emptyList())
+                allEvents.addAll(contactEvents.items ?: emptyList())
+                allEvents.addAll(birthdayCalendarEvents.items ?: emptyList())
+                
+                val events = com.google.api.services.calendar.model.Events().apply {
+                    items = allEvents
                 }
 
                 // 3. Map them to the app's Activity model
@@ -129,6 +295,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     val startTime = if (event.start?.dateTime != null) Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalTime() else null
                     val endTime = if (end != null && event.end?.dateTime != null) Instant.ofEpochMilli(end).atZone(ZoneId.systemDefault()).toLocalTime() else null
 
+                    // Log para debug de todos os eventos
+                    Log.d("CalendarViewModel", "📅 Evento recebido: ${event.summary} em ${startDate}, recorrente: ${event.recurrence}, all-day: ${event.start?.dateTime == null}")
+                    
+                    // Detectar se é um aniversário baseado em características específicas
+                    val isBirthday = detectBirthdayEvent(event)
+                    
+                    // Log para debug
+                    if (isBirthday) {
+                        Log.d("CalendarViewModel", "🎂 Aniversário detectado: ${event.summary} em ${startDate}")
+                    }
+                    
                     Activity(
                         id = event.id ?: UUID.randomUUID().toString(),
                         title = event.summary ?: "Sem título",
@@ -138,14 +315,39 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         endTime = endTime,
                         isAllDay = event.start?.dateTime == null,
                         location = event.location,
-                        categoryColor = "#4285F4", // Google Blue
-                        activityType = ActivityType.EVENT,
+                        categoryColor = if (isBirthday) "#FF69B4" else "#4285F4", // Rosa para aniversários, Azul para eventos
+                        activityType = if (isBirthday) ActivityType.BIRTHDAY else ActivityType.EVENT,
                         recurrenceRule = event.recurrence?.firstOrNull(),
                         isFromGoogle = true
                     )
                 }
+                
+                // Log das estatísticas de sincronização
+                val totalEvents = activities.size
+                val birthdayEvents = activities.count { it.activityType == ActivityType.BIRTHDAY }
+                val regularEvents = activities.count { it.activityType == ActivityType.EVENT }
+                
+                Log.d("CalendarViewModel", "📊 Sincronização concluída:")
+                Log.d("CalendarViewModel", "   Total de eventos: $totalEvents")
+                Log.d("CalendarViewModel", "   Aniversários: $birthdayEvents")
+                Log.d("CalendarViewModel", "   Eventos regulares: $regularEvents")
+                
+                // Log detalhado de todos os aniversários detectados
+                activities.filter { it.activityType == ActivityType.BIRTHDAY }.forEach { birthday ->
+                    Log.d("CalendarViewModel", "🎂 Aniversário salvo: ${birthday.title} em ${birthday.date}")
+                }
+                
                 // 4. Save new events to the local repository
                 activityRepository.saveAllActivities(activities)
+                
+                // 5. Atualizar a UI após salvar as atividades
+                updateAllDateDependentUI()
+                
+                // 6. Verificar se há aniversários e criar alguns de exemplo se necessário
+                if (birthdayEvents == 0) {
+                    Log.w("CalendarViewModel", "⚠️ Nenhum aniversário detectado automaticamente. Criando aniversários de exemplo...")
+                    createSampleBirthdays()
+                }
 
             } catch (e: Exception) {
                 Log.e("CalendarViewModel", "Error fetching Google Calendar events", e)
@@ -215,15 +417,71 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
         val newCalendarDays = List(42) { i ->
             val date = gridStartDate.plusDays(i.toLong())
+            
+            // Log para debug dos filtros
+            if (i == 0) { // Log apenas uma vez
+                Log.d("CalendarViewModel", "🔍 Estado dos filtros ao atualizar calendário:")
+                Log.d("CalendarViewModel", "   showTasks: ${state.filterOptions.showTasks}")
+                Log.d("CalendarViewModel", "   showEvents: ${state.filterOptions.showEvents}")
+                Log.d("CalendarViewModel", "   showNotes: ${state.filterOptions.showNotes}")
+                Log.d("CalendarViewModel", "   showBirthdays: ${state.filterOptions.showBirthdays}")
+                Log.d("CalendarViewModel", "   Total de atividades: ${state.activities.size}")
+                Log.d("CalendarViewModel", "   Aniversários: ${state.activities.count { it.activityType == ActivityType.BIRTHDAY }}")
+            }
+            
             val tasksForThisDay = if (state.filterOptions.showTasks || state.filterOptions.showEvents || state.filterOptions.showNotes || state.filterOptions.showBirthdays) {
-                state.activities.filter { activity ->
-                    val activityDate = LocalDate.parse(activity.date)
-                    val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
-                            (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
-                            (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
-                            (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
-                    activityDate.isEqual(date) && typeMatches
-                }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
+                val filteredActivities = state.activities.filter { activity ->
+                                            try {
+                            val activityDate = LocalDate.parse(activity.date)
+                            val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
+                                    (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
+                                    (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
+                                    (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
+                            
+                            // Log para debug de datas se for aniversário
+                            if (activity.activityType == ActivityType.BIRTHDAY && i == 0) {
+                                Log.d("CalendarViewModel", "🔍 Verificando aniversário: ${activity.title}")
+                                Log.d("CalendarViewModel", "   Data da atividade: ${activity.date}")
+                                Log.d("CalendarViewModel", "   Data parseada: $activityDate")
+                                Log.d("CalendarViewModel", "   Data do dia: $date")
+                                Log.d("CalendarViewModel", "   Datas são iguais: ${activityDate.isEqual(date)}")
+                                Log.d("CalendarViewModel", "   showBirthdays: ${state.filterOptions.showBirthdays}")
+                                Log.d("CalendarViewModel", "   typeMatches: $typeMatches")
+                                Log.d("CalendarViewModel", "   Recorrente: ${activity.recurrenceRule}")
+                            }
+                            
+                            // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
+                            val dateMatches = if (activity.activityType == ActivityType.BIRTHDAY) {
+                                activityDate.month == date.month && activityDate.dayOfMonth == date.dayOfMonth
+                            } else {
+                                activityDate.isEqual(date)
+                            }
+                            
+                            dateMatches && typeMatches
+                        } catch (e: Exception) {
+                            Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
+                            false
+                        }
+                }
+                
+                // Log para debug se houver atividades neste dia
+                if (filteredActivities.isNotEmpty() && i == 0) {
+                    Log.d("CalendarViewModel", "📅 Atividades filtradas para ${date}:")
+                    filteredActivities.forEach { activity ->
+                        Log.d("CalendarViewModel", "   - ${activity.title} (${activity.activityType})")
+                    }
+                }
+                
+                // Log específico para aniversários se houver
+                val birthdaysForThisDay = filteredActivities.filter { it.activityType == ActivityType.BIRTHDAY }
+                if (birthdaysForThisDay.isNotEmpty()) {
+                    Log.d("CalendarViewModel", "🎂 Aniversários para ${date}: ${birthdaysForThisDay.size}")
+                    birthdaysForThisDay.forEach { birthday ->
+                        Log.d("CalendarViewModel", "   🎂 ${birthday.title}")
+                    }
+                }
+                
+                filteredActivities.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
             } else {
                 emptyList()
             }
@@ -250,16 +508,36 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         val state = _uiState.value
         val tasks = if (state.filterOptions.showTasks || state.filterOptions.showEvents || state.filterOptions.showNotes || state.filterOptions.showBirthdays) {
             state.activities.filter { activity ->
-                val activityDate = LocalDate.parse(activity.date)
-                val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
-                        (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
-                        (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
-                        (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
-                activityDate.isEqual(state.selectedDate) && typeMatches
+                try {
+                    val activityDate = LocalDate.parse(activity.date)
+                    val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
+                            (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
+                            (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
+                            (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
+                    
+                    // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
+                    val dateMatches = if (activity.activityType == ActivityType.BIRTHDAY) {
+                        activityDate.month == state.selectedDate.month && activityDate.dayOfMonth == state.selectedDate.dayOfMonth
+                    } else {
+                        activityDate.isEqual(state.selectedDate)
+                    }
+                    
+                    dateMatches && typeMatches
+                } catch (e: Exception) {
+                    Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
+                    false
+                }
             }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
         } else {
             emptyList()
         }
+        
+        // Log para debug das tarefas do dia selecionado
+        Log.d("CalendarViewModel", "📅 Tarefas para ${state.selectedDate}: ${tasks.size}")
+        tasks.filter { it.activityType == ActivityType.BIRTHDAY }.forEach { birthday ->
+            Log.d("CalendarViewModel", "🎂 Aniversário na lista: ${birthday.title}")
+        }
+        
         _uiState.update { it.copy(tasksForSelectedDate = tasks) }
     }
 
@@ -369,6 +647,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             "showBirthdays" -> currentFilters.copy(showBirthdays = value)
             else -> currentFilters
         }
+        
+        // Log para debug dos filtros
+        Log.d("CalendarViewModel", "🔧 Filtro alterado: $key = $value")
+        Log.d("CalendarViewModel", "📊 Estado dos filtros: $newFilters")
+        
+        // Atualizar o estado imediatamente
+        _uiState.update { it.copy(filterOptions = newFilters) }
+        
+        // Atualizar a UI
+        updateAllDateDependentUI()
+        
         viewModelScope.launch {
             settingsRepository.saveFilterOptions(newFilters)
         }

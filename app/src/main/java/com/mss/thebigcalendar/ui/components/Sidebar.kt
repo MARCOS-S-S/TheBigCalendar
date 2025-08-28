@@ -45,7 +45,9 @@ private val filterItems = listOf(
     "showSaintDays" to R.string.catholic_saint_days,
     "showCommemorativeDates" to R.string.commemorative_dates,
     "showEvents" to R.string.events,
-    "showTasks" to R.string.tasks
+    "showTasks" to R.string.tasks,
+    "showBirthdays" to R.string.birthday,
+    "showNotes" to R.string.note
 )
 
 @Composable
@@ -123,6 +125,8 @@ fun Sidebar(
                     "showCommemorativeDates" -> uiState.filterOptions.showCommemorativeDates
                     "showEvents" -> uiState.filterOptions.showEvents
                     "showTasks" -> uiState.filterOptions.showTasks
+                    "showBirthdays" -> uiState.filterOptions.showBirthdays
+                    "showNotes" -> uiState.filterOptions.showNotes
                     else -> false
                 }
                 FilterCheckboxItem(
@@ -192,8 +196,8 @@ private fun FilterCheckboxItem(
     ) {
         Checkbox(
             checked = checked,
-            onCheckedChange = null,
-            enabled = false // Desabilita interação direta no checkbox
+            onCheckedChange = { onCheckedChange(it) },
+            enabled = true
         )
         Spacer(Modifier.width(16.dp))
         Text(
