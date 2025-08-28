@@ -2,6 +2,7 @@ package com.mss.thebigcalendar.ui.viewmodel
 
 import android.app.Application
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -107,22 +108,30 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     private fun fetchGoogleCalendarEvents(account: GoogleSignInAccount) {
         viewModelScope.launch {
+            _uiState.update { it.copy(isSyncing = true, syncErrorMessage = null) }
             try {
+                // 1. Clear old Google events
+                activityRepository.deleteAllActivitiesFromGoogle()
+
+                // 2. Fetch new events from Google Calendar
                 val calendarService = googleCalendarService.getCalendarService(account)
                 val events = withContext(Dispatchers.IO) {
                     calendarService.events().list("primary").execute()
                 }
-                val activities = events.items.map { event ->
-                    val start = event.start?.dateTime?.value ?: event.start?.date?.value
+
+                // 3. Map them to the app's Activity model
+                val activities = events.items.mapNotNull { event ->
+                    // Ignore events without a start date
+                    val start = event.start?.dateTime?.value ?: event.start?.date?.value ?: return@mapNotNull null
                     val end = event.end?.dateTime?.value ?: event.end?.date?.value
 
-                    val startDate = if (start != null) Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalDate() else LocalDate.now()
-                    val startTime = if (start != null) Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalTime() else null
-                    val endTime = if (end != null) Instant.ofEpochMilli(end).atZone(ZoneId.systemDefault()).toLocalTime() else null
+                    val startDate = Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalDate()
+                    val startTime = if (event.start?.dateTime != null) Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalTime() else null
+                    val endTime = if (end != null && event.end?.dateTime != null) Instant.ofEpochMilli(end).atZone(ZoneId.systemDefault()).toLocalTime() else null
 
                     Activity(
                         id = event.id ?: UUID.randomUUID().toString(),
-                        title = event.summary ?: "No Title",
+                        title = event.summary ?: "Sem título",
                         description = event.description,
                         date = startDate.toString(),
                         startTime = startTime,
@@ -131,13 +140,18 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         location = event.location,
                         categoryColor = "#4285F4", // Google Blue
                         activityType = ActivityType.EVENT,
-                        recurrenceRule = null,
+                        recurrenceRule = event.recurrence?.firstOrNull(),
                         isFromGoogle = true
                     )
                 }
+                // 4. Save new events to the local repository
                 activityRepository.saveAllActivities(activities)
+
             } catch (e: Exception) {
-                // Handle error
+                Log.e("CalendarViewModel", "Error fetching Google Calendar events", e)
+                _uiState.update { it.copy(syncErrorMessage = "Falha ao sincronizar eventos.") }
+            } finally {
+                _uiState.update { it.copy(isSyncing = false) }
             }
         }
     }

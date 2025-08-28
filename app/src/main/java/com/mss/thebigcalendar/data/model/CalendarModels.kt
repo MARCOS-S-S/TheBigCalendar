@@ -88,6 +88,8 @@ data class CalendarUiState(
     val googleSignInAccount: GoogleSignInAccount? = null,
     val signInIntent: Intent? = null,
     val loginMessage: String? = null,
+    val isSyncing: Boolean = false,
+    val syncErrorMessage: String? = null,
     val searchQuery: String = "",
     val searchResults: List<SearchResult> = emptyList(),
     val isSearchScreenOpen: Boolean = false,

@@ -12,7 +12,7 @@ class GoogleCalendarService(private val context: Context) {
     fun getCalendarService(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount): Calendar {
         val credential = GoogleAccountCredential.usingOAuth2(
             context,
-            listOf(CalendarScopes.CALENDAR_READONLY)
+            listOf(CalendarScopes.CALENDAR, CalendarScopes.CALENDAR_EVENTS)
         )
         credential.selectedAccount = account.account
 
