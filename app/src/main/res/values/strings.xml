@@ -20,8 +20,8 @@
     <string name="visibility_medium">Média</string>
     <string name="visibility_high">Alta</string>
     <string name="visibility_low_description">Envia uma notificação</string>
-    <string name="visibility_medium_description">Mostrar um alerta na parte inferior da tela</string>
-    <string name="visibility_high_description">Aparecerá uma mensagem na tela inteira</string>
+    <string name="visibility_medium_description">Mensagem de alerta na tela</string>
+    <string name="visibility_high_description">Mostrar na tela inteira</string>
     <string name="overlay_permission_title">Permissão Necessária</string>
     <string name="overlay_permission_message">Para usar visibilidade média ou alta, o aplicativo precisa de permissão para sobrepor outros aplicativos. Esta permissão permite que o app exiba alertas importantes mesmo quando outros apps estão em uso.\n\nApós configurar a permissão, volte ao app e a seleção será aplicada automaticamente.</string>
     <string name="overlay_permission_confirm">Configurar Permissão</string>
