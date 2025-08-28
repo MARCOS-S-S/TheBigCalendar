@@ -80,6 +80,7 @@
     <string name="date_format_day_month">dd \'de\' MMMM</string>
     <string name="appointments_for">Agendamentos para %1$s</string>
     <string name="no_appointments">"   "Nada agendado.</string>
+    <string name="no_tasks_or_events">Nenhuma tarefa ou evento agendado.</string>
     <string name="at_time">Às %1$s</string>
 
     <!-- YearlyCalendarView.kt -->
@@ -143,6 +144,9 @@
     <string name="event">Evento</string>
     <string name="task">Tarefa</string>
     <string name="birthday">Aniversário</string>
+    <string name="birthdays_for">Aniversários em %1$s</string>
+    <string name="notes_for">Notas em %1$s</string>
+    <string name="tasks_and_events_for">Tarefas e Eventos para %1$s</string>
     <string name="note">Nota</string>
     <string name="restore_activity">Restaurar atividade</string>
     <string name="delete_permanently">Excluir permanentemente</string>

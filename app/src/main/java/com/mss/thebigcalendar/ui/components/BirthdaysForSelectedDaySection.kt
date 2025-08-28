@@ -55,7 +55,7 @@ fun BirthdaysForSelectedDaySection(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Aniversários em ${selectedDate.format(dateFormatter)}",
+                text = stringResource(id = R.string.birthdays_for, selectedDate.format(dateFormatter)),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)

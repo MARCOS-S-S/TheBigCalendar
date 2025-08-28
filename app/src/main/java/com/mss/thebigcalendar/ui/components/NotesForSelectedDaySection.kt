@@ -53,7 +53,7 @@ fun NotesForSelectedDaySection(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Notas em ${selectedDate.format(dateFormatter)}",
+                text = stringResource(id = R.string.notes_for, selectedDate.format(dateFormatter)),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
