@@ -82,6 +82,15 @@
     <string name="no_appointments">"   "Nada agendado.</string>
     <string name="no_tasks_or_events">Nenhuma tarefa ou evento agendado.</string>
     <string name="at_time">Às %1$s</string>
+    
+    <!-- Storage Permission Dialog -->
+    <string name="storage_permission_title">Permissão de Armazenamento</string>
+    <string name="storage_permission_message">Para criar backups, o aplicativo precisa de permissão para acessar o armazenamento do dispositivo.</string>
+    <string name="settings_permission_title">Configurações Necessárias</string>
+    <string name="settings_permission_message">Por favor, conceda permissão de \"Gerenciar todos os arquivos\" nas configurações do aplicativo.</string>
+    <string name="grant_permission">Conceder Permissão</string>
+    <string name="open_settings">Abrir Configurações</string>
+    <string name="cancel">Cancelar</string>
 
     <!-- YearlyCalendarView.kt -->
     <string name="previous_year">Ano Anterior</string>

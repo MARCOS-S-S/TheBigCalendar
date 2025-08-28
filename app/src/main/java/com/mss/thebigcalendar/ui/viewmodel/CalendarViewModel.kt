@@ -25,6 +25,7 @@ import com.mss.thebigcalendar.service.NotificationService
 import com.mss.thebigcalendar.service.SearchService
 import com.mss.thebigcalendar.service.RecurrenceService
 import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
+import com.mss.thebigcalendar.data.service.BackupService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,6 +50,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val searchService = SearchService()
     private val recurrenceService = RecurrenceService()
     private val deletedActivityRepository = DeletedActivityRepository(application)
+    private val backupService = BackupService(application, activityRepository, deletedActivityRepository)
 
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
@@ -934,7 +936,50 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     
 
-    fun onBackupRequest() { println("ViewModel: Pedido de backup recebido.") }
+    fun onBackupRequest() {
+        viewModelScope.launch {
+            try {
+                Log.d("CalendarViewModel", "🔄 Iniciando processo de backup...")
+                
+                // Verificar permissões antes de fazer backup
+                if (!backupService.hasStoragePermission()) {
+                    Log.w("CalendarViewModel", "⚠️ Sem permissão de armazenamento")
+                    _uiState.update { it.copy(
+                        backupMessage = "Permissão de armazenamento necessária para backup",
+                        needsStoragePermission = true
+                    ) }
+                    return@launch
+                }
+                
+                val result = backupService.createBackup()
+                result.fold(
+                    onSuccess = { backupPath ->
+                        Log.d("CalendarViewModel", "✅ Backup criado com sucesso: $backupPath")
+                        // Atualizar o estado para mostrar sucesso
+                        _uiState.update { it.copy(
+                            backupMessage = "Backup criado com sucesso: ${backupPath.substringAfterLast("/")}"
+                        ) }
+                    },
+                    onFailure = { exception ->
+                        Log.e("CalendarViewModel", "❌ Erro ao criar backup", exception)
+                        // Atualizar o estado para mostrar erro
+                        _uiState.update { it.copy(
+                            backupMessage = "Erro ao criar backup: ${exception.message}"
+                        ) }
+                    }
+                )
+            } catch (e: Exception) {
+                Log.e("CalendarViewModel", "❌ Erro inesperado durante backup", e)
+                _uiState.update { it.copy(
+                    backupMessage = "Erro inesperado: ${e.message}"
+                ) }
+            }
+        }
+    }
+    
+    fun clearBackupMessage() {
+        _uiState.update { it.copy(backupMessage = null, needsStoragePermission = false) }
+    }
     fun onRestoreRequest() { println("ViewModel: Pedido de restauração recebido.") }
 
     fun openSidebar() = _uiState.update { it.copy(isSidebarOpen = true) }

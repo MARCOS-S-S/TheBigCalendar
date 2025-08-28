@@ -99,7 +99,9 @@ data class CalendarUiState(
     val searchResults: List<SearchResult> = emptyList(),
     val isSearchScreenOpen: Boolean = false,
     val deletedActivities: List<DeletedActivity> = emptyList(),
-    val isTrashScreenOpen: Boolean = false
+    val isTrashScreenOpen: Boolean = false,
+    val backupMessage: String? = null,
+    val needsStoragePermission: Boolean = false
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

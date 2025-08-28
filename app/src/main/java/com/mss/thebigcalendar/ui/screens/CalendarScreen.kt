@@ -32,6 +32,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -69,6 +71,7 @@ import com.mss.thebigcalendar.ui.components.SaintInfoDialog
 import com.mss.thebigcalendar.ui.components.Sidebar
 import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.NotesForSelectedDaySection
+import com.mss.thebigcalendar.ui.components.StoragePermissionDialog
 import com.mss.thebigcalendar.ui.components.YearlyCalendarView
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import kotlinx.coroutines.launch
@@ -89,6 +92,7 @@ fun CalendarScreen(
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Sincronização bidirecional entre ViewModel e DrawerState
     LaunchedEffect(uiState.isSidebarOpen) {
@@ -103,6 +107,14 @@ fun CalendarScreen(
     LaunchedEffect(drawerState.currentValue) {
         if (drawerState.currentValue == DrawerValue.Closed && uiState.isSidebarOpen) {
             viewModel.closeSidebar()
+        }
+    }
+    
+    // Mostra mensagens de backup
+    LaunchedEffect(uiState.backupMessage) {
+        uiState.backupMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            viewModel.clearBackupMessage()
         }
     }
 
@@ -158,7 +170,7 @@ fun CalendarScreen(
                 }
             }
             else -> {
-                MainCalendarView(viewModel, uiState, scope, drawerState)
+                MainCalendarView(viewModel, uiState, scope, drawerState, snackbarHostState)
             }
         }
     }
@@ -170,11 +182,13 @@ fun MainCalendarView(
     viewModel: CalendarViewModel,
     uiState: com.mss.thebigcalendar.data.model.CalendarUiState,
     scope: kotlinx.coroutines.CoroutineScope,
-    drawerState: androidx.compose.material3.DrawerState
+    drawerState: androidx.compose.material3.DrawerState,
+    snackbarHostState: SnackbarHostState
 ) {
     var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
     Scaffold(
         modifier = Modifier.clickableWithoutRipple { viewModel.hideDeleteButton() },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -409,6 +423,18 @@ fun MainCalendarView(
             SaintInfoDialog(
                 saint = saint,
                 onDismiss = { viewModel.onSaintInfoDialogDismiss() }
+            )
+        }
+        
+        // Diálogo de permissão de armazenamento
+        if (uiState.needsStoragePermission) {
+            StoragePermissionDialog(
+                onDismiss = { viewModel.clearBackupMessage() },
+                onPermissionGranted = {
+                    viewModel.clearBackupMessage()
+                    // Tentar fazer backup novamente
+                    viewModel.onBackupRequest()
+                }
             )
         }
 
