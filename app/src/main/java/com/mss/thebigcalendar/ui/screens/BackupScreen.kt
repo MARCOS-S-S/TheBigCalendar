@@ -11,23 +11,34 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,7 +46,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mss.thebigcalendar.R
+import com.mss.thebigcalendar.data.service.BackupInfo
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +58,13 @@ fun BackupScreen(
     onNavigateBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showRestoreConfirmation by remember { mutableStateOf<BackupInfo?>(null) }
+    var showDeleteConfirmation by remember { mutableStateOf<BackupInfo?>(null) }
+
+    // Carregar lista de backups ao abrir a tela
+    LaunchedEffect(Unit) {
+        viewModel.loadBackupFiles()
+    }
 
     Scaffold(
         topBar = {
@@ -63,69 +84,235 @@ fun BackupScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
             // Título da seção
-            Text(
-                text = stringResource(R.string.backup_options),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
+            item {
+                Text(
+                    text = stringResource(R.string.backup_options),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+            }
             
             // Opção de Backup Local
-            BackupOptionItem(
-                title = stringResource(R.string.local_backup),
-                description = stringResource(R.string.local_backup_description),
-                icon = Icons.Default.Storage,
-                onClick = { viewModel.onBackupRequest() }
-            )
+            item {
+                BackupOptionItem(
+                    title = stringResource(R.string.local_backup),
+                    description = stringResource(R.string.local_backup_description),
+                    icon = Icons.Default.Storage,
+                    onClick = { viewModel.onBackupRequest() }
+                )
+            }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             
             // Opção de Backup na Nuvem (desabilitada por enquanto)
-            BackupOptionItem(
-                title = stringResource(R.string.cloud_backup),
-                description = stringResource(R.string.cloud_backup_description),
-                icon = Icons.Default.CloudUpload,
-                onClick = { /* Implementar futuramente */ },
-                enabled = false
-            )
+            item {
+                BackupOptionItem(
+                    title = stringResource(R.string.cloud_backup),
+                    description = stringResource(R.string.cloud_backup_description),
+                    icon = Icons.Default.CloudUpload,
+                    onClick = { /* Implementar futuramente */ },
+                    enabled = false
+                )
+            }
             
-            Spacer(modifier = Modifier.height(24.dp))
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
             
             // Mensagem de backup se existir
             uiState.backupMessage?.let { message ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            if (message.contains("sucesso", ignoreCase = true)) {
-                                MaterialTheme.colorScheme.primaryContainer
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(
+                                if (message.contains("sucesso", ignoreCase = true)) {
+                                    MaterialTheme.colorScheme.primaryContainer
+                                } else {
+                                    MaterialTheme.colorScheme.errorContainer
+                                }
+                            )
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = message,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (message.contains("sucesso", ignoreCase = true)) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
                             } else {
-                                MaterialTheme.colorScheme.errorContainer
+                                MaterialTheme.colorScheme.onErrorContainer
                             }
                         )
-                        .padding(16.dp)
-                ) {
+                    }
+                }
+            }
+            
+            // Lista de backups locais
+            if (uiState.backupFiles.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
                     Text(
-                        text = message,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (message.contains("sucesso", ignoreCase = true)) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onErrorContainer
-                        }
+                        text = stringResource(R.string.local_backups_list),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 16.dp)
                     )
+                }
+                
+                items(uiState.backupFiles) { backupInfo ->
+                    BackupFileItem(
+                        backupInfo = backupInfo,
+                        onDelete = { showDeleteConfirmation = backupInfo },
+                        onRestore = { showRestoreConfirmation = backupInfo }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            } else {
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                Icons.Default.Backup,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = stringResource(R.string.no_backups_yet),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = stringResource(R.string.no_backups_description),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
+        
+        // Diálogo de confirmação para restauração
+        showRestoreConfirmation?.let { backupInfo ->
+            RestoreConfirmationDialog(
+                backupInfo = backupInfo,
+                onConfirm = {
+                    viewModel.restoreFromBackup(backupInfo.filePath)
+                    showRestoreConfirmation = null
+                },
+                onDismiss = { showRestoreConfirmation = null }
+            )
+        }
+        
+        // Diálogo de confirmação para exclusão
+        showDeleteConfirmation?.let { backupInfo ->
+            DeleteBackupConfirmationDialog(
+                backupInfo = backupInfo,
+                onConfirm = {
+                    viewModel.deleteBackupFile(backupInfo.filePath)
+                    showDeleteConfirmation = null
+                },
+                onDismiss = { showDeleteConfirmation = null }
+            )
+        }
     }
+}
+
+@Composable
+fun RestoreConfirmationDialog(
+    backupInfo: BackupInfo,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.restore_backup_confirmation_title)) },
+        text = { 
+            Text(
+                stringResource(
+                    R.string.restore_backup_confirmation_message,
+                    backupInfo.fileName,
+                    backupInfo.totalActivities,
+                    backupInfo.totalDeletedActivities
+                )
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text(stringResource(R.string.restore_backup_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteBackupConfirmationDialog(
+    backupInfo: BackupInfo,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.delete_backup_confirmation_title)) },
+        text = { 
+            Text(
+                stringResource(
+                    R.string.delete_backup_confirmation_message,
+                    backupInfo.fileName
+                )
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text(stringResource(R.string.delete_backup_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable
@@ -221,5 +408,117 @@ fun BackupOptionItem(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun BackupFileItem(
+    backupInfo: BackupInfo,
+    onDelete: () -> Unit,
+    onRestore: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Ícone
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                Icons.Default.Backup,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Conteúdo
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = backupInfo.fileName,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Text(
+                text = stringResource(R.string.backup_info_details, 
+                    backupInfo.totalActivities, 
+                    backupInfo.totalDeletedActivities,
+                    formatFileSize(backupInfo.fileSize)
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Text(
+                text = stringResource(R.string.backup_created_at, formatBackupDate(backupInfo.createdAt)),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // Botões de ação
+        Column {
+            IconButton(
+                onClick = onRestore,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    Icons.Default.Download,
+                    contentDescription = stringResource(R.string.restore_backup),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.delete_backup),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+    }
+}
+
+private fun formatFileSize(sizeInBytes: Long): String {
+    return when {
+        sizeInBytes < 1024 -> "$sizeInBytes B"
+        sizeInBytes < 1024 * 1024 -> "${sizeInBytes / 1024} KB"
+        else -> "${sizeInBytes / (1024 * 1024)} MB"
+    }
+}
+
+private fun formatBackupDate(dateString: String): String {
+    return try {
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+        val date = formatter.parse(dateString)
+        val displayFormatter = SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", Locale("pt", "BR"))
+        date?.let { displayFormatter.format(it) } ?: dateString
+    } catch (e: Exception) {
+        dateString
     }
 }

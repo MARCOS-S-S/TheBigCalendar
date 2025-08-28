@@ -2,6 +2,7 @@ package com.mss.thebigcalendar.data.model
 
 import android.content.Intent
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.mss.thebigcalendar.data.service.BackupInfo
 //import com.google.android.gms.common.config.GservicesValue.value
 //import com.google.android.gms.common.config.GservicesValue.value
 import java.time.LocalDate
@@ -102,7 +103,8 @@ data class CalendarUiState(
     val isTrashScreenOpen: Boolean = false,
     val isBackupScreenOpen: Boolean = false,
     val backupMessage: String? = null,
-    val needsStoragePermission: Boolean = false
+    val needsStoragePermission: Boolean = false,
+    val backupFiles: List<BackupInfo> = emptyList()
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

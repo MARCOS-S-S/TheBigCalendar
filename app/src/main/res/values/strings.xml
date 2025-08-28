@@ -78,6 +78,19 @@
     <string name="local_backup_description">Salvar dados no armazenamento do dispositivo</string>
     <string name="cloud_backup">Backup na Nuvem</string>
     <string name="cloud_backup_description">Salvar dados na nuvem (em breve)</string>
+    <string name="local_backups_list">Backups Locais</string>
+    <string name="no_backups_yet">Nenhum backup encontrado</string>
+    <string name="no_backups_description">Realize um backup para ver os arquivos aqui</string>
+    <string name="backup_info_details">%1$d atividades, %2$d na lixeira • %3$s</string>
+    <string name="backup_created_at">Criado em %1$s</string>
+    <string name="restore_backup">Restaurar backup</string>
+    <string name="delete_backup">Excluir backup</string>
+    <string name="restore_backup_confirmation_title">Confirmar Restauração</string>
+    <string name="restore_backup_confirmation_message">Tem certeza que deseja restaurar o backup \"%1$s\"?\n\n⚠️ ATENÇÃO: Esta ação irá substituir todos os dados atuais por:\n• %2$d atividades\n• %3$d itens na lixeira\n\nTodos os dados atuais serão perdidos permanentemente!</string>
+    <string name="restore_backup_confirm">Restaurar</string>
+    <string name="delete_backup_confirmation_title">Confirmar Exclusão</string>
+    <string name="delete_backup_confirmation_message">Tem certeza que deseja excluir o backup \"%1$s\"?\n\nEsta ação não pode ser desfeita.</string>
+    <string name="delete_backup_confirm">Excluir</string>
     <string name="sidebar_change_theme">Tema escuro</string>
 
     <!-- TasksForSelectedDaySection.kt -->

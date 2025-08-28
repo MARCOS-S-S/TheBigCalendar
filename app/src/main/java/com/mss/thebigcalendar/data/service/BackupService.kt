@@ -288,6 +288,166 @@ class BackupService(
             Result.failure(e)
         }
     }
+    
+    /**
+     * Restaura dados de um arquivo de backup
+     */
+    suspend fun restoreFromBackup(backupFile: File): Result<RestoreResult> = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "🔄 Iniciando restauração do backup: ${backupFile.name}")
+            
+            val content = backupFile.readText(Charsets.UTF_8)
+            val json = JSONObject(content)
+            
+            // Verificar versão do backup
+            val backupVersion = json.optString("backupVersion", "1.0")
+            if (backupVersion != "1.0") {
+                Log.w(TAG, "⚠️ Versão de backup não suportada: $backupVersion")
+                return@withContext Result.failure(Exception("Versão de backup não suportada: $backupVersion"))
+            }
+            
+            // Extrair atividades
+            val activitiesArray = json.optJSONArray("activities") ?: JSONArray()
+            val restoredActivities = mutableListOf<com.mss.thebigcalendar.data.model.Activity>()
+            
+            for (i in 0 until activitiesArray.length()) {
+                val activityJson = activitiesArray.getJSONObject(i)
+                try {
+                    val activity = parseActivityFromJson(activityJson)
+                    restoredActivities.add(activity)
+                } catch (e: Exception) {
+                    Log.w(TAG, "⚠️ Erro ao parsear atividade $i: ${e.message}")
+                }
+            }
+            
+            // Extrair itens da lixeira
+            val deletedActivitiesArray = json.optJSONArray("deletedActivities") ?: JSONArray()
+            val restoredDeletedActivities = mutableListOf<com.mss.thebigcalendar.data.model.DeletedActivity>()
+            
+            for (i in 0 until deletedActivitiesArray.length()) {
+                val deletedJson = deletedActivitiesArray.getJSONObject(i)
+                try {
+                    val deletedActivity = parseDeletedActivityFromJson(deletedJson)
+                    restoredDeletedActivities.add(deletedActivity)
+                } catch (e: Exception) {
+                    Log.w(TAG, "⚠️ Erro ao parsear item da lixeira $i: ${e.message}")
+                }
+            }
+            
+            Log.d(TAG, "✅ Backup parseado com sucesso:")
+            Log.d(TAG, "   - Atividades: ${restoredActivities.size}")
+            Log.d(TAG, "   - Itens da lixeira: ${restoredDeletedActivities.size}")
+            
+            val result = RestoreResult(
+                activities = restoredActivities,
+                deletedActivities = restoredDeletedActivities,
+                backupFileName = backupFile.name,
+                backupCreatedAt = json.optString("createdAt", "")
+            )
+            
+            Result.success(result)
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao restaurar backup", e)
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Parseia uma atividade a partir do JSON
+     */
+    private fun parseActivityFromJson(activityJson: JSONObject): com.mss.thebigcalendar.data.model.Activity {
+        val startTime = activityJson.optString("startTime").takeIf { it.isNotEmpty() }?.let {
+            try {
+                java.time.LocalTime.parse(it)
+            } catch (e: Exception) {
+                null
+            }
+        }
+        
+        val endTime = activityJson.optString("endTime").takeIf { it.isNotEmpty() }?.let {
+            try {
+                java.time.LocalTime.parse(it)
+            } catch (e: Exception) {
+                null
+            }
+        }
+        
+        val activityType = try {
+            com.mss.thebigcalendar.data.model.ActivityType.valueOf(activityJson.getString("activityType"))
+        } catch (e: Exception) {
+            com.mss.thebigcalendar.data.model.ActivityType.EVENT
+        }
+        
+        val visibility = try {
+            com.mss.thebigcalendar.data.model.VisibilityLevel.valueOf(activityJson.optString("visibility", "LOW"))
+        } catch (e: Exception) {
+            com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
+        }
+        
+        // Parsear configurações de notificação
+        val notificationSettings = try {
+            val notificationJson = activityJson.optJSONObject("notificationSettings")
+            if (notificationJson != null) {
+                val notificationType = try {
+                    com.mss.thebigcalendar.data.model.NotificationType.valueOf(
+                        notificationJson.optString("notificationType", "FIFTEEN_MINUTES_BEFORE")
+                    )
+                } catch (e: Exception) {
+                    com.mss.thebigcalendar.data.model.NotificationType.FIFTEEN_MINUTES_BEFORE
+                }
+                
+                com.mss.thebigcalendar.data.model.NotificationSettings(
+                    isEnabled = notificationJson.optBoolean("isEnabled", true),
+                    notificationType = notificationType,
+                    customMinutesBefore = notificationJson.optInt("customMinutesBefore", 15)
+                )
+            } else {
+                com.mss.thebigcalendar.data.model.NotificationSettings()
+            }
+        } catch (e: Exception) {
+            com.mss.thebigcalendar.data.model.NotificationSettings()
+        }
+        
+        return com.mss.thebigcalendar.data.model.Activity(
+            id = activityJson.getString("id"),
+            title = activityJson.getString("title"),
+            description = activityJson.optString("description").takeIf { it.isNotEmpty() },
+            date = activityJson.getString("date"),
+            startTime = startTime,
+            endTime = endTime,
+            isAllDay = activityJson.optBoolean("isAllDay", false),
+            location = activityJson.optString("location").takeIf { it.isNotEmpty() },
+            categoryColor = activityJson.optString("categoryColor", "#3B82F6"),
+            activityType = activityType,
+            recurrenceRule = activityJson.optString("recurrenceRule").takeIf { it.isNotEmpty() },
+            notificationSettings = notificationSettings,
+            isCompleted = activityJson.optBoolean("isCompleted", false),
+            visibility = visibility,
+            isFromGoogle = activityJson.optBoolean("isFromGoogle", false)
+        )
+    }
+    
+    /**
+     * Parseia um item da lixeira a partir do JSON
+     */
+    private fun parseDeletedActivityFromJson(deletedJson: JSONObject): com.mss.thebigcalendar.data.model.DeletedActivity {
+        val originalActivityJson = deletedJson.getJSONObject("originalActivity")
+        val originalActivity = parseActivityFromJson(originalActivityJson)
+        
+        return com.mss.thebigcalendar.data.model.DeletedActivity(
+            id = deletedJson.getString("id"),
+            originalActivity = originalActivity,
+            deletedAt = deletedJson.optString("deletedAt").let { dateString ->
+                try {
+                    java.time.LocalDateTime.parse(dateString)
+                } catch (e: Exception) {
+                    java.time.LocalDateTime.now()
+                }
+            },
+            deletedBy = deletedJson.optString("deletedBy", "Sistema")
+        )
+    }
 }
 
 /**
@@ -301,4 +461,14 @@ data class BackupInfo(
     val totalActivities: Int,
     val totalDeletedActivities: Int,
     val backupVersion: String
+)
+
+/**
+ * Classe para armazenar o resultado da restauração
+ */
+data class RestoreResult(
+    val activities: List<com.mss.thebigcalendar.data.model.Activity>,
+    val deletedActivities: List<com.mss.thebigcalendar.data.model.DeletedActivity>,
+    val backupFileName: String,
+    val backupCreatedAt: String
 )

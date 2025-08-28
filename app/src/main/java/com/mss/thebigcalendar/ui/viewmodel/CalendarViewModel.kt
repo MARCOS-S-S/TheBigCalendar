@@ -26,10 +26,12 @@ import com.mss.thebigcalendar.service.SearchService
 import com.mss.thebigcalendar.service.RecurrenceService
 import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
 import com.mss.thebigcalendar.data.service.BackupService
+import com.mss.thebigcalendar.data.service.BackupInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -959,6 +961,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         _uiState.update { it.copy(
                             backupMessage = "Backup criado com sucesso: ${backupPath.substringAfterLast("/")}"
                         ) }
+                        // Recarregar lista de backups
+                        loadBackupFiles()
                     },
                     onFailure = { exception ->
                         Log.e("CalendarViewModel", "❌ Erro ao criar backup", exception)
@@ -1195,5 +1199,137 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun closeBackupScreen() {
         println("🚪 Fechando tela de backup")
         _uiState.update { it.copy(isBackupScreenOpen = false) }
+    }
+    
+    fun loadBackupFiles() {
+        viewModelScope.launch {
+            try {
+                val backupFiles = backupService.listBackupFiles()
+                val backupInfos = mutableListOf<BackupInfo>()
+                
+                backupFiles.forEach { file ->
+                    val info = backupService.getBackupInfo(file)
+                    info.onSuccess { backupInfo ->
+                        backupInfos.add(backupInfo)
+                    }
+                }
+                
+                _uiState.update { it.copy(backupFiles = backupInfos) }
+                println("📁 ${backupInfos.size} arquivos de backup carregados")
+            } catch (e: Exception) {
+                println("❌ Erro ao carregar arquivos de backup: ${e.message}")
+            }
+        }
+    }
+    
+    fun deleteBackupFile(filePath: String) {
+        viewModelScope.launch {
+            try {
+                val file = java.io.File(filePath)
+                if (file.exists()) {
+                    val deleted = file.delete()
+                    if (deleted) {
+                        println("🗑️ Arquivo de backup deletado: $filePath")
+                        // Recarregar lista de backups
+                        loadBackupFiles()
+                        _uiState.update { it.copy(
+                            backupMessage = "Backup deletado com sucesso"
+                        ) }
+                    } else {
+                        println("❌ Falha ao deletar arquivo de backup: $filePath")
+                        _uiState.update { it.copy(
+                            backupMessage = "Erro ao deletar backup"
+                        ) }
+                    }
+                }
+            } catch (e: Exception) {
+                println("❌ Erro ao deletar arquivo de backup: ${e.message}")
+                _uiState.update { it.copy(
+                    backupMessage = "Erro ao deletar backup: ${e.message}"
+                ) }
+            }
+        }
+    }
+    
+    fun restoreFromBackup(filePath: String) {
+        viewModelScope.launch {
+            try {
+                println("🔄 Iniciando restauração do backup: $filePath")
+                _uiState.update { it.copy(
+                    backupMessage = "Restauração em andamento..."
+                ) }
+                
+                val backupFile = java.io.File(filePath)
+                if (!backupFile.exists()) {
+                    _uiState.update { it.copy(
+                        backupMessage = "Arquivo de backup não encontrado"
+                    ) }
+                    return@launch
+                }
+                
+                // Restaurar dados do backup
+                val restoreResult = backupService.restoreFromBackup(backupFile)
+                restoreResult.fold(
+                    onSuccess = { result ->
+                        println("✅ Backup restaurado com sucesso:")
+                        println("   - Atividades: ${result.activities.size}")
+                        println("   - Itens da lixeira: ${result.deletedActivities.size}")
+                        
+                        // Limpar dados atuais
+                        clearAllCurrentData()
+                        
+                        // Restaurar atividades
+                        result.activities.forEach { activity ->
+                            activityRepository.saveActivity(activity)
+                        }
+                        
+                        // Restaurar itens da lixeira
+                        result.deletedActivities.forEach { deletedActivity ->
+                            deletedActivityRepository.addDeletedActivity(deletedActivity.originalActivity)
+                        }
+                        
+                        _uiState.update { it.copy(
+                            backupMessage = "Backup restaurado com sucesso! ${result.activities.size} atividades e ${result.deletedActivities.size} itens da lixeira restaurados."
+                        ) }
+                        
+                        // Recarregar dados da UI
+                        loadData()
+                        loadBackupFiles()
+                    },
+                    onFailure = { exception ->
+                        println("❌ Erro ao restaurar backup: ${exception.message}")
+                        _uiState.update { it.copy(
+                            backupMessage = "Erro ao restaurar backup: ${exception.message}"
+                        ) }
+                    }
+                )
+                
+            } catch (e: Exception) {
+                println("❌ Erro inesperado ao restaurar backup: ${e.message}")
+                _uiState.update { it.copy(
+                    backupMessage = "Erro inesperado: ${e.message}"
+                ) }
+            }
+        }
+    }
+    
+    /**
+     * Limpa todos os dados atuais antes da restauração
+     */
+    private suspend fun clearAllCurrentData() {
+        try {
+            // Limpar todas as atividades
+            val currentActivities = activityRepository.activities.first()
+            currentActivities.forEach { activity ->
+                activityRepository.deleteActivity(activity.id)
+            }
+            
+            // Limpar lixeira
+            deletedActivityRepository.clearAllDeletedActivities()
+            
+            println("🗑️ Dados atuais limpos para restauração")
+        } catch (e: Exception) {
+            println("⚠️ Erro ao limpar dados atuais: ${e.message}")
+        }
     }
 }
