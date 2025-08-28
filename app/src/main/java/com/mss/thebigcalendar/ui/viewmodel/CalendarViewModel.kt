@@ -42,6 +42,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.UUID
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
@@ -304,19 +305,39 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     val start = event.start?.dateTime?.value ?: event.start?.date?.value ?: return@mapNotNull null
                     val end = event.end?.dateTime?.value ?: event.end?.date?.value
 
-                    val startDate = Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalDate()
+                    // Tratar eventos de dia inteiro (como aniversários) de forma diferente
+                    val startDate = if (event.start?.dateTime == null) {
+                        // Para eventos de dia inteiro, usar UTC para evitar problemas de fuso horário
+                        // O Google Calendar envia eventos de dia inteiro no início do dia UTC
+                        val utcDate = Instant.ofEpochMilli(start).atZone(ZoneOffset.UTC).toLocalDate()
+                        Log.d("CalendarViewModel", "📅 Evento de dia inteiro - Data UTC: $utcDate")
+                        utcDate
+                    } else {
+                        // Para eventos com horário, usar fuso horário local
+                        val localDate = Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalDate()
+                        Log.d("CalendarViewModel", "📅 Evento com horário - Data local: $localDate")
+                        localDate
+                    }
+                    
                     val startTime = if (event.start?.dateTime != null) Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalTime() else null
                     val endTime = if (end != null && event.end?.dateTime != null) Instant.ofEpochMilli(end).atZone(ZoneId.systemDefault()).toLocalTime() else null
 
                     // Log para debug de todos os eventos
-                    Log.d("CalendarViewModel", "📅 Evento recebido: ${event.summary} em ${startDate}, recorrente: ${event.recurrence}, all-day: ${event.start?.dateTime == null}")
+                    Log.d("CalendarViewModel", "📅 Evento recebido: ${event.summary}")
+                    Log.d("CalendarViewModel", "   Data original (timestamp): $start")
+                    Log.d("CalendarViewModel", "   Data convertida: $startDate")
+                    Log.d("CalendarViewModel", "   É evento de dia inteiro: ${event.start?.dateTime == null}")
+                    Log.d("CalendarViewModel", "   Recorrente: ${event.recurrence}")
                     
                     // Detectar se é um aniversário baseado em características específicas
                     val isBirthday = detectBirthdayEvent(event)
                     
                     // Log para debug
                     if (isBirthday) {
-                        Log.d("CalendarViewModel", "🎂 Aniversário detectado: ${event.summary} em ${startDate}")
+                        Log.d("CalendarViewModel", "🎂 Aniversário detectado: ${event.summary}")
+                        Log.d("CalendarViewModel", "   Data original (timestamp): $start")
+                        Log.d("CalendarViewModel", "   Data convertida: $startDate")
+                        Log.d("CalendarViewModel", "   É evento de dia inteiro: ${event.start?.dateTime == null}")
                     }
                     
                     Activity(
