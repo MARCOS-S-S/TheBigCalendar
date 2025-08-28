@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/visibility_alert_high_background"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <!-- Título -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Adiar por quanto tempo?"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Opções de adiamento -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- 5 minutos -->
+        <Button
+            android:id="@+id/snooze_5min_button"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="5 minutos"
+            android:textColor="@android:color/black"
+            android:background="@drawable/visibility_button_background"
+            android:paddingHorizontal="32dp"
+            android:paddingVertical="12dp"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- 30 minutos -->
+        <Button
+            android:id="@+id/snooze_30min_button"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="30 minutos"
+            android:textColor="@android:color/black"
+            android:background="@drawable/visibility_button_background"
+            android:paddingHorizontal="32dp"
+            android:paddingVertical="12dp"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- 1 hora -->
+        <Button
+            android:id="@+id/snooze_1hour_button"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="1 hora"
+            android:textColor="@android:color/black"
+            android:background="@drawable/visibility_button_background"
+            android:paddingHorizontal="32dp"
+            android:paddingVertical="12dp"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Botão Cancelar -->
+        <Button
+            android:id="@+id/snooze_cancel_button"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="Cancelar"
+            android:textColor="@android:color/white"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="8dp"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

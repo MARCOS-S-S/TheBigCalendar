@@ -35,6 +35,11 @@ class ActivityRepository(private val context: Context) {
             activity
         }
 
+        // ✅ Log para debug da visibilidade
+        android.util.Log.d("ActivityRepository", "💾 Salvando atividade: ${activityToSave.title}")
+        android.util.Log.d("ActivityRepository", "🔍 Visibilidade: ${activityToSave.visibility}")
+        android.util.Log.d("ActivityRepository", "🔔 Notificações: ${activityToSave.notificationSettings}")
+
         context.activitiesDataStore.updateData { currentActivities ->
             val existingIndex = currentActivities.activitiesList.indexOfFirst { it.id == activityToSave.id }
             val proto = activityToSave.toProto()
@@ -102,8 +107,7 @@ class ActivityRepository(private val context: Context) {
             .setRecurrenceRule(this.recurrenceRule ?: "")
             .setIsCompleted(this.isCompleted)
             .setIsFromGoogle(this.isFromGoogle)
-            // .setVisibility(this.visibility.name)
-            // .setNotificationSettings(this.notificationSettings.toProto())
+            .setVisibility(this.visibility.name)
             .build()
     }
 
@@ -123,7 +127,11 @@ class ActivityRepository(private val context: Context) {
             notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings(),
             isCompleted = this.isCompleted,
             isFromGoogle = this.isFromGoogle,
-            visibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
+            visibility = try {
+                com.mss.thebigcalendar.data.model.VisibilityLevel.valueOf(this.visibility)
+            } catch (e: Exception) {
+                com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
+            }
         )
     }
 

@@ -161,10 +161,12 @@ class NotificationService(private val context: Context) {
         
         // Verificar se precisa exibir alerta de visibilidade
         if (activity.visibility != VisibilityLevel.LOW) {
-            Log.d(TAG, "Atividade com visibilidade ${activity.visibility}, exibindo alerta especial")
+            Log.d(TAG, "🎯 Atividade com visibilidade ${activity.visibility}, exibindo alerta especial")
             // Usar VisibilityService para alertas especiais
             val visibilityService = VisibilityService(context)
+            Log.d(TAG, "🔧 VisibilityService criado, chamando showVisibilityAlert")
             visibilityService.showVisibilityAlert(activity)
+            Log.d(TAG, "✅ showVisibilityAlert chamado, retornando")
             return
         }
         
@@ -253,5 +255,60 @@ class NotificationService(private val context: Context) {
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+    }
+
+    /**
+     * Agenda uma notificação adiada para a atividade
+     */
+    fun scheduleSnoozedNotification(activity: Activity, minutes: Int) {
+        Log.d(TAG, "🔄 Agendando notificação adiada para: ${activity.title} em $minutes minutos")
+        
+        try {
+            // Calcular o horário de execução
+            val now = java.time.LocalDateTime.now()
+            val executionTime = now.plusMinutes(minutes.toLong())
+            
+            Log.d(TAG, "⏰ Horário atual: $now")
+            Log.d(TAG, "⏰ Horário de execução: $executionTime")
+            
+            // Criar intent para a notificação adiada
+            val intent = Intent(context, NotificationReceiver::class.java).apply {
+                action = ACTION_VIEW_ACTIVITY
+                putExtra(EXTRA_ACTIVITY_ID, activity.id)
+                putExtra(EXTRA_ACTIVITY_TITLE, activity.title)
+                putExtra(EXTRA_ACTIVITY_DATE, activity.date)
+                putExtra(EXTRA_ACTIVITY_TIME, activity.startTime?.toString())
+            }
+            
+            // Criar PendingIntent único para o adiamento
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                (activity.id + "_snooze_${minutes}min").hashCode(),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            
+            // Agendar o alarme
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    android.app.AlarmManager.RTC_WAKEUP,
+                    executionTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                    pendingIntent
+                )
+            } else {
+                alarmManager.setExact(
+                    android.app.AlarmManager.RTC_WAKEUP,
+                    executionTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                    pendingIntent
+                )
+            }
+            
+            Log.d(TAG, "✅ Notificação adiada agendada com sucesso para: ${activity.title} em $minutes minutos")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao agendar notificação adiada", e)
+        }
     }
 }

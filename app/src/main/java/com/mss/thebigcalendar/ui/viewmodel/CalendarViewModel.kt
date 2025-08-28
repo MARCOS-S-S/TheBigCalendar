@@ -1,6 +1,7 @@
 package com.mss.thebigcalendar.ui.viewmodel
 
 import android.app.Application
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -1218,6 +1219,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
      */
     fun requestOverlayPermission(): Intent {
         return visibilityService.requestOverlayPermission()
+    }
+    
+    /**
+     * Testa o alerta de visibilidade alta
+     */
+    fun testHighVisibilityAlert() {
+        Log.d(TAG, "🧪 Testando alerta de visibilidade alta")
+        visibilityService.testHighVisibilityAlert()
     }
     
     fun loadBackupFiles() {

@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
+import android.util.Log
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.NotificationSettings
@@ -122,14 +123,19 @@ fun CreateActivityModal(
                 selectedPriority = validPriorities.first()
             }
             
-            // Configurar visibilidade padrão
+            // ✅ Configurar visibilidade padrão APENAS para novas atividades
             selectedVisibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
             
-            // Configurar notificações padrão
+            // ✅ Configurar notificações padrão APENAS para novas atividades
             notificationSettings = notificationSettings.copy(
                 isEnabled = true,
                 notificationType = com.mss.thebigcalendar.data.model.NotificationType.FIFTEEN_MINUTES_BEFORE
             )
+        } else {
+            // ✅ Para atividades existentes, preservar as configurações salvas
+            Log.d("CreateActivityModal", "🔍 Editando atividade existente: ${currentActivity.title}")
+            Log.d("CreateActivityModal", "🔍 Visibilidade salva: ${currentActivity.visibility}")
+            Log.d("CreateActivityModal", "🔔 Notificações salvas: ${currentActivity.notificationSettings}")
         }
     }
 
