@@ -58,6 +58,7 @@ import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.SearchResult
 import com.mss.thebigcalendar.data.model.ViewMode
+import com.mss.thebigcalendar.ui.components.BirthdaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.CreateActivityModal
 import com.mss.thebigcalendar.ui.components.DeleteConfirmationDialog
 import com.mss.thebigcalendar.ui.components.HolidaysForSelectedDaySection
@@ -306,24 +307,46 @@ fun MainCalendarView(
                                 theme = uiState.theme
                             )
                         }
-                        item {
-                            TasksForSelectedDaySection(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                tasks = uiState.tasksForSelectedDate,
-                                selectedDate = uiState.selectedDate,
-                                activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
-                                onTaskClick = {
-                                    if (uiState.activityIdWithDeleteButtonVisible != null) {
-                                        viewModel.hideDeleteButton()
-                                    } else {
-                                        viewModel.openCreateActivityModal(it, it.activityType)
-                                    }
-                                },
-                                onTaskLongClick = { viewModel.onTaskLongPressed(it) },
-                                onDeleteClick = { viewModel.requestDeleteActivity(it) },
-                                onCompleteClick = { viewModel.markActivityAsCompleted(it) },
-                                onAddTaskClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
-                            )
+                        // Seção de Aniversários
+                        if (uiState.birthdaysForSelectedDate.isNotEmpty()) {
+                            item {
+                                BirthdaysForSelectedDaySection(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                    birthdays = uiState.birthdaysForSelectedDate,
+                                    selectedDate = uiState.selectedDate,
+                                    onBirthdayClick = {
+                                        if (uiState.activityIdWithDeleteButtonVisible != null) {
+                                            viewModel.hideDeleteButton()
+                                        } else {
+                                            viewModel.openCreateActivityModal(it, it.activityType)
+                                        }
+                                    },
+                                    onAddBirthdayClick = { viewModel.openCreateActivityModal(activityType = ActivityType.BIRTHDAY) }
+                                )
+                            }
+                        }
+                        
+                        // Seção de Tarefas e Eventos (excluindo aniversários)
+                        if (uiState.tasksForSelectedDate.isNotEmpty()) {
+                            item {
+                                TasksForSelectedDaySection(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                    tasks = uiState.tasksForSelectedDate,
+                                    selectedDate = uiState.selectedDate,
+                                    activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
+                                    onTaskClick = {
+                                        if (uiState.activityIdWithDeleteButtonVisible != null) {
+                                            viewModel.hideDeleteButton()
+                                        } else {
+                                            viewModel.openCreateActivityModal(it, it.activityType)
+                                        }
+                                    },
+                                    onTaskLongClick = { viewModel.onTaskLongPressed(it) },
+                                    onDeleteClick = { viewModel.requestDeleteActivity(it) },
+                                    onCompleteClick = { viewModel.markActivityAsCompleted(it) },
+                                    onAddTaskClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
+                                )
+                            }
                         }
                         if (uiState.holidaysForSelectedDate.isNotEmpty()) {
                             item {

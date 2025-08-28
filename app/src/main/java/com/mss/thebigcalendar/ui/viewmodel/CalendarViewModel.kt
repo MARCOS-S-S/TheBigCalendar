@@ -506,23 +506,41 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     private fun updateTasksForSelectedDate() {
         val state = _uiState.value
-        val tasks = if (state.filterOptions.showTasks || state.filterOptions.showEvents || state.filterOptions.showNotes || state.filterOptions.showBirthdays) {
+        
+        // Separar aniversários das outras atividades
+        val birthdays = if (state.filterOptions.showBirthdays) {
             state.activities.filter { activity ->
                 try {
-                    val activityDate = LocalDate.parse(activity.date)
-                    val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
-                            (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
-                            (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
-                            (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
-                    
-                    // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
-                    val dateMatches = if (activity.activityType == ActivityType.BIRTHDAY) {
+                    if (activity.activityType == ActivityType.BIRTHDAY) {
+                        val activityDate = LocalDate.parse(activity.date)
+                        // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
                         activityDate.month == state.selectedDate.month && activityDate.dayOfMonth == state.selectedDate.dayOfMonth
                     } else {
-                        activityDate.isEqual(state.selectedDate)
+                        false
                     }
-                    
-                    dateMatches && typeMatches
+                } catch (e: Exception) {
+                    Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para aniversário: ${activity.title}", e)
+                    false
+                }
+            }.sortedBy { it.title }
+        } else {
+            emptyList()
+        }
+        
+        // Filtrar outras atividades (excluindo aniversários)
+        val otherTasks = if (state.filterOptions.showTasks || state.filterOptions.showEvents || state.filterOptions.showNotes) {
+            state.activities.filter { activity ->
+                try {
+                    if (activity.activityType == ActivityType.BIRTHDAY) {
+                        false // Excluir aniversários
+                    } else {
+                        val activityDate = LocalDate.parse(activity.date)
+                        val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
+                                (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
+                                (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE)
+                        
+                        activityDate.isEqual(state.selectedDate) && typeMatches
+                    }
                 } catch (e: Exception) {
                     Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
                     false
@@ -532,13 +550,20 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             emptyList()
         }
         
-        // Log para debug das tarefas do dia selecionado
-        Log.d("CalendarViewModel", "📅 Tarefas para ${state.selectedDate}: ${tasks.size}")
-        tasks.filter { it.activityType == ActivityType.BIRTHDAY }.forEach { birthday ->
-            Log.d("CalendarViewModel", "🎂 Aniversário na lista: ${birthday.title}")
+        // Log para debug
+        Log.d("CalendarViewModel", "📅 Tarefas para ${state.selectedDate}: ${otherTasks.size}")
+        Log.d("CalendarViewModel", "🎂 Aniversários para ${state.selectedDate}: ${birthdays.size}")
+        birthdays.forEach { birthday ->
+            Log.d("CalendarViewModel", "🎂 Aniversário: ${birthday.title}")
         }
         
-        _uiState.update { it.copy(tasksForSelectedDate = tasks) }
+        // Atualizar ambas as listas
+        _uiState.update { 
+            it.copy(
+                tasksForSelectedDate = otherTasks,
+                birthdaysForSelectedDate = birthdays
+            ) 
+        }
     }
 
     private fun updateHolidaysForSelectedDate() {
