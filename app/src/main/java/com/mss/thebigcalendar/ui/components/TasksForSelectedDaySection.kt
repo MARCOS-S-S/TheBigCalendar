@@ -61,8 +61,9 @@ fun TasksForSelectedDaySection(
     val dateFormat = stringResource(id = R.string.date_format_day_month)
     val dateFormatter = remember(dateFormat) { DateTimeFormatter.ofPattern(dateFormat, Locale("pt", "BR")) }
 
-    // Filtrar apenas tarefas que devem aparecer no calendário
-    val visibleTasks = tasks.filter { it.showInCalendar }
+    // NOTA: Não filtramos por showInCalendar aqui, pois queremos que todas as tarefas apareçam
+    // na seção de agendamentos, mesmo as que não são mostradas no calendário
+    val visibleTasks = tasks
 
     Column(modifier = modifier) {
         Row(

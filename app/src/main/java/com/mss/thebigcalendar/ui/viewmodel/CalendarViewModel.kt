@@ -494,9 +494,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
                         
                         // Verificar se a atividade deve aparecer no calendário
+                        // IMPORTANTE: Aqui aplicamos o filtro showInCalendar para as células do calendário
+                        // Tarefas com showInCalendar = false não aparecem nas células do calendário
                         val shouldShowInCalendar = activity.showInCalendar
-                        
-
                         
                         dateMatches && typeMatches && shouldShowInCalendar
                     } catch (e: Exception) {
@@ -599,11 +599,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                                 (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT)
                         
                         // Verificar se a atividade deve aparecer no calendário
-                        val shouldShowInCalendar = activity.showInCalendar
+                        // NOTA: Para a seção de agendamentos, não aplicamos o filtro showInCalendar
+                        // pois queremos que todas as tarefas apareçam aqui, mesmo as que não são mostradas no calendário
                         
-
-                        
-                        activityDate.isEqual(state.selectedDate) && typeMatches && shouldShowInCalendar
+                        activityDate.isEqual(state.selectedDate) && typeMatches
                     }
                 } catch (e: Exception) {
                     Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
