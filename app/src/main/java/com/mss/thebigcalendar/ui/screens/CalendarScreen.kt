@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -119,60 +120,70 @@ fun CalendarScreen(
     }
 
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        gesturesEnabled = uiState.currentSettingsScreen == null,
-        drawerContent = {
-            // Renderização condicional para melhor performance
-            if (drawerState.targetValue == DrawerValue.Open || drawerState.isOpen) {
-                Sidebar(
-                    uiState = uiState,
-                    onViewModeChange = { viewModel.onViewModeChange(it) },
-                    onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
-                    onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
-                    onBackup = { viewModel.onBackupRequest() },
-                    onRestore = { viewModel.onRestoreRequest() },
-                    onRequestClose = { 
-                        scope.launch { drawerState.close() }
-                        viewModel.closeSidebar() 
-                    }
-                )
-            }
-        }
-    ) {
-        when (uiState.currentSettingsScreen) {
-            "General" -> {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text(stringResource(id = R.string.general)) },
-                            navigationIcon = {
-                                IconButton(onClick = { viewModel.onNavigateToSettings(null) }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.back))
-                                }
-                            }
-                        )
-                    }
-                ) { paddingValues ->
-                    Column(
-                        modifier = Modifier
-                            .padding(paddingValues)
-                            .fillMaxSize()
-                    ) {
-                        GeneralSettingsScreen(
-                            currentTheme = uiState.theme,
-                            onThemeChange = { viewModel.onThemeChange(it) },
-                            googleAccount = uiState.googleSignInAccount,
-                            onSignInClicked = { viewModel.onSignInClicked() },
-                            onSignOutClicked = { viewModel.signOut() }
-                        )
-                    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            gesturesEnabled = uiState.currentSettingsScreen == null,
+            drawerContent = {
+                // Renderização condicional para melhor performance
+                if (drawerState.targetValue == DrawerValue.Open || drawerState.isOpen) {
+                    Sidebar(
+                        uiState = uiState,
+                        onViewModeChange = { viewModel.onViewModeChange(it) },
+                        onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
+                        onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
+                        onBackup = { viewModel.onBackupRequest() },
+                        onRestore = { viewModel.onRestoreRequest() },
+                        onRequestClose = { 
+                            scope.launch { drawerState.close() }
+                            viewModel.closeSidebar() 
+                        }
+                    )
                 }
             }
-            else -> {
-                MainCalendarView(viewModel, uiState, scope, drawerState, snackbarHostState)
+        ) {
+            when (uiState.currentSettingsScreen) {
+                "General" -> {
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(
+                                title = { Text(stringResource(id = R.string.general)) },
+                                navigationIcon = {
+                                    IconButton(onClick = { viewModel.onNavigateToSettings(null) }) {
+                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.back))
+                                    }
+                                }
+                            )
+                        }
+                    ) { paddingValues ->
+                        Column(
+                            modifier = Modifier
+                                .padding(paddingValues)
+                                .fillMaxSize()
+                        ) {
+                            GeneralSettingsScreen(
+                                currentTheme = uiState.theme,
+                                onThemeChange = { viewModel.onThemeChange(it) },
+                                googleAccount = uiState.googleSignInAccount,
+                                onSignInClicked = { viewModel.onSignInClicked() },
+                                onSignOutClicked = { viewModel.signOut() }
+                            )
+                        }
+                    }
+                }
+                else -> {
+                    MainCalendarView(viewModel, uiState, scope, drawerState, snackbarHostState)
+                }
             }
         }
+        
+        // Snackbar por cima de tudo
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
+        )
     }
 }
 
@@ -188,7 +199,6 @@ fun MainCalendarView(
     var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
     Scaffold(
         modifier = Modifier.clickableWithoutRipple { viewModel.hideDeleteButton() },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
