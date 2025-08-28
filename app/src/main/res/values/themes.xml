@@ -1,5 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Base theme for the app, used by all API levels -->
+    <style name="Theme.TheBigCalendar.Base" parent="android:Theme.Material.NoActionBar">
+        <!-- This sets the background for the Activity window, preventing flicker after splash screen -->
+        <item name="android:windowBackground">@color/dark_gray</item>
+    </style>
 
-    <style name="Theme.TheBigCalendar" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Final App theme that will be used in the Manifest -->
+    <style name="Theme.TheBigCalendar" parent="Theme.TheBigCalendar.Base" />
 </resources>
