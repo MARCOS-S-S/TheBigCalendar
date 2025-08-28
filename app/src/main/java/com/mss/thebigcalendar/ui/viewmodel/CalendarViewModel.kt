@@ -43,6 +43,7 @@ import java.time.LocalTime
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
@@ -412,9 +413,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+
+    
     private fun loadData() {
         viewModelScope.launch {
             activityRepository.activities.collect { activities ->
+                Log.d("CalendarViewModel", "🔄 Atividades atualizadas: ${activities.size}")
                 _uiState.update { it.copy(activities = activities) }
                 updateAllDateDependentUI()
             }
@@ -469,10 +473,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 Log.d("CalendarViewModel", "   Aniversários: ${state.activities.count { it.activityType == ActivityType.BIRTHDAY }}")
             }
             
+            // Coletar todas as atividades para este dia (incluindo repetitivas)
+            val allActivitiesForThisDay = mutableListOf<Activity>()
+            
             val tasksForThisDay = if (state.filterOptions.showTasks || state.filterOptions.showEvents || state.filterOptions.showNotes || state.filterOptions.showBirthdays) {
-
                 
-                val filteredActivities = state.activities.filter { activity ->
+                state.activities.forEach { activity ->
                     try {
                         val activityDate = LocalDate.parse(activity.date)
                         val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
@@ -480,41 +486,46 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                                 (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
                                 (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
                         
-
-                        
-
-                        
-                        // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
-                        val dateMatches = if (activity.activityType == ActivityType.BIRTHDAY) {
-                            activityDate.month == date.month && activityDate.dayOfMonth == date.dayOfMonth
-                        } else {
-                            activityDate.isEqual(date)
+                        if (typeMatches) {
+                            // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
+                            val dateMatches = if (activity.activityType == ActivityType.BIRTHDAY) {
+                                activityDate.month == date.month && activityDate.dayOfMonth == date.dayOfMonth
+                            } else {
+                                activityDate.isEqual(date)
+                            }
+                            
+                            if (dateMatches) {
+                                // Verificar se a atividade deve aparecer no calendário
+                                val shouldShowInCalendar = activity.showInCalendar
+                                if (shouldShowInCalendar) {
+                                    allActivitiesForThisDay.add(activity)
+                                }
+                            }
+                            
+                            // Se a atividade é repetitiva, calcular se deve aparecer neste dia
+                            if (activity.recurrenceRule?.isNotEmpty() == true && 
+                                activity.recurrenceRule != "CUSTOM" && 
+                                activity.showInCalendar) {
+                                
+                                val recurringInstances = calculateRecurringInstancesForDate(activity, date)
+                                allActivitiesForThisDay.addAll(recurringInstances)
+                            }
                         }
-                        
-
-                        
-                        // Verificar se a atividade deve aparecer no calendário
-                        // IMPORTANTE: Aqui aplicamos o filtro showInCalendar para as células do calendário
-                        // Tarefas com showInCalendar = false não aparecem nas células do calendário
-                        val shouldShowInCalendar = activity.showInCalendar
-                        
-                        dateMatches && typeMatches && shouldShowInCalendar
                     } catch (e: Exception) {
                         Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
-                        false
                     }
                 }
                 
                 // Log para debug se houver atividades neste dia
-                if (filteredActivities.isNotEmpty() && i == 0) {
+                if (allActivitiesForThisDay.isNotEmpty() && i == 0) {
                     Log.d("CalendarViewModel", "📅 Atividades filtradas para ${date}:")
-                    filteredActivities.forEach { activity ->
+                    allActivitiesForThisDay.forEach { activity ->
                         Log.d("CalendarViewModel", "   - ${activity.title} (${activity.activityType})")
                     }
                 }
                 
                 // Log específico para aniversários se houver
-                val birthdaysForThisDay = filteredActivities.filter { it.activityType == ActivityType.BIRTHDAY }
+                val birthdaysForThisDay = allActivitiesForThisDay.filter { it.activityType == ActivityType.BIRTHDAY }
                 if (birthdaysForThisDay.isNotEmpty()) {
                     Log.d("CalendarViewModel", "🎂 Aniversários para ${date}: ${birthdaysForThisDay.size}")
                     birthdaysForThisDay.forEach { birthday ->
@@ -522,7 +533,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     }
                 }
                 
-                filteredActivities.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
+                allActivitiesForThisDay.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
             } else {
                 emptyList()
             }
@@ -588,35 +599,71 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
         
         // Filtrar outras atividades (excluindo aniversários e notas)
-        val otherTasks = if (state.filterOptions.showTasks || state.filterOptions.showEvents) {
-            state.activities.filter { activity ->
-                try {
-                    if (activity.activityType == ActivityType.BIRTHDAY || activity.activityType == ActivityType.NOTE) {
-                        false // Excluir aniversários e notas
-                    } else {
-                        val activityDate = LocalDate.parse(activity.date)
-                        val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
-                                (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT)
-                        
-                        // Verificar se a atividade deve aparecer no calendário
-                        // NOTA: Para a seção de agendamentos, não aplicamos o filtro showInCalendar
-                        // pois queremos que todas as tarefas apareçam aqui, mesmo as que não são mostradas no calendário
-                        
-                        activityDate.isEqual(state.selectedDate) && typeMatches
-                    }
-                } catch (e: Exception) {
-                    Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
-                    false
+        Log.d("CalendarViewModel", "🔍 Filtros ativos - showTasks: ${state.filterOptions.showTasks}, showEvents: ${state.filterOptions.showEvents}")
+        Log.d("CalendarViewModel", "🔍 Total de atividades no sistema: ${state.activities.size}")
+        
+        // Coletar todas as tarefas para o dia selecionado (incluindo repetitivas)
+        val allTasksForSelectedDate = mutableListOf<Activity>()
+        
+        state.activities.forEach { activity ->
+            try {
+                if (activity.activityType == ActivityType.BIRTHDAY || activity.activityType == ActivityType.NOTE) {
+                    // Pular aniversários e notas
+                    return@forEach
                 }
-            }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
-        } else {
-            emptyList()
+                
+                val activityDate = LocalDate.parse(activity.date)
+                val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
+                        (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT)
+                
+                if (typeMatches) {
+                    // Verificar se a atividade deve aparecer no calendário
+                    // NOTA: Para a seção de agendamentos, não aplicamos o filtro showInCalendar
+                    // pois queremos que todas as tarefas apareçam aqui, mesmo as que não são mostradas no calendário
+                    
+                    val dateMatches = activityDate.isEqual(state.selectedDate)
+                    if (dateMatches) {
+                        // Log para debug de tarefas com showInCalendar = false
+                        if (!activity.showInCalendar) {
+                            Log.d("CalendarViewModel", "📅 Tarefa com showInCalendar=false incluída na seção de agendamentos: ${activity.title}")
+                        }
+                        
+                        Log.d("CalendarViewModel", "📅 Tarefa filtrada: ${activity.title} - showInCalendar: ${activity.showInCalendar} - type: ${activity.activityType}")
+                        allTasksForSelectedDate.add(activity)
+                    }
+                    
+                    // Se a atividade é repetitiva, calcular se deve aparecer neste dia
+                    if (activity.recurrenceRule?.isNotEmpty() == true && 
+                        activity.recurrenceRule != "CUSTOM") {
+                        
+                        val recurringInstances = calculateRecurringInstancesForDate(activity, state.selectedDate)
+                        allTasksForSelectedDate.addAll(recurringInstances)
+                        
+                        if (recurringInstances.isNotEmpty()) {
+                            Log.d("CalendarViewModel", "🔄 Instâncias repetitivas calculadas para ${state.selectedDate}: ${recurringInstances.size}")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
+            }
         }
+        
+        val otherTasks = allTasksForSelectedDate.sortedWith(
+            compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }
+            .thenBy { it.startTime ?: LocalTime.MIN }
+        )
         
         // Log para debug
         Log.d("CalendarViewModel", "📅 Tarefas para ${state.selectedDate}: ${otherTasks.size}")
         Log.d("CalendarViewModel", "🎂 Aniversários para ${state.selectedDate}: ${birthdays.size}")
         Log.d("CalendarViewModel", "📝 Notas para ${state.selectedDate}: ${notes.size}")
+        
+        // Log detalhado das tarefas encontradas
+        otherTasks.forEach { task ->
+            Log.d("CalendarViewModel", "📅 Tarefa: ${task.title} - showInCalendar: ${task.showInCalendar}")
+        }
+        
         birthdays.forEach { birthday ->
             Log.d("CalendarViewModel", "🎂 Aniversário: ${birthday.title}")
         }
@@ -656,10 +703,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun updateAllDateDependentUI() {
+        Log.d("CalendarViewModel", "🔄 Iniciando atualização da UI")
         updateCalendarDays()
         updateTasksForSelectedDate()
         updateHolidaysForSelectedDate()
         updateSaintDaysForSelectedDate()
+        Log.d("CalendarViewModel", "✅ Atualização da UI concluída")
     }
 
     fun onPreviousMonth() {
@@ -768,6 +817,23 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             val isEditingGoogleEvent = activityData.id != "new" && 
                                      _uiState.value.activities.any { it.id == activityData.id && it.isFromGoogle }
             
+            // Se for uma edição de atividade existente, verificar se a repetição foi alterada
+            val existingActivity = if (activityData.id != "new") {
+                _uiState.value.activities.find { it.id == activityData.id }
+            } else null
+            
+            val repetitionChanged = existingActivity?.let { existing ->
+                existing.recurrenceRule != activityData.recurrenceRule
+            } ?: false
+            
+            // Se a repetição foi removida, remover todas as instâncias recorrentes
+            if (repetitionChanged && (activityData.recurrenceRule.isNullOrEmpty() || activityData.recurrenceRule == "NONE")) {
+                println("🔄 Repetição removida para atividade: ${existingActivity!!.title}")
+                println("🔄 Regra anterior: ${existingActivity.recurrenceRule}")
+                println("🔄 Nova regra: ${activityData.recurrenceRule}")
+                removeRecurringInstances(existingActivity)
+            }
+            
             // Salvar a atividade principal
             activityRepository.saveActivity(activityData)
             
@@ -780,26 +846,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 notificationService.scheduleNotification(activityData)
             }
             
-            // Se a atividade tem repetição, gerar instâncias recorrentes
+            // NOTA: Não geramos mais instâncias repetitivas automaticamente
+            // As tarefas repetitivas serão calculadas dinamicamente quando o usuário navegar pelos meses
             if (activityData.recurrenceRule?.isNotEmpty() == true && activityData.recurrenceRule != "CUSTOM") {
-                val startDate = java.time.LocalDate.parse(activityData.date)
-                val endDate = startDate.plusYears(1) // Gerar repetições por 1 ano
-                
-                val recurringInstances = recurrenceService.generateRecurringInstances(
-                    baseActivity = activityData,
-                    startDate = startDate,
-                    endDate = endDate
-                )
-                
-                // Salvar todas as instâncias recorrentes
-                recurringInstances.forEach { instance ->
-                    if (instance.id != activityData.id) { // Não salvar a atividade principal novamente
-                        activityRepository.saveActivity(instance)
-                    }
-                }
-                
-                println("🔄 Atividade recorrente criada: ${activityData.title}")
-                println("📅 Instâncias geradas: ${recurringInstances.size}")
+                Log.d("CalendarViewModel", "🔄 Tarefa repetitiva criada: ${activityData.title} - Regra: ${activityData.recurrenceRule}")
+                Log.d("CalendarViewModel", "📅 Instâncias serão calculadas dinamicamente ao navegar pelos meses")
             }
             
             // Sincronizar com Google Calendar se for edição de evento existente
@@ -808,6 +859,118 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
             
             closeCreateActivityModal()
+        }
+    }
+
+    /**
+     * Calcula instâncias repetitivas para uma data específica
+     */
+    private fun calculateRecurringInstancesForDate(baseActivity: Activity, targetDate: LocalDate): List<Activity> {
+        val instances = mutableListOf<Activity>()
+        
+        try {
+            val baseDate = LocalDate.parse(baseActivity.date)
+            
+            // Se a data base é posterior à data alvo, não há instâncias
+            if (baseDate.isAfter(targetDate)) {
+                return instances
+            }
+            
+            when (baseActivity.recurrenceRule) {
+                "DAILY" -> {
+                    // Verificar se a data alvo é um múltiplo de dias a partir da data base
+                    val daysDiff = ChronoUnit.DAYS.between(baseDate, targetDate)
+                    if (daysDiff >= 0) {
+                        val instance = baseActivity.copy(
+                            id = "${baseActivity.id}_${targetDate}",
+                            date = targetDate.toString()
+                        )
+                        instances.add(instance)
+                    }
+                }
+                "WEEKLY" -> {
+                    // Verificar se a data alvo é um múltiplo de semanas a partir da data base
+                    val weeksDiff = ChronoUnit.WEEKS.between(baseDate, targetDate)
+                    if (weeksDiff >= 0) {
+                        val instance = baseActivity.copy(
+                            id = "${baseActivity.id}_${targetDate}",
+                            date = targetDate.toString()
+                        )
+                        instances.add(instance)
+                    }
+                }
+                "MONTHLY" -> {
+                    // Verificar se a data alvo é um múltiplo de meses a partir da data base
+                    val monthsDiff = ChronoUnit.MONTHS.between(baseDate, targetDate)
+                    if (monthsDiff >= 0) {
+                        // Manter o mesmo dia do mês, ajustando para meses com menos dias
+                        val targetDay = minOf(baseDate.dayOfMonth, targetDate.lengthOfMonth())
+                        val adjustedDate = targetDate.withDayOfMonth(targetDay)
+                        
+                        if (adjustedDate.isEqual(targetDate)) {
+                            val instance = baseActivity.copy(
+                                id = "${baseActivity.id}_${targetDate}",
+                                date = targetDate.toString()
+                            )
+                            instances.add(instance)
+                        }
+                    }
+                }
+                "YEARLY" -> {
+                    // Verificar se a data alvo é um múltiplo de anos a partir da data base
+                    val yearsDiff = ChronoUnit.YEARS.between(baseDate, targetDate)
+                    if (yearsDiff >= 0) {
+                        val instance = baseActivity.copy(
+                            id = "${baseActivity.id}_${targetDate}",
+                            date = targetDate.toString()
+                        )
+                        instances.add(instance)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("CalendarViewModel", "❌ Erro ao calcular instâncias repetitivas: ${e.message}")
+        }
+        
+        return instances
+    }
+
+    /**
+     * Remove todas as instâncias recorrentes de uma atividade
+     */
+    private fun removeRecurringInstances(baseActivity: Activity) {
+        viewModelScope.launch {
+            try {
+                println("🔄 Iniciando remoção de instâncias recorrentes para: ${baseActivity.title}")
+                println("🔄 ID da atividade base: ${baseActivity.id}")
+                
+                // Buscar todas as atividades que são instâncias desta atividade base
+                val allActivities = _uiState.value.activities
+                println("🔄 Total de atividades no sistema: ${allActivities.size}")
+                
+                val instancesToRemove = allActivities.filter { activity ->
+                    // Verificar se é uma instância recorrente (ID contém o ID base + data)
+                    val isInstance = activity.id.startsWith("${baseActivity.id}_") && 
+                                   activity.id != baseActivity.id
+                    if (isInstance) {
+                        println("🔄 Encontrada instância para remover: ${activity.id} - ${activity.title}")
+                    }
+                    isInstance
+                }
+                
+                println("🔄 Instâncias encontradas para remoção: ${instancesToRemove.size}")
+                
+                // Remover todas as instâncias
+                instancesToRemove.forEach { instance ->
+                    activityRepository.deleteActivity(instance.id)
+                    println("🗑️ Instância recorrente removida: ${instance.id}")
+                }
+                
+                println("🗑️ Total de instâncias recorrentes removidas: ${instancesToRemove.size}")
+            } catch (e: Exception) {
+                println("❌ Erro ao remover instâncias recorrentes: ${e.message}")
+                e.printStackTrace()
+            }
         }
     }
 

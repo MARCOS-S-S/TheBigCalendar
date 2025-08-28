@@ -102,6 +102,8 @@ fun CreateActivityModal(
     
     // Estado para repetições
     var isRepetitionMenuExpanded by remember { mutableStateOf(false) }
+    
+    // Mapeamento entre opções de repetição e regras
     val repetitionOptions = listOf(
         stringResource(id = R.string.repetition_dont_repeat),
         stringResource(id = R.string.repetition_every_day),
@@ -110,7 +112,29 @@ fun CreateActivityModal(
         stringResource(id = R.string.repetition_every_year),
         stringResource(id = R.string.repetition_custom)
     )
-    var selectedRepetition by remember { mutableStateOf(repetitionOptions.first()) }
+    
+    val repetitionMapping = mapOf(
+        repetitionOptions[0] to "",
+        repetitionOptions[1] to "DAILY",
+        repetitionOptions[2] to "WEEKLY",
+        repetitionOptions[3] to "MONTHLY",
+        repetitionOptions[4] to "YEARLY",
+        repetitionOptions[5] to "CUSTOM"
+    )
+    
+    var selectedRepetition by remember(currentActivity.id) { 
+        mutableStateOf(
+            if (currentActivity.id != "new" && !currentActivity.id.isBlank()) {
+                // Para atividades existentes, converter a regra de repetição de volta para a opção
+                val option = convertRecurrenceRuleToOption(currentActivity.recurrenceRule, repetitionMapping)
+                println("🔄 Atividade existente - Regra: ${currentActivity.recurrenceRule}, Opção: $option")
+                option
+            } else {
+                println("🔄 Nova atividade - Usando opção padrão: ${repetitionOptions.first()}")
+                repetitionOptions.first()
+            }
+        )
+    }
 
     val date = LocalDate.parse(currentActivity.date)
     val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_day_month), java.util.Locale("pt", "BR"))
@@ -293,6 +317,10 @@ fun CreateActivityModal(
                                 onClick = {
                                     selectedRepetition = option
                                     isRepetitionMenuExpanded = false
+                                    
+                                    // Log para debug
+                                    println("🔄 Opção de repetição selecionada: $option")
+                                    println("🔄 Regra de repetição correspondente: ${convertRepetitionOptionToRule(option, repetitionMapping)}")
                                 }
                             )
                         }
@@ -352,7 +380,10 @@ fun CreateActivityModal(
                         notificationSettings = notificationSettings, // ✅ Adicionar configurações de notificação
                         visibility = selectedVisibility, // ✅ Adicionar visibilidade
                         showInCalendar = showInCalendar, // ✅ Adicionar opção de mostrar no calendário
-                        recurrenceRule = convertRepetitionOptionToRule(selectedRepetition, repetitionOptions) // ✅ Adicionar regra de repetição
+                        recurrenceRule = convertRepetitionOptionToRule(selectedRepetition, repetitionMapping).also { rule ->
+                            println("🔄 Salvando atividade com regra de repetição: $rule")
+                            println("🔄 Opção selecionada: $selectedRepetition")
+                        } // ✅ Adicionar regra de repetição
                     )
                     if (updatedActivity.title.isNotBlank()) {
                         onSaveActivity(updatedActivity)
@@ -752,14 +783,21 @@ fun OverlayPermissionDialog(
 /**
  * Função auxiliar para converter opções de repetição em regras de repetição
  */
-private fun convertRepetitionOptionToRule(selectedOption: String, allOptions: List<String>): String {
-    return when (selectedOption) {
-        allOptions[0] -> "" // "Não repetir"
-        allOptions[1] -> "DAILY" // "Todos os dias"
-        allOptions[2] -> "WEEKLY" // "Todas as semanas"
-        allOptions[3] -> "MONTHLY" // "Todos os meses"
-        allOptions[4] -> "YEARLY" // "Todos os anos"
-        allOptions[5] -> "CUSTOM" // "Personalizado"
-        else -> ""
+private fun convertRepetitionOptionToRule(selectedOption: String, repetitionMapping: Map<String, String>): String {
+    return repetitionMapping[selectedOption] ?: ""
+}
+
+/**
+ * Função auxiliar para converter regras de repetição de volta para opções
+ */
+private fun convertRecurrenceRuleToOption(recurrenceRule: String?, repetitionMapping: Map<String, String>): String {
+    return when (recurrenceRule) {
+        null, "", "NONE" -> repetitionMapping.entries.find { it.value == "" }?.key ?: repetitionMapping.keys.first()
+        "DAILY" -> repetitionMapping.entries.find { it.value == "DAILY" }?.key ?: repetitionMapping.keys.first()
+        "WEEKLY" -> repetitionMapping.entries.find { it.value == "WEEKLY" }?.key ?: repetitionMapping.keys.first()
+        "MONTHLY" -> repetitionMapping.entries.find { it.value == "MONTHLY" }?.key ?: repetitionMapping.keys.first()
+        "YEARLY" -> repetitionMapping.entries.find { it.value == "YEARLY" }?.key ?: repetitionMapping.keys.first()
+        "CUSTOM" -> repetitionMapping.entries.find { it.value == "CUSTOM" }?.key ?: repetitionMapping.keys.first()
+        else -> repetitionMapping.keys.first() // "Não repetir" como padrão
     }
 }
