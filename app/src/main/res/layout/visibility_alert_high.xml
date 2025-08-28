@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/visibility_alert_high_background"
     android:gravity="center"
-    android:padding="32dp">
+    android:padding="24dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,86 +14,96 @@
         android:orientation="vertical"
         android:gravity="center">
 
-        <!-- Ícone de alerta -->
+        <!-- Ícone de alerta com design moderno -->
         <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:src="@android:drawable/ic_dialog_alert"
-            android:tint="@android:color/white"
-            android:layout_marginBottom="24dp" />
+            app:tint="@android:color/white"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/icon_background"
+            android:padding="20dp" />
 
-        <!-- Título -->
+        <!-- Título com design destacado -->
         <TextView
             android:id="@+id/alert_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Título da Atividade"
             android:textColor="@android:color/white"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="20dp"
             android:maxLines="2"
-            android:ellipsize="end" />
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-light" />
 
-        <!-- Descrição -->
+        <!-- Descrição com estilo elegante -->
         <TextView
             android:id="@+id/alert_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Descrição da atividade"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:gravity="center"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="20dp"
             android:maxLines="3"
             android:ellipsize="end"
-            android:alpha="0.9" />
+            android:alpha="0.95"
+            android:fontFamily="sans-serif" />
 
-        <!-- Horário -->
+        <!-- Horário com design especial -->
         <TextView
             android:id="@+id/alert_time"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Às 14:30"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:gravity="center"
-            android:layout_marginBottom="32dp"
-            android:alpha="0.8" />
+            android:layout_marginBottom="40dp"
+            android:alpha="0.9"
+            android:fontFamily="sans-serif-medium"
+            android:background="@drawable/time_background"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="8dp" />
 
-        <!-- Botões de ação -->
+        <!-- Botões de ação com design moderno -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="20dp">
 
-            <!-- Botão Adiar -->
+            <!-- Botão Adiar com estilo destacado -->
             <Button
                 android:id="@+id/alert_snooze_button"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:text="Adiar"
-                android:textColor="@android:color/black"
-                android:background="@drawable/visibility_button_background"
-                android:paddingHorizontal="32dp"
-                android:paddingVertical="12dp"
-                android:textSize="16sp"
-                android:layout_marginBottom="16dp" />
+                android:layout_width="280dp"
+                android:layout_height="56dp"
+                android:text="⏰ ADIAR"
+                android:textColor="@android:color/white"
+                android:background="@drawable/snooze_button_background"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="20dp"
+                android:elevation="8dp"
+                android:stateListAnimator="@null" />
 
-            <!-- Botão Concluído -->
+            <!-- Botão Concluído com estilo de sucesso -->
             <Button
                 android:id="@+id/alert_complete_button"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:text="Concluído"
-                android:textColor="@android:color/black"
-                android:background="@drawable/visibility_button_background"
-                android:paddingHorizontal="32dp"
-                android:paddingVertical="12dp"
-                android:textSize="16sp" />
+                android:layout_width="280dp"
+                android:layout_height="56dp"
+                android:text="✅ CONCLUÍDO"
+                android:textColor="@android:color/white"
+                android:background="@drawable/complete_button_background"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:elevation="8dp"
+                android:stateListAnimator="@null" />
 
         </LinearLayout>
 
