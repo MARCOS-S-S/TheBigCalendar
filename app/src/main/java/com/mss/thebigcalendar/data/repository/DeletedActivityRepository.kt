@@ -108,6 +108,7 @@ class DeletedActivityRepository(private val context: Context) {
             .setActivityType(this.activityType.toProto())
             .setRecurrenceRule(this.recurrenceRule ?: "")
             .setIsCompleted(this.isCompleted)
+            .setShowInCalendar(this.showInCalendar)
             .build()
     }
 
@@ -125,7 +126,8 @@ class DeletedActivityRepository(private val context: Context) {
             activityType = this.activityType.toActivityType(),
             recurrenceRule = this.recurrenceRule.takeIf { it.isNotEmpty() },
             notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings(),
-            isCompleted = this.isCompleted
+            isCompleted = this.isCompleted,
+            showInCalendar = this.showInCalendar
         )
     }
 

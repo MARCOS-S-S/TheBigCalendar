@@ -339,7 +339,7 @@ fun CreateActivityModal(
                 )
             }
         },
-        confirmButton = {
+                        confirmButton = {
             TextButton(
                 onClick = {
                     val updatedActivity = currentActivity.copy(
@@ -351,6 +351,7 @@ fun CreateActivityModal(
                         isAllDay = !hasScheduledTime,
                         notificationSettings = notificationSettings, // ✅ Adicionar configurações de notificação
                         visibility = selectedVisibility, // ✅ Adicionar visibilidade
+                        showInCalendar = showInCalendar, // ✅ Adicionar opção de mostrar no calendário
                         recurrenceRule = convertRepetitionOptionToRule(selectedRepetition, repetitionOptions) // ✅ Adicionar regra de repetição
                     )
                     if (updatedActivity.title.isNotBlank()) {
@@ -509,12 +510,20 @@ fun CalendarVisibilitySelector(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Mostrar no calendário?",
+                text = stringResource(id = R.string.show_in_calendar),
                 style = MaterialTheme.typography.labelMedium
             )
             androidx.compose.material3.Switch(
                 checked = showInCalendar,
                 onCheckedChange = onShowInCalendarToggle
+            )
+        }
+        if (!showInCalendar) {
+            Text(
+                text = stringResource(id = R.string.show_in_calendar_description),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }

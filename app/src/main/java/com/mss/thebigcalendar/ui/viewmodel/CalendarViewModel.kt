@@ -64,6 +64,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         loadSettings()
         loadData()
         checkForExistingSignIn()
+        // Garantir que o calendário inicie no mês atual
+        onGoToToday()
     }
 
     private fun checkForExistingSignIn() {
@@ -73,6 +75,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             fetchGoogleCalendarEvents(account)
         }
     }
+    
+
 
     fun onSignInClicked() {
         val signInIntent = googleAuthService.getSignInIntent()
@@ -217,6 +221,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     categoryColor = "#FF69B4",
                     activityType = ActivityType.BIRTHDAY,
                     recurrenceRule = "YEARLY",
+                    showInCalendar = true,
                     isFromGoogle = false
                 ),
                 Activity(
@@ -231,6 +236,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     categoryColor = "#FF69B4",
                     activityType = ActivityType.BIRTHDAY,
                     recurrenceRule = "YEARLY",
+                    showInCalendar = true,
                     isFromGoogle = false
                 )
             )
@@ -325,6 +331,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         categoryColor = if (isBirthday) "#FF69B4" else "#4285F4", // Rosa para aniversários, Azul para eventos
                         activityType = if (isBirthday) ActivityType.BIRTHDAY else ActivityType.EVENT,
                         recurrenceRule = event.recurrence?.firstOrNull(),
+                        showInCalendar = true, // Por padrão, mostrar no calendário
                         isFromGoogle = true
                     )
                 }
@@ -412,12 +419,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     saintDays = saintDaysList.associateBy { it.date }
                 )
             }
-            updateCalendarDays()
+            // Não chamar updateCalendarDays() aqui para evitar loop infinito
+            // updateCalendarDays() será chamado por updateAllDateDependentUI()
         }
     }
+    
+
 
     private fun updateCalendarDays() {
         val state = _uiState.value
+        
+
         val firstDayOfMonth = state.displayedYearMonth.atDay(1)
         val daysFromPrevMonthOffset = (firstDayOfMonth.dayOfWeek.value % 7)
         val gridStartDate = firstDayOfMonth.minusDays(daysFromPrevMonthOffset.toLong())
@@ -437,38 +449,39 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
             
             val tasksForThisDay = if (state.filterOptions.showTasks || state.filterOptions.showEvents || state.filterOptions.showNotes || state.filterOptions.showBirthdays) {
+
+                
                 val filteredActivities = state.activities.filter { activity ->
-                                            try {
-                            val activityDate = LocalDate.parse(activity.date)
-                            val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
-                                    (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
-                                    (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
-                                    (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
-                            
-                            // Log para debug de datas se for aniversário
-                            if (activity.activityType == ActivityType.BIRTHDAY && i == 0) {
-                                Log.d("CalendarViewModel", "🔍 Verificando aniversário: ${activity.title}")
-                                Log.d("CalendarViewModel", "   Data da atividade: ${activity.date}")
-                                Log.d("CalendarViewModel", "   Data parseada: $activityDate")
-                                Log.d("CalendarViewModel", "   Data do dia: $date")
-                                Log.d("CalendarViewModel", "   Datas são iguais: ${activityDate.isEqual(date)}")
-                                Log.d("CalendarViewModel", "   showBirthdays: ${state.filterOptions.showBirthdays}")
-                                Log.d("CalendarViewModel", "   typeMatches: $typeMatches")
-                                Log.d("CalendarViewModel", "   Recorrente: ${activity.recurrenceRule}")
-                            }
-                            
-                            // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
-                            val dateMatches = if (activity.activityType == ActivityType.BIRTHDAY) {
-                                activityDate.month == date.month && activityDate.dayOfMonth == date.dayOfMonth
-                            } else {
-                                activityDate.isEqual(date)
-                            }
-                            
-                            dateMatches && typeMatches
-                        } catch (e: Exception) {
-                            Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
-                            false
+                    try {
+                        val activityDate = LocalDate.parse(activity.date)
+                        val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
+                                (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
+                                (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
+                                (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
+                        
+
+                        
+
+                        
+                        // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
+                        val dateMatches = if (activity.activityType == ActivityType.BIRTHDAY) {
+                            activityDate.month == date.month && activityDate.dayOfMonth == date.dayOfMonth
+                        } else {
+                            activityDate.isEqual(date)
                         }
+                        
+
+                        
+                        // Verificar se a atividade deve aparecer no calendário
+                        val shouldShowInCalendar = activity.showInCalendar
+                        
+
+                        
+                        dateMatches && typeMatches && shouldShowInCalendar
+                    } catch (e: Exception) {
+                        Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
+                        false
+                    }
                 }
                 
                 // Log para debug se houver atividades neste dia
@@ -564,7 +577,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
                                 (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT)
                         
-                        activityDate.isEqual(state.selectedDate) && typeMatches
+                        // Verificar se a atividade deve aparecer no calendário
+                        val shouldShowInCalendar = activity.showInCalendar
+                        
+
+                        
+                        activityDate.isEqual(state.selectedDate) && typeMatches && shouldShowInCalendar
                     }
                 } catch (e: Exception) {
                     Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
@@ -1012,7 +1030,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             location = null,
             categoryColor = if (activityType == ActivityType.TASK) "#3B82F6" else "#F43F5E",
             activityType = activityType,
-            recurrenceRule = null
+            recurrenceRule = null,
+            showInCalendar = true // Por padrão, mostrar no calendário
         )
         _uiState.update { it.copy(activityToEdit = template, activityIdWithDeleteButtonVisible = null) }
     }

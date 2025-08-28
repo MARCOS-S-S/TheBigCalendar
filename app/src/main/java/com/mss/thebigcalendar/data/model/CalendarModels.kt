@@ -40,6 +40,7 @@ data class Activity(
     val notificationSettings: NotificationSettings = NotificationSettings(),
     val isCompleted: Boolean = false,
     val visibility: VisibilityLevel = VisibilityLevel.LOW, // Nova opção de visibilidade
+    val showInCalendar: Boolean = true, // Nova opção para mostrar no calendário
     val isFromGoogle: Boolean = false
 )
 

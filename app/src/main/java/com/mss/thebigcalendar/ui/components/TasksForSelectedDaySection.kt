@@ -61,6 +61,9 @@ fun TasksForSelectedDaySection(
     val dateFormat = stringResource(id = R.string.date_format_day_month)
     val dateFormatter = remember(dateFormat) { DateTimeFormatter.ofPattern(dateFormat, Locale("pt", "BR")) }
 
+    // Filtrar apenas tarefas que devem aparecer no calendário
+    val visibleTasks = tasks.filter { it.showInCalendar }
+
     Column(modifier = modifier) {
         Row(
             modifier = Modifier
@@ -89,7 +92,7 @@ fun TasksForSelectedDaySection(
             }
         }
 
-        if (tasks.isEmpty()) {
+        if (visibleTasks.isEmpty()) {
             Text(
                 text = stringResource(id = R.string.no_appointments),
                 style = MaterialTheme.typography.bodyMedium,
@@ -97,7 +100,7 @@ fun TasksForSelectedDaySection(
             )
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                tasks.forEach { task ->
+                visibleTasks.forEach { task ->
                     TaskItem(
                         task = task,
                         deleteButtonVisible = activityIdWithDeleteVisible == task.id,

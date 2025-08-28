@@ -94,7 +94,8 @@ class NotificationReceiver : BroadcastReceiver() {
                             isEnabled = true,
                             notificationType = com.mss.thebigcalendar.data.model.NotificationType.BEFORE_ACTIVITY
                         ),
-                        visibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
+                        visibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW,
+                        showInCalendar = true
                     )
                     
                     // ✅ Mudar para Main thread para exibir overlay
@@ -125,7 +126,8 @@ class NotificationReceiver : BroadcastReceiver() {
                         isEnabled = true,
                         notificationType = com.mss.thebigcalendar.data.model.NotificationType.BEFORE_ACTIVITY
                     ),
-                    visibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
+                    visibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW,
+                    showInCalendar = true
                 )
                 
                 // ✅ Mudar para Main thread para exibir overlay

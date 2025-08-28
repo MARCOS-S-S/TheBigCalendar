@@ -18,7 +18,8 @@ message ActivityProto {
   bool is_completed = 12;
   bool is_from_google = 13;
   string visibility = 14; // LOW, MEDIUM, HIGH
-  NotificationSettingsProto notification_settings = 15;
+  bool show_in_calendar = 15; // Novo campo para controlar se a atividade aparece no calendário
+  NotificationSettingsProto notification_settings = 16;
 }
 
 message NotificationSettingsProto {

@@ -41,6 +41,8 @@
     <string name="start">Início</string>
     <string name="end">Fim</string>
     <string name="ok">OK</string>
+    <string name="show_in_calendar">Mostrar no calendário</string>
+    <string name="show_in_calendar_description">A tarefa não aparecerá abaixo do dia no calendário</string>
 
     <!-- DeleteConfirmationDialog.kt -->
     <string name="delete_confirmation_title">Confirmar Exclusão</string>

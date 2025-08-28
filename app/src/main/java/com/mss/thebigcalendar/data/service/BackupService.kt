@@ -424,6 +424,7 @@ class BackupService(
             notificationSettings = notificationSettings,
             isCompleted = activityJson.optBoolean("isCompleted", false),
             visibility = visibility,
+            showInCalendar = activityJson.optBoolean("showInCalendar", true), // Por padrão, mostrar no calendário
             isFromGoogle = activityJson.optBoolean("isFromGoogle", false)
         )
     }

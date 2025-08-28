@@ -148,7 +148,10 @@ private fun DayCell(
             )
         }
 
-        if (day.tasks.isNotEmpty()) {
+        // Filtrar apenas tarefas que devem aparecer no calendário
+        val visibleTasks = day.tasks.filter { it.showInCalendar }
+        
+        if (visibleTasks.isNotEmpty()) {
             Spacer(modifier = Modifier.height(1.dp))
 
             Column(
@@ -157,7 +160,7 @@ private fun DayCell(
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 val fallbackColor = MaterialTheme.colorScheme.secondaryContainer
-                day.tasks.take(2).forEach { task ->
+                visibleTasks.take(2).forEach { task ->
                     val taskColor = remember(task.categoryColor) {
                         when (task.categoryColor) {
                             "1" -> Color.White
@@ -190,7 +193,7 @@ private fun DayCell(
                         )
                     }
                 }
-                if (day.tasks.size > 2) {
+                if (visibleTasks.size > 2) {
                     Row (
                         modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
                         horizontalArrangement = Arrangement.Center

@@ -426,6 +426,7 @@ class VisibilityService(private val context: Context) {
             notificationSettings = NotificationSettings(),
             isCompleted = false,
             visibility = VisibilityLevel.HIGH,
+            showInCalendar = true,
             isFromGoogle = false
         )
         

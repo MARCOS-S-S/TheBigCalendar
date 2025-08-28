@@ -82,7 +82,8 @@ class NotificationTestService(private val context: Context) {
             notificationSettings = NotificationSettings(
                 isEnabled = true,
                 notificationType = NotificationType.FIVE_MINUTES_BEFORE
-            )
+            ),
+            showInCalendar = true
         )
 
         // Usar o NotificationService real para agendar

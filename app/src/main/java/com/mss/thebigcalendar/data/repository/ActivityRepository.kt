@@ -108,6 +108,7 @@ class ActivityRepository(private val context: Context) {
             .setIsCompleted(this.isCompleted)
             .setIsFromGoogle(this.isFromGoogle)
             .setVisibility(this.visibility.name)
+            .setShowInCalendar(this.showInCalendar)
             .build()
     }
 
@@ -131,7 +132,8 @@ class ActivityRepository(private val context: Context) {
                 com.mss.thebigcalendar.data.model.VisibilityLevel.valueOf(this.visibility)
             } catch (e: Exception) {
                 com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
-            }
+            },
+            showInCalendar = this.showInCalendar
         )
     }
 
