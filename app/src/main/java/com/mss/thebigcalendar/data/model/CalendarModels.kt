@@ -87,6 +87,7 @@ data class CalendarUiState(
     val saintDaysForSelectedDate: List<Holiday> = emptyList(),
     val googleSignInAccount: GoogleSignInAccount? = null,
     val signInIntent: Intent? = null,
+    val loginMessage: String? = null,
     val searchQuery: String = "",
     val searchResults: List<SearchResult> = emptyList(),
     val isSearchScreenOpen: Boolean = false,

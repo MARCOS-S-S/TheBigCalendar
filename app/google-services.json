@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "662891819317",
+    "project_id": "calendar-e64fb",
+    "storage_bucket": "calendar-e64fb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:662891819317:android:820342996c5c09da2edc7c",
+        "android_client_info": {
+          "package_name": "com.mss.thebigcalendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "662891819317-uihbqjg2ot4r4d8lksbfq6v1rjcpc1sv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mss.thebigcalendar",
+            "certificate_hash": "7dbdc0de863bc6aa9cd7af63a3a7524b1d8a6c7b"
+          }
+        },
+        {
+          "client_id": "662891819317-lngjv15bpi5v5asttejhmc1rlaoatefd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXFmUAznHKoSsUEUzwnxS7bGdY3GbVS_k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "662891819317-lngjv15bpi5v5asttejhmc1rlaoatefd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

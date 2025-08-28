@@ -76,11 +76,24 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun handleSignInResult(task: Task<GoogleSignInAccount>) {
+        android.util.Log.d("CalendarViewModel", "handleSignInResult called.")
         val account = googleAuthService.handleSignInResult(task)
-        _uiState.update { it.copy(googleSignInAccount = account) }
-        if (account != null) {
-            fetchGoogleCalendarEvents(account)
+        val loginSuccess = account != null
+        android.util.Log.d("CalendarViewModel", "Login success: $loginSuccess")
+        _uiState.update { it.copy(
+            googleSignInAccount = account,
+            loginMessage = if(loginSuccess) "Login bem-sucedido!" else "Falha no login. Verifique os logs para detalhes."
+        ) }
+        if (loginSuccess) {
+            android.util.Log.d("CalendarViewModel", "Fetching Google Calendar events...")
+            fetchGoogleCalendarEvents(account!!)
+        } else {
+            android.util.Log.w("CalendarViewModel", "Sign-in failed, not fetching events.")
         }
+    }
+
+    fun clearLoginMessage() {
+        _uiState.update { it.copy(loginMessage = null) }
     }
 
     fun signOut() {

@@ -6,6 +6,7 @@ plugins {
     // CORREÇÃO: Este plugin é agora OBRIGATÓRIO com as versões recentes do Kotlin/Compose.
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.protobuf)
+    id("com.google.gms.google-services")
 }
 
 android {

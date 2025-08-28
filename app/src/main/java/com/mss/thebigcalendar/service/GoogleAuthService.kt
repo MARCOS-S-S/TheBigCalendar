@@ -13,11 +13,14 @@ import com.google.api.services.calendar.CalendarScopes
 class GoogleAuthService(private val context: Context) {
 
     private val gso by lazy {
-        val webClientId = "364409865111-b17c096nteiul29v53g1kppafj6ntid0.apps.googleusercontent.com"
+        val webClientId = "662891819317-lngjv15bpi5v5asttejhmc1rlaoatefd.apps.googleusercontent.com"
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(webClientId)
             .requestEmail()
-            .requestScopes(Scope(CalendarScopes.CALENDAR_READONLY))
+            .requestScopes(
+                Scope(CalendarScopes.CALENDAR),
+                Scope(CalendarScopes.CALENDAR_EVENTS)
+            )
             .build()
     }
 
@@ -33,8 +36,8 @@ class GoogleAuthService(private val context: Context) {
         return try {
             task.getResult(ApiException::class.java)
         } catch (e: ApiException) {
-            // O login falhou. Você pode logar o erro aqui.
-            // e.statusCode pode dar mais detalhes sobre o erro.
+            android.util.Log.e("GoogleAuthService", "Sign-in failed with status code: ${e.statusCode}")
+            android.util.Log.e("GoogleAuthService", "Error details: ${com.google.android.gms.common.api.CommonStatusCodes.getStatusCodeString(e.statusCode)}")
             null
         }
     }
