@@ -324,6 +324,7 @@ fun MainCalendarView(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                     birthdays = uiState.birthdaysForSelectedDate,
                                     selectedDate = uiState.selectedDate,
+                                    activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
                                     onBirthdayClick = {
                                         if (uiState.activityIdWithDeleteButtonVisible != null) {
                                             viewModel.hideDeleteButton()
@@ -331,6 +332,9 @@ fun MainCalendarView(
                                             viewModel.openCreateActivityModal(it, it.activityType)
                                         }
                                     },
+                                    onBirthdayLongClick = { viewModel.onTaskLongPressed(it) },
+                                    onDeleteClick = { viewModel.requestDeleteActivity(it) },
+                                    onCompleteClick = { viewModel.markActivityAsCompleted(it) },
                                     onAddBirthdayClick = { viewModel.openCreateActivityModal(activityType = ActivityType.BIRTHDAY) }
                                 )
                             }
@@ -343,6 +347,7 @@ fun MainCalendarView(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                     notes = uiState.notesForSelectedDate,
                                     selectedDate = uiState.selectedDate,
+                                    activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
                                     onNoteClick = {
                                         if (uiState.activityIdWithDeleteButtonVisible != null) {
                                             viewModel.hideDeleteButton()
@@ -350,6 +355,9 @@ fun MainCalendarView(
                                             viewModel.openCreateActivityModal(it, it.activityType)
                                         }
                                     },
+                                    onNoteLongClick = { viewModel.onTaskLongPressed(it) },
+                                    onDeleteClick = { viewModel.requestDeleteActivity(it) },
+                                    onCompleteClick = { viewModel.markActivityAsCompleted(it) },
                                     onAddNoteClick = { viewModel.openCreateActivityModal(activityType = ActivityType.NOTE) }
                                 )
                             }

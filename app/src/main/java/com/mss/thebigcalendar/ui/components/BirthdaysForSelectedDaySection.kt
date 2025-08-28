@@ -1,7 +1,9 @@
 package com.mss.thebigcalendar.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,7 +34,11 @@ fun BirthdaysForSelectedDaySection(
     modifier: Modifier = Modifier,
     birthdays: List<Activity>,
     selectedDate: LocalDate,
+    activityIdWithDeleteVisible: String?,
     onBirthdayClick: (Activity) -> Unit = {},
+    onBirthdayLongClick: (String) -> Unit = {},
+    onDeleteClick: (String) -> Unit = {},
+    onCompleteClick: (String) -> Unit = {},
     onAddBirthdayClick: () -> Unit = {}
 ) {
     if (birthdays.isEmpty()) return
@@ -77,17 +83,26 @@ fun BirthdaysForSelectedDaySection(
             birthdays.forEach { birthday ->
                 BirthdayItem(
                     birthday = birthday,
-                    onClick = { onBirthdayClick(birthday) }
+                    deleteButtonVisible = activityIdWithDeleteVisible == birthday.id,
+                    onClick = { onBirthdayClick(birthday) },
+                    onLongClick = { onBirthdayLongClick(birthday.id) },
+                    onDeleteClick = { onDeleteClick(birthday.id) },
+                    onCompleteClick = { onCompleteClick(birthday.id) }
                 )
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun BirthdayItem(
     birthday: Activity,
+    deleteButtonVisible: Boolean,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onCompleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -95,7 +110,10 @@ private fun BirthdayItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
             .padding(start = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -151,6 +169,56 @@ private fun BirthdayItem(
                 tint = Color(0xFFE91E63),
                 modifier = Modifier.size(20.dp)
             )
+        }
+
+        // Botões de ação (aparecem quando deleteButtonVisible é true)
+        if (deleteButtonVisible) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp)
+            ) {
+                // Botão de concluir
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable { onCompleteClick() }
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "OK",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                
+                // Botão de deletar
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable { onDeleteClick() }
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "DEL",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onError,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
         }
     }
 }

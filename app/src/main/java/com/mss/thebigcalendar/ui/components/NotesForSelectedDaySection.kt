@@ -1,7 +1,9 @@
 package com.mss.thebigcalendar.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,7 +32,11 @@ fun NotesForSelectedDaySection(
     modifier: Modifier = Modifier,
     notes: List<Activity>,
     selectedDate: LocalDate,
+    activityIdWithDeleteVisible: String?,
     onNoteClick: (Activity) -> Unit = {},
+    onNoteLongClick: (String) -> Unit = {},
+    onDeleteClick: (String) -> Unit = {},
+    onCompleteClick: (String) -> Unit = {},
     onAddNoteClick: () -> Unit = {}
 ) {
     if (notes.isEmpty()) return
@@ -75,17 +81,26 @@ fun NotesForSelectedDaySection(
             notes.forEach { note ->
                 NoteItem(
                     note = note,
-                    onClick = { onNoteClick(note) }
+                    deleteButtonVisible = activityIdWithDeleteVisible == note.id,
+                    onClick = { onNoteClick(note) },
+                    onLongClick = { onNoteLongClick(note.id) },
+                    onDeleteClick = { onDeleteClick(note.id) },
+                    onCompleteClick = { onCompleteClick(note.id) }
                 )
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NoteItem(
     note: Activity,
+    deleteButtonVisible: Boolean,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onCompleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -93,7 +108,10 @@ private fun NoteItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
             .padding(start = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -137,6 +155,56 @@ private fun NoteItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+            }
+        }
+
+        // Botões de ação (aparecem quando deleteButtonVisible é true)
+        if (deleteButtonVisible) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp)
+            ) {
+                // Botão de concluir
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable { onCompleteClick() }
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "OK",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                
+                // Botão de deletar
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable { onDeleteClick() }
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "DEL",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onError,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
         }
     }
