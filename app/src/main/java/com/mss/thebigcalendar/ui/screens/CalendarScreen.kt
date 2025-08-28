@@ -47,6 +47,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -229,24 +230,11 @@ fun MainCalendarView(
         },
         floatingActionButton = {
             if (uiState.viewMode == ViewMode.MONTHLY) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                Column(
+                    modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Botão da lixeira (esquerda) - menor
-                    FloatingActionButton(
-                        onClick = { viewModel.onTrashIconClick() },
-                        modifier = Modifier.size(56.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Delete, 
-                            stringResource(id = R.string.trash),
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.width(16.dp))
-                    
-                    // Botão de criar agendamento (direita) - muda de formato baseado no estado do modal
+                    // Botão de criar agendamento (por cima) - muda de formato baseado no estado do modal
                     FloatingActionButton(
                         onClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) },
                         modifier = Modifier.size(56.dp),
@@ -262,6 +250,18 @@ fun MainCalendarView(
                         Icon(
                             Icons.Filled.Add, 
                             stringResource(id = R.string.add_appointment),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    
+                    // Botão da lixeira (por baixo)
+                    FloatingActionButton(
+                        onClick = { viewModel.onTrashIconClick() },
+                        modifier = Modifier.size(56.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete, 
+                            stringResource(id = R.string.trash),
                             modifier = Modifier.size(24.dp)
                         )
                     }
