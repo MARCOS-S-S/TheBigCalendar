@@ -131,9 +131,10 @@ class DeletedActivityRepository(private val context: Context) {
 
     private fun com.mss.thebigcalendar.data.model.ActivityType.toProto(): com.mss.thebigcalendar.data.model.proto.TrashActivityTypeProto {
         return when (this) {
-            com.mss.thebigcalendar.data.model.ActivityType.EVENT -> com.mss.thebigcalendar.data.model.proto.TrashActivityTypeProto.TRASH_EVENT
-            com.mss.thebigcalendar.data.model.ActivityType.TASK -> com.mss.thebigcalendar.data.model.proto.TrashActivityTypeProto.TRASH_TASK
-            com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> com.mss.thebigcalendar.data.model.proto.TrashActivityTypeProto.TRASH_BIRTHDAY
+            ActivityType.EVENT -> TrashActivityTypeProto.TRASH_EVENT
+            ActivityType.TASK -> TrashActivityTypeProto.TRASH_TASK
+            ActivityType.BIRTHDAY -> TrashActivityTypeProto.TRASH_BIRTHDAY
+            ActivityType.NOTE -> TrashActivityTypeProto.TRASH_NOTE
         }
     }
 
@@ -141,8 +142,9 @@ class DeletedActivityRepository(private val context: Context) {
         return when (this) {
             TrashActivityTypeProto.TRASH_EVENT -> ActivityType.EVENT
             TrashActivityTypeProto.TRASH_TASK -> ActivityType.TASK
+            TrashActivityTypeProto.TRASH_NOTE -> ActivityType.NOTE
             TrashActivityTypeProto.TRASH_BIRTHDAY -> ActivityType.BIRTHDAY
-            TrashActivityTypeProto.UNRECOGNIZED -> TODO()
+            else -> ActivityType.EVENT // Fallback for unrecognized enum values
         }
     }
 }

@@ -69,7 +69,7 @@
     <!-- TasksForSelectedDaySection.kt -->
     <string name="date_format_day_month">dd \'de\' MMMM</string>
     <string name="appointments_for">Agendamentos para %1$s</string>
-    <string name="no_appointments">Mó paz.</string>
+    <string name="no_appointments">"   "Nada agendado.</string>
     <string name="at_time">Às %1$s</string>
 
     <!-- YearlyCalendarView.kt -->

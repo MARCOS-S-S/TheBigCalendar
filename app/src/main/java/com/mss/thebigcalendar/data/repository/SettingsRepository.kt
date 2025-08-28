@@ -25,6 +25,8 @@ class SettingsRepository(private val context: Context) {
         val SHOW_COMMEMORATIVE_DATES = booleanPreferencesKey("show_commemorative_dates")
         val SHOW_EVENTS = booleanPreferencesKey("show_events")
         val SHOW_TASKS = booleanPreferencesKey("show_tasks")
+        val SHOW_BIRTHDAYS = booleanPreferencesKey("show_birthdays")
+        val SHOW_NOTES = booleanPreferencesKey("show_notes")
     }
 
     val theme: Flow<Theme> = context.dataStore.data
@@ -45,7 +47,9 @@ class SettingsRepository(private val context: Context) {
                 showSaintDays = preferences[PreferencesKeys.SHOW_SAINT_DAYS] ?: true,
                 showCommemorativeDates = preferences[PreferencesKeys.SHOW_COMMEMORATIVE_DATES] ?: true,
                 showEvents = preferences[PreferencesKeys.SHOW_EVENTS] ?: true,
-                showTasks = preferences[PreferencesKeys.SHOW_TASKS] ?: true
+                showTasks = preferences[PreferencesKeys.SHOW_TASKS] ?: true,
+                showBirthdays = preferences[PreferencesKeys.SHOW_BIRTHDAYS] ?: true,
+                showNotes = preferences[PreferencesKeys.SHOW_NOTES] ?: true,
             )
         }
 

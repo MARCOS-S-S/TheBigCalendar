@@ -34,4 +34,5 @@ enum TrashActivityTypeProto {
   TRASH_EVENT = 0;
   TRASH_TASK = 1;
   TRASH_BIRTHDAY = 2;
+  TRASH_NOTE = 3;
 }

@@ -2,16 +2,17 @@ package com.mss.thebigcalendar.data.model
 
 import android.content.Intent
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+//import com.google.android.gms.common.config.GservicesValue.value
+//import com.google.android.gms.common.config.GservicesValue.value
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
-import com.mss.thebigcalendar.data.model.SearchResult
-import com.mss.thebigcalendar.data.model.DeletedActivity
 
 // Enum para os diferentes tipos de atividade (já deve existir)
 enum class ActivityType {
     EVENT,
     TASK,
+    NOTE,
     BIRTHDAY
 }
 
@@ -60,7 +61,9 @@ data class FilterOptions(
     val showSaintDays: Boolean = false,
     val showCommemorativeDates: Boolean = false,
     val showEvents: Boolean = false,
-    val showTasks: Boolean = false // Importante para filtrar tarefas
+    val showTasks: Boolean = false,
+    val showNotes: Boolean = false,
+    val showBirthdays: Boolean = false
 )
 
 // Classe de estado principal da UI

@@ -168,6 +168,7 @@ fun DeletedActivityItem(
                     when (activity.activityType) {
                         com.mss.thebigcalendar.data.model.ActivityType.EVENT -> MaterialTheme.colorScheme.primaryContainer
                         com.mss.thebigcalendar.data.model.ActivityType.TASK -> MaterialTheme.colorScheme.secondaryContainer
+                        com.mss.thebigcalendar.data.model.ActivityType.NOTE -> MaterialTheme.colorScheme.secondaryContainer
                         com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> MaterialTheme.colorScheme.tertiaryContainer
                     }
                 ),
@@ -177,6 +178,7 @@ fun DeletedActivityItem(
                 text = when (activity.activityType) {
                     com.mss.thebigcalendar.data.model.ActivityType.EVENT -> "📅"
                     com.mss.thebigcalendar.data.model.ActivityType.TASK -> "📋"
+                    com.mss.thebigcalendar.data.model.ActivityType.NOTE -> "📝"
                     com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> "🎂"
                 },
                 style = MaterialTheme.typography.titleMedium
@@ -202,6 +204,7 @@ fun DeletedActivityItem(
                 text = when (activity.activityType) {
                     com.mss.thebigcalendar.data.model.ActivityType.EVENT -> stringResource(R.string.event)
                     com.mss.thebigcalendar.data.model.ActivityType.TASK -> stringResource(R.string.task)
+                    com.mss.thebigcalendar.data.model.ActivityType.NOTE -> "Nota"
                     com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> stringResource(R.string.birthday)
                 },
                 style = MaterialTheme.typography.bodyMedium,

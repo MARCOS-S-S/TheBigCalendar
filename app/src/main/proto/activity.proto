@@ -23,6 +23,7 @@ enum ActivityTypeProto {
   EVENT = 0;
   TASK = 1;
   BIRTHDAY = 2;
+  NOTE = 3;
 }
 
 message Activities {

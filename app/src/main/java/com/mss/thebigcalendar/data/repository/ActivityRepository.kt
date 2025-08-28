@@ -129,6 +129,7 @@ class ActivityRepository(private val context: Context) {
             ActivityType.EVENT -> ActivityTypeProto.EVENT
             ActivityType.TASK -> ActivityTypeProto.TASK
             ActivityType.BIRTHDAY -> ActivityTypeProto.BIRTHDAY
+            ActivityType.NOTE -> ActivityTypeProto.NOTE
         }
     }
 
@@ -136,6 +137,7 @@ class ActivityRepository(private val context: Context) {
         return when (this) {
             ActivityTypeProto.EVENT -> ActivityType.EVENT
             ActivityTypeProto.TASK -> ActivityType.TASK
+            ActivityTypeProto.NOTE -> ActivityType.NOTE
             ActivityTypeProto.BIRTHDAY -> ActivityType.BIRTHDAY
             else -> ActivityType.EVENT // Fallback for unrecognized enum values
         }

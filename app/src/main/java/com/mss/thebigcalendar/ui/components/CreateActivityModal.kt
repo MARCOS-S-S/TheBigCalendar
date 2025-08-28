@@ -132,7 +132,7 @@ fun CreateActivityModal(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    listOf(ActivityType.TASK, ActivityType.EVENT).forEach { type ->
+                    listOf(ActivityType.TASK, ActivityType.EVENT, ActivityType.NOTE, ActivityType.BIRTHDAY).forEach { type ->
                         val isSelected = selectedActivityType == type
                         TextButton(
                             onClick = { selectedActivityType = type },
@@ -143,7 +143,13 @@ fun CreateActivityModal(
                                 contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                             )
                         ) {
-                            Text(text = if (type == ActivityType.TASK) stringResource(id = R.string.task) else stringResource(id = R.string.event))
+                            val text = when (type) {
+                                ActivityType.TASK -> stringResource(id = R.string.task)
+                                ActivityType.EVENT -> stringResource(id = R.string.event)
+                                ActivityType.NOTE -> "Nota"
+                                ActivityType.BIRTHDAY -> "Aniversário"
+                            }
+                            Text(text = text)
                         }
                     }
                 }

@@ -215,11 +215,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
         val newCalendarDays = List(42) { i ->
             val date = gridStartDate.plusDays(i.toLong())
-            val tasksForThisDay = if (state.filterOptions.showTasks || state.filterOptions.showEvents) {
+            val tasksForThisDay = if (state.filterOptions.showTasks || state.filterOptions.showEvents || state.filterOptions.showNotes || state.filterOptions.showBirthdays) {
                 state.activities.filter { activity ->
                     val activityDate = LocalDate.parse(activity.date)
                     val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
-                            (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT)
+                            (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
+                            (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
+                            (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
                     activityDate.isEqual(date) && typeMatches
                 }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
             } else {
@@ -246,11 +248,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     private fun updateTasksForSelectedDate() {
         val state = _uiState.value
-        val tasks = if (state.filterOptions.showTasks || state.filterOptions.showEvents) {
+        val tasks = if (state.filterOptions.showTasks || state.filterOptions.showEvents || state.filterOptions.showNotes || state.filterOptions.showBirthdays) {
             state.activities.filter { activity ->
                 val activityDate = LocalDate.parse(activity.date)
                 val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
-                        (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT)
+                        (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
+                        (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
+                        (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
                 activityDate.isEqual(state.selectedDate) && typeMatches
             }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
         } else {
@@ -361,6 +365,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             "showCommemorativeDates" -> currentFilters.copy(showCommemorativeDates = value)
             "showEvents" -> currentFilters.copy(showEvents = value)
             "showTasks" -> currentFilters.copy(showTasks = value)
+            "showNotes" -> currentFilters.copy(showNotes = value)
+            "showBirthdays" -> currentFilters.copy(showBirthdays = value)
             else -> currentFilters
         }
         viewModelScope.launch {
