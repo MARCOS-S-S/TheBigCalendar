@@ -71,9 +71,13 @@
     <string name="show_on_calendar">Mostrar no Calendário</string>
     <string name="settings">Configurações</string>
     <string name="general">Geral</string>
-    <string name="backup_and_restore">Backup e Restauração</string>
+    <string name="backup">Backup</string>
     <string name="do_backup">Backup</string>
-    <string name="restore_backup">Restaurar</string>
+    <string name="backup_options">Opções de Backup</string>
+    <string name="local_backup">Backup Local</string>
+    <string name="local_backup_description">Salvar dados no armazenamento do dispositivo</string>
+    <string name="cloud_backup">Backup na Nuvem</string>
+    <string name="cloud_backup_description">Salvar dados na nuvem (em breve)</string>
     <string name="sidebar_change_theme">Tema escuro</string>
 
     <!-- TasksForSelectedDaySection.kt -->

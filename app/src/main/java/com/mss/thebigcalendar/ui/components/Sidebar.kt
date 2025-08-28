@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.outlined.Backup
-import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
@@ -57,7 +56,6 @@ fun Sidebar(
     onFilterChange: (key: String, value: Boolean) -> Unit,
     onNavigateToSettings: (String) -> Unit,
     onBackup: () -> Unit,
-    onRestore: () -> Unit,
     onRequestClose: () -> Unit
 ) {
     ModalDrawerSheet {
@@ -156,7 +154,7 @@ fun Sidebar(
 
             // Seção de Backup
             Text(
-                text = stringResource(id = R.string.backup_and_restore),
+                text = stringResource(id = R.string.backup),
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -165,13 +163,7 @@ fun Sidebar(
                 label = { Text(stringResource(id = R.string.do_backup)) },
                 icon = { Icon(Icons.Outlined.Backup, contentDescription = null) },
                 selected = false,
-                onClick = onBackup
-            )
-            NavigationDrawerItem(
-                label = { Text(stringResource(id = R.string.restore_backup)) },
-                icon = { Icon(Icons.Outlined.Restore, contentDescription = null) },
-                selected = false,
-                onClick = onRestore
+                onClick = { onBackup() }
             )
         }
     }

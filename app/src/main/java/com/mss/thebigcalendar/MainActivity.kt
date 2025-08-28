@@ -21,6 +21,7 @@ import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.ui.screens.CalendarScreen
 import com.mss.thebigcalendar.ui.screens.SearchScreen
 import com.mss.thebigcalendar.ui.screens.TrashScreen
+import com.mss.thebigcalendar.ui.screens.BackupScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import kotlinx.coroutines.flow.first
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
                     state.currentSettingsScreen != null -> viewModel.closeSettingsScreen()
                     state.isSearchScreenOpen -> viewModel.closeSearchScreen()
                     state.isTrashScreenOpen -> viewModel.closeTrashScreen()
+                    state.isBackupScreenOpen -> viewModel.closeBackupScreen()
                     else -> finish()
                 }
             }
@@ -94,6 +96,12 @@ class MainActivity : ComponentActivity() {
                             TrashScreen(
                                 viewModel = viewModel,
                                 onNavigateBack = { viewModel.closeTrashScreen() }
+                            )
+                        }
+                        uiState.isBackupScreenOpen -> {
+                            BackupScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = { viewModel.closeBackupScreen() }
                             )
                         }
                         else -> {

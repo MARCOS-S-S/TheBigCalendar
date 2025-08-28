@@ -1184,4 +1184,16 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             println("🗑️ Lixeira esvaziada")
         }
     }
+    
+    // --- Backup ---
+    
+    fun onBackupIconClick() {
+        println("💾 Abrindo tela de backup")
+        _uiState.update { it.copy(isBackupScreenOpen = true) }
+    }
+    
+    fun closeBackupScreen() {
+        println("🚪 Fechando tela de backup")
+        _uiState.update { it.copy(isBackupScreenOpen = false) }
+    }
 }

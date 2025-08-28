@@ -127,18 +127,17 @@ fun CalendarScreen(
             drawerContent = {
                 // Renderização condicional para melhor performance
                 if (drawerState.targetValue == DrawerValue.Open || drawerState.isOpen) {
-                    Sidebar(
-                        uiState = uiState,
-                        onViewModeChange = { viewModel.onViewModeChange(it) },
-                        onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
-                        onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
-                        onBackup = { viewModel.onBackupRequest() },
-                        onRestore = { viewModel.onRestoreRequest() },
-                        onRequestClose = { 
-                            scope.launch { drawerState.close() }
-                            viewModel.closeSidebar() 
-                        }
-                    )
+                                    Sidebar(
+                    uiState = uiState,
+                    onViewModeChange = { viewModel.onViewModeChange(it) },
+                    onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
+                    onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
+                    onBackup = { viewModel.onBackupIconClick() },
+                    onRequestClose = { 
+                        scope.launch { drawerState.close() }
+                        viewModel.closeSidebar() 
+                    }
+                )
                 }
             }
         ) {
