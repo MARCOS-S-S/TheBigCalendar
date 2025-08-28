@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +20,7 @@ import com.mss.thebigcalendar.data.model.getDescription
 fun NotificationSelector(
     notificationSettings: NotificationSettings,
     onNotificationSettingsChanged: (NotificationSettings) -> Unit,
+    isCustomized: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -53,6 +55,14 @@ fun NotificationSelector(
                     text = "Notificações",
                     style = MaterialTheme.typography.labelMedium
                 )
+                if (isCustomized) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Configuração personalizada",
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
             
             Switch(

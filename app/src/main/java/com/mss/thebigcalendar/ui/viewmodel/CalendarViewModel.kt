@@ -27,6 +27,7 @@ import com.mss.thebigcalendar.service.RecurrenceService
 import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
 import com.mss.thebigcalendar.data.service.BackupService
 import com.mss.thebigcalendar.data.service.BackupInfo
+import com.mss.thebigcalendar.service.VisibilityService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,6 +54,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val recurrenceService = RecurrenceService()
     private val deletedActivityRepository = DeletedActivityRepository(application)
     private val backupService = BackupService(application, activityRepository, deletedActivityRepository)
+    private val visibilityService = VisibilityService(application)
 
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
@@ -1202,6 +1204,20 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             isBackupScreenOpen = false,
             backupMessage = null
         ) }
+    }
+    
+    /**
+     * Verifica se o app tem permissão para sobrepor outros apps
+     */
+    fun hasOverlayPermission(): Boolean {
+        return visibilityService.hasOverlayPermission()
+    }
+    
+    /**
+     * Solicita permissão para sobrepor outros apps
+     */
+    fun requestOverlayPermission(): Intent {
+        return visibilityService.requestOverlayPermission()
     }
     
     fun loadBackupFiles() {

@@ -25,6 +25,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -33,11 +36,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material3.ButtonDefaults
 import com.mss.thebigcalendar.R
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
+import com.mss.thebigcalendar.data.model.NotificationSettings
+import com.mss.thebigcalendar.data.model.NotificationType
+import com.mss.thebigcalendar.data.model.VisibilityLevel
+import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -53,7 +61,17 @@ fun CreateActivityModal(
     var title by remember(currentActivity.id) { mutableStateOf(currentActivity.title) }
     var selectedPriority by remember(currentActivity.id) { mutableStateOf(currentActivity.categoryColor) }
     var selectedActivityType by remember(currentActivity.id) { mutableStateOf(currentActivity.activityType) }
-    var selectedVisibility by remember(currentActivity.id) { mutableStateOf(currentActivity.visibility) }
+    var selectedVisibility by remember(currentActivity.id) { 
+        mutableStateOf(
+            if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
+                // Para novas atividades, usar visibilidade baixa por padrão
+                com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
+            } else {
+                // Para atividades existentes, usar a visibilidade salva
+                currentActivity.visibility
+            }
+        ) 
+    }
 
     val focusRequester = remember { FocusRequester() }
     var startTime by remember(currentActivity.id) { mutableStateOf(currentActivity.startTime) }
@@ -66,12 +84,13 @@ fun CreateActivityModal(
     var notificationSettings by remember(currentActivity.id) { 
         mutableStateOf(
             if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
-                // ✅ Habilitar notificações por padrão para novas atividades
+                // ✅ Para novas atividades, usar configurações padrão
                 currentActivity.notificationSettings.copy(
                     isEnabled = true,
                     notificationType = com.mss.thebigcalendar.data.model.NotificationType.FIFTEEN_MINUTES_BEFORE
                 )
             } else {
+                // ✅ Para atividades existentes, usar as configurações salvas
                 currentActivity.notificationSettings
             }
         ) 
@@ -97,11 +116,20 @@ fun CreateActivityModal(
         if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
             focusRequester.requestFocus()
 
+            // Configurar prioridade padrão
             val validPriorities = listOf("1", "2", "3", "4")
-
             if (selectedPriority !in validPriorities) {
                 selectedPriority = validPriorities.first()
             }
+            
+            // Configurar visibilidade padrão
+            selectedVisibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
+            
+            // Configurar notificações padrão
+            notificationSettings = notificationSettings.copy(
+                isEnabled = true,
+                notificationType = com.mss.thebigcalendar.data.model.NotificationType.FIFTEEN_MINUTES_BEFORE
+            )
         }
     }
 
@@ -181,7 +209,8 @@ fun CreateActivityModal(
 
                 VisibilitySelector(
                     selectedVisibility = selectedVisibility,
-                    onVisibilitySelected = { selectedVisibility = it }
+                    onVisibilitySelected = { selectedVisibility = it },
+                    isCustomized = selectedVisibility != com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -203,7 +232,8 @@ fun CreateActivityModal(
                 if (hasScheduledTime) {
                     NotificationSelector(
                         notificationSettings = notificationSettings,
-                        onNotificationSettingsChanged = { notificationSettings = it }
+                        onNotificationSettingsChanged = { notificationSettings = it },
+                        isCustomized = notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.FIFTEEN_MINUTES_BEFORE
                     )
                     
                     Spacer(modifier = Modifier.height(16.dp))
@@ -454,9 +484,18 @@ fun TimeSelector(
 fun VisibilitySelector(
     selectedVisibility: com.mss.thebigcalendar.data.model.VisibilityLevel,
     onVisibilitySelected: (com.mss.thebigcalendar.data.model.VisibilityLevel) -> Unit,
+    isCustomized: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var isVisibilityMenuExpanded by remember { mutableStateOf(false) }
+    var showPermissionDialog by remember { mutableStateOf(false) }
+    var pendingVisibilitySelection by remember { mutableStateOf<com.mss.thebigcalendar.data.model.VisibilityLevel?>(null) }
+    
+    // Verificar permissão quando o componente é composto
+    val viewModel = LocalViewModelStoreOwner.current?.let { 
+        ViewModelProvider(it)[CalendarViewModel::class.java] 
+    }
+    val hasOverlayPermission = viewModel?.hasOverlayPermission() ?: false
     
     val visibilityOptions = listOf(
         com.mss.thebigcalendar.data.model.VisibilityLevel.LOW,
@@ -481,7 +520,21 @@ fun VisibilitySelector(
     }
 
     Column(modifier = modifier) {
-        Text(stringResource(id = R.string.visibility), style = MaterialTheme.typography.labelMedium)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(stringResource(id = R.string.visibility), style = MaterialTheme.typography.labelMedium)
+            if (isCustomized) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Configuração personalizada",
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(8.dp))
         
         Box {
@@ -518,14 +571,108 @@ fun VisibilitySelector(
                             )
                         },
                         onClick = {
-                            onVisibilitySelected(option)
-                            isVisibilityMenuExpanded = false
+                            if (option == com.mss.thebigcalendar.data.model.VisibilityLevel.LOW) {
+                                // Visibilidade baixa não precisa de permissão
+                                onVisibilitySelected(option)
+                                isVisibilityMenuExpanded = false
+                            } else {
+                                // Verificar se já tem permissão para visibilidade média/alta
+                                if (hasOverlayPermission) {
+                                    // Já tem permissão, pode selecionar diretamente
+                                    onVisibilitySelected(option)
+                                    isVisibilityMenuExpanded = false
+                                } else {
+                                    // Precisa de permissão, mostrar diálogo
+                                    pendingVisibilitySelection = option
+                                    showPermissionDialog = true
+                                    isVisibilityMenuExpanded = false
+                                }
+                            }
                         }
                     )
                 }
             }
         }
     }
+    
+    // Diálogo de solicitação de permissão
+    if (showPermissionDialog) {
+        OverlayPermissionDialog(
+            onConfirm = {
+                showPermissionDialog = false
+                pendingVisibilitySelection?.let { visibility ->
+                    onVisibilitySelected(visibility)
+                    pendingVisibilitySelection = null
+                }
+            },
+            onDismiss = {
+                showPermissionDialog = false
+                pendingVisibilitySelection = null
+            }
+        )
+    }
+}
+
+@Composable
+fun OverlayPermissionDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val viewModel = LocalViewModelStoreOwner.current?.let { 
+        ViewModelProvider(it)[CalendarViewModel::class.java] 
+    }
+    
+    // Estado para controlar se deve verificar a permissão
+    var shouldCheckPermission by remember { mutableStateOf(false) }
+    
+    // Verificar permissão quando o usuário retornar das configurações
+    LaunchedEffect(shouldCheckPermission) {
+        if (shouldCheckPermission) {
+            // Aguardar um pouco para o usuário voltar das configurações
+            kotlinx.coroutines.delay(500)
+            
+            // Verificar se a permissão foi concedida
+            if (viewModel?.hasOverlayPermission() == true) {
+                // Permissão concedida, fechar diálogo e aplicar seleção
+                onConfirm()
+            }
+            shouldCheckPermission = false
+        }
+    }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.overlay_permission_title)) },
+        text = { 
+            Text(
+                stringResource(R.string.overlay_permission_message),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    // Solicitar permissão de sobreposição
+                    viewModel?.let { vm ->
+                        val intent = vm.requestOverlayPermission()
+                        context.startActivity(intent)
+                        shouldCheckPermission = true
+                    }
+                },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text(stringResource(R.string.overlay_permission_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 //@Composable

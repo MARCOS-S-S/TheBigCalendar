@@ -17,6 +17,15 @@ message ActivityProto {
   string recurrence_rule = 11;
   bool is_completed = 12;
   bool is_from_google = 13;
+  string visibility = 14; // LOW, MEDIUM, HIGH
+  NotificationSettingsProto notification_settings = 15;
+}
+
+message NotificationSettingsProto {
+  bool is_enabled = 1;
+  string notification_time = 2; // "HH:mm"
+  string notification_type = 3; // NONE, BEFORE_ACTIVITY, etc.
+  int32 custom_minutes_before = 4;
 }
 
 enum ActivityTypeProto {

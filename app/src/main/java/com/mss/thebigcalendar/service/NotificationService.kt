@@ -11,6 +11,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.NotificationType
+import com.mss.thebigcalendar.data.model.VisibilityLevel
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -158,6 +159,15 @@ class NotificationService(private val context: Context) {
     fun showNotification(activity: Activity) {
         Log.d(TAG, "Exibindo notificação para: ${activity.title}")
         
+        // Verificar se precisa exibir alerta de visibilidade
+        if (activity.visibility != VisibilityLevel.LOW) {
+            Log.d(TAG, "Atividade com visibilidade ${activity.visibility}, exibindo alerta especial")
+            // Usar VisibilityService para alertas especiais
+            val visibilityService = VisibilityService(context)
+            visibilityService.showVisibilityAlert(activity)
+            return
+        }
+        
         // ✅ Intent para abrir a MainActivity quando tocar na notificação
         val mainIntent = Intent(context, com.mss.thebigcalendar.MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -194,7 +204,7 @@ class NotificationService(private val context: Context) {
             .build()
 
         notificationManager.notify(activity.id.hashCode(), notification)
-        Log.d(TAG, "Notificação exibida com sucesso para: ${activity.title}")
+        Log.d(TAG, "Notificação padrão exibida para: ${activity.title}")
     }
 
     /**

@@ -102,6 +102,8 @@ class ActivityRepository(private val context: Context) {
             .setRecurrenceRule(this.recurrenceRule ?: "")
             .setIsCompleted(this.isCompleted)
             .setIsFromGoogle(this.isFromGoogle)
+            // .setVisibility(this.visibility.name)
+            // .setNotificationSettings(this.notificationSettings.toProto())
             .build()
     }
 
@@ -120,7 +122,8 @@ class ActivityRepository(private val context: Context) {
             recurrenceRule = this.recurrenceRule.takeIf { it.isNotEmpty() },
             notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings(),
             isCompleted = this.isCompleted,
-            isFromGoogle = this.isFromGoogle
+            isFromGoogle = this.isFromGoogle,
+            visibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
         )
     }
 
@@ -142,4 +145,39 @@ class ActivityRepository(private val context: Context) {
             else -> ActivityType.EVENT // Fallback for unrecognized enum values
         }
     }
+    
+    // Temporariamente comentado até regenerar o código do proto
+    /*
+    private fun NotificationSettings.toProto(): NotificationSettingsProto {
+        return NotificationSettingsProto.newBuilder()
+            .setIsEnabled(this.isEnabled)
+            .setNotificationTime(this.notificationTime?.toString() ?: "")
+            .setNotificationType(this.notificationType.name)
+            .setCustomMinutesBefore(this.customMinutesBefore ?: 0)
+            .build()
+    }
+    
+    private fun NotificationSettingsProto.toNotificationSettings(): NotificationSettings {
+        val notificationType = try {
+            NotificationType.valueOf(this.notificationType)
+        } catch (e: Exception) {
+            NotificationType.FIFTEEN_MINUTES_BEFORE
+        }
+        
+        val notificationTime = this.notificationTime.takeIf { it.isNotEmpty() }?.let {
+            try {
+                LocalTime.parse(it)
+            } catch (e: Exception) {
+                null
+            }
+        }
+        
+        return NotificationSettings(
+            isEnabled = this.isEnabled,
+            notificationTime = notificationTime,
+            notificationType = notificationType,
+            customMinutesBefore = if (this.customMinutesBefore > 0) this.customMinutesBefore else null
+        )
+    }
+    */
 }
