@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -241,10 +242,18 @@ fun MainCalendarView(
                     
                     Spacer(modifier = Modifier.width(16.dp))
                     
-                    // Botão de criar agendamento (direita) - menor
+                    // Botão de criar agendamento (direita) - muda de formato baseado no estado do modal
                     FloatingActionButton(
                         onClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) },
-                        modifier = Modifier.size(56.dp)
+                        modifier = Modifier.size(56.dp),
+                        containerColor = if (uiState.activityToEdit != null) 
+                            MaterialTheme.colorScheme.primaryContainer 
+                        else 
+                            MaterialTheme.colorScheme.primary,
+                        shape = if (uiState.activityToEdit != null) 
+                            CircleShape 
+                        else 
+                            MaterialTheme.shapes.medium
                     ) {
                         Icon(
                             Icons.Filled.Add, 
