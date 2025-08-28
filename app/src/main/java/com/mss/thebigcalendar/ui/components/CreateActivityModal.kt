@@ -108,10 +108,23 @@ fun CreateActivityModal(
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = {
-            val titleText = if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
-                if (selectedActivityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_scheduling_for) else stringResource(id = R.string.create_activity_modal_new_event)
-            } else {
-                if (selectedActivityType == ActivityType.TASK) stringResource(id = R.string.create_activity_modal_edit_task) else stringResource(id = R.string.create_activity_modal_edit_event)
+            val titleText = when {
+                currentActivity.id == "new" || currentActivity.id.isBlank() -> {
+                    when (selectedActivityType) {
+                        ActivityType.TASK -> stringResource(id = R.string.create_activity_modal_new_task)
+                        ActivityType.EVENT -> stringResource(id = R.string.create_activity_modal_new_event)
+                        ActivityType.NOTE -> stringResource(id = R.string.create_activity_modal_new_note)
+                        ActivityType.BIRTHDAY -> stringResource(id = R.string.create_activity_modal_new_birthday)
+                    }
+                }
+                else -> {
+                    when (selectedActivityType) {
+                        ActivityType.TASK -> stringResource(id = R.string.create_activity_modal_edit_task)
+                        ActivityType.EVENT -> stringResource(id = R.string.create_activity_modal_edit_event)
+                        ActivityType.NOTE -> stringResource(id = R.string.create_activity_modal_edit_note)
+                        ActivityType.BIRTHDAY -> stringResource(id = R.string.create_activity_modal_edit_birthday)
+                    }
+                }
             }
             Text(text = "$titleText $formattedDate")
         },
@@ -252,7 +265,7 @@ fun CreateActivityModal(
                 AlertDialog(
                     onDismissRequest = { showTimePicker = false },
                     title = {
-                        Text(text = if (isPickingStartTime) "Horário de Início" else "Horário de Fim")
+                        Text(text = if (isPickingStartTime) stringResource(id = R.string.start_time) else stringResource(id = R.string.end_time))
                     },
                     text = {
                         TimePicker(state = timePickerState)
@@ -269,12 +282,12 @@ fun CreateActivityModal(
                                 showTimePicker = false
                             }
                         ) {
-                            Text("OK")
+                            Text(stringResource(id = R.string.ok))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showTimePicker = false }) {
-                            Text("Cancelar")
+                            Text(stringResource(id = R.string.create_activity_modal_cancel))
                         }
                     }
                 )
@@ -370,7 +383,7 @@ fun TimeSelector(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Horário",
+                text = stringResource(id = R.string.time),
                 style = MaterialTheme.typography.labelMedium
             )
             androidx.compose.material3.Switch(
@@ -396,7 +409,7 @@ fun TimeSelector(
                 ) {
                     Icon(
                         imageVector = Icons.Default.AccessTime,
-                        contentDescription = "Horário de início",
+                        contentDescription = stringResource(id = R.string.start_time),
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -404,7 +417,7 @@ fun TimeSelector(
                         text = if (startTime != null) {
                             String.format("%02d:%02d", startTime.hour, startTime.minute)
                         } else {
-                            "Início"
+                            stringResource(id = R.string.start)
                         }
                     )
                 }
@@ -420,7 +433,7 @@ fun TimeSelector(
                 ) {
                     Icon(
                         imageVector = Icons.Default.AccessTime,
-                        contentDescription = "Horário de fim",
+                        contentDescription = stringResource(id = R.string.end_time),
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -428,7 +441,7 @@ fun TimeSelector(
                         text = if (endTime != null) {
                             String.format("%02d:%02d", endTime.hour, endTime.minute)
                         } else {
-                            "Fim"
+                            stringResource(id = R.string.end)
                         }
                     )
                 }
