@@ -81,6 +81,9 @@ fun CreateActivityModal(
     var isPickingStartTime by remember { mutableStateOf(true) }
     var hasScheduledTime by remember(currentActivity.id) { mutableStateOf(currentActivity.startTime != null) }
     
+    // Estado para mostrar no calendário
+    var showInCalendar by remember(currentActivity.id) { mutableStateOf(true) }
+    
     // Estado para configurações de notificação
     var notificationSettings by remember(currentActivity.id) { 
         mutableStateOf(
@@ -230,6 +233,13 @@ fun CreateActivityModal(
                         isPickingStartTime = isStart
                         showTimePicker = true
                     }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                CalendarVisibilitySelector(
+                    showInCalendar = showInCalendar,
+                    onShowInCalendarToggle = { showInCalendar = it }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -482,6 +492,30 @@ fun TimeSelector(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun CalendarVisibilitySelector(
+    showInCalendar: Boolean,
+    onShowInCalendarToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Mostrar no calendário?",
+                style = MaterialTheme.typography.labelMedium
+            )
+            androidx.compose.material3.Switch(
+                checked = showInCalendar,
+                onCheckedChange = onShowInCalendarToggle
+            )
         }
     }
 }
