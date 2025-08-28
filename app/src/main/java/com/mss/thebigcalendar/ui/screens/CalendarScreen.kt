@@ -253,7 +253,7 @@ fun MainCalendarView(
                         shape = if (uiState.activityToEdit != null) 
                             CircleShape 
                         else 
-                            MaterialTheme.shapes.medium
+                            MaterialTheme.shapes.large
                     ) {
                         Icon(
                             Icons.Filled.Add, 
