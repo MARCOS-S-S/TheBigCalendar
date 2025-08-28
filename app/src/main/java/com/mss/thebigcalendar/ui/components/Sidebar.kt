@@ -60,7 +60,7 @@ fun Sidebar(
 ) {
     ModalDrawerSheet {
         Column(
-            modifier = Modifier
+            modifier = Modifier.width(280.dp)
                 .padding(NavigationDrawerItemDefaults.ItemPadding)
                 .verticalScroll(rememberScrollState())
         ) {

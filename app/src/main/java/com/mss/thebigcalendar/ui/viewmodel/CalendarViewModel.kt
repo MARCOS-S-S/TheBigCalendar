@@ -880,7 +880,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 "DAILY" -> {
                     // Verificar se a data alvo é um múltiplo de dias a partir da data base
                     val daysDiff = ChronoUnit.DAYS.between(baseDate, targetDate)
-                    if (daysDiff >= 0) {
+                    if (daysDiff > 0) {
                         val instance = baseActivity.copy(
                             id = "${baseActivity.id}_${targetDate}",
                             date = targetDate.toString()
