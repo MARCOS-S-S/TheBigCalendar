@@ -1198,7 +1198,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     
     fun closeBackupScreen() {
         println("🚪 Fechando tela de backup")
-        _uiState.update { it.copy(isBackupScreenOpen = false) }
+        _uiState.update { it.copy(
+            isBackupScreenOpen = false,
+            backupMessage = null
+        ) }
     }
     
     fun loadBackupFiles() {
