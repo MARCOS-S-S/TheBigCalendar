@@ -671,6 +671,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     fun onSaveActivity(activityData: Activity) {
         viewModelScope.launch {
+            // Verificar se é uma edição de atividade existente do Google
+            val isEditingGoogleEvent = activityData.id != "new" && 
+                                     _uiState.value.activities.any { it.id == activityData.id && it.isFromGoogle }
+            
             // Salvar a atividade principal
             activityRepository.saveActivity(activityData)
             
@@ -705,7 +709,129 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 println("📅 Instâncias geradas: ${recurringInstances.size}")
             }
             
+            // Sincronizar com Google Calendar se for edição de evento existente
+            if (isEditingGoogleEvent) {
+                updateGoogleCalendarEvent(activityData)
+            }
+            
             closeCreateActivityModal()
+        }
+    }
+
+    /**
+     * Atualiza um evento no Google Calendar quando ele é editado no app
+     */
+    private fun updateGoogleCalendarEvent(activity: Activity) {
+        viewModelScope.launch {
+            try {
+                val account = _uiState.value.googleSignInAccount
+                if (account != null) {
+                    val calendarService = googleCalendarService.getCalendarService(account)
+                    
+                    withContext(Dispatchers.IO) {
+                        try {
+                            // Criar objeto de evento do Google Calendar
+                            val googleEvent = com.google.api.services.calendar.model.Event().apply {
+                                summary = activity.title
+                                description = activity.description
+                                location = activity.location
+                                
+                                // Configurar data e hora
+                                if (activity.isAllDay) {
+                                    start = com.google.api.services.calendar.model.EventDateTime().apply {
+                                        date = com.google.api.client.util.DateTime(activity.date)
+                                    }
+                                    end = com.google.api.services.calendar.model.EventDateTime().apply {
+                                        date = com.google.api.client.util.DateTime(activity.date)
+                                    }
+                                } else {
+                                    val startDateTime = java.time.LocalDateTime.of(
+                                        java.time.LocalDate.parse(activity.date),
+                                        activity.startTime ?: java.time.LocalTime.of(9, 0)
+                                    )
+                                    val endDateTime = java.time.LocalDateTime.of(
+                                        java.time.LocalDate.parse(activity.date),
+                                        activity.endTime ?: java.time.LocalTime.of(10, 0)
+                                    )
+                                    
+                                    start = com.google.api.services.calendar.model.EventDateTime().apply {
+                                        dateTime = com.google.api.client.util.DateTime(
+                                            startDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                                        )
+                                    }
+                                    end = com.google.api.services.calendar.model.EventDateTime().apply {
+                                        dateTime = com.google.api.client.util.DateTime(
+                                            endDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                                        )
+                                    }
+                                }
+                                
+                                // Configurar regra de repetição se houver
+                                if (!activity.recurrenceRule.isNullOrEmpty()) {
+                                    recurrence = listOf(activity.recurrenceRule)
+                                }
+                            }
+                            
+                            // Atualizar o evento no Google Calendar
+                            calendarService.events().update("primary", activity.id, googleEvent).execute()
+                            Log.d("CalendarViewModel", "✏️ Evento atualizado no Google Calendar: ${activity.title}")
+                            
+                        } catch (e: Exception) {
+                            Log.w("CalendarViewModel", "⚠️ Não foi possível atualizar evento no Google Calendar: ${activity.title}", e)
+                        }
+                    }
+                } else {
+                    Log.w("CalendarViewModel", "⚠️ Usuário não está logado no Google, não é possível atualizar no Google Calendar")
+                }
+            } catch (e: Exception) {
+                Log.e("CalendarViewModel", "❌ Erro ao atualizar evento no Google Calendar: ${activity.title}", e)
+            }
+        }
+    }
+
+    /**
+     * Deleta um evento do Google Calendar quando ele é removido do app
+     */
+    private fun deleteFromGoogleCalendar(activity: Activity) {
+        viewModelScope.launch {
+            try {
+                val account = _uiState.value.googleSignInAccount
+                if (account != null) {
+                    val calendarService = googleCalendarService.getCalendarService(account)
+                    
+                    // Tentar deletar o evento usando o ID original do Google
+                    withContext(Dispatchers.IO) {
+                        try {
+                            calendarService.events().delete("primary", activity.id).execute()
+                            Log.d("CalendarViewModel", "🗑️ Evento deletado do Google Calendar: ${activity.title}")
+                        } catch (e: Exception) {
+                            Log.w("CalendarViewModel", "⚠️ Não foi possível deletar evento do Google Calendar: ${activity.title}", e)
+                            
+                            // Se falhar, tentar buscar o evento pelo título e data
+                            try {
+                                val events = calendarService.events().list("primary")
+                                    .setQ(activity.title) // Buscar por título
+                                    .setTimeMin(com.google.api.client.util.DateTime(Instant.parse("${activity.date}T00:00:00Z").toEpochMilli()))
+                                    .setTimeMax(com.google.api.client.util.DateTime(Instant.parse("${activity.date}T23:59:59Z").toEpochMilli()))
+                                    .execute()
+                                
+                                events.items?.forEach { event ->
+                                    if (event.summary == activity.title) {
+                                        calendarService.events().delete("primary", event.id).execute()
+                                        Log.d("CalendarViewModel", "🗑️ Evento deletado do Google Calendar por busca: ${activity.title}")
+                                    }
+                                }
+                            } catch (searchException: Exception) {
+                                Log.e("CalendarViewModel", "❌ Falha ao buscar e deletar evento do Google Calendar: ${activity.title}", searchException)
+                            }
+                        }
+                    }
+                } else {
+                    Log.w("CalendarViewModel", "⚠️ Usuário não está logado no Google, não é possível deletar do Google Calendar")
+                }
+            } catch (e: Exception) {
+                Log.e("CalendarViewModel", "❌ Erro ao deletar evento do Google Calendar: ${activity.title}", e)
+            }
         }
     }
 
@@ -731,6 +857,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         recurringActivities.forEach { activity ->
                             deletedActivityRepository.addDeletedActivity(activity)
                             activityRepository.deleteActivity(activity.id)
+                            
+                            // Sincronizar com Google Calendar se for evento do Google
+                            if (activity.isFromGoogle) {
+                                deleteFromGoogleCalendar(activity)
+                            }
                         }
                         
                         println("🗑️ Atividade recorrente deletada: ${activityToDelete.title}")
@@ -741,6 +872,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         
                         // Deletar da lista principal
                         activityRepository.deleteActivity(activityId)
+                        
+                        // Sincronizar com Google Calendar se for evento do Google
+                        if (activityToDelete.isFromGoogle) {
+                            deleteFromGoogleCalendar(activityToDelete)
+                        }
                     }
                 }
             }
@@ -805,6 +941,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 
                 // Remover da lista principal
                 activityRepository.deleteActivity(activityId)
+                
+                // Sincronizar com Google Calendar se for evento do Google
+                if (activityToComplete.isFromGoogle) {
+                    deleteFromGoogleCalendar(activityToComplete)
+                }
                 
                 println("✅ Tarefa marcada como concluída: ${completedActivity.title}")
             }
