@@ -70,10 +70,14 @@ class NotificationService(private val context: Context) {
         Log.d(TAG, "Horário de início: ${activity.startTime}")
         
         if (!activity.notificationSettings.isEnabled || 
-            activity.notificationSettings.notificationType == com.mss.thebigcalendar.data.model.NotificationType.NONE ||
-            activity.startTime == null) {
+            activity.notificationSettings.notificationType == com.mss.thebigcalendar.data.model.NotificationType.NONE) {
             Log.d(TAG, "Notificação não será agendada - condições não atendidas")
             return
+        }
+        
+        // Se não há horário específico, usar início do dia (00:00)
+        if (activity.startTime == null) {
+            Log.d(TAG, "⚠️ Atividade sem horário específico, notificação será agendada para 00:00")
         }
 
         val notificationTime = calculateNotificationTime(activity)
@@ -126,7 +130,13 @@ class NotificationService(private val context: Context) {
      * Calcula o horário da notificação baseado nas configurações
      */
     private fun calculateNotificationTime(activity: Activity): LocalDateTime {
-        val activityDateTime = LocalDateTime.parse("${activity.date}T${activity.startTime}")
+        // Se não há horário específico, usar início do dia (00:00)
+        val activityDateTime = if (activity.startTime != null) {
+            LocalDateTime.parse("${activity.date}T${activity.startTime}")
+        } else {
+            LocalDateTime.parse("${activity.date}T00:00")
+        }
+        
         val notificationType = activity.notificationSettings.notificationType
         
         return when (notificationType) {

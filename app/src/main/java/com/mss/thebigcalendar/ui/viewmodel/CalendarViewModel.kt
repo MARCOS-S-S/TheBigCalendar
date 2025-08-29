@@ -949,8 +949,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
             // ✅ Agendar notificação se configurada
             if (activityToSave.notificationSettings.isEnabled &&
-                activityToSave.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE &&
-                activityToSave.startTime != null) {
+                activityToSave.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
 
                 val notificationService = NotificationService(getApplication())
                 notificationService.scheduleNotification(activityToSave)

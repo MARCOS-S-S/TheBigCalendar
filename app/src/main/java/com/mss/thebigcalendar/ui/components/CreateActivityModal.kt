@@ -278,8 +278,8 @@ fun CreateActivityModal(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Seletor de notificações (visível apenas quando há horário agendado e não é nota)
-                if (hasScheduledTime && selectedActivityType != ActivityType.NOTE) {
+                // Seletor de notificações (visível para todos os tipos exceto notas)
+                if (selectedActivityType != ActivityType.NOTE) {
                     NotificationSelector(
                         notificationSettings = notificationSettings,
                         onNotificationSettingsChanged = { notificationSettings = it },
