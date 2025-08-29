@@ -427,7 +427,24 @@ fun MainCalendarView(
         }
 
         uiState.activityIdToDelete?.let { activityId ->
-            val activityToDelete = uiState.activities.find { it.id == activityId }
+            // Buscar a atividade pelo ID ou, se for instância recorrente, buscar pela atividade base
+            var activityToDelete = uiState.activities.find { it.id == activityId }
+            
+            // Se não encontrou pelo ID e parece ser uma instância recorrente, buscar pela atividade base
+            if (activityToDelete == null && activityId.contains("_")) {
+                val baseId = activityId.split("_").first()
+                activityToDelete = uiState.activities.find { it.id == baseId }
+            }
+            
+            // Se ainda não encontrou, buscar por IDs similares
+            if (activityToDelete == null && activityId.contains("_")) {
+                val baseId = activityId.split("_").first()
+                activityToDelete = uiState.activities.find { 
+                    it.id == baseId || 
+                    (it.id.contains(baseId) && it.id.contains("_"))
+                }
+            }
+            
             if (activityToDelete != null) {
                 DeleteConfirmationDialog(
                     activityTitle = activityToDelete.title,

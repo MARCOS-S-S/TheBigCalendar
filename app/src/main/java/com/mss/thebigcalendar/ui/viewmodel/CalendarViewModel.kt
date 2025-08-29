@@ -1099,36 +1099,78 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     fun onDeleteActivityConfirm() {
         viewModelScope.launch {
+            Log.d("CalendarViewModel", "🗑️ Função onDeleteActivityConfirm chamada")
+            
             _uiState.value.activityIdToDelete?.let { activityId ->
-                val activityToDelete = _uiState.value.activities.find { it.id == activityId }
+                Log.d("CalendarViewModel", "🎯 ID da atividade a deletar: $activityId")
+                
+                // Buscar a atividade pelo ID ou, se for instância recorrente, buscar pela atividade base
+                var activityToDelete = _uiState.value.activities.find { it.id == activityId }
+                
+                // Se não encontrou pelo ID e parece ser uma instância recorrente, buscar pela atividade base
+                if (activityToDelete == null && activityId.contains("_")) {
+                    val baseId = activityId.split("_").first()
+                    activityToDelete = _uiState.value.activities.find { it.id == baseId }
+                    Log.d("CalendarViewModel", "🔍 Buscando atividade base para deletar com ID: $baseId")
+                }
+                
+                // Se ainda não encontrou, buscar por título e regra de recorrência
+                if (activityToDelete == null && activityId.contains("_")) {
+                    val baseId = activityId.split("_").first()
+                    val allActivities = _uiState.value.activities
+                    activityToDelete = allActivities.find { 
+                        it.id == baseId || 
+                        (it.id.contains(baseId) && it.id.contains("_"))
+                    }
+                    Log.d("CalendarViewModel", "🔍 Buscando por ID base ou similar: $baseId")
+                }
                 
                 if (activityToDelete != null) {
+                    Log.d("CalendarViewModel", "📋 Atividade encontrada para deletar: ${activityToDelete.title}")
+                    Log.d("CalendarViewModel", "📅 Data: ${activityToDelete.date}")
+                    Log.d("CalendarViewModel", "🔄 Regra de recorrência: '${activityToDelete.recurrenceRule}'")
+                    Log.d("CalendarViewModel", "🔍 É recorrente? ${recurrenceService.isRecurring(activityToDelete)}")
+                    Log.d("CalendarViewModel", "🔍 Tipo da regra: ${activityToDelete.recurrenceRule?.javaClass?.simpleName}")
+                    Log.d("CalendarViewModel", "🔍 Tamanho da regra: ${activityToDelete.recurrenceRule?.length}")
+                    
                     // ✅ Cancelar notificação antes de deletar
                     val notificationService = NotificationService(getApplication())
                     notificationService.cancelNotification(activityId)
                     
                     // Se é uma atividade recorrente, deletar todas as instâncias
                     if (recurrenceService.isRecurring(activityToDelete)) {
+                        Log.d("CalendarViewModel", "🗑️ Deletando atividade recorrente: ${activityToDelete.title}")
+                        Log.d("CalendarViewModel", "📅 Regra de recorrência: ${activityToDelete.recurrenceRule}")
+                        Log.d("CalendarViewModel", "📅 Data da instância selecionada: ${activityToDelete.date}")
+                        
                         val allActivities = _uiState.value.activities
                         val recurringActivities = allActivities.filter { 
                             it.title == activityToDelete.title && 
                             it.recurrenceRule == activityToDelete.recurrenceRule
                         }
                         
+                        Log.d("CalendarViewModel", "🔄 Encontradas ${recurringActivities.size} instâncias da atividade recorrente")
+                        
                         // Mover todas as instâncias para a lixeira
                         recurringActivities.forEach { activity ->
+                            Log.d("CalendarViewModel", "🗑️ Movendo instância para lixeira: ${activity.title} - ${activity.date}")
                             deletedActivityRepository.addDeletedActivity(activity)
                             activityRepository.deleteActivity(activity.id)
                             
                             // Sincronizar com Google Calendar se for evento do Google
                             if (activity.isFromGoogle) {
+                                Log.d("CalendarViewModel", "🌐 Sincronizando com Google Calendar: ${activity.title}")
                                 deleteFromGoogleCalendar(activity)
                             }
                         }
                         
+                        Log.d("CalendarViewModel", "✅ Atividade recorrente deletada com sucesso: ${activityToDelete.title}")
                         println("🗑️ Atividade recorrente deletada: ${activityToDelete.title}")
                         println("📅 Instâncias deletadas: ${recurringActivities.size}")
                     } else {
+                        Log.d("CalendarViewModel", "🗑️ Deletando atividade única: ${activityToDelete.title}")
+                        Log.d("CalendarViewModel", "📅 Data da atividade: ${activityToDelete.date}")
+                        
                         // Mover para a lixeira
                         deletedActivityRepository.addDeletedActivity(activityToDelete)
                         
@@ -1137,8 +1179,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         
                         // Sincronizar com Google Calendar se for evento do Google
                         if (activityToDelete.isFromGoogle) {
+                            Log.d("CalendarViewModel", "🌐 Sincronizando com Google Calendar: ${activityToDelete.title}")
                             deleteFromGoogleCalendar(activityToDelete)
                         }
+                        
+                        Log.d("CalendarViewModel", "✅ Atividade única deletada com sucesso: ${activityToDelete.title}")
                     }
                 }
             }
@@ -1237,31 +1282,86 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     
     fun markActivityAsCompleted(activityId: String) {
         viewModelScope.launch {
-            val activityToComplete = _uiState.value.activities.find { it.id == activityId }
+            Log.d("CalendarViewModel", "🎯 Função markActivityAsCompleted chamada para ID: $activityId")
+            
+            // Buscar a atividade pelo ID ou, se for instância recorrente, buscar pela atividade base
+            var activityToComplete = _uiState.value.activities.find { it.id == activityId }
+            
+            // Se não encontrou pelo ID e parece ser uma instância recorrente, buscar pela atividade base
+            if (activityToComplete == null && activityId.contains("_")) {
+                val baseId = activityId.split("_").first()
+                activityToComplete = _uiState.value.activities.find { it.id == baseId }
+                Log.d("CalendarViewModel", "🔍 Buscando atividade base com ID: $baseId")
+            }
             
             if (activityToComplete != null) {
-                // Marcar como concluída
-                val completedActivity = activityToComplete.copy(isCompleted = true)
-                activityRepository.saveActivity(completedActivity)
+                Log.d("CalendarViewModel", "📋 Atividade encontrada: ${activityToComplete.title}")
+                Log.d("CalendarViewModel", "📅 Data: ${activityToComplete.date}")
+                Log.d("CalendarViewModel", "🔄 Regra de recorrência: '${activityToComplete.recurrenceRule}'")
+                Log.d("CalendarViewModel", "🔍 É recorrente? ${recurrenceService.isRecurring(activityToComplete)}")
+                Log.d("CalendarViewModel", "🔍 Tipo da regra: ${activityToComplete.recurrenceRule?.javaClass?.simpleName}")
+                Log.d("CalendarViewModel", "🔍 Tamanho da regra: ${activityToComplete.recurrenceRule?.length}")
                 
-                // Mover para a lixeira
-                deletedActivityRepository.addDeletedActivity(completedActivity)
-                
-                // Remover da lista principal
-                activityRepository.deleteActivity(activityId)
-                
-                // Sincronizar com Google Calendar se for evento do Google
-                if (activityToComplete.isFromGoogle) {
-                    deleteFromGoogleCalendar(activityToComplete)
+                // Verificar se é uma tarefa recorrente
+                if (recurrenceService.isRecurring(activityToComplete)) {
+                    Log.d("CalendarViewModel", "🔄 Marcando tarefa recorrente como concluída: ${activityToComplete.title}")
+                    Log.d("CalendarViewModel", "📅 Regra de recorrência: ${activityToComplete.recurrenceRule}")
+                    Log.d("CalendarViewModel", "📅 Data da instância: ${activityToComplete.date}")
+                    
+                    // Para tarefas recorrentes, marcar como concluída e mover para lixeira
+                    val completedActivity = activityToComplete.copy(isCompleted = true)
+                    activityRepository.saveActivity(completedActivity)
+                    
+                    // Mover para a lixeira
+                    deletedActivityRepository.addDeletedActivity(completedActivity)
+                    
+                    // Remover da lista principal
+                    activityRepository.deleteActivity(activityToComplete.id)
+                    
+                    // Sincronizar com Google Calendar se for evento do Google
+                    if (activityToComplete.isFromGoogle) {
+                        deleteFromGoogleCalendar(activityToComplete)
+                    }
+                    
+                    Log.d("CalendarViewModel", "✅ Tarefa recorrente marcada como concluída: ${completedActivity.title}")
+                    println("✅ Tarefa recorrente marcada como concluída: ${completedActivity.title}")
+                    
+                    // Atualizar a UI após marcar como concluída
+                    updateAllDateDependentUI()
+                } else {
+                    Log.d("CalendarViewModel", "✅ Marcando tarefa única como concluída: ${activityToComplete.title}")
+                    
+                    // Marcar como concluída
+                    val completedActivity = activityToComplete.copy(isCompleted = true)
+                    activityRepository.saveActivity(completedActivity)
+                    
+                    // Mover para a lixeira
+                    deletedActivityRepository.addDeletedActivity(completedActivity)
+                    
+                    // Remover da lista principal
+                    activityRepository.deleteActivity(activityId)
+                    
+                    // Sincronizar com Google Calendar se for evento do Google
+                    if (activityToComplete.isFromGoogle) {
+                        deleteFromGoogleCalendar(activityToComplete)
+                    }
+                    
+                    Log.d("CalendarViewModel", "✅ Tarefa única marcada como concluída: ${completedActivity.title}")
+                    println("✅ Tarefa única marcada como concluída: ${completedActivity.title}")
+                    
+                    // Atualizar a UI após marcar como concluída
+                    updateAllDateDependentUI()
                 }
-                
-                println("✅ Tarefa marcada como concluída: ${completedActivity.title}")
+            } else {
+                Log.w("CalendarViewModel", "⚠️ Atividade não encontrada para ID: $activityId")
             }
         }
     }
 
     fun requestDeleteActivity(activityId: String) {
+        Log.d("CalendarViewModel", "🗑️ Função requestDeleteActivity chamada para ID: $activityId")
         _uiState.update { it.copy(activityIdToDelete = activityId, activityIdWithDeleteButtonVisible = null) }
+        Log.d("CalendarViewModel", "✅ Estado atualizado com activityIdToDelete: $activityId")
     }
 
     fun cancelDeleteActivity() = _uiState.update { it.copy(activityIdToDelete = null) }
