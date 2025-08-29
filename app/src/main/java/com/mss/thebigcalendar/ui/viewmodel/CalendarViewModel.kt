@@ -896,8 +896,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 }
                 "WEEKLY" -> {
                     // Verificar se a data alvo é um múltiplo de semanas a partir da data base
-                    val weeksDiff = ChronoUnit.WEEKS.between(baseDate, targetDate)
-                    if (weeksDiff >= 0) {
+                    val daysDiff = ChronoUnit.DAYS.between(baseDate, targetDate)
+                    if (daysDiff > 0 && daysDiff % 7 == 0L) {
                         val instance = baseActivity.copy(
                             id = "${baseActivity.id}_${targetDate}",
                             date = targetDate.toString()
