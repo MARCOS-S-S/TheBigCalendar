@@ -163,6 +163,7 @@ private fun DayCell(
                 visibleTasks.take(2).forEach { task ->
                     val taskColor = remember(task.categoryColor, task.activityType) {
                         when {
+                            task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> Color(0xFFE91E63) // Rosa para aniversários
                             task.activityType == com.mss.thebigcalendar.data.model.ActivityType.NOTE -> Color(0xFF9C27B0) // Roxo para notas
                             task.categoryColor == "1" -> Color.White
                             task.categoryColor == "2" -> Color.Blue

@@ -1,5 +1,6 @@
 package com.mss.thebigcalendar.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -469,6 +470,7 @@ fun PrioritySelector(
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun TimeSelector(
     hasScheduledTime: Boolean,
