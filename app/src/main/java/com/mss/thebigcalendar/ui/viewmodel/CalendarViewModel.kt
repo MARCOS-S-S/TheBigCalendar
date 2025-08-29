@@ -26,6 +26,7 @@ import com.mss.thebigcalendar.service.NotificationService
 import com.mss.thebigcalendar.service.SearchService
 import com.mss.thebigcalendar.service.RecurrenceService
 import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
+import com.mss.thebigcalendar.data.repository.CompletedActivityRepository
 import com.mss.thebigcalendar.data.service.BackupService
 import com.mss.thebigcalendar.data.service.BackupInfo
 import com.mss.thebigcalendar.service.VisibilityService
@@ -56,6 +57,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val searchService = SearchService()
     private val recurrenceService = RecurrenceService()
     private val deletedActivityRepository = DeletedActivityRepository(application)
+    private val completedActivityRepository = CompletedActivityRepository(application)
     private val backupService = BackupService(application, activityRepository, deletedActivityRepository)
     private val visibilityService = VisibilityService(application)
 
@@ -430,6 +432,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
         }
         
+        viewModelScope.launch {
+            completedActivityRepository.completedActivities.collect { completedActivities ->
+                Log.d("CalendarViewModel", "🔄 Tarefas finalizadas atualizadas: ${completedActivities.size}")
+                _uiState.update { it.copy(completedActivities = completedActivities) }
+                // Atualizar a UI quando as tarefas finalizadas mudarem
+                updateAllDateDependentUI()
+            }
+        }
+        
         loadInitialHolidaysAndSaints()
     }
 
@@ -512,7 +523,24 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             }
                         }
                     } catch (e: Exception) {
-                        Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
+                        Log.e("CalendarViewModel", "❌ Erro ao processar atividade: ${activity.title}", e)
+                    }
+                }
+                
+                // Adicionar tarefas finalizadas se a opção estiver ativada
+                if (state.showCompletedActivities) {
+                    state.completedActivities.forEach { completedActivity ->
+                        try {
+                            val activityDate = LocalDate.parse(completedActivity.date)
+                            val dateMatches = activityDate.isEqual(date)
+                            
+                            if (dateMatches) {
+                                allActivitiesForThisDay.add(completedActivity)
+                                Log.d("CalendarViewModel", "✅ Tarefa finalizada adicionada ao calendário: ${completedActivity.title} para ${date}")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("CalendarViewModel", "❌ Erro ao processar tarefa finalizada: ${completedActivity.title}", e)
+                        }
                     }
                 }
                 
@@ -520,7 +548,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 if (allActivitiesForThisDay.isNotEmpty() && i == 0) {
                     Log.d("CalendarViewModel", "📅 Atividades filtradas para ${date}:")
                     allActivitiesForThisDay.forEach { activity ->
-                        Log.d("CalendarViewModel", "   - ${activity.title} (${activity.activityType})")
+                        Log.d("CalendarViewModel", "   - ${activity.title} (${activity.activityType}) - Finalizada: ${activity.isCompleted}")
                     }
                 }
                 
@@ -533,7 +561,24 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     }
                 }
                 
-                allActivitiesForThisDay.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
+                // Log para tarefas finalizadas se houver
+                val completedTasksForThisDay = allActivitiesForThisDay.filter { it.isCompleted }
+                if (completedTasksForThisDay.isNotEmpty()) {
+                    Log.d("CalendarViewModel", "✅ Tarefas finalizadas para ${date}: ${completedTasksForThisDay.size}")
+                    completedTasksForThisDay.forEach { completedTask ->
+                        Log.d("CalendarViewModel", "   ✅ ${completedTask.title}")
+                    }
+                }
+                
+                // Incluir tarefas finalizadas na lista final se a opção estiver ativada
+                val finalTasksList = if (state.showCompletedActivities) {
+                    allActivitiesForThisDay.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
+                } else {
+                    // Filtrar apenas atividades não finalizadas
+                    allActivitiesForThisDay.filter { !it.isCompleted }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
+                }
+                
+                finalTasksList
             } else {
                 emptyList()
             }
@@ -646,6 +691,23 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 }
             } catch (e: Exception) {
                 Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
+            }
+        }
+        
+        // Adicionar tarefas finalizadas se a opção estiver ativada
+        if (state.showCompletedActivities) {
+            state.completedActivities.forEach { completedActivity ->
+                try {
+                    val activityDate = LocalDate.parse(completedActivity.date)
+                    val dateMatches = activityDate.isEqual(state.selectedDate)
+                    
+                    if (dateMatches) {
+                        allTasksForSelectedDate.add(completedActivity)
+                        Log.d("CalendarViewModel", "✅ Tarefa finalizada adicionada à seção de agendamentos: ${completedActivity.title} para ${state.selectedDate}")
+                    }
+                } catch (e: Exception) {
+                    Log.e("CalendarViewModel", "❌ Erro ao processar tarefa finalizada na seção de agendamentos: ${completedActivity.title}", e)
+                }
             }
         }
         
@@ -778,30 +840,44 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onFilterChange(key: String, value: Boolean) {
-        val currentFilters = _uiState.value.filterOptions
-        val newFilters = when (key) {
-            "showHolidays" -> currentFilters.copy(showHolidays = value)
-            "showSaintDays" -> currentFilters.copy(showSaintDays = value)
-            "showCommemorativeDates" -> currentFilters.copy(showCommemorativeDates = value)
-            "showEvents" -> currentFilters.copy(showEvents = value)
-            "showTasks" -> currentFilters.copy(showTasks = value)
-            "showNotes" -> currentFilters.copy(showNotes = value)
-            "showBirthdays" -> currentFilters.copy(showBirthdays = value)
-            else -> currentFilters
-        }
-        
-        // Log para debug dos filtros
-        Log.d("CalendarViewModel", "🔧 Filtro alterado: $key = $value")
-        Log.d("CalendarViewModel", "📊 Estado dos filtros: $newFilters")
-        
-        // Atualizar o estado imediatamente
-        _uiState.update { it.copy(filterOptions = newFilters) }
-        
-        // Atualizar a UI
-        updateAllDateDependentUI()
-        
-        viewModelScope.launch {
-            settingsRepository.saveFilterOptions(newFilters)
+        when (key) {
+            "showCompletedActivities" -> {
+                // Log para debug
+                Log.d("CalendarViewModel", "🔧 Visibilidade de tarefas finalizadas alterada: $value")
+                
+                // Atualizar o estado imediatamente
+                _uiState.update { it.copy(showCompletedActivities = value) }
+                
+                // Atualizar a UI
+                updateAllDateDependentUI()
+            }
+            else -> {
+                val currentFilters = _uiState.value.filterOptions
+                val newFilters = when (key) {
+                    "showHolidays" -> currentFilters.copy(showHolidays = value)
+                    "showSaintDays" -> currentFilters.copy(showSaintDays = value)
+                    "showCommemorativeDates" -> currentFilters.copy(showCommemorativeDates = value)
+                    "showEvents" -> currentFilters.copy(showEvents = value)
+                    "showTasks" -> currentFilters.copy(showTasks = value)
+                    "showNotes" -> currentFilters.copy(showNotes = value)
+                    "showBirthdays" -> currentFilters.copy(showBirthdays = value)
+                    else -> currentFilters
+                }
+                
+                // Log para debug dos filtros
+                Log.d("CalendarViewModel", "🔧 Filtro alterado: $key = $value")
+                Log.d("CalendarViewModel", "📊 Estado dos filtros: $newFilters")
+                
+                // Atualizar o estado imediatamente
+                _uiState.update { it.copy(filterOptions = newFilters) }
+                
+                // Atualizar a UI
+                updateAllDateDependentUI()
+                
+                viewModelScope.launch {
+                    settingsRepository.saveFilterOptions(newFilters)
+                }
+            }
         }
     }
 
@@ -1308,12 +1384,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     Log.d("CalendarViewModel", "📅 Regra de recorrência: ${activityToComplete.recurrenceRule}")
                     Log.d("CalendarViewModel", "📅 Data da instância: ${activityToComplete.date}")
                     
-                    // Para tarefas recorrentes, marcar como concluída e mover para lixeira
-                    val completedActivity = activityToComplete.copy(isCompleted = true)
-                    activityRepository.saveActivity(completedActivity)
+                    // Para tarefas recorrentes, marcar como concluída e salvar no repositório de finalizadas
+                    val completedActivity = activityToComplete.copy(
+                        isCompleted = true,
+                        showInCalendar = false // Ocultar do calendário mensal
+                    )
                     
-                    // Mover para a lixeira
-                    deletedActivityRepository.addDeletedActivity(completedActivity)
+                    // Salvar no repositório de atividades finalizadas
+                    completedActivityRepository.addCompletedActivity(completedActivity)
                     
                     // Remover da lista principal
                     activityRepository.deleteActivity(activityToComplete.id)
@@ -1331,12 +1409,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 } else {
                     Log.d("CalendarViewModel", "✅ Marcando tarefa única como concluída: ${activityToComplete.title}")
                     
-                    // Marcar como concluída
-                    val completedActivity = activityToComplete.copy(isCompleted = true)
-                    activityRepository.saveActivity(completedActivity)
+                    // Marcar como concluída e salvar no repositório de finalizadas
+                    val completedActivity = activityToComplete.copy(
+                        isCompleted = true,
+                        showInCalendar = false // Ocultar do calendário mensal
+                    )
                     
-                    // Mover para a lixeira
-                    deletedActivityRepository.addDeletedActivity(completedActivity)
+                    // Salvar no repositório de atividades finalizadas
+                    completedActivityRepository.addCompletedActivity(completedActivity)
                     
                     // Remover da lista principal
                     activityRepository.deleteActivity(activityId)
@@ -1498,6 +1578,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             deletedActivityRepository.clearAllDeletedActivities()
             println("🗑️ Lixeira esvaziada")
         }
+    }
+    
+    // --- Tarefas Finalizadas ---
+    
+    fun toggleCompletedActivitiesVisibility() {
+        _uiState.update { it.copy(showCompletedActivities = !it.showCompletedActivities) }
+        updateAllDateDependentUI()
+    }
+    
+    fun getCompletedActivities(): List<Activity> {
+        return _uiState.value.completedActivities
     }
     
     // --- Backup ---

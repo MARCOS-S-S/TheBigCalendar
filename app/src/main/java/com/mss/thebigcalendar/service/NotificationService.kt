@@ -198,7 +198,7 @@ class NotificationService(private val context: Context) {
             )
             .addAction(
                 android.R.drawable.ic_menu_close_clear_cancel,
-                "Cancelar",
+                "Finalizado",
                 createDismissPendingIntent(activity)
             )
             .setVibrate(longArrayOf(0, 500, 200, 500)) // ✅ Adicionar vibração

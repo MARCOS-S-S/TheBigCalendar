@@ -105,7 +105,9 @@ data class CalendarUiState(
     val isBackupScreenOpen: Boolean = false,
     val backupMessage: String? = null,
     val needsStoragePermission: Boolean = false,
-    val backupFiles: List<BackupInfo> = emptyList()
+    val backupFiles: List<BackupInfo> = emptyList(),
+    val showCompletedActivities: Boolean = false,
+    val completedActivities: List<Activity> = emptyList()
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

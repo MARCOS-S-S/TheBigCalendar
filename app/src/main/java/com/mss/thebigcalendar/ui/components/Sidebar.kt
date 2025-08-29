@@ -133,6 +133,13 @@ fun Sidebar(
                     onCheckedChange = { onFilterChange(key, it) }
                 )
             }
+            
+            // Opção para mostrar tarefas finalizadas
+            FilterCheckboxItem(
+                label = "Tarefas finalizadas",
+                checked = uiState.showCompletedActivities,
+                onCheckedChange = { onFilterChange("showCompletedActivities", it) }
+            )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
 
