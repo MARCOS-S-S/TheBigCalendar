@@ -20,6 +20,7 @@ import androidx.compose.runtime.* // Importa tudo de runtime
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -168,6 +169,7 @@ fun CreateActivityModal(
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
+        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
         title = {
             val titleText = when {
                 currentActivity.id == "new" || currentActivity.id.isBlank() -> {
@@ -338,6 +340,7 @@ fun CreateActivityModal(
                 
                 AlertDialog(
                     onDismissRequest = { showTimePicker = false },
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
                     title = {
                         Text(text = if (isPickingStartTime) stringResource(id = R.string.start_time) else stringResource(id = R.string.end_time))
                     },

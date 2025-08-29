@@ -54,6 +54,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
@@ -121,7 +122,16 @@ fun CalendarScreen(
     }
 
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .then(
+            if (uiState.activityToEdit != null) {
+                Modifier.blur(radius = 8.dp)
+            } else {
+                Modifier
+            }
+        )
+    ) {
         ModalNavigationDrawer(
             drawerState = drawerState,
             gesturesEnabled = uiState.currentSettingsScreen == null,
