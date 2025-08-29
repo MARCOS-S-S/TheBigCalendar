@@ -96,6 +96,7 @@ data class CalendarUiState(
     val loginMessage: String? = null,
     val isSyncing: Boolean = false,
     val syncErrorMessage: String? = null,
+    val syncProgress: SyncProgress? = null,
     val searchQuery: String = "",
     val searchResults: List<SearchResult> = emptyList(),
     val isSearchScreenOpen: Boolean = false,

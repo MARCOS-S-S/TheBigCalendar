@@ -17,6 +17,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +36,8 @@ fun GeneralSettingsScreen(
     onSignInClicked: () -> Unit,
     onSignOutClicked: () -> Unit,
     isSyncing: Boolean = false,
-    onManualSync: () -> Unit = {}
+    onManualSync: () -> Unit = {},
+    syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -121,6 +124,34 @@ fun GeneralSettingsScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(stringResource(id = R.string.sync_now))
+                    }
+                }
+                
+                // Mostrar progresso detalhado se disponível
+                if (isSyncing && syncProgress != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = syncProgress.currentStep,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        LinearProgressIndicator(
+                            progress = syncProgress.progress / 100f,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (syncProgress.totalEvents > 0) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "${syncProgress.processedEvents}/${syncProgress.totalEvents} eventos",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }

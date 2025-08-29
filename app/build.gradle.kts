@@ -104,6 +104,9 @@ dependencies {
     implementation(libs.google.auth)
     implementation(libs.google.api.client.android)
     implementation(libs.google.api.services.calendar)
+    
+    // WorkManager para sincronização em background
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
 
     // Dependências de Teste
     testImplementation(libs.junit)

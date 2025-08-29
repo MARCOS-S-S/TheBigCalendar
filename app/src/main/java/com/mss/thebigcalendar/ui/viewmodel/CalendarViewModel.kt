@@ -46,6 +46,13 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import androidx.work.WorkManager
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import com.mss.thebigcalendar.service.ProgressiveSyncService
+import com.mss.thebigcalendar.worker.GoogleCalendarSyncWorker
+import java.util.concurrent.TimeUnit
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -54,6 +61,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val holidayRepository = HolidayRepository(application)
     private val googleAuthService = GoogleAuthService(application)
     private val googleCalendarService = GoogleCalendarService(application)
+    private val progressiveSyncService = ProgressiveSyncService(application, googleCalendarService)
     private val searchService = SearchService()
     private val recurrenceService = RecurrenceService()
     private val deletedActivityRepository = DeletedActivityRepository(application)
@@ -1588,7 +1596,78 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
     
     fun onManualSync() {
-        manualGoogleSync()
+        val account = _uiState.value.googleSignInAccount
+        if (account != null) {
+            Log.d("CalendarViewModel", "🔄 Sincronização manual progressiva solicitada")
+            performProgressiveSync(account)
+        }
+    }
+    
+    private fun performProgressiveSync(account: GoogleSignInAccount) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSyncing = true, syncErrorMessage = null, syncProgress = null) }
+            
+            try {
+                val result = progressiveSyncService.syncProgressively(account) { progress ->
+                    _uiState.update { it.copy(syncProgress = progress) }
+                }
+                
+                result.fold(
+                    onSuccess = { totalEvents ->
+                        Log.d("CalendarViewModel", "✅ Sincronização progressiva concluída: $totalEvents eventos")
+                        _uiState.update { it.copy(
+                            isSyncing = false,
+                            lastGoogleSyncTime = System.currentTimeMillis()
+                        ) }
+                        
+                        // Agendar próxima sincronização automática
+                        scheduleAutomaticSync()
+                        
+                        updateAllDateDependentUI()
+                    },
+                    onFailure = { exception ->
+                        Log.e("CalendarViewModel", "❌ Erro na sincronização progressiva", exception)
+                        _uiState.update { it.copy(
+                            isSyncing = false,
+                            syncErrorMessage = "Falha na sincronização: ${exception.message}"
+                        ) }
+                    }
+                )
+                
+            } catch (e: Exception) {
+                Log.e("CalendarViewModel", "❌ Erro inesperado na sincronização", e)
+                _uiState.update { it.copy(
+                    isSyncing = false,
+                    syncErrorMessage = "Erro inesperado: ${e.message}"
+                ) }
+            }
+        }
+    }
+    
+    /**
+     * Agenda sincronização automática diária
+     */
+    private fun scheduleAutomaticSync() {
+        val workManager = WorkManager.getInstance(getApplication())
+        
+        // Cancelar trabalhos anteriores
+        workManager.cancelAllWorkByTag("google_calendar_sync")
+        
+        // Criar restrições (só sincronizar com internet)
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        
+        // Agendar sincronização diária
+        val syncWorkRequest = PeriodicWorkRequestBuilder<GoogleCalendarSyncWorker>(
+            1, TimeUnit.DAYS
+        )
+            .setConstraints(constraints)
+            .addTag("google_calendar_sync")
+            .build()
+        
+        workManager.enqueue(syncWorkRequest)
+        Log.d("CalendarViewModel", "📅 Sincronização automática agendada para executar diariamente")
     }
     
     fun closeTrashScreen() {

@@ -179,7 +179,8 @@ fun CalendarScreen(
                                 onSignInClicked = { viewModel.onSignInClicked() },
                                 onSignOutClicked = { viewModel.signOut() },
                                 isSyncing = uiState.isSyncing,
-                                onManualSync = { viewModel.onManualSync() }
+                                onManualSync = { viewModel.onManualSync() },
+                                syncProgress = uiState.syncProgress
                             )
                         }
                     }
