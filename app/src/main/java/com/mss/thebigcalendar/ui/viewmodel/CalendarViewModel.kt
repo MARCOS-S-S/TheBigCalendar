@@ -908,7 +908,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 "MONTHLY" -> {
                     // Verificar se a data alvo é um múltiplo de meses a partir da data base
                     val monthsDiff = ChronoUnit.MONTHS.between(baseDate, targetDate)
-                    if (monthsDiff >= 0) {
+                    if (monthsDiff > 0) {
                         // Manter o mesmo dia do mês, ajustando para meses com menos dias
                         val targetDay = minOf(baseDate.dayOfMonth, targetDate.lengthOfMonth())
                         val adjustedDate = targetDate.withDayOfMonth(targetDay)
@@ -925,7 +925,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 "YEARLY" -> {
                     // Verificar se a data alvo é um múltiplo de anos a partir da data base
                     val yearsDiff = ChronoUnit.YEARS.between(baseDate, targetDate)
-                    if (yearsDiff >= 0) {
+                    if (yearsDiff > 0) {
                         val instance = baseActivity.copy(
                             id = "${baseActivity.id}_${targetDate}",
                             date = targetDate.toString()
