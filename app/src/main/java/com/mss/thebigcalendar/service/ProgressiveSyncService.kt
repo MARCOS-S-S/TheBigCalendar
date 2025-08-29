@@ -10,8 +10,11 @@ import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.SyncProgress
 import com.mss.thebigcalendar.data.model.SyncPhase
 import com.mss.thebigcalendar.data.repository.ActivityRepository
+import com.mss.thebigcalendar.data.repository.SyncRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration.Companion.seconds
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -22,6 +25,8 @@ class ProgressiveSyncService(
     private val context: Context,
     private val googleCalendarService: GoogleCalendarService
 ) {
+    
+    private val syncRepository = SyncRepository(context)
     
     companion object {
         private const val TAG = "ProgressiveSyncService"
@@ -51,6 +56,9 @@ class ProgressiveSyncService(
             
             val totalEvents = quickSyncResult.getOrNull() ?: 0 + (backgroundSyncResult.getOrNull() ?: 0)
             Log.d(TAG, "✅ Sincronização progressiva concluída: $totalEvents eventos")
+            
+            // Atualizar timestamp da última sincronização
+            syncRepository.updateLastSyncTime(System.currentTimeMillis())
             
             Result.success(totalEvents)
             
@@ -82,8 +90,10 @@ class ProgressiveSyncService(
             val now = LocalDate.now()
             val nextMonth = now.plusMonths(1)
             
-            // Buscar eventos do mês atual e próximo
-            val events = fetchEventsForPeriod(calendarService, now, nextMonth)
+            // Buscar eventos do mês atual e próximo com timeout
+            val events = withTimeout(30.seconds) {
+                fetchEventsForPeriod(calendarService, now, nextMonth, useIncrementalSync = true)
+            }
             
             onProgressUpdate(SyncProgress(
                 currentStep = "Processando eventos...",
@@ -93,25 +103,28 @@ class ProgressiveSyncService(
                 currentPhase = SyncPhase.QUICK_SYNC
             ))
             
-            // Converter e salvar eventos
+            // Converter e salvar eventos em lote
             val activities = convertEventsToActivities(events)
             val repository = ActivityRepository(context)
             
-            var processed = 0
-            activities.forEach { activity ->
-                repository.saveActivity(activity)
-                processed++
-                
-                if (processed % 10 == 0) { // Atualizar progresso a cada 10 eventos
-                    onProgressUpdate(SyncProgress(
-                        currentStep = "Salvando eventos...",
-                        progress = 30 + (processed * 40 / activities.size),
-                        totalEvents = activities.size,
-                        processedEvents = processed,
-                        currentPhase = SyncPhase.QUICK_SYNC
-                    ))
-                }
-            }
+            onProgressUpdate(SyncProgress(
+                currentStep = "Salvando eventos em lote...",
+                progress = 50,
+                totalEvents = activities.size,
+                processedEvents = 0,
+                currentPhase = SyncPhase.QUICK_SYNC
+            ))
+            
+            // Salvar todos os eventos de uma vez
+            repository.saveAllActivities(activities)
+            
+            onProgressUpdate(SyncProgress(
+                currentStep = "Sincronização rápida concluída",
+                progress = 70,
+                totalEvents = activities.size,
+                processedEvents = activities.size,
+                currentPhase = SyncPhase.QUICK_SYNC
+            ))
             
             onProgressUpdate(SyncProgress(
                 currentStep = "Sincronização rápida concluída",
@@ -152,8 +165,10 @@ class ProgressiveSyncService(
             val now = LocalDate.now()
             val endOfYear = now.withMonth(12).withDayOfMonth(31)
             
-            // Buscar eventos do resto do ano
-            val events = fetchEventsForPeriod(calendarService, now.plusMonths(2), endOfYear)
+            // Buscar eventos do resto do ano com timeout
+            val events = withTimeout(60.seconds) {
+                fetchEventsForPeriod(calendarService, now.plusMonths(2), endOfYear, useIncrementalSync = true)
+            }
             
             onProgressUpdate(SyncProgress(
                 currentStep = "Processando eventos restantes...",
@@ -163,25 +178,28 @@ class ProgressiveSyncService(
                 currentPhase = SyncPhase.BACKGROUND_SYNC
             ))
             
-            // Converter e salvar eventos
+            // Converter e salvar eventos em lote
             val activities = convertEventsToActivities(events)
             val repository = ActivityRepository(context)
             
-            var processed = 0
-            activities.forEach { activity ->
-                repository.saveActivity(activity)
-                processed++
-                
-                if (processed % 20 == 0) { // Atualizar progresso a cada 20 eventos
-                    onProgressUpdate(SyncProgress(
-                        currentStep = "Salvando eventos restantes...",
-                        progress = 80 + (processed * 15 / activities.size),
-                        totalEvents = activities.size,
-                        processedEvents = processed,
-                        currentPhase = SyncPhase.BACKGROUND_SYNC
-                    ))
-                }
-            }
+            onProgressUpdate(SyncProgress(
+                currentStep = "Salvando eventos restantes em lote...",
+                progress = 85,
+                totalEvents = activities.size,
+                processedEvents = 0,
+                currentPhase = SyncPhase.BACKGROUND_SYNC
+            ))
+            
+            // Salvar todos os eventos de uma vez
+            repository.saveAllActivities(activities)
+            
+            onProgressUpdate(SyncProgress(
+                currentStep = "Sincronização concluída",
+                progress = 100,
+                totalEvents = activities.size,
+                processedEvents = activities.size,
+                currentPhase = SyncPhase.BACKGROUND_SYNC
+            ))
             
             onProgressUpdate(SyncProgress(
                 currentStep = "Sincronização concluída",
@@ -201,25 +219,66 @@ class ProgressiveSyncService(
     }
     
     /**
-     * Busca eventos para um período específico
+     * Busca eventos para um período específico com paginação e sincronização incremental
      */
     private suspend fun fetchEventsForPeriod(
         calendarService: Calendar,
         startDate: LocalDate,
-        endDate: LocalDate
+        endDate: LocalDate,
+        useIncrementalSync: Boolean = false
     ): List<com.google.api.services.calendar.model.Event> = withContext(Dispatchers.IO) {
         try {
             val startTime = startDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
             val endTime = endDate.atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
             
-            val events = calendarService.events()
-                .list("primary")
-                .setTimeMin(com.google.api.client.util.DateTime(startTime))
-                .setTimeMax(com.google.api.client.util.DateTime(endTime))
-                .setMaxResults(2500) // Limite da API
-                .execute()
+            // Para sincronização incremental, usar timestamp da última sincronização
+            val lastSyncTime = if (useIncrementalSync) {
+                syncRepository.getLastSyncTime()
+            } else {
+                0L
+            }
             
-            events.items ?: emptyList()
+            val allEvents = mutableListOf<com.google.api.services.calendar.model.Event>()
+            var pageToken: String? = null
+            var pageCount = 0
+            
+            do {
+                pageCount++
+                Log.d(TAG, "📄 Buscando página $pageCount de eventos")
+                
+                val events = withTimeout(15.seconds) {
+                    val request = calendarService.events()
+                        .list("primary")
+                        .setTimeMin(com.google.api.client.util.DateTime(startTime))
+                        .setTimeMax(com.google.api.client.util.DateTime(endTime))
+                        .setMaxResults(2500) // Limite da API
+                        .setPageToken(pageToken)
+                    
+                    // Adicionar filtro incremental se necessário
+                    if (useIncrementalSync && lastSyncTime > 0) {
+                        request.setUpdatedMin(com.google.api.client.util.DateTime(lastSyncTime))
+                    }
+                    
+                    request.execute()
+                }
+                
+                val pageEvents = events.items ?: emptyList()
+                allEvents.addAll(pageEvents)
+                
+                Log.d(TAG, "📄 Página $pageCount: ${pageEvents.size} eventos encontrados")
+                
+                pageToken = events.nextPageToken
+                
+                // Limite de segurança para evitar loop infinito
+                if (pageCount > 10) {
+                    Log.w(TAG, "⚠️ Limite de páginas atingido (10), parando paginação")
+                    break
+                }
+                
+            } while (pageToken != null)
+            
+            Log.d(TAG, "✅ Paginação concluída: ${allEvents.size} eventos em $pageCount páginas")
+            allEvents
             
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao buscar eventos para período", e)
