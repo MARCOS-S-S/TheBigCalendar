@@ -61,7 +61,6 @@ data class CalendarDay(
 data class FilterOptions(
     val showHolidays: Boolean = false,
     val showSaintDays: Boolean = false,
-    val showCommemorativeDates: Boolean = false,
     val showEvents: Boolean = false,
     val showTasks: Boolean = false,
     val showNotes: Boolean = false,

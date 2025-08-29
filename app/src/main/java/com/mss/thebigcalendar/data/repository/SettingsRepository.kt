@@ -22,7 +22,6 @@ class SettingsRepository(private val context: Context) {
         val USERNAME = stringPreferencesKey("username")
         val SHOW_HOLIDAYS = booleanPreferencesKey("show_holidays")
         val SHOW_SAINT_DAYS = booleanPreferencesKey("show_saint_days")
-        val SHOW_COMMEMORATIVE_DATES = booleanPreferencesKey("show_commemorative_dates")
         val SHOW_EVENTS = booleanPreferencesKey("show_events")
         val SHOW_TASKS = booleanPreferencesKey("show_tasks")
         val SHOW_BIRTHDAYS = booleanPreferencesKey("show_birthdays")
@@ -40,12 +39,11 @@ class SettingsRepository(private val context: Context) {
             preferences[PreferencesKeys.USERNAME] ?: "Usuário"
         }
 
-    val filterOptions: Flow<CalendarFilterOptions> = context.dataStore.data
+            val filterOptions: Flow<CalendarFilterOptions> = context.dataStore.data
         .map { preferences ->
             CalendarFilterOptions(
                 showHolidays = preferences[PreferencesKeys.SHOW_HOLIDAYS] ?: true,
                 showSaintDays = preferences[PreferencesKeys.SHOW_SAINT_DAYS] ?: true,
-                showCommemorativeDates = preferences[PreferencesKeys.SHOW_COMMEMORATIVE_DATES] ?: true,
                 showEvents = preferences[PreferencesKeys.SHOW_EVENTS] ?: true,
                 showTasks = preferences[PreferencesKeys.SHOW_TASKS] ?: true,
                 showBirthdays = preferences[PreferencesKeys.SHOW_BIRTHDAYS] ?: true,
@@ -69,7 +67,6 @@ class SettingsRepository(private val context: Context) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_HOLIDAYS] = filterOptions.showHolidays
             preferences[PreferencesKeys.SHOW_SAINT_DAYS] = filterOptions.showSaintDays
-            preferences[PreferencesKeys.SHOW_COMMEMORATIVE_DATES] = filterOptions.showCommemorativeDates
             preferences[PreferencesKeys.SHOW_EVENTS] = filterOptions.showEvents
             preferences[PreferencesKeys.SHOW_TASKS] = filterOptions.showTasks
             preferences[PreferencesKeys.SHOW_BIRTHDAYS] = filterOptions.showBirthdays

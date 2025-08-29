@@ -42,7 +42,6 @@ import com.mss.thebigcalendar.R
 private val filterItems = listOf(
     "showHolidays" to R.string.national_holidays,
     "showSaintDays" to R.string.catholic_saint_days,
-    "showCommemorativeDates" to R.string.commemorative_dates,
     "showEvents" to R.string.events,
     "showTasks" to R.string.tasks,
     "showBirthdays" to R.string.birthday,
@@ -120,7 +119,6 @@ fun Sidebar(
                 val isChecked = when (key) {
                     "showHolidays" -> uiState.filterOptions.showHolidays
                     "showSaintDays" -> uiState.filterOptions.showSaintDays
-                    "showCommemorativeDates" -> uiState.filterOptions.showCommemorativeDates
                     "showEvents" -> uiState.filterOptions.showEvents
                     "showTasks" -> uiState.filterOptions.showTasks
                     "showBirthdays" -> uiState.filterOptions.showBirthdays

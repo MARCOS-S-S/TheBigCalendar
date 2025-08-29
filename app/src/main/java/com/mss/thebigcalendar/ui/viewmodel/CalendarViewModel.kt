@@ -856,7 +856,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 val newFilters = when (key) {
                     "showHolidays" -> currentFilters.copy(showHolidays = value)
                     "showSaintDays" -> currentFilters.copy(showSaintDays = value)
-                    "showCommemorativeDates" -> currentFilters.copy(showCommemorativeDates = value)
                     "showEvents" -> currentFilters.copy(showEvents = value)
                     "showTasks" -> currentFilters.copy(showTasks = value)
                     "showNotes" -> currentFilters.copy(showNotes = value)
