@@ -122,16 +122,7 @@ fun CalendarScreen(
     }
 
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .then(
-            if (uiState.activityToEdit != null) {
-                Modifier.blur(radius = 8.dp)
-            } else {
-                Modifier
-            }
-        )
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         ModalNavigationDrawer(
             drawerState = drawerState,
             gesturesEnabled = uiState.currentSettingsScreen == null,
@@ -152,6 +143,16 @@ fun CalendarScreen(
                 }
             }
         ) {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .then(
+                    if (uiState.activityToEdit != null || uiState.isSidebarOpen) {
+                        Modifier.blur(radius = 8.dp)
+                    } else {
+                        Modifier
+                    }
+                )
+            ) {
             when (uiState.currentSettingsScreen) {
                 "General" -> {
                     Scaffold(
@@ -194,8 +195,9 @@ fun CalendarScreen(
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
         )
+            } // Fechamento do Box com desfoque
+        } // Fechamento do ModalNavigationDrawer
     }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -483,6 +485,5 @@ fun MainCalendarView(
             )
         }
 
-
-    }
-}
+            } // Fechamento do Box com desfoque
+        } // Fechamento do ModalNavigationDrawer
