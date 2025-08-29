@@ -8,6 +8,9 @@ import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.proto.ActivityProto
 import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.proto.ActivityTypeProto
+import com.mss.thebigcalendar.data.model.NotificationSettings
+import com.mss.thebigcalendar.data.model.NotificationType
+import com.mss.thebigcalendar.data.model.proto.NotificationSettingsProto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
@@ -103,6 +106,7 @@ class ActivityRepository(private val context: Context) {
             .setIsFromGoogle(this.isFromGoogle)
             .setVisibility(this.visibility.name)
             .setShowInCalendar(this.showInCalendar)
+            .setNotificationSettings(this.notificationSettings.toProto())
             .build()
     }
 
@@ -119,7 +123,7 @@ class ActivityRepository(private val context: Context) {
             categoryColor = this.categoryColor,
             activityType = this.activityType.toActivityType(),
             recurrenceRule = this.recurrenceRule.takeIf { it.isNotEmpty() },
-            notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings(),
+            notificationSettings = this.notificationSettings.toNotificationSettings(),
             isCompleted = this.isCompleted,
             isFromGoogle = this.isFromGoogle,
             visibility = try {
@@ -150,8 +154,6 @@ class ActivityRepository(private val context: Context) {
         }
     }
     
-    // Temporariamente comentado até regenerar o código do proto
-    /*
     private fun NotificationSettings.toProto(): NotificationSettingsProto {
         return NotificationSettingsProto.newBuilder()
             .setIsEnabled(this.isEnabled)
@@ -183,5 +185,4 @@ class ActivityRepository(private val context: Context) {
             customMinutesBefore = if (this.customMinutesBefore > 0) this.customMinutesBefore else null
         )
     }
-    */
 }
