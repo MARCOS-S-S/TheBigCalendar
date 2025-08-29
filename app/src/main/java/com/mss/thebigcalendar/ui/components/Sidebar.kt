@@ -57,7 +57,9 @@ fun Sidebar(
     onBackup: () -> Unit,
     onRequestClose: () -> Unit
 ) {
-    ModalDrawerSheet {
+    ModalDrawerSheet(
+        drawerContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+    ) {
         Column(
             modifier = Modifier.width(280.dp)
                 .padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -71,7 +73,8 @@ fun Sidebar(
                 IconButton(onClick = onRequestClose) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(id = R.string.close_menu)
+                        contentDescription = stringResource(id = R.string.close_menu),
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -199,7 +202,8 @@ private fun FilterCheckboxItem(
         Spacer(Modifier.width(16.dp))
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
