@@ -29,20 +29,14 @@ class ActivityRepository(private val context: Context) {
         }
 
     suspend fun saveActivity(activity: Activity) {
-        val activityToSave = if (activity.id == "new" || activity.id.isBlank()) {
-            activity.copy(id = UUID.randomUUID().toString())
-        } else {
-            activity
-        }
-
         // ✅ Log para debug da visibilidade
-        android.util.Log.d("ActivityRepository", "💾 Salvando atividade: ${activityToSave.title}")
-        android.util.Log.d("ActivityRepository", "🔍 Visibilidade: ${activityToSave.visibility}")
-        android.util.Log.d("ActivityRepository", "🔔 Notificações: ${activityToSave.notificationSettings}")
+        android.util.Log.d("ActivityRepository", "💾 Salvando atividade: ${activity.title}")
+        android.util.Log.d("ActivityRepository", "🔍 Visibilidade: ${activity.visibility}")
+        android.util.Log.d("ActivityRepository", "🔔 Notificações: ${activity.notificationSettings}")
 
         context.activitiesDataStore.updateData { currentActivities ->
-            val existingIndex = currentActivities.activitiesList.indexOfFirst { it.id == activityToSave.id }
-            val proto = activityToSave.toProto()
+            val existingIndex = currentActivities.activitiesList.indexOfFirst { it.id == activity.id }
+            val proto = activity.toProto()
             val newActivities = currentActivities.toBuilder()
             if (existingIndex != -1) {
                 newActivities.setActivities(existingIndex, proto)

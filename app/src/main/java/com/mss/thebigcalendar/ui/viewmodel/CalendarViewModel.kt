@@ -813,51 +813,57 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     fun onSaveActivity(activityData: Activity) {
         viewModelScope.launch {
+            val activityToSave = if (activityData.id == "new" || activityData.id.isBlank()) {
+                activityData.copy(id = UUID.randomUUID().toString())
+            } else {
+                activityData
+            }
+
             // Verificar se é uma edição de atividade existente do Google
-            val isEditingGoogleEvent = activityData.id != "new" && 
-                                     _uiState.value.activities.any { it.id == activityData.id && it.isFromGoogle }
-            
+            val isEditingGoogleEvent = activityToSave.id != "new" &&
+                                     _uiState.value.activities.any { it.id == activityToSave.id && it.isFromGoogle }
+
             // Se for uma edição de atividade existente, verificar se a repetição foi alterada
-            val existingActivity = if (activityData.id != "new") {
-                _uiState.value.activities.find { it.id == activityData.id }
+            val existingActivity = if (activityToSave.id != "new") {
+                _uiState.value.activities.find { it.id == activityToSave.id }
             } else null
-            
+
             val repetitionChanged = existingActivity?.let { existing ->
-                existing.recurrenceRule != activityData.recurrenceRule
+                existing.recurrenceRule != activityToSave.recurrenceRule
             } ?: false
-            
+
             // Se a repetição foi removida, remover todas as instâncias recorrentes
-            if (repetitionChanged && (activityData.recurrenceRule.isNullOrEmpty() || activityData.recurrenceRule == "NONE")) {
+            if (repetitionChanged && (activityToSave.recurrenceRule.isNullOrEmpty() || activityToSave.recurrenceRule == "NONE")) {
                 println("🔄 Repetição removida para atividade: ${existingActivity!!.title}")
                 println("🔄 Regra anterior: ${existingActivity.recurrenceRule}")
-                println("🔄 Nova regra: ${activityData.recurrenceRule}")
+                println("🔄 Nova regra: ${activityToSave.recurrenceRule}")
                 removeRecurringInstances(existingActivity)
             }
-            
+
             // Salvar a atividade principal
-            activityRepository.saveActivity(activityData)
-            
+            activityRepository.saveActivity(activityToSave)
+
             // ✅ Agendar notificação se configurada
-            if (activityData.notificationSettings.isEnabled && 
-                activityData.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE &&
-                activityData.startTime != null) {
-                
+            if (activityToSave.notificationSettings.isEnabled &&
+                activityToSave.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE &&
+                activityToSave.startTime != null) {
+
                 val notificationService = NotificationService(getApplication())
-                notificationService.scheduleNotification(activityData)
+                notificationService.scheduleNotification(activityToSave)
             }
-            
+
             // NOTA: Não geramos mais instâncias repetitivas automaticamente
             // As tarefas repetitivas serão calculadas dinamicamente quando o usuário navegar pelos meses
-            if (activityData.recurrenceRule?.isNotEmpty() == true && activityData.recurrenceRule != "CUSTOM") {
-                Log.d("CalendarViewModel", "🔄 Tarefa repetitiva criada: ${activityData.title} - Regra: ${activityData.recurrenceRule}")
+            if (activityToSave.recurrenceRule?.isNotEmpty() == true && activityToSave.recurrenceRule != "CUSTOM") {
+                Log.d("CalendarViewModel", "🔄 Tarefa repetitiva criada: ${activityToSave.title} - Regra: ${activityToSave.recurrenceRule}")
                 Log.d("CalendarViewModel", "📅 Instâncias serão calculadas dinamicamente ao navegar pelos meses")
             }
-            
+
             // Sincronizar com Google Calendar se for edição de evento existente
             if (isEditingGoogleEvent) {
-                updateGoogleCalendarEvent(activityData)
+                updateGoogleCalendarEvent(activityToSave)
             }
-            
+
             closeCreateActivityModal()
         }
     }

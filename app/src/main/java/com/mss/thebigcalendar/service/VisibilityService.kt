@@ -248,6 +248,7 @@ class VisibilityService(private val context: Context) {
             Log.d(TAG, "✅ Parâmetros da janela configurados: type=${layoutParams.type}, flags=${layoutParams.flags}")
 
             // Adicionar alerta à tela
+            Log.d(TAG, "Attempting to add view to window manager. Context: $context")
             windowManager.addView(fullScreenView, layoutParams)
             Log.d(TAG, "✅ Alerta adicionado à tela com sucesso")
 
