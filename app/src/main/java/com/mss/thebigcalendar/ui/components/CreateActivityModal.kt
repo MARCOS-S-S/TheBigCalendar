@@ -83,7 +83,7 @@ fun CreateActivityModal(
     var hasScheduledTime by remember(currentActivity.id) { mutableStateOf(currentActivity.startTime != null) }
     
     // Estado para mostrar no calendário
-    var showInCalendar by remember(currentActivity.id) { mutableStateOf(true) }
+    var showInCalendar by remember(currentActivity.id) { mutableStateOf(currentActivity.showInCalendar) }
     
     // Estado para configurações de notificação
     var notificationSettings by remember(currentActivity.id) { 
@@ -235,18 +235,26 @@ fun CreateActivityModal(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                PrioritySelector(
-                    selectedPriority = selectedPriority,
-                    onPrioritySelected = { selectedPriority = it }
-                )
+                // Seletor de prioridade (não mostrado para notas)
+                if (selectedActivityType != ActivityType.NOTE) {
+                    PrioritySelector(
+                        selectedPriority = selectedPriority,
+                        onPrioritySelected = { selectedPriority = it }
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
-                VisibilitySelector(
-                    selectedVisibility = selectedVisibility,
-                    onVisibilitySelected = { selectedVisibility = it },
-                    isCustomized = selectedVisibility != com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
-                )
+                // Seletor de visibilidade (não mostrado para notas)
+                if (selectedActivityType != ActivityType.NOTE) {
+                    VisibilitySelector(
+                        selectedVisibility = selectedVisibility,
+                        onVisibilitySelected = { selectedVisibility = it },
+                        isCustomized = selectedVisibility != com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -270,8 +278,8 @@ fun CreateActivityModal(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Seletor de notificações (visível apenas quando há horário agendado)
-                if (hasScheduledTime) {
+                // Seletor de notificações (visível apenas quando há horário agendado e não é nota)
+                if (hasScheduledTime && selectedActivityType != ActivityType.NOTE) {
                     NotificationSelector(
                         notificationSettings = notificationSettings,
                         onNotificationSettingsChanged = { notificationSettings = it },

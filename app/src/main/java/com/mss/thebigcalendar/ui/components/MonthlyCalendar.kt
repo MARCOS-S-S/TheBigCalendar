@@ -161,12 +161,13 @@ private fun DayCell(
             ) {
                 val fallbackColor = MaterialTheme.colorScheme.secondaryContainer
                 visibleTasks.take(2).forEach { task ->
-                    val taskColor = remember(task.categoryColor) {
-                        when (task.categoryColor) {
-                            "1" -> Color.White
-                            "2" -> Color.Blue
-                            "3" -> Color.Yellow
-                            "4" -> Color.Red
+                    val taskColor = remember(task.categoryColor, task.activityType) {
+                        when {
+                            task.activityType == com.mss.thebigcalendar.data.model.ActivityType.NOTE -> Color(0xFF9C27B0) // Roxo para notas
+                            task.categoryColor == "1" -> Color.White
+                            task.categoryColor == "2" -> Color.Blue
+                            task.categoryColor == "3" -> Color.Yellow
+                            task.categoryColor == "4" -> Color.Red
                             else -> fallbackColor
                         }
                     }
