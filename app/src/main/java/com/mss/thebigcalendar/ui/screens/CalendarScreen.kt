@@ -177,7 +177,9 @@ fun CalendarScreen(
                                 onThemeChange = { viewModel.onThemeChange(it) },
                                 googleAccount = uiState.googleSignInAccount,
                                 onSignInClicked = { viewModel.onSignInClicked() },
-                                onSignOutClicked = { viewModel.signOut() }
+                                onSignOutClicked = { viewModel.signOut() },
+                                isSyncing = uiState.isSyncing,
+                                onManualSync = { viewModel.onManualSync() }
                             )
                         }
                     }

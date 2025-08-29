@@ -255,12 +255,26 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private fun fetchGoogleCalendarEvents(account: GoogleSignInAccount) {
+    private fun fetchGoogleCalendarEvents(account: GoogleSignInAccount, forceSync: Boolean = false) {
         viewModelScope.launch {
             _uiState.update { it.copy(isSyncing = true, syncErrorMessage = null) }
             try {
-                // 1. Clear old Google events
-                activityRepository.deleteAllActivitiesFromGoogle()
+                val currentTime = System.currentTimeMillis()
+                val lastSync = _uiState.value.lastGoogleSyncTime
+                val timeSinceLastSync = currentTime - lastSync
+                
+                // Sincronização diária: só sincronizar se passou mais de 24 horas (a menos que seja forçada)
+                if (!forceSync && timeSinceLastSync < 24 * 60 * 60 * 1000) {
+                    val hoursSinceLastSync = timeSinceLastSync / 1000 / 60 / 60
+                    Log.d("CalendarViewModel", "⏰ Sincronização pulada - última sincronização há ${hoursSinceLastSync} horas")
+                    _uiState.update { it.copy(isSyncing = false) }
+                    return@launch
+                }
+                
+                Log.d("CalendarViewModel", "🔄 Iniciando sincronização com Google Calendar")
+                
+                // NÃO deletar eventos existentes até os novos chegarem - isso evita o "flash"
+                // Os eventos antigos serão substituídos pelos novos ao final
 
                 // 2. Fetch new events from Google Calendar
                 val calendarService = googleCalendarService.getCalendarService(account)
@@ -375,13 +389,20 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     Log.d("CalendarViewModel", "🎂 Aniversário salvo: ${birthday.title} em ${birthday.date}")
                 }
                 
-                // 4. Save new events to the local repository
-                activityRepository.saveAllActivities(activities)
+                // 4. Fazer merge dos eventos (manter existentes + adicionar novos)
+                activities.forEach { newActivity ->
+                    // Se já existe uma atividade com o mesmo ID, atualizar
+                    // Se não existe, adicionar nova
+                    activityRepository.saveActivity(newActivity)
+                }
                 
                 // 5. Atualizar a UI após salvar as atividades
                 updateAllDateDependentUI()
                 
-                // 6. Verificar se há aniversários e criar alguns de exemplo se necessário
+                // 6. Atualizar timestamp de última sincronização
+                _uiState.update { it.copy(lastGoogleSyncTime = currentTime) }
+                
+                // 7. Verificar se há aniversários e criar alguns de exemplo se necessário
                 if (birthdayEvents == 0) {
                     Log.w("CalendarViewModel", "⚠️ Nenhum aniversário detectado automaticamente. Criando aniversários de exemplo...")
                     createSampleBirthdays()
@@ -1548,6 +1569,26 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun onTrashSortOrderChange(sortOrder: String) {
         println("🔄 Alterando ordem da lixeira: $sortOrder")
         _uiState.update { it.copy(trashSortOrder = sortOrder) }
+    }
+    
+    fun forceGoogleSync() {
+        val account = _uiState.value.googleSignInAccount
+        if (account != null) {
+            Log.d("CalendarViewModel", "🔄 Forçando sincronização manual com Google Calendar")
+            fetchGoogleCalendarEvents(account, forceSync = true)
+        }
+    }
+    
+    fun manualGoogleSync() {
+        val account = _uiState.value.googleSignInAccount
+        if (account != null) {
+            Log.d("CalendarViewModel", "🔄 Sincronização manual solicitada pelo usuário")
+            fetchGoogleCalendarEvents(account, forceSync = true)
+        }
+    }
+    
+    fun onManualSync() {
+        manualGoogleSync()
     }
     
     fun closeTrashScreen() {

@@ -107,7 +107,8 @@ data class CalendarUiState(
     val backupFiles: List<BackupInfo> = emptyList(),
     val showCompletedActivities: Boolean = false,
     val completedActivities: List<Activity> = emptyList(),
-    val trashSortOrder: String = "newest_first"
+    val trashSortOrder: String = "newest_first",
+    val lastGoogleSyncTime: Long = 0L
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

@@ -97,6 +97,9 @@
     <string name="delete_backup_confirmation_message">Tem certeza que deseja excluir o backup \"%1$s\"?\n\nEsta ação não pode ser desfeita.</string>
     <string name="delete_backup_confirm">Excluir</string>
     <string name="sidebar_change_theme">Tema escuro</string>
+    <string name="sync_now">Sincronizar agora</string>
+    <string name="syncing">Sincronizando...</string>
+    <string name="synchronization">Sincronização</string>
 
     <!-- TasksForSelectedDaySection.kt -->
     <string name="date_format_day_month">dd \'de\' MMMM</string>
