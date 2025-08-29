@@ -7,6 +7,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.text.Html
 import android.widget.RemoteViews
 import com.mss.thebigcalendar.MainActivity
@@ -115,7 +116,17 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                 
                 repository.activities.collect { activities ->
                     val todayTasks = activities.filter { activity ->
-                        LocalDate.parse(activity.date) == today
+                        try {
+                            val activityDate = LocalDate.parse(activity.date)
+                            // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
+                            if (activity.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
+                                activityDate.month == today.month && activityDate.dayOfMonth == today.dayOfMonth
+                            } else {
+                                activityDate == today
+                            }
+                        } catch (e: Exception) {
+                            false
+                        }
                     }.sortedWith(
                         compareByDescending<com.mss.thebigcalendar.data.model.Activity> { 
                             it.categoryColor?.toIntOrNull() ?: 0 
@@ -126,7 +137,17 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                     
                     val tomorrowTasks = if (isNightTime) {
                         activities.filter { activity ->
-                            LocalDate.parse(activity.date) == tomorrow
+                            try {
+                                val activityDate = LocalDate.parse(activity.date)
+                                // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
+                                if (activity.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
+                                    activityDate.month == tomorrow.month && activityDate.dayOfMonth == tomorrow.dayOfMonth
+                                } else {
+                                    activityDate == tomorrow
+                                }
+                            } catch (e: Exception) {
+                                false
+                            }
                         }.sortedWith(
                             compareByDescending<com.mss.thebigcalendar.data.model.Activity> { 
                                 it.categoryColor?.toIntOrNull() ?: 0 
@@ -140,6 +161,12 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                     
                     CoroutineScope(Dispatchers.Main).launch {
                         val tasksText = buildTasksText(todayTasks, tomorrowTasks, isNightTime)
+                        
+                        // Log para debug
+                        Log.d("CalendarWidget", "📅 Widget atualizado: ${todayTasks.size} tarefas hoje, ${tomorrowTasks.size} amanhã")
+                        todayTasks.forEach { task ->
+                            Log.d("CalendarWidget", "   📅 ${task.title} (${task.activityType})")
+                        }
                         
                         // Aplicar HTML para quebras de linha funcionarem
                         views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml(tasksText, android.text.Html.FROM_HTML_MODE_COMPACT))
@@ -193,11 +220,14 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
         } else {
             val tasksToShow = todayTasks.take(maxTasksPerDay)
             tasksToShow.joinToString("<br>") { task ->
-                if (task.startTime != null) {
-                    "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} ${task.title}"
+                val prefix = if (task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
+                    "🎂 " // Ícone de aniversário
+                } else if (task.startTime != null) {
+                    "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} "
                 } else {
-                    task.title
+                    ""
                 }
+                "$prefix${task.title}"
             } + if (todayTasks.size > maxTasksPerDay) "<br>..." else ""
         }
         
@@ -213,11 +243,14 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
             val tasksToShow = tomorrowTasks.take(maxTasksPerDay)
             val tomorrowHeader = "<br><br><b>Amanhã:</b><br>"
             val tasksList = tasksToShow.joinToString("<br>") { task ->
-                if (task.startTime != null) {
-                    "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} ${task.title}"
+                val prefix = if (task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
+                    "🎂 " // Ícone de aniversário
+                } else if (task.startTime != null) {
+                    "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} "
                 } else {
-                    task.title
+                    ""
                 }
+                "$prefix${task.title}"
             }
             tomorrowHeader + tasksList + if (tomorrowTasks.size > maxTasksPerDay) "<br>..." else ""
         }
