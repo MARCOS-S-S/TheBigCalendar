@@ -106,7 +106,8 @@ data class CalendarUiState(
     val needsStoragePermission: Boolean = false,
     val backupFiles: List<BackupInfo> = emptyList(),
     val showCompletedActivities: Boolean = false,
-    val completedActivities: List<Activity> = emptyList()
+    val completedActivities: List<Activity> = emptyList(),
+    val trashSortOrder: String = "newest_first"
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

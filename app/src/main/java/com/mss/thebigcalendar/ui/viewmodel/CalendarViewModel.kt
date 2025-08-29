@@ -1545,6 +1545,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(isTrashScreenOpen = true) }
     }
     
+    fun onTrashSortOrderChange(sortOrder: String) {
+        println("🔄 Alterando ordem da lixeira: $sortOrder")
+        _uiState.update { it.copy(trashSortOrder = sortOrder) }
+    }
+    
     fun closeTrashScreen() {
         println("🚪 Fechando lixeira")
         _uiState.update { it.copy(isTrashScreenOpen = false) }

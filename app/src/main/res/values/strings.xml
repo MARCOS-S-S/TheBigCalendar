@@ -182,5 +182,8 @@
     <string name="restore_activity">Restaurar atividade</string>
     <string name="delete_permanently">Excluir permanentemente</string>
     <string name="deleted_at">Apagado em %1$s</string>
+    <string name="sort_order">Ordenar</string>
+    <string name="oldest_first">Mais antigas primeiro</string>
+    <string name="newest_first">Mais recentes primeiro</string>
 
 </resources>

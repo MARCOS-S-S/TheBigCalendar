@@ -19,10 +19,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.RestoreFromTrash
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -30,6 +33,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +58,15 @@ fun TrashScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val deletedActivities = uiState.deletedActivities
+    
+    // Estado local para o menu de ordenação
+    var isSortMenuExpanded by remember { mutableStateOf(false) }
+    
+    // Aplicar ordenação baseada no estado
+    val sortedDeletedActivities = when (uiState.trashSortOrder) {
+        "oldest_first" -> deletedActivities.sortedBy { it.deletedAt }
+        else -> deletedActivities.sortedByDescending { it.deletedAt }
+    }
 
     Scaffold(
         topBar = {
@@ -67,6 +82,39 @@ fun TrashScreen(
                 },
                 actions = {
                     if (deletedActivities.isNotEmpty()) {
+                        // Botão de ordenação
+                        Box {
+                            IconButton(
+                                onClick = { isSortMenuExpanded = true }
+                            ) {
+                                Icon(
+                                    Icons.Default.Sort,
+                                    contentDescription = stringResource(R.string.sort_order)
+                                )
+                            }
+                            
+                            DropdownMenu(
+                                expanded = isSortMenuExpanded,
+                                onDismissRequest = { isSortMenuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.newest_first)) },
+                                    onClick = {
+                                        viewModel.onTrashSortOrderChange("newest_first")
+                                        isSortMenuExpanded = false
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.oldest_first)) },
+                                    onClick = {
+                                        viewModel.onTrashSortOrderChange("oldest_first")
+                                        isSortMenuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                        
+                        // Botão de esvaziar lixeira
                         IconButton(
                             onClick = { viewModel.clearAllDeletedActivities() }
                         ) {
@@ -100,7 +148,7 @@ fun TrashScreen(
                 LazyColumn(
                     modifier = Modifier.weight(1f)
                 ) {
-                    items(deletedActivities) { deletedActivity ->
+                    items(sortedDeletedActivities) { deletedActivity ->
                         DeletedActivityItem(
                             deletedActivity = deletedActivity,
                             onRestore = { viewModel.restoreDeletedActivity(deletedActivity.id) },
