@@ -61,6 +61,7 @@ fun CreateActivityModal(
     val currentActivity = activityToEdit ?: return
 
     var title by remember(currentActivity.id) { mutableStateOf(currentActivity.title) }
+    var description by remember(currentActivity.id) { mutableStateOf(currentActivity.description ?: "") }
     var selectedPriority by remember(currentActivity.id) { mutableStateOf(currentActivity.categoryColor) }
     var selectedActivityType by remember(currentActivity.id) { mutableStateOf(currentActivity.activityType) }
     var selectedVisibility by remember(currentActivity.id) { 
@@ -204,6 +205,17 @@ fun CreateActivityModal(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text(stringResource(id = R.string.create_activity_modal_description)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = false,
+                    minLines = 3,
+                    maxLines = 5
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -235,8 +247,8 @@ fun CreateActivityModal(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Seletor de prioridade (não mostrado para notas)
-                if (selectedActivityType != ActivityType.NOTE) {
+                // Seletor de prioridade (não mostrado para notas e aniversários)
+                if (selectedActivityType != ActivityType.NOTE && selectedActivityType != ActivityType.BIRTHDAY) {
                     PrioritySelector(
                         selectedPriority = selectedPriority,
                         onPrioritySelected = { selectedPriority = it }
@@ -383,6 +395,7 @@ fun CreateActivityModal(
                 onClick = {
                     val updatedActivity = currentActivity.copy(
                         title = title.trim(),
+                        description = description.trim().takeIf { it.isNotEmpty() },
                         categoryColor = selectedPriority,
                         activityType = selectedActivityType,
                         startTime = if (hasScheduledTime) startTime else null,

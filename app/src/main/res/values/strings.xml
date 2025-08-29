@@ -3,6 +3,7 @@
 
     <!-- CreateActivityModal.kt -->
     <string name="create_activity_modal_title">Título</string>
+    <string name="create_activity_modal_description">Descrição</string>
     <string name="create_activity_modal_color">Definir cor</string>
     <string name="create_activity_modal_save">Salvar</string>
     <string name="create_activity_modal_cancel">Cancelar</string>
@@ -103,7 +104,7 @@
     <string name="sync_progress">%1$d/%2$d eventos</string>
 
     <!-- TasksForSelectedDaySection.kt -->
-    <string name="date_format_day_month">dd \'de\' MMMM</string>
+    <string name="date_format_day_month">dd/MM</string>
     <string name="appointments_for">Agendamentos para %1$s</string>
     <string name="no_appointments">"   "Nada agendado.</string>
     <string name="no_tasks_or_events">Nenhuma tarefa ou evento agendado.</string>
