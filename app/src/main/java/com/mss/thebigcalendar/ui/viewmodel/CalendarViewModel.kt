@@ -917,6 +917,53 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     fun onSaveActivity(activityData: Activity) {
         viewModelScope.launch {
+            // Verificar se é uma edição de instância recorrente
+            val isEditingRecurringInstance = activityData.id.contains("_") && 
+                                           activityData.id != "new" && 
+                                           !activityData.id.isBlank()
+            
+            if (isEditingRecurringInstance) {
+                // É uma edição de instância recorrente - aplicar mudanças à atividade base
+                val baseId = activityData.id.split("_").first()
+                val baseActivity = _uiState.value.activities.find { it.id == baseId }
+                
+                if (baseActivity != null) {
+                    // Aplicar mudanças à atividade base, mantendo o ID original
+                    val updatedBaseActivity = baseActivity.copy(
+                        title = activityData.title,
+                        description = activityData.description,
+                        startTime = activityData.startTime,
+                        endTime = activityData.endTime,
+                        isAllDay = activityData.isAllDay,
+                        location = activityData.location,
+                        categoryColor = activityData.categoryColor,
+                        notificationSettings = activityData.notificationSettings,
+                        visibility = activityData.visibility,
+                        showInCalendar = activityData.showInCalendar
+                        // NÃO alterar recurrenceRule para manter a recorrência
+                    )
+                    
+                    // Salvar a atividade base atualizada
+                    activityRepository.saveActivity(updatedBaseActivity)
+                    
+                    // Agendar notificação se configurada
+                    if (updatedBaseActivity.notificationSettings.isEnabled &&
+                        updatedBaseActivity.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
+                        val notificationService = NotificationService(getApplication())
+                        notificationService.scheduleNotification(updatedBaseActivity)
+                    }
+                    
+                    // Sincronizar com Google Calendar se for evento do Google
+                    if (updatedBaseActivity.isFromGoogle) {
+                        updateGoogleCalendarEvent(updatedBaseActivity)
+                    }
+                    
+                    closeCreateActivityModal()
+                    return@launch
+                }
+            }
+            
+            // Lógica original para atividades não recorrentes ou novas
             val activityToSave = if (activityData.id == "new" || activityData.id.isBlank()) {
                 activityData.copy(id = UUID.randomUUID().toString())
             } else {
@@ -1356,20 +1403,31 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun openCreateActivityModal(activity: Activity? = null, activityType: ActivityType = ActivityType.EVENT) {
-        val template = activity ?: Activity(
-            id = "new",
-            title = "",
-            description = null,
-            date = _uiState.value.selectedDate.toString(),
-            startTime = null,
-            endTime = null,
-            isAllDay = true,
-            location = null,
-            categoryColor = if (activityType == ActivityType.TASK) "#3B82F6" else "#F43F5E",
-            activityType = activityType,
-            recurrenceRule = null,
-            showInCalendar = true // Por padrão, mostrar no calendário
-        )
+        val template = if (activity != null) {
+            // Se for uma instância recorrente, carregar os dados da atividade base
+            if (activity.id.contains("_") && activity.id != "new") {
+                val baseId = activity.id.split("_").first()
+                val baseActivity = _uiState.value.activities.find { it.id == baseId }
+                baseActivity ?: activity
+            } else {
+                activity
+            }
+        } else {
+            Activity(
+                id = "new",
+                title = "",
+                description = null,
+                date = _uiState.value.selectedDate.toString(),
+                startTime = null,
+                endTime = null,
+                isAllDay = true,
+                location = null,
+                categoryColor = if (activityType == ActivityType.TASK) "#3B82F6" else "#F43F5E",
+                activityType = activityType,
+                recurrenceRule = null,
+                showInCalendar = true // Por padrão, mostrar no calendário
+            )
+        }
         _uiState.update { it.copy(activityToEdit = template, activityIdWithDeleteButtonVisible = null) }
     }
 
