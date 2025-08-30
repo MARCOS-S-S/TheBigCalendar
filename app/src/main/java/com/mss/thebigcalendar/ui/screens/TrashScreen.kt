@@ -95,7 +95,8 @@ fun TrashScreen(
                             
                             DropdownMenu(
                                 expanded = isSortMenuExpanded,
-                                onDismissRequest = { isSortMenuExpanded = false }
+                                onDismissRequest = { isSortMenuExpanded = false },
+                                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
                             ) {
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.newest_first)) },

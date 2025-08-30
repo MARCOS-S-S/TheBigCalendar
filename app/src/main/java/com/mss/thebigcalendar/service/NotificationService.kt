@@ -92,7 +92,7 @@ class NotificationService(private val context: Context) {
             putExtra(EXTRA_ACTIVITY_ID, activity.id)
             putExtra(EXTRA_ACTIVITY_TITLE, activity.title)
             putExtra(EXTRA_ACTIVITY_DATE, activity.date)
-            putExtra(EXTRA_ACTIVITY_TIME, activity.startTime.toString())
+            putExtra(EXTRA_ACTIVITY_TIME, activity.startTime?.toString() ?: "")
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
@@ -287,7 +287,7 @@ class NotificationService(private val context: Context) {
                 putExtra(EXTRA_ACTIVITY_ID, activity.id)
                 putExtra(EXTRA_ACTIVITY_TITLE, activity.title)
                 putExtra(EXTRA_ACTIVITY_DATE, activity.date)
-                putExtra(EXTRA_ACTIVITY_TIME, activity.startTime?.toString())
+                putExtra(EXTRA_ACTIVITY_TIME, activity.startTime?.toString() ?: "")
             }
             
             // Criar PendingIntent único para o adiamento
