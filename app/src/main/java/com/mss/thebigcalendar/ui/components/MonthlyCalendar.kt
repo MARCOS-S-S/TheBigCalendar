@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import com.mss.thebigcalendar.data.model.Activity
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.derivedStateOf
 
 @Composable
 fun MonthlyCalendar(
@@ -42,9 +43,11 @@ fun MonthlyCalendar(
     onDateSelected: (LocalDate) -> Unit,
     theme: com.mss.thebigcalendar.data.model.Theme
 ) {
-    val weekDayAbbreviations = getWeekDayAbbreviations()
+    // Otimização: remember para evitar recálculo das abreviações
+    val weekDayAbbreviations = remember { getWeekDayAbbreviations() }
 
     Column(modifier = modifier) {
+        // Cabeçalho com dias da semana (sempre visível)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -60,6 +63,7 @@ fun MonthlyCalendar(
             }
         }
 
+        // Voltar ao Column original (LazyColumn dentro de LazyColumn quebra)
         Column {
             calendarDays.chunked(7).forEach { week ->
                 Row(
@@ -117,30 +121,52 @@ private fun DayCell(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
+        // Otimização: remember para evitar recálculo das cores e estilos
+        val onPrimaryContainer = MaterialTheme.colorScheme.onPrimaryContainer
+        val error = MaterialTheme.colorScheme.error
+        val primary = MaterialTheme.colorScheme.primary
+        val onSurface = MaterialTheme.colorScheme.onSurface
+        val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
+        
+        // Otimização: calcular cor do santo fora do remember
+        val isDarkTheme = isSystemInDarkTheme()
+        val saintDayColor = when (theme) {
+            com.mss.thebigcalendar.data.model.Theme.DARK -> Color.Yellow
+            com.mss.thebigcalendar.data.model.Theme.LIGHT -> Color.Blue
+            com.mss.thebigcalendar.data.model.Theme.SYSTEM -> if (isDarkTheme) Color.Yellow else Color.Blue
+        }
+        
+        val textColor = remember(day.isSelected, day.isNationalHoliday, day.isSaintDay, day.isWeekend, day.isCurrentMonth, theme, onPrimaryContainer, error, primary, onSurface, onSurfaceVariant, saintDayColor) {
+            when {
+                day.isSelected -> onPrimaryContainer
+                day.isNationalHoliday -> error
+                day.isSaintDay -> saintDayColor
+                day.isWeekend -> primary
+                day.isCurrentMonth -> onSurface
+                else -> onSurfaceVariant.copy(alpha = 0.4f)
+            }
+        }
+        
+        val bodyLarge = MaterialTheme.typography.bodyLarge
+        val textStyle = remember(day.isSelected, bodyLarge) {
+            if (day.isSelected) bodyLarge.copy(fontWeight = FontWeight.Bold)
+            else bodyLarge
+        }
+        
         Text(
             text = day.date.dayOfMonth.toString(),
             textAlign = TextAlign.Center,
-            style = if (day.isSelected) MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-            else MaterialTheme.typography.bodyLarge,
-            color = when {
-                day.isSelected -> MaterialTheme.colorScheme.onPrimaryContainer
-                day.isNationalHoliday -> MaterialTheme.colorScheme.error
-                day.isSaintDay -> when (theme) {
-                    com.mss.thebigcalendar.data.model.Theme.DARK -> Color.Yellow
-                    com.mss.thebigcalendar.data.model.Theme.LIGHT -> Color.Blue
-                    com.mss.thebigcalendar.data.model.Theme.SYSTEM -> if (isSystemInDarkTheme()) Color.Yellow else Color.Blue
-                }
-                day.isWeekend -> MaterialTheme.colorScheme.primary
-                day.isCurrentMonth -> MaterialTheme.colorScheme.onSurface
-                else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-            },
+            style = textStyle,
+            color = textColor,
             modifier = Modifier.padding(top = 2.dp)
         )
 
         if (day.holiday != null) {
+            // Otimização: remember para evitar recálculo da cor
+            val secondary = MaterialTheme.colorScheme.secondary
             Text(
                 text = day.holiday.name,
-                color = MaterialTheme.colorScheme.secondary,
+                color = remember(secondary) { secondary },
                 fontSize = 8.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -148,8 +174,13 @@ private fun DayCell(
             )
         }
 
-        // Filtrar apenas tarefas que devem aparecer no calendário
-        val visibleTasks = day.tasks.filter { it.showInCalendar }
+        // Otimização: remember para evitar refiltragem desnecessária e limitar tarefas
+        val allVisibleTasks = remember(day.tasks) { 
+            day.tasks.filter { it.showInCalendar }
+        }
+        val visibleTasks = remember(allVisibleTasks) { 
+            allVisibleTasks.take(2) // Mostrar apenas 2 tarefas para performance
+        }
         
         if (visibleTasks.isNotEmpty()) {
             Spacer(modifier = Modifier.height(1.dp))
@@ -159,7 +190,9 @@ private fun DayCell(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
-                val fallbackColor = MaterialTheme.colorScheme.secondaryContainer
+                // Otimização: remember para evitar recálculo das cores
+                val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
+                val fallbackColor = remember(secondaryContainer) { secondaryContainer }
                 visibleTasks.take(2).forEach { task ->
                     val taskColor = remember(task.categoryColor, task.activityType) {
                         when {
@@ -185,9 +218,11 @@ private fun DayCell(
                                 .background(taskColor, RoundedCornerShape(2.dp))
                         )
                         Spacer(Modifier.width(3.dp)) // Espaço entre a linha e o texto
+                        // Otimização: remember para evitar recálculo da cor
+                        val onSurfaceVariantTask = MaterialTheme.colorScheme.onSurfaceVariant
                         Text(
                             text = task.title,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                            color = remember(onSurfaceVariantTask) { onSurfaceVariantTask.copy(alpha = 0.9f) },
                             fontSize = 9.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -195,18 +230,20 @@ private fun DayCell(
                         )
                     }
                 }
-                if (visibleTasks.size > 2) {
+                if (allVisibleTasks.size > 2) {
                     Row (
                         modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
                         horizontalArrangement = Arrangement.Center
                     ) {
+                        // Otimização: remember para evitar recálculo da cor
+                        val onSurfaceVariantDots = MaterialTheme.colorScheme.onSurfaceVariant
                         repeat(3) {
                             Box(
                                 modifier = Modifier
                                     .padding(horizontal = 1.dp)
                                     .size(3.dp)
                                     .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                                    .background(remember(onSurfaceVariantDots) { onSurfaceVariantDots })
                             )
                         }
                     }

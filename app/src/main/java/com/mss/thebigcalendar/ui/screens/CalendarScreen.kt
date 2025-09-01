@@ -51,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -59,6 +60,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.ActivityType
@@ -301,8 +308,11 @@ fun MainCalendarView(
         ) {
             when (uiState.viewMode) {
                 ViewMode.MONTHLY -> {
-                    LazyColumn(modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() }) {
-                        item {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() },
+                        userScrollEnabled = true
+                    ) {
+                        item(key = "calendar") {
                             MonthlyCalendar(
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp, vertical = 16.dp)
@@ -335,7 +345,7 @@ fun MainCalendarView(
                         }
                         // Seção de Aniversários
                         if (uiState.birthdaysForSelectedDate.isNotEmpty()) {
-                            item {
+                            item(key = "birthdays") {
                                 BirthdaysForSelectedDaySection(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                     birthdays = uiState.birthdaysForSelectedDate,
@@ -358,7 +368,7 @@ fun MainCalendarView(
                         
                         // Seção de Notas
                         if (uiState.notesForSelectedDate.isNotEmpty()) {
-                            item {
+                            item(key = "notes") {
                                 NotesForSelectedDaySection(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                     notes = uiState.notesForSelectedDate,
@@ -381,7 +391,7 @@ fun MainCalendarView(
                         
                         // Seção de Tarefas e Eventos (excluindo aniversários e notas)
                         if (uiState.tasksForSelectedDate.isNotEmpty()) {
-                            item {
+                            item(key = "tasks") {
                                 TasksForSelectedDaySection(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                     tasks = uiState.tasksForSelectedDate,
@@ -402,7 +412,7 @@ fun MainCalendarView(
                             }
                         }
                         if (uiState.holidaysForSelectedDate.isNotEmpty()) {
-                            item {
+                            item(key = "holidays") {
                                 HolidaysForSelectedDaySection(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                     holidays = uiState.holidaysForSelectedDate
@@ -410,7 +420,7 @@ fun MainCalendarView(
                             }
                         }
                         if (uiState.saintDaysForSelectedDate.isNotEmpty()) {
-                            item {
+                            item(key = "saints") {
                                 SaintDaysForSelectedDaySection(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                     saints = uiState.saintDaysForSelectedDate,

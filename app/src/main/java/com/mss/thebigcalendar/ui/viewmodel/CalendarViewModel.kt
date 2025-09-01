@@ -56,6 +56,8 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
 
+
+
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
     private val settingsRepository = SettingsRepository(application)
@@ -77,6 +79,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     // Cache para evitar recálculos desnecessários do calendário
     private var cachedCalendarDays: List<CalendarDay>? = null
     private var lastUpdateParams: String? = null
+    
+    // Cache para instâncias recorrentes - evita recalcular para cada dia
+    private var cachedRecurringInstances: Map<String, List<Activity>>? = null
+    private var lastRecurringCacheKey: String? = null
 
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
@@ -125,6 +131,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun clearCalendarCache() {
         cachedCalendarDays = null
         lastUpdateParams = null
+        // Limpar também o cache de recorrência
+        cachedRecurringInstances = null
+        lastRecurringCacheKey = null
         Log.d("CalendarViewModel", "🗑️ Cache do calendário limpo")
     }
 
@@ -498,6 +507,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         val daysFromPrevMonthOffset = (firstDayOfMonth.dayOfWeek.value % 7)
         val gridStartDate = firstDayOfMonth.minusDays(daysFromPrevMonthOffset.toLong())
 
+        // 🚀 OTIMIZAÇÃO: Pré-calcular todas as instâncias recorrentes de uma vez
+        val recurringInstancesMap = preCalculateRecurringInstancesForMonth(state.activities, state.displayedYearMonth)
+
         val newCalendarDays = List(42) { i ->
             val date = gridStartDate.plusDays(i.toLong())
             
@@ -530,12 +542,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                                 }
                             }
                             
-                            // Se a atividade é repetitiva, calcular se deve aparecer neste dia
+                            // 🚀 OTIMIZAÇÃO: Usar instâncias pré-calculadas em vez de calcular para cada dia
                             if (activity.recurrenceRule?.isNotEmpty() == true && 
                                 activity.recurrenceRule != "CUSTOM" && 
                                 activity.showInCalendar) {
                                 
-                                val recurringInstances = calculateRecurringInstancesForDate(activity, date)
+                                val recurringInstances = recurringInstancesMap[activity.id]?.filter { 
+                                    LocalDate.parse(it.date).isEqual(date) 
+                                } ?: emptyList()
                                 allActivitiesForThisDay.addAll(recurringInstances)
                             }
                         }
@@ -663,11 +677,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         allTasksForSelectedDate.add(activity)
                     }
                     
-                    // Se a atividade é repetitiva, calcular se deve aparecer neste dia
+                    // 🚀 OTIMIZAÇÃO: Usar instâncias pré-calculadas para a data selecionada
                     if (activity.recurrenceRule?.isNotEmpty() == true && 
                         activity.recurrenceRule != "CUSTOM") {
                         
-                        val recurringInstances = calculateRecurringInstancesForDate(activity, state.selectedDate)
+                        // Usar o cache de recorrência se disponível
+                        val recurringInstances = cachedRecurringInstances?.get(activity.id)?.filter { 
+                            LocalDate.parse(it.date).isEqual(state.selectedDate) 
+                        } ?: calculateRecurringInstancesForDate(activity, state.selectedDate)
                         allTasksForSelectedDate.addAll(recurringInstances)
                         
                     }
@@ -962,7 +979,142 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
-     * Calcula instâncias repetitivas para uma data específica
+     * Pré-calcula todas as instâncias recorrentes para o mês atual
+     * Isso evita recalcular para cada dia individualmente
+     */
+    private fun preCalculateRecurringInstancesForMonth(activities: List<Activity>, displayedYearMonth: YearMonth): Map<String, List<Activity>> {
+        val recurringInstances = mutableMapOf<String, List<Activity>>()
+        
+        // Gerar chave do cache
+        val cacheKey = buildString {
+            append("${displayedYearMonth}_")
+            append("${activities.size}_")
+            activities.filter { it.recurrenceRule?.isNotEmpty() == true && it.recurrenceRule != "CUSTOM" }
+                .forEach { activity ->
+                    append("${activity.id}_${activity.recurrenceRule}_")
+                }
+        }
+        
+        // Verificar se já temos no cache
+        if (cachedRecurringInstances != null && lastRecurringCacheKey == cacheKey) {
+            return cachedRecurringInstances!!
+        }
+        
+        Log.d("CalendarViewModel", "🔄 Pré-calculando instâncias recorrentes para ${displayedYearMonth}")
+        
+        // Calcular range de datas do calendário (42 dias)
+        val firstDayOfMonth = displayedYearMonth.atDay(1)
+        val daysFromPrevMonthOffset = (firstDayOfMonth.dayOfWeek.value % 7)
+        val gridStartDate = firstDayOfMonth.minusDays(daysFromPrevMonthOffset.toLong())
+        val gridEndDate = gridStartDate.plusDays(41)
+        
+        // Para cada atividade recorrente, calcular todas as instâncias do mês
+        activities.forEach { activity ->
+            if (activity.recurrenceRule?.isNotEmpty() == true && 
+                activity.recurrenceRule != "CUSTOM" && 
+                activity.showInCalendar) {
+                
+                val instances = mutableListOf<Activity>()
+                val baseDate = LocalDate.parse(activity.date)
+                
+                // Se a data base é posterior ao final do grid, não há instâncias
+                if (baseDate.isAfter(gridEndDate)) {
+                    recurringInstances[activity.id] = instances
+                    return@forEach
+                }
+                
+                // Calcular todas as instâncias no range do calendário
+                var currentDate = maxOf(baseDate, gridStartDate)
+                while (!currentDate.isAfter(gridEndDate)) {
+                    val instance = calculateSingleRecurringInstance(activity, currentDate)
+                    if (instance != null) {
+                        instances.add(instance)
+                    }
+                    currentDate = currentDate.plusDays(1)
+                }
+                
+                recurringInstances[activity.id] = instances
+            }
+        }
+        
+        // Salvar no cache
+        cachedRecurringInstances = recurringInstances
+        lastRecurringCacheKey = cacheKey
+        
+        Log.d("CalendarViewModel", "✅ Pré-cálculo concluído: ${recurringInstances.size} atividades recorrentes")
+        
+        return recurringInstances
+    }
+    
+    /**
+     * Calcula uma única instância recorrente para uma data específica
+     */
+    private fun calculateSingleRecurringInstance(baseActivity: Activity, targetDate: LocalDate): Activity? {
+        try {
+            val baseDate = LocalDate.parse(baseActivity.date)
+            
+            // Se a data base é posterior à data alvo, não há instância
+            if (baseDate.isAfter(targetDate)) {
+                return null
+            }
+            
+            when (baseActivity.recurrenceRule) {
+                "DAILY" -> {
+                    // Verificar se a data alvo é um múltiplo de dias a partir da data base
+                    val daysDiff = ChronoUnit.DAYS.between(baseDate, targetDate)
+                    if (daysDiff > 0) {
+                        return baseActivity.copy(
+                            id = "${baseActivity.id}_${targetDate}",
+                            date = targetDate.toString()
+                        )
+                    }
+                }
+                "WEEKLY" -> {
+                    // Verificar se a data alvo é um múltiplo de semanas a partir da data base
+                    val daysDiff = ChronoUnit.DAYS.between(baseDate, targetDate)
+                    if (daysDiff > 0 && daysDiff % 7 == 0L) {
+                        return baseActivity.copy(
+                            id = "${baseActivity.id}_${targetDate}",
+                            date = targetDate.toString()
+                        )
+                    }
+                }
+                "MONTHLY" -> {
+                    // Verificar se a data alvo é um múltiplo de meses a partir da data base
+                    val monthsDiff = ChronoUnit.MONTHS.between(baseDate, targetDate)
+                    if (monthsDiff > 0) {
+                        // Manter o mesmo dia do mês, ajustando para meses com menos dias
+                        val targetDay = minOf(baseDate.dayOfMonth, targetDate.lengthOfMonth())
+                        val adjustedDate = targetDate.withDayOfMonth(targetDay)
+                        
+                        if (adjustedDate.isEqual(targetDate)) {
+                            return baseActivity.copy(
+                                id = "${baseActivity.id}_${targetDate}",
+                                date = targetDate.toString()
+                            )
+                        }
+                    }
+                }
+                "YEARLY" -> {
+                    // Verificar se a data alvo é um múltiplo de anos a partir da data base
+                    val yearsDiff = ChronoUnit.YEARS.between(baseDate, targetDate)
+                    if (yearsDiff > 0) {
+                        return baseActivity.copy(
+                            id = "${baseActivity.id}_${targetDate}",
+                            date = targetDate.toString()
+                        )
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("CalendarViewModel", "❌ Erro ao calcular instância recorrente: ${e.message}")
+        }
+        
+        return null
+    }
+
+    /**
+     * Calcula instâncias repetitivas para uma data específica (DEPRECATED - usar preCalculateRecurringInstancesForMonth)
      */
     private fun calculateRecurringInstancesForDate(baseActivity: Activity, targetDate: LocalDate): List<Activity> {
         val instances = mutableListOf<Activity>()
