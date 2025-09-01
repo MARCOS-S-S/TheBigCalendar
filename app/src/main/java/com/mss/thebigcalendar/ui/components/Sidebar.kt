@@ -84,8 +84,6 @@ fun Sidebar(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             // Mensagem de boas-vindas
             Text(
                 text = GreetingService.getFullGreetingMessage(),
