@@ -118,11 +118,23 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                     val todayTasks = activities.filter { activity ->
                         try {
                             val activityDate = LocalDate.parse(activity.date)
-                            // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
-                            if (activity.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
-                                activityDate.month == today.month && activityDate.dayOfMonth == today.dayOfMonth
+                            
+                            // Verificar se esta data específica foi excluída para atividades recorrentes
+                            val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
+                                activity.excludedDates.contains(today.toString())
                             } else {
-                                activityDate == today
+                                false
+                            }
+                            
+                            if (isExcluded) {
+                                false
+                            } else {
+                                // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
+                                if (activity.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
+                                    activityDate.month == today.month && activityDate.dayOfMonth == today.dayOfMonth
+                                } else {
+                                    activityDate == today
+                                }
                             }
                         } catch (e: Exception) {
                             false
@@ -139,11 +151,23 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                         activities.filter { activity ->
                             try {
                                 val activityDate = LocalDate.parse(activity.date)
-                                // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
-                                if (activity.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
-                                    activityDate.month == tomorrow.month && activityDate.dayOfMonth == tomorrow.dayOfMonth
+                                
+                                // Verificar se esta data específica foi excluída para atividades recorrentes
+                                val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
+                                    activity.excludedDates.contains(tomorrow.toString())
                                 } else {
-                                    activityDate == tomorrow
+                                    false
+                                }
+                                
+                                if (isExcluded) {
+                                    false
+                                } else {
+                                    // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
+                                    if (activity.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
+                                        activityDate.month == tomorrow.month && activityDate.dayOfMonth == tomorrow.dayOfMonth
+                                    } else {
+                                        activityDate == tomorrow
+                                    }
                                 }
                             } catch (e: Exception) {
                                 false
