@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.R
+import com.mss.thebigcalendar.ui.components.GreetingService
 
 
 private val filterItems = listOf(
@@ -81,7 +82,15 @@ fun Sidebar(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            
+            // Mensagem de boas-vindas
+            Text(
+                text = GreetingService.getFullGreetingMessage(),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Seção de Visualização (Mensal/Anual)
             Text(
