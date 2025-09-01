@@ -1,5 +1,16 @@
 package com.mss.thebigcalendar.ui.components
 
+import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import com.mss.thebigcalendar.data.model.Quote
+import com.mss.thebigcalendar.service.QuoteService
+import kotlinx.coroutines.launch
 import java.time.LocalTime
 
 /**
@@ -57,4 +68,22 @@ object GreetingService {
         val greeting = getGreetingMessage(userName)
         return "$emoji $greeting"
     }
+}
+
+/**
+ * Composable para obter a frase do dia
+ */
+@Composable
+fun rememberQuoteOfTheDay(context: Context): Quote? {
+    var quote by remember { mutableStateOf<Quote?>(null) }
+    val scope = rememberCoroutineScope()
+    
+    LaunchedEffect(Unit) {
+        scope.launch {
+            val quoteService = QuoteService(context)
+            quote = quoteService.getQuoteOfTheDay()
+        }
+    }
+    
+    return quote
 }

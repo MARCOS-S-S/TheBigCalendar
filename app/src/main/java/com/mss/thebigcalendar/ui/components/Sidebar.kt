@@ -38,6 +38,8 @@ import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.ui.components.GreetingService
+import com.mss.thebigcalendar.ui.components.rememberQuoteOfTheDay
+import androidx.compose.ui.platform.LocalContext
 
 
 private val filterItems = listOf(
@@ -58,6 +60,8 @@ fun Sidebar(
     onBackup: () -> Unit,
     onRequestClose: () -> Unit
 ) {
+    val context = LocalContext.current
+    val quoteOfTheDay = rememberQuoteOfTheDay(context)
     ModalDrawerSheet(
         drawerContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
     ) {
@@ -89,6 +93,25 @@ fun Sidebar(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 color = MaterialTheme.colorScheme.onSurface
             )
+
+            // Frase do dia
+            quoteOfTheDay?.let { quote ->
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = "\"${quote.frase}\"",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = "— ${quote.autor}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

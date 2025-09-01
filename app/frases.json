@@ -1,0 +1,682 @@
+[
+ {
+   "autor": "Aristóteles",
+   "frase": "A coragem é a primeira das qualidades humanas."
+ },
+ {
+   "autor": "René Descartes",
+   "frase": "Penso, logo existo."
+ },
+ {
+   "autor": "Confúcio",
+   "frase": "Não importa o quão devagar você vá, desde que não pare."
+ },
+ {
+   "autor": "Lao-Tsé",
+   "frase": "Uma jornada de mil milhas começa com um único passo."
+ },
+ {
+   "autor": "Sêneca",
+   "frase": "Enquanto se adia, a vida passa."
+ },
+ {
+   "autor": "Marco Aurélio",
+   "frase": "A felicidade da sua vida depende da qualidade dos seus pensamentos."
+ },
+ {
+   "autor": "Leonardo da Vinci",
+   "frase": "A simplicidade é o último grau de sofisticação."
+ },
+ {
+   "autor": "Albert Einstein",
+   "frase": "A imaginação é mais importante que o conhecimento."
+ },
+ {
+   "autor": "Isaac Newton",
+   "frase": "Se vi mais longe, foi por estar sobre ombros de gigantes."
+ },
+ {
+   "autor": "Jean-Jacques Rousseau",
+   "frase": "O homem nasce livre e por toda a parte encontra-se a ferros."
+ },
+ {
+   "autor": "Immanuel Kant",
+   "frase": "Aja de tal forma que trates a humanidade como um fim e nunca como um meio."
+ },
+ {
+   "autor": "Sun Tzu",
+   "frase": "A suprema arte da guerra é derrotar o inimigo sem lutar."
+ },
+ {
+   "autor": "Martin Luther King Jr.",
+   "frase": "Eu tenho um sonho."
+ },
+ {
+   "autor": "Nelson Mandela",
+   "frase": "A educação é a arma mais poderosa que você pode usar para mudar o mundo."
+ },
+ {
+   "autor": "Mahatma Gandhi",
+   "frase": "Seja a mudança que você quer ver no mundo."
+ },
+ {
+   "autor": "Winston Churchill",
+   "frase": "O sucesso é ir de fracasso em fracasso sem perder o entusiasmo."
+ },
+ {
+   "autor": "Abraham Lincoln",
+   "frase": "O melhor modo de prever o futuro é criá-lo."
+ },
+ {
+   "autor": "Thomas Jefferson",
+   "frase": "Eu sou um grande crente na sorte, e descubro que quanto mais trabalho, mais sorte eu tenho."
+ },
+ {
+   "autor": "Benjamin Franklin",
+   "frase": "Bem feito é melhor que bem dito."
+ },
+ {
+   "autor": "Steve Jobs",
+   "frase": "A única maneira de fazer um excelente trabalho é amar o que você faz."
+ },
+ {
+   "autor": "Bill Gates",
+   "frase": "É ótimo celebrar o sucesso, mas mais importante é aprender com as lições do fracasso."
+ },
+ {
+   "autor": "Mark Zuckerberg",
+   "frase": "O maior risco é não correr nenhum risco."
+ },
+ {
+   "autor": "Walt Disney",
+   "frase": "Se você pode sonhar, você pode fazer."
+ },
+ {
+   "autor": "Henry Ford",
+   "frase": "Se você pensa que pode ou pensa que não pode, de qualquer forma você está certo."
+ },
+ {
+   "autor": "Thomas Edison",
+   "frase": "Eu não falhei. Apenas descobri 10.000 maneiras que não funcionam."
+ },
+ {
+   "autor": "Michael Jordan",
+   "frase": "Eu posso aceitar a falha, todos falham em alguma coisa. Mas eu não posso aceitar não tentar."
+ },
+ {
+   "autor": "Muhammad Ali",
+   "frase": "Voe como uma borboleta, pique como uma abelha."
+ },
+ {
+   "autor": "Ayrton Senna",
+   "frase": "Se você quer ser bem-sucedido, precisa ter dedicação total."
+ },
+ {
+   "autor": "Pelé",
+   "frase": "Quanto mais difícil a vitória, maior a felicidade de ganhar."
+ },
+ {
+   "autor": "Albert Schweitzer",
+   "frase": "O sucesso não é a chave para a felicidade. A felicidade é a chave para o sucesso."
+ },
+ {
+   "autor": "Dalai Lama",
+   "frase": "A felicidade não é algo pronto. Ela vem de suas próprias ações."
+ },
+ {
+   "autor": "Madre Teresa de Calcutá",
+   "frase": "Não podemos fazer grandes coisas, apenas pequenas coisas com grande amor."
+ },
+ {
+   "autor": "Anne Frank",
+   "frase": "Apesar de tudo, eu ainda acredito na bondade humana."
+ },
+ {
+   "autor": "Helen Keller",
+   "frase": "A melhor e mais bonita coisa do mundo não pode ser vista ou tocada. Deve ser sentida com o coração."
+ },
+ {
+   "autor": "Maya Angelou",
+   "frase": "Tente ser um arco-íris na nuvem de alguém."
+ },
+ {
+   "autor": "Oprah Winfrey",
+   "frase": "Transforme suas feridas em sabedoria."
+ },
+ {
+   "autor": "J.K. Rowling",
+   "frase": "São as nossas escolhas que revelam o que verdadeiramente somos, muito mais do que as nossas qualidades."
+ },
+ {
+   "autor": "Malala Yousafzai",
+   "frase": "Uma criança, um professor, um livro e uma caneta podem mudar o mundo."
+ },
+ {
+   "autor": "Michelle Obama",
+   "frase": "Quando eles vão baixo, nós vamos alto."
+ },
+ {
+   "autor": "William Shakespeare",
+   "frase": "Ser ou não ser, eis a questão."
+ },
+ {
+   "autor": "Oscar Wilde",
+   "frase": "Seja você mesmo; todos os outros já existem."
+ },
+ {
+   "autor": "George Bernard Shaw",
+   "frase": "A vida não é sobre se encontrar. É sobre se criar."
+ },
+ {
+   "autor": "Mark Twain",
+   "frase": "Os dois dias mais importantes da sua vida são o dia em que você nasce e o dia em que descobre o porquê."
+ },
+ {
+   "autor": "Ralph Waldo Emerson",
+   "frase": "Não vá por onde o caminho pode levar, vá em vez disso por onde não há caminho e deixe uma trilha."
+ },
+ {
+   "autor": "Henry David Thoreau",
+   "frase": "O sucesso geralmente vem para aqueles que estão ocupados demais para procurá-lo."
+ },
+ {
+   "autor": "Vincent van Gogh",
+   "frase": "Prefiro morrer de paixão a morrer de tédio."
+ },
+ {
+   "autor": "Pablo Picasso",
+   "frase": "A inspiração existe, mas ela precisa te encontrar trabalhando."
+ },
+ {
+   "autor": "Salvador Dalí",
+   "frase": "Não tenha medo da perfeição, você nunca a alcançará."
+ },
+ {
+   "autor": "Frida Kahlo",
+   "frase": "Pés, para que os quero, se tenho asas para voar?"
+ },
+ {
+   "autor": "Andy Warhol",
+   "frase": "No futuro, todos serão famosos por 15 minutos."
+ },
+ {
+   "autor": "Charles Darwin",
+   "frase": "Não é o mais forte que sobrevive, nem o mais inteligente, mas o que melhor se adapta às mudanças."
+ },
+ {
+   "autor": "Marie Curie",
+   "frase": "Nada na vida deve ser temido, apenas compreendido."
+ },
+ {
+   "autor": "Sigmund Freud",
+   "frase": "Aonde quer que eu vá, descubro que um poeta esteve lá antes de mim."
+ },
+ {
+   "autor": "Carl Jung",
+   "frase": "Quem olha para fora, sonha. Quem olha para dentro, desperta."
+ },
+ {
+   "autor": "Viktor Frankl",
+   "frase": "Quando não podemos mais mudar uma situação, somos desafiados a mudar a nós mesmos."
+ },
+ {
+   "autor": "Fernando Pessoa",
+   "frase": "Tudo vale a pena se a alma não é pequena."
+ },
+ {
+   "autor": "Carlos Drummond de Andrade",
+   "frase": "Ser feliz sem motivo é a mais autêntica forma de felicidade."
+ },
+ {
+   "autor": "Clarice Lispector",
+   "frase": "Liberdade é pouco. O que eu desejo ainda não tem nome."
+ },
+ {
+   "autor": "Machado de Assis",
+   "frase": "A vida é uma ópera e uma grande ópera."
+ },
+ {
+   "autor": "Paulo Coelho",
+   "frase": "Quando você quer alguma coisa, todo o universo conspira para que você realize seu desejo."
+ },
+ {
+   "autor": "Mário Quintana",
+   "frase": "Viajar é trocar a roupa da alma."
+ },
+ {
+   "autor": "Cora Coralina",
+   "frase": "Feliz é aquele que transfere o que sabe e aprende o que ensina."
+ },
+ {
+   "autor": "Albert Camus",
+   "frase": "No meio do inverno, eu finalmente aprendi que havia em mim um verão invencível."
+ },
+ {
+   "autor": "Jean-Paul Sartre",
+   "frase": "O inferno são os outros."
+ },
+ {
+   "autor": "Simone de Beauvoir",
+   "frase": "Não se nasce mulher: torna-se."
+ },
+ {
+   "autor": "Bob Marley",
+   "frase": "Não ganhe o mundo e perca sua alma, a sabedoria é melhor que prata e ouro."
+ },
+ {
+   "autor": "John Lennon",
+   "frase": "A vida é o que acontece enquanto você está ocupado fazendo outros planos."
+ },
+ {
+   "autor": "The Beatles",
+   "frase": "No final, o amor que você recebe é igual ao amor que você dá."
+ },
+ {
+   "autor": "Frank Sinatra",
+   "frase": "A melhor vingança é um sucesso estrondoso."
+ },
+ {
+   "autor": "Elvis Presley",
+   "frase": "A verdade é como o sol. Você pode escondê-la por um tempo, mas ela não vai a lugar nenhum."
+ },
+ {
+   "autor": "Marilyn Monroe",
+   "frase": "A imperfeição é bela, a loucura é genial e é melhor ser absolutamente ridículo do que absolutamente chato."
+ },
+ {
+   "autor": "Audrey Hepburn",
+   "frase": "Nada é impossível, a própria palavra diz 'eu sou possível' (I'm possible)!"
+ },
+ {
+   "autor": "Charlie Chaplin",
+   "frase": "Um dia sem rir é um dia desperdiçado."
+ },
+ {
+   "autor": "Steven Spielberg",
+   "frase": "Eu não sonho à noite, eu sonho o dia todo. Eu sonho para viver."
+ },
+ {
+   "autor": "George Lucas",
+   "frase": "Que a Força esteja com você."
+ },
+ {
+   "autor": "Stephen King",
+   "frase": "Monstros são reais, e fantasmas também. Eles vivem dentro de nós e, às vezes, eles vencem."
+ },
+ {
+   "autor": "J.R.R. Tolkien",
+   "frase": "Nem todos os que vagueiam estão perdidos."
+ },
+ {
+   "autor": "C.S. Lewis",
+   "frase": "Você nunca é velho demais para definir outra meta ou sonhar um novo sonho."
+ },
+ {
+   "autor": "Agatha Christie",
+   "frase": "O impossível não poderia ter acontecido, portanto o impossível deve ser possível apesar das aparências."
+ },
+ {
+   "autor": "Virginia Woolf",
+   "frase": "Não há barreira, fechadura ou ferrolho que possas impor à liberdade da minha mente."
+ },
+ {
+   "autor": "George Orwell",
+   "frase": "Quem controla o passado, controla o futuro. Quem controla o presente, controla o passado."
+ },
+ {
+   "autor": "Aldous Huxley",
+   "frase": "Os fatos não deixam de existir só porque são ignorados."
+ },
+ {
+   "autor": "Fiódor Dostoiévski",
+   "frase": "O segredo da existência humana não está apenas em viver, mas em encontrar algo pelo que viver."
+ },
+ {
+   "autor": "Liev Tolstói",
+   "frase": "Todos pensam em mudar o mundo, mas ninguém pensa em mudar a si mesmo."
+ },
+ {
+   "autor": "Anton Tchekhov",
+   "frase": "O conhecimento não tem valor a menos que você o coloque em prática."
+ },
+ {
+   "autor": "Victor Hugo",
+   "frase": "A vida é a flor da qual o amor é o mel."
+ },
+ {
+   "autor": "Alexandre Dumas",
+   "frase": "A vida é uma tempestade. Um dia você está se aquecendo ao sol, no outro, se quebra contra as rochas."
+ },
+ {
+   "autor": "Júlio Verne",
+   "frase": "O mar é tudo."
+ },
+ {
+   "autor": "Goethe",
+   "frase": "Saber não é o bastante; precisamos aplicar. Querer não é o bastante, precisamos fazer."
+ },
+ {
+   "autor": "Rumi",
+   "frase": "Sua tarefa não é procurar o amor, mas apenas procurar e encontrar todas as barreiras dentro de si que você construiu contra ele."
+ },
+ {
+   "autor": "Khalil Gibran",
+   "frase": "A beleza não está na face; a beleza é uma luz no coração."
+ },
+ {
+   "autor": "Buda",
+   "frase": "O caminho não está no céu. O caminho está no coração."
+ },
+ {
+   "autor": "Provérbio Chinês",
+   "frase": "A melhor hora para plantar uma árvore foi há 20 anos. A segunda melhor hora é agora."
+ },
+ {
+   "autor": "Provérbio Japonês",
+   "frase": "Caia sete vezes, levante-se oito."
+ },
+ {
+   "autor": "Provérbio Africano",
+   "frase": "Se quer ir rápido, vá sozinho. Se quer ir longe, vá acompanhado."
+ },
+ {
+   "autor": "Provérbio Árabe",
+   "frase": "O que vem fácil, vai fácil."
+ },
+ {
+   "autor": "Provérbio Indiano",
+   "frase": "Não há árvore que o vento não tenha sacudido."
+ },
+ {
+   "autor": "Theodore Roosevelt",
+   "frase": "Acredite que você pode, e você já está no meio do caminho."
+ },
+ {
+   "autor": "Eleanor Roosevelt",
+   "frase": "O futuro pertence àqueles que acreditam na beleza de seus sonhos."
+ },
+ {
+   "autor": "Franklin D. Roosevelt",
+   "frase": "A única coisa que devemos temer é o próprio medo."
+ },
+ {
+   "autor": "John F. Kennedy",
+   "frase": "Não pergunte o que seu país pode fazer por você. Pergunte o que você pode fazer por seu país."
+ },
+ {
+   "autor": "Ronald Reagan",
+   "frase": "Não há limite para a quantidade de bem que um homem pode fazer se ele não se importa com quem leva o crédito."
+ },
+ {
+   "autor": "Barack Obama",
+   "frase": "A mudança não virá se esperarmos por outra pessoa ou por outro tempo."
+ },
+ {
+   "autor": "Napoleão Bonaparte",
+   "frase": "A vitória pertence ao mais perseverante."
+ },
+ {
+   "autor": "Júlio César",
+   "frase": "Vim, vi, venci."
+ },
+ {
+   "autor": "Alexandre, o Grande",
+   "frase": "Não tenho medo de um exército de leões liderado por uma ovelha; tenho medo de um exército de ovelhas liderado por um leão."
+ },
+ {
+   "autor": "Cleópatra",
+   "frase": "Sou tudo o que foi, é e será, e meu véu nenhum mortal levantou."
+ },
+ {
+   "autor": "Joana d'Arc",
+   "frase": "Aja em vez de suplicar. Sacrifique-se sem esperança de glória nem de recompensa."
+ },
+ {
+   "autor": "Confúcio",
+   "frase": "Escolha um trabalho que você ame e não terá que trabalhar um único dia em sua vida."
+ },
+ {
+   "autor": "Lao-Tsé",
+   "frase": "Aquele que conhece os outros é sábio; aquele que conhece a si mesmo é iluminado."
+ },
+ {
+   "autor": "Heráclito",
+   "frase": "Ninguém pode entrar duas vezes no mesmo rio."
+ },
+ {
+   "autor": "Epicuro",
+   "frase": "Não estrague o que você tem desejando o que não tem."
+ },
+ {
+   "autor": "Epicteto",
+   "frase": "Não são as coisas que nos perturbam, mas a nossa interpretação das coisas."
+ },
+ {
+   "autor": "Diógenes",
+   "frase": "Saia do meu sol."
+ },
+ {
+   "autor": "Blaise Pascal",
+   "frase": "O coração tem razões que a própria razão desconhece."
+ },
+ {
+   "autor": "Baruch Spinoza",
+   "frase": "A felicidade é uma virtude, não uma recompensa."
+ },
+ {
+   "autor": "John Locke",
+   "frase": "O que te preocupa, te domina."
+ },
+ {
+   "autor": "David Hume",
+   "frase": "A beleza das coisas existe no espírito de quem as contempla."
+ },
+ {
+   "autor": "Schopenhauer",
+   "frase": "O destino embaralha as cartas, e nós jogamos."
+ },
+ {
+   "autor": "Kierkegaard",
+   "frase": "A vida só pode ser compreendida olhando-se para trás, mas só pode ser vivida olhando-se para a frente."
+ },
+ {
+   "autor": "Aristóteles",
+   "frase": "A felicidade é o sentido e o propósito da vida, o único objetivo da existência humana."
+ },
+ {
+   "autor": "Steve Jobs",
+   "frase": "Seu tempo é limitado, não o desperdice vivendo a vida de outra pessoa."
+ },
+ {
+   "autor": "Walt Disney",
+   "frase": "A maneira de começar é parar de falar e começar a fazer."
+ },
+ {
+   "autor": "Nelson Mandela",
+   "frase": "Tudo parece impossível até que seja feito."
+ },
+ {
+   "autor": "Martin Luther King Jr.",
+   "frase": "A escuridão não pode expulsar a escuridão; apenas a luz pode fazer isso."
+ },
+ {
+   "autor": "Mahatma Gandhi",
+   "frase": "Olho por olho, e o mundo acabará cego."
+ },
+ {
+   "autor": "Winston Churchill",
+   "frase": "Nunca, nunca, nunca desista."
+ },
+ {
+   "autor": "Henry Ford",
+   "frase": "O fracasso é a oportunidade de começar de novo, com mais inteligência."
+ },
+ {
+   "autor": "Michael Jordan",
+   "frase": "O talento vence jogos, mas o trabalho em equipe e a inteligência vencem campeonatos."
+ },
+ {
+   "autor": "Dalai Lama",
+   "frase": "Seja gentil sempre que possível. Sempre é possível."
+ },
+ {
+   "autor": "Madre Teresa de Calcutá",
+   "frase": "A alegria é uma rede de amor na qual você pode pegar almas."
+ },
+ {
+   "autor": "Maya Angelou",
+   "frase": "As pessoas esquecerão o que você disse, as pessoas esquecerão o que você fez, mas as pessoas nunca esquecerão como você as fez sentir."
+ },
+ {
+   "autor": "Oscar Wilde",
+   "frase": "Viver é a coisa mais rara do mundo. A maioria das pessoas apenas existe."
+ },
+ {
+   "autor": "Mark Twain",
+   "frase": "Coragem é a resistência ao medo, o domínio do medo - não a ausência do medo."
+ },
+ {
+   "autor": "Albert Einstein",
+   "frase": "Uma pessoa que nunca cometeu um erro nunca tentou nada novo."
+ },
+ {
+   "autor": "Leonardo da Vinci",
+   "frase": "Aprender é a única coisa de que a mente nunca se cansa, nunca tem medo e nunca se arrepende."
+ },
+ {
+   "autor": "William Shakespeare",
+   "frase": "Sabemos o que somos, mas não sabemos o que podemos ser."
+ },
+ {
+   "autor": "Friedrich Nietzsche",
+   "frase": "E aqueles que foram vistos dançando foram considerados insanos por aqueles que não podiam ouvir a música."
+ },
+ {
+   "autor": "Sócrates",
+   "frase": "Uma vida não examinada não vale a pena ser vivida."
+ },
+ {
+   "autor": "Platão",
+   "frase": "A necessidade é a mãe da invenção."
+ },
+ {
+   "autor": "Confúcio",
+   "frase": "Aquele que aprende, mas não pensa, está perdido. Aquele que pensa, mas não aprende, está em grande perigo."
+ },
+ {
+   "autor": "Sun Tzu",
+   "frase": "Conheça o seu inimigo e conheça a si mesmo e você não temerá o resultado de cem batalhas."
+ },
+ {
+   "autor": "Sêneca",
+   "frase": "Não é porque as coisas são difíceis que não ousamos; é porque não ousamos que elas são difíceis."
+ },
+ {
+   "autor": "Marco Aurélio",
+   "frase": "Nossa vida é o que nossos pensamentos fazem dela."
+ },
+ {
+   "autor": "Thomas Edison",
+   "frase": "Nossa maior fraqueza está em desistir. O caminho mais certo para o sucesso é sempre tentar mais uma vez."
+ },
+ {
+   "autor": "Abraham Lincoln",
+   "frase": "A melhor coisa sobre o futuro é que ele vem um dia de cada vez."
+ },
+ {
+   "autor": "Benjamin Franklin",
+   "frase": "Investir em conhecimento rende sempre os melhores juros."
+ },
+ {
+   "autor": "Theodore Roosevelt",
+   "frase": "Faça o que puder, com o que tiver, onde estiver."
+ },
+ {
+   "autor": "Eleanor Roosevelt",
+   "frase": "Ninguém pode fazer você se sentir inferior sem o seu consentimento."
+ },
+ {
+   "autor": "John F. Kennedy",
+   "frase": "A mudança é a lei da vida. E aqueles que olham apenas para o passado ou para o presente certamente perderão o futuro."
+ },
+ {
+   "autor": "Vincent van Gogh",
+   "frase": "Grandes coisas são feitas por uma série de pequenas coisas reunidas."
+ },
+ {
+   "autor": "Pablo Picasso",
+   "frase": "Tudo o que você pode imaginar é real."
+ },
+ {
+   "autor": "Charles Darwin",
+   "frase": "Um homem que ousa desperdiçar uma hora de tempo não descobriu o valor da vida."
+ },
+ {
+   "autor": "Marie Curie",
+   "frase": "Devemos ter perseverança e, acima de tudo, confiança em nós mesmos."
+ },
+ {
+   "autor": "Carl Sagan",
+   "frase": "Em algum lugar, algo incrível está esperando para ser conhecido."
+ },
+ {
+   "autor": "Stephen Hawking",
+   "frase": "Olhe para as estrelas e não para os seus pés."
+ },
+ {
+   "autor": "Neil Armstrong",
+   "frase": "É um pequeno passo para um homem, um salto gigante para a humanidade."
+ },
+ {
+   "autor": "Amelia Earhart",
+   "frase": "A maneira mais eficaz de fazer algo é fazer."
+ },
+ {
+   "autor": "Rosa Parks",
+   "frase": "Cada pessoa deve viver sua vida como um modelo para os outros."
+ },
+ {
+   "autor": "Harriet Tubman",
+   "frase": "Todo grande sonho começa com um sonhador."
+ },
+ {
+   "autor": "Susan B. Anthony",
+   "frase": "O fracasso é impossível."
+ },
+ {
+   "autor": "Sojourner Truth",
+   "frase": "Se a primeira mulher que Deus fez foi forte o suficiente para virar o mundo de cabeça para baixo, então juntas poderemos virá-lo de volta."
+ },
+ {
+   "autor": "Emily Dickinson",
+   "frase": "Para sempre é composto de agoras."
+ },
+ {
+   "autor": "Jane Austen",
+   "frase": "Não há charme igual à ternura do coração."
+ },
+ {
+   "autor": "Mary Shelley",
+   "frase": "Cuidado; pois não conheço o medo, e portanto sou poderoso."
+ },
+ {
+   "autor": "George Eliot",
+   "frase": "Nunca é tarde para ser o que você poderia ter sido."
+ },
+ {
+   "autor": "Louisa May Alcott",
+   "frase": "Não tenho medo de tempestades, pois estou aprendendo a navegar meu navio."
+ },
+ {
+   "autor": "Anônimo",
+   "frase": "A vida é 10% do que acontece com você e 90% de como você reage a isso."
+ },
+ {
+   "autor": "Zig Ziglar",
+   "frase": "Sua atitude, não sua aptidão, determinará sua altitude."
+ },
+ {
+   "autor": "Jim Rohn",
+   "frase": "Ou você comanda o seu dia, ou o dia comanda você."
+ },
+]
