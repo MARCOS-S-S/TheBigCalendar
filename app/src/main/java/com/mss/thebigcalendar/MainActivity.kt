@@ -2,6 +2,13 @@ package com.mss.thebigcalendar
 
 import android.content.Intent
 import android.os.Bundle
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import android.net.Uri
+import android.provider.Settings
+import android.os.Build
+import android.os.Environment
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -37,6 +44,25 @@ class MainActivity : ComponentActivity() {
         val data: Intent? = result.data
         val task = GoogleSignIn.getSignedInAccountFromIntent(data)
         viewModel.handleSignInResult(task)
+    }
+    
+    private val storagePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // Verificar se a permissão foi concedida
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Environment.isExternalStorageManager()) {
+                // Permissão de gerenciamento concedida
+            }
+        }
+    }
+    
+    private val writePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permissão de escrita concedida
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,6 +119,31 @@ class MainActivity : ComponentActivity() {
                             onGoogleSignIn = {
                                 // Usar a função de login do Google existente
                                 viewModel.onSignInClicked()
+                            },
+                            onRequestStoragePermission = {
+                                // Usar a mesma lógica da tela de backups
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                    // Android 11+: Solicitar permissão de gerenciamento de arquivos
+                                    if (!Environment.isExternalStorageManager()) {
+                                        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                                            data = Uri.fromParts("package", packageName, null)
+                                        }
+                                        try {
+                                            storagePermissionLauncher.launch(intent)
+                                        } catch (e: Exception) {
+                                            // Fallback para configurações gerais do app
+                                            val fallbackIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                                data = Uri.fromParts("package", packageName, null)
+                                            }
+                                            storagePermissionLauncher.launch(fallbackIntent)
+                                        }
+                                    }
+                                } else {
+                                    // Android < 11: Solicitar permissão de escrita
+                                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                        writePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                    }
+                                }
                             }
                         )
                     } else {

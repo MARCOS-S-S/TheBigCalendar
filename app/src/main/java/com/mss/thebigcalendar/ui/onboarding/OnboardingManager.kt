@@ -27,6 +27,7 @@ class OnboardingManager(private val context: Context) {
         private const val TAG = "OnboardingManager"
         private const val PREFS_NAME = "onboarding_prefs"
         private const val KEY_WELCOME_SHOWN = "welcome_shown"
+        private const val KEY_STORAGE_PERMISSION_SHOWN = "storage_permission_shown"
         private const val KEY_GOOGLE_CONNECTED = "google_connected"
         private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
     }
@@ -46,6 +47,21 @@ class OnboardingManager(private val context: Context) {
     fun markWelcomeShown() {
         prefs.edit().putBoolean(KEY_WELCOME_SHOWN, true).apply()
         Log.d(TAG, "✅ Janela de boas-vindas marcada como exibida")
+    }
+    
+    /**
+     * Verifica se a janela de permissão de armazenamento já foi exibida
+     */
+    fun isStoragePermissionShown(): Boolean {
+        return prefs.getBoolean(KEY_STORAGE_PERMISSION_SHOWN, false)
+    }
+    
+    /**
+     * Marca a janela de permissão de armazenamento como exibida
+     */
+    fun markStoragePermissionShown() {
+        prefs.edit().putBoolean(KEY_STORAGE_PERMISSION_SHOWN, true).apply()
+        Log.d(TAG, "✅ Janela de permissão de armazenamento marcada como exibida")
     }
     
     /**
@@ -98,6 +114,13 @@ class OnboardingManager(private val context: Context) {
      */
     fun shouldShowWelcome(): Boolean {
         return !isWelcomeShown()
+    }
+    
+    /**
+     * Verifica se deve exibir a janela de permissão de armazenamento
+     */
+    fun shouldShowStoragePermission(): Boolean {
+        return isWelcomeShown() && !isStoragePermissionShown()
     }
 }
 
@@ -198,24 +221,128 @@ fun WelcomeDialog(
 }
 
 /**
+ * Composable para a janela de permissão de armazenamento
+ */
+@Composable
+fun StoragePermissionDialog(
+    onDismiss: () -> Unit,
+    onRequestPermission: () -> Unit,
+    onSkip: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Ícone de armazenamento
+                Text(
+                    text = "💾",
+                    fontSize = 48.sp,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                
+                // Título
+                Text(
+                    text = "Permissão de Armazenamento",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                // Subtítulo
+                Text(
+                    text = "Para salvar e restaurar seus backups",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+                
+                // Descrição
+                Text(
+                    text = "O TheBigCalendar precisa de acesso ao armazenamento para criar backups dos seus agendamentos e permitir que você os restaure quando necessário.",
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = 32.dp)
+                )
+                
+                // Botão solicitar permissão
+                Button(
+                    onClick = onRequestPermission,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(
+                        text = "Conceder Permissão",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                
+                // Botão pular
+                TextButton(
+                    onClick = onSkip,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Pular por enquanto",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
  * Composable para gerenciar o fluxo de onboarding
  */
 @Composable
 fun OnboardingFlow(
     onComplete: () -> Unit,
-    onGoogleSignIn: () -> Unit
+    onGoogleSignIn: () -> Unit,
+    onRequestStoragePermission: () -> Unit
 ) {
     val context = LocalContext.current
     val onboardingManager = remember { OnboardingManager(context) }
     
     var showWelcome by remember { mutableStateOf(false) }
+    var showStoragePermission by remember { mutableStateOf(false) }
     
     // Verificar se deve exibir onboarding
     LaunchedEffect(Unit) {
-        if (onboardingManager.shouldShowOnboarding() && onboardingManager.shouldShowWelcome()) {
-            showWelcome = true
-        } else {
-            onComplete()
+        when {
+            onboardingManager.shouldShowWelcome() -> {
+                showWelcome = true
+            }
+            onboardingManager.shouldShowStoragePermission() -> {
+                showStoragePermission = true
+            }
+            else -> {
+                onComplete()
+            }
         }
     }
     
@@ -225,18 +352,56 @@ fun OnboardingFlow(
             onDismiss = {
                 showWelcome = false
                 onboardingManager.markWelcomeShown()
-                onComplete()
+                // Verificar se deve mostrar próxima janela
+                if (onboardingManager.shouldShowStoragePermission()) {
+                    showStoragePermission = true
+                } else {
+                    onComplete()
+                }
             },
             onGoogleSignIn = {
                 // Chama a função de login do Google existente
                 onGoogleSignIn()
                 showWelcome = false
                 onboardingManager.markWelcomeShown()
-                onComplete()
+                // Verificar se deve mostrar próxima janela
+                if (onboardingManager.shouldShowStoragePermission()) {
+                    showStoragePermission = true
+                } else {
+                    onComplete()
+                }
             },
             onSkip = {
                 showWelcome = false
                 onboardingManager.markWelcomeShown()
+                // Verificar se deve mostrar próxima janela
+                if (onboardingManager.shouldShowStoragePermission()) {
+                    showStoragePermission = true
+                } else {
+                    onComplete()
+                }
+            }
+        )
+    }
+    
+    // Janela de permissão de armazenamento
+    if (showStoragePermission) {
+        StoragePermissionDialog(
+            onDismiss = {
+                showStoragePermission = false
+                onboardingManager.markStoragePermissionShown()
+                onComplete()
+            },
+            onRequestPermission = {
+                // Chama a função de solicitar permissão
+                onRequestStoragePermission()
+                showStoragePermission = false
+                onboardingManager.markStoragePermissionShown()
+                onComplete()
+            },
+            onSkip = {
+                showStoragePermission = false
+                onboardingManager.markStoragePermissionShown()
                 onComplete()
             }
         )
