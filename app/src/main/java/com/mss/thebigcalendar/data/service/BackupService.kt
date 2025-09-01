@@ -8,6 +8,7 @@ import android.os.Environment
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.DeletedActivity
@@ -82,6 +83,7 @@ class BackupService(
     /**
      * Gera um backup completo de todas as atividades e itens da lixeira
      */
+    @RequiresApi(Build.VERSION_CODES.R)
     suspend fun createBackup(): Result<String> = withContext(Dispatchers.IO) {
         try {
             // Coletar dados para backup
@@ -119,6 +121,7 @@ class BackupService(
     /**
      * Cria o diretório de backup se não existir
      */
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun createBackupDirectory(): File {
         val backupDir = if (hasStoragePermission()) {
             // Se tem permissão, criar na pasta pública

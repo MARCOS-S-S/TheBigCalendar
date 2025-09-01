@@ -53,6 +53,8 @@ import androidx.work.NetworkType
 import com.mss.thebigcalendar.service.ProgressiveSyncService
 import com.mss.thebigcalendar.worker.GoogleCalendarSyncWorker
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -69,6 +71,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val backupService = BackupService(application, activityRepository, deletedActivityRepository)
     private val visibilityService = VisibilityService(application)
 
+    // Debounce para otimizar atualizações do calendário
+    private var updateJob: Job? = null
+    
+    // Cache para evitar recálculos desnecessários do calendário
+    private var cachedCalendarDays: List<CalendarDay>? = null
+    private var lastUpdateParams: String? = null
+
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
@@ -78,6 +87,45 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         checkForExistingSignIn()
         // Garantir que o calendário inicie no mês atual
         onGoToToday()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Limpar job pendente quando o ViewModel for destruído
+        updateJob?.cancel()
+        // Limpar cache
+        clearCalendarCache()
+    }
+
+    /**
+     * Gera uma chave única baseada nos parâmetros que afetam o calendário
+     */
+    private fun generateCalendarCacheKey(): String {
+        val state = _uiState.value
+        return buildString {
+            append("${state.displayedYearMonth}_")
+            append("${state.selectedDate}_") // Adicionar data selecionada
+            append("${state.filterOptions.showHolidays}_")
+            append("${state.filterOptions.showSaintDays}_")
+            append("${state.filterOptions.showEvents}_")
+            append("${state.filterOptions.showTasks}_")
+            append("${state.filterOptions.showNotes}_")
+            append("${state.filterOptions.showBirthdays}_")
+            append("${state.showCompletedActivities}_")
+            append("${state.activities.size}_")
+            append("${state.completedActivities.size}_")
+            append("${state.nationalHolidays.size}_")
+            append("${state.saintDays.size}")
+        }
+    }
+
+    /**
+     * Limpa o cache do calendário quando necessário
+     */
+    private fun clearCalendarCache() {
+        cachedCalendarDays = null
+        lastUpdateParams = null
+        Log.d("CalendarViewModel", "🗑️ Cache do calendário limpo")
     }
 
     private fun checkForExistingSignIn() {
@@ -387,6 +435,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             activityRepository.activities.collect { activities ->
                 _uiState.update { it.copy(activities = activities) }
+                // Limpar cache quando as atividades mudam
+                clearCalendarCache()
+                // Usar debounce para evitar múltiplas atualizações rápidas
                 updateAllDateDependentUI()
             }
         }
@@ -400,7 +451,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             completedActivityRepository.completedActivities.collect { completedActivities ->
                 _uiState.update { it.copy(completedActivities = completedActivities) }
-                // Atualizar a UI quando as tarefas finalizadas mudarem
+                // Limpar cache quando as atividades completadas mudam
+                clearCalendarCache()
+                // Usar debounce para evitar múltiplas atualizações rápidas
                 updateAllDateDependentUI()
             }
         }
@@ -419,6 +472,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     saintDays = saintDaysList.associateBy { it.date }
                 )
             }
+            // Limpar cache quando os feriados mudam
+            clearCalendarCache()
             // Não chamar updateCalendarDays() aqui para evitar loop infinito
             // updateCalendarDays() será chamado por updateAllDateDependentUI()
         }
@@ -429,6 +484,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun updateCalendarDays() {
         val state = _uiState.value
         
+        // Verificar se podemos usar o cache
+        val currentCacheKey = generateCalendarCacheKey()
+        if (cachedCalendarDays != null && lastUpdateParams == currentCacheKey) {
+            // Usar cache - não recalculamos
+            return
+        }
+        
+        // Cache miss - precisamos recalcular
+        Log.d("CalendarViewModel", "🔄 Cache miss - recalculando calendário")
 
         val firstDayOfMonth = state.displayedYearMonth.atDay(1)
         val daysFromPrevMonthOffset = (firstDayOfMonth.dayOfWeek.value % 7)
@@ -524,6 +588,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 isSaintDay = saintDayForThisDay != null
             )
         }
+        
+        // Salvar no cache
+        cachedCalendarDays = newCalendarDays
+        lastUpdateParams = currentCacheKey
+        
         _uiState.update { it.copy(calendarDays = newCalendarDays) }
     }
 
@@ -661,19 +730,30 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun updateAllDateDependentUI() {
-        updateCalendarDays()
-        updateTasksForSelectedDate()
-        updateHolidaysForSelectedDate()
-        updateSaintDaysForSelectedDate()
+        // Cancelar atualização anterior se ainda estiver pendente
+        updateJob?.cancel()
+        
+        // Agendar nova atualização com debounce de 100ms
+        updateJob = viewModelScope.launch {
+            delay(100) // Debounce de 100ms
+            updateCalendarDays()
+            updateTasksForSelectedDate()
+            updateHolidaysForSelectedDate()
+            updateSaintDaysForSelectedDate()
+        }
     }
 
     fun onPreviousMonth() {
         _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.minusMonths(1)) }
+        // Limpar cache quando muda o mês
+        clearCalendarCache()
         updateAllDateDependentUI()
     }
 
     fun onNextMonth() {
         _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.plusMonths(1)) }
+        // Limpar cache quando muda o mês
+        clearCalendarCache()
         updateAllDateDependentUI()
     }
 
@@ -692,6 +772,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 selectedDate = LocalDate.now()
             )
         }
+        // Limpar cache quando vai para hoje
+        clearCalendarCache()
         updateAllDateDependentUI()
     }
 
@@ -710,6 +792,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 activityIdWithDeleteButtonVisible = null // Esconde o botão ao selecionar nova data
             )
         }
+        
+        // Limpar cache quando a data selecionada muda
+        clearCalendarCache()
         updateAllDateDependentUI()
 
         if (shouldOpenModal) {
@@ -726,6 +811,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 isSidebarOpen = false
             )
         }
+        // Limpar cache quando muda o mês/ano
+        clearCalendarCache()
         updateAllDateDependentUI()
     }
 
