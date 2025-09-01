@@ -177,6 +177,7 @@ class BackupService(
             activityJson.put("recurrenceRule", activity.recurrenceRule ?: "")
             activityJson.put("isCompleted", activity.isCompleted)
             activityJson.put("visibility", activity.visibility.name)
+            activityJson.put("showInCalendar", activity.showInCalendar)
             activityJson.put("isFromGoogle", activity.isFromGoogle)
             
             // Configurações de notificação
@@ -214,6 +215,8 @@ class BackupService(
             originalJson.put("activityType", originalActivity.activityType.name)
             originalJson.put("recurrenceRule", originalActivity.recurrenceRule ?: "")
             originalJson.put("isCompleted", originalActivity.isCompleted)
+            originalJson.put("visibility", originalActivity.visibility.name)
+            originalJson.put("showInCalendar", originalActivity.showInCalendar)
             originalJson.put("isFromGoogle", originalActivity.isFromGoogle)
             
             deletedJson.put("originalActivity", originalJson)
