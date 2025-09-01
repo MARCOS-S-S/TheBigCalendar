@@ -23,12 +23,9 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d(TAG, "NotificationReceiver acionado com ação: ${intent.action}")
-        
         when (intent.action) {
             NotificationService.ACTION_VIEW_ACTIVITY -> {
                 // ✅ Exibir a notificação visual quando o alarme for acionado
-                Log.d(TAG, "Exibindo notificação visual para atividade agendada")
                 handleViewActivity(context, intent)
             }
             NotificationService.ACTION_SNOOZE -> {
@@ -49,8 +46,6 @@ class NotificationReceiver : BroadcastReceiver() {
         val activityDate = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_DATE)
         val activityTime = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_TIME)
         
-        Log.d(TAG, "Exibindo notificação visual para: $activityTitle (ID: $activityId)")
-        
         // ✅ Buscar a atividade REAL do repositório para obter a visibilidade configurada
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         
@@ -64,16 +59,11 @@ class NotificationReceiver : BroadcastReceiver() {
                 val realActivity = activities.find { it.id == activityId }
                 
                 if (realActivity != null) {
-                    Log.d(TAG, "✅ Atividade encontrada no repositório: ${realActivity.title}")
-                    Log.d(TAG, "🔍 Visibilidade configurada: ${realActivity.visibility}")
-                    Log.d(TAG, "🔔 Configurações de notificação: ${realActivity.notificationSettings}")
-                    
                     // ✅ Mudar para Main thread para exibir overlay
                     withContext(Dispatchers.Main) {
                         notificationService.showNotification(realActivity)
                     }
                     
-                    Log.d(TAG, "🎉 Notificação visual exibida com sucesso para: ${realActivity.title}")
                 } else {
                     Log.w(TAG, "⚠️ Atividade não encontrada no repositório, usando fallback")
                     
@@ -103,7 +93,6 @@ class NotificationReceiver : BroadcastReceiver() {
                         notificationService.showNotification(tempActivity)
                     }
                     
-                    Log.d(TAG, "📱 Notificação de fallback exibida para: $activityTitle")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "❌ Erro ao buscar atividade no repositório", e)
@@ -135,7 +124,6 @@ class NotificationReceiver : BroadcastReceiver() {
                     notificationService.showNotification(tempActivity)
                 }
                 
-                Log.d(TAG, "📱 Notificação de fallback exibida após erro para: $activityTitle")
             }
         }
     }
@@ -146,8 +134,6 @@ class NotificationReceiver : BroadcastReceiver() {
     private fun handleSnooze(context: Context, intent: Intent) {
         val activityId = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_ID)
         val snoozeMinutes = intent.getIntExtra("snooze_minutes", 5)
-        
-        Log.d(TAG, "Adiando notificação para atividade $activityId por $snoozeMinutes minutos")
         
         // Usar CoroutineScope com SupervisorJob para evitar cancelamento
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -193,8 +179,6 @@ class NotificationReceiver : BroadcastReceiver() {
      */
     private fun handleDismiss(context: Context, intent: Intent) {
         val activityId = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_ID)
-        
-        Log.d(TAG, "Cancelando notificação para atividade $activityId")
         
         // Cancelar a notificação agendada
         val notificationService = NotificationService(context)

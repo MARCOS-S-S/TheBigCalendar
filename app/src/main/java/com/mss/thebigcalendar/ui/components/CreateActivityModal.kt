@@ -130,10 +130,8 @@ fun CreateActivityModal(
             if (currentActivity.id != "new" && !currentActivity.id.isBlank()) {
                 // Para atividades existentes, converter a regra de repetição de volta para a opção
                 val option = convertRecurrenceRuleToOption(currentActivity.recurrenceRule, repetitionMapping)
-                println("🔄 Atividade existente - Regra: ${currentActivity.recurrenceRule}, Opção: $option")
                 option
             } else {
-                println("🔄 Nova atividade - Usando opção padrão: ${repetitionOptions.first()}")
                 repetitionOptions.first()
             }
         )
@@ -341,9 +339,6 @@ fun CreateActivityModal(
                                     selectedRepetition = option
                                     isRepetitionMenuExpanded = false
                                     
-                                    // Log para debug
-                                    println("🔄 Opção de repetição selecionada: $option")
-                                    println("🔄 Regra de repetição correspondente: ${convertRepetitionOptionToRule(option, repetitionMapping)}")
                                 }
                             )
                         }
@@ -405,10 +400,7 @@ fun CreateActivityModal(
                         notificationSettings = notificationSettings, // ✅ Adicionar configurações de notificação
                         visibility = selectedVisibility, // ✅ Adicionar visibilidade
                         showInCalendar = showInCalendar, // ✅ Adicionar opção de mostrar no calendário
-                        recurrenceRule = convertRepetitionOptionToRule(selectedRepetition, repetitionMapping).also { rule ->
-                            println("🔄 Salvando atividade com regra de repetição: $rule")
-                            println("🔄 Opção selecionada: $selectedRepetition")
-                        } // ✅ Adicionar regra de repetição
+                        recurrenceRule = convertRepetitionOptionToRule(selectedRepetition, repetitionMapping)
                     )
                     if (updatedActivity.title.isNotBlank()) {
                         onSaveActivity(updatedActivity)

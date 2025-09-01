@@ -185,7 +185,6 @@ fun TaskItem(
         }
 
         if (deleteButtonVisible) {
-            println("🔍 Renderizando botões de ação para tarefa: ${task.title}")
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(horizontal = 8.dp)

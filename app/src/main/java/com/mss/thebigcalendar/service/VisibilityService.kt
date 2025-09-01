@@ -72,10 +72,6 @@ class VisibilityService(private val context: Context) {
             true // Para versões anteriores ao Android 6.0
         }
         
-        Log.d(TAG, "🔍 Verificando permissão de sobreposição: $hasPermission")
-        Log.d(TAG, "📱 Versão do Android: ${Build.VERSION.SDK_INT}")
-        Log.d(TAG, "📱 Context: ${context.packageName}")
-        
         return hasPermission
     }
 
@@ -93,18 +89,14 @@ class VisibilityService(private val context: Context) {
      * Exibe o alerta baseado no nível de visibilidade da atividade
      */
     fun showVisibilityAlert(activity: Activity) {
-        Log.d(TAG, "🔄 showVisibilityAlert chamado para: ${activity.title} com visibilidade: ${activity.visibility}")
         val hasPermission = hasOverlayPermission()
-        Log.d(TAG, "🔑 Permissão de sobreposição: $hasPermission")
         
         when (activity.visibility) {
             VisibilityLevel.LOW -> {
                 // Apenas notificação padrão (já gerenciada pelo NotificationService)
-                Log.d(TAG, "📱 Visibilidade baixa: apenas notificação padrão")
             }
             VisibilityLevel.MEDIUM -> {
                 if (hasPermission) {
-                    Log.d(TAG, "🟡 Exibindo alerta de visibilidade média")
                     showMediumVisibilityAlert(activity)
                 } else {
                     Log.d(TAG, "⚠️ Sem permissão para visibilidade média, usando fallback")
@@ -114,7 +106,6 @@ class VisibilityService(private val context: Context) {
             }
             VisibilityLevel.HIGH -> {
                 if (hasPermission) {
-                    Log.d(TAG, "🔴 Exibindo alerta de visibilidade alta")
                     showHighVisibilityAlert(activity)
                 } else {
                     Log.d(TAG, "⚠️ Sem permissão para visibilidade alta, usando fallback")
@@ -139,8 +130,6 @@ class VisibilityService(private val context: Context) {
                 }
                 return
             }
-            
-            Log.d(TAG, "✅ Estamos na Main thread, continuando...")
             
             // Criar layout para o banner
             val layoutInflater = LayoutInflater.from(context)
@@ -181,8 +170,6 @@ class VisibilityService(private val context: Context) {
                 }
             }, 5000)
 
-            Log.d(TAG, "Banner de visibilidade média exibido para: ${activity.title}")
-
         } catch (e: Exception) {
             Log.e(TAG, "Erro ao exibir banner de visibilidade média", e)
             // Fallback para notificação
@@ -195,8 +182,6 @@ class VisibilityService(private val context: Context) {
      */
     private fun showHighVisibilityAlert(activity: Activity) {
         try {
-            Log.d(TAG, "🔄 Iniciando exibição de alerta de visibilidade alta para: ${activity.title}")
-            
             // ✅ Verificar se estamos na Main thread
             if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) {
                 Log.w(TAG, "⚠️ Não estamos na Main thread, mudando para Main thread")
@@ -207,12 +192,9 @@ class VisibilityService(private val context: Context) {
                 return
             }
             
-            Log.d(TAG, "✅ Estamos na Main thread, continuando...")
-            
             // Criar layout para o alerta de tela inteira
             val layoutInflater = LayoutInflater.from(context)
             val fullScreenView = layoutInflater.inflate(R.layout.visibility_alert_high, null)
-            Log.d(TAG, "✅ Layout inflado com sucesso")
 
             // Configurar texto do alerta
             val titleText = fullScreenView.findViewById<TextView>(R.id.alert_title)
@@ -222,7 +204,6 @@ class VisibilityService(private val context: Context) {
             titleText.text = activity.title
             descriptionText.text = activity.description ?: "Sem descrição"
             timeText.text = formatActivityTime(activity)
-            Log.d(TAG, "✅ Textos configurados: título='${activity.title}', descrição='${activity.description}', horário='${formatActivityTime(activity)}'")
 
             // Configurar parâmetros da janela
             val layoutParams = WindowManager.LayoutParams().apply {
@@ -245,18 +226,14 @@ class VisibilityService(private val context: Context) {
                                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
                                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             }
-            Log.d(TAG, "✅ Parâmetros da janela configurados: type=${layoutParams.type}, flags=${layoutParams.flags}")
 
             // Adicionar alerta à tela
-            Log.d(TAG, "Attempting to add view to window manager. Context: $context")
             windowManager.addView(fullScreenView, layoutParams)
-            Log.d(TAG, "✅ Alerta adicionado à tela com sucesso")
 
             // Configurar botão Adiar
             val snoozeButton = fullScreenView.findViewById<Button>(R.id.alert_snooze_button)
             snoozeButton.setOnClickListener {
                 try {
-                    Log.d(TAG, "🔄 Usuário clicou no botão Adiar")
                     showSnoozeOptionsDialog(activity, fullScreenView)
                 } catch (e: Exception) {
                     Log.w(TAG, "❌ Erro ao mostrar opções de adiamento: ${e.message}")
@@ -267,16 +244,13 @@ class VisibilityService(private val context: Context) {
             val completeButton = fullScreenView.findViewById<Button>(R.id.alert_complete_button)
             completeButton.setOnClickListener {
                 try {
-                    Log.d(TAG, "🔄 Usuário clicou no botão Concluído")
                     windowManager.removeView(fullScreenView)
-                    Log.d(TAG, "✅ Alerta removido da tela - atividade concluída")
                     // TODO: Marcar atividade como concluída no repositório
                 } catch (e: Exception) {
                     Log.w(TAG, "❌ Erro ao remover alerta de tela inteira: ${e.message}")
                 }
             }
 
-            Log.d(TAG, "🎉 Alerta de visibilidade alta exibido com sucesso para: ${activity.title}")
 
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao exibir alerta de visibilidade alta", e)
@@ -300,7 +274,6 @@ class VisibilityService(private val context: Context) {
             .build()
 
         notificationManager.notify(activity.id.hashCode(), notification)
-        Log.d(TAG, "Notificação de fallback exibida para: ${activity.title}")
     }
 
     /**
@@ -322,8 +295,6 @@ class VisibilityService(private val context: Context) {
      */
     private fun showSnoozeOptionsDialog(activity: Activity, currentView: View) {
         try {
-            Log.d(TAG, "🔄 Exibindo diálogo de opções de adiamento para: ${activity.title}")
-            
             // Inflar o layout do diálogo
             val inflater = LayoutInflater.from(context)
             val dialogView = inflater.inflate(R.layout.snooze_options_dialog, null)
@@ -341,7 +312,6 @@ class VisibilityService(private val context: Context) {
             
             // Adicionar diálogo à tela
             windowManager.addView(dialogView, layoutParams)
-            Log.d(TAG, "✅ Diálogo de adiamento adicionado à tela")
             
             // Configurar botões de adiamento
             val snooze5minButton = dialogView.findViewById<Button>(R.id.snooze_5min_button)
@@ -351,28 +321,23 @@ class VisibilityService(private val context: Context) {
             
             // Botão 5 minutos
             snooze5minButton.setOnClickListener {
-                Log.d(TAG, "🔄 Usuário escolheu adiar por 5 minutos")
                 snoozeActivity(activity, 5, currentView, dialogView)
             }
             
             // Botão 30 minutos
             snooze30minButton.setOnClickListener {
-                Log.d(TAG, "🔄 Usuário escolheu adiar por 30 minutos")
                 snoozeActivity(activity, 30, currentView, dialogView)
             }
             
             // Botão 1 hora
             snooze1hourButton.setOnClickListener {
-                Log.d(TAG, "🔄 Usuário escolheu adiar por 1 hora")
                 snoozeActivity(activity, 60, currentView, dialogView)
             }
             
             // Botão cancelar
             cancelButton.setOnClickListener {
-                Log.d(TAG, "🔄 Usuário cancelou o adiamento")
                 try {
                     windowManager.removeView(dialogView)
-                    Log.d(TAG, "✅ Diálogo de adiamento removido")
                 } catch (e: Exception) {
                     Log.w(TAG, "❌ Erro ao remover diálogo de adiamento: ${e.message}")
                 }
@@ -388,18 +353,13 @@ class VisibilityService(private val context: Context) {
      */
     private fun snoozeActivity(activity: Activity, minutes: Int, currentView: View, dialogView: View) {
         try {
-            Log.d(TAG, "🔄 Adiando atividade '${activity.title}' por $minutes minutos")
-            
             // Remover o diálogo e o alerta atual
             windowManager.removeView(dialogView)
             windowManager.removeView(currentView)
-            Log.d(TAG, "✅ Alertas removidos da tela")
             
             // Agendar nova notificação para o tempo de adiamento
             val notificationService = NotificationService(context)
             notificationService.scheduleSnoozedNotification(activity, minutes)
-            
-            Log.d(TAG, "✅ Atividade adiada com sucesso por $minutes minutos")
             
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao adiar atividade", e)
@@ -410,8 +370,6 @@ class VisibilityService(private val context: Context) {
      * Função de teste para verificar se o alerta de tela cheia está funcionando
      */
     fun testHighVisibilityAlert() {
-        Log.d(TAG, "🧪 Testando alerta de visibilidade alta")
-        
         val testActivity = Activity(
             id = "test",
             title = "TESTE - Alerta de Visibilidade Alta",

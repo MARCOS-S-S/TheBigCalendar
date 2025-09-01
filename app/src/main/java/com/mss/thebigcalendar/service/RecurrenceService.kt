@@ -137,7 +137,6 @@ class RecurrenceService {
                 "YEARLY" -> generateCustomYearlyInstances(baseActivity, baseDate, actualEndDate, interval, instances)
             }
         } catch (e: Exception) {
-            println("❌ Erro ao parsear regra customizada: ${e.message}")
         }
     }
 

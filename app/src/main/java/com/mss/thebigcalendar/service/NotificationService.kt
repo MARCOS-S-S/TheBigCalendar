@@ -64,20 +64,13 @@ class NotificationService(private val context: Context) {
      * Agenda uma notificação para uma atividade
      */
     fun scheduleNotification(activity: Activity) {
-        Log.d(TAG, "Tentando agendar notificação para: ${activity.title}")
-        Log.d(TAG, "Notificação habilitada: ${activity.notificationSettings.isEnabled}")
-        Log.d(TAG, "Tipo de notificação: ${activity.notificationSettings.notificationType}")
-        Log.d(TAG, "Horário de início: ${activity.startTime}")
-        
         if (!activity.notificationSettings.isEnabled || 
             activity.notificationSettings.notificationType == com.mss.thebigcalendar.data.model.NotificationType.NONE) {
-            Log.d(TAG, "Notificação não será agendada - condições não atendidas")
             return
         }
         
         // Se não há horário específico, usar início do dia (00:00)
         if (activity.startTime == null) {
-            Log.d(TAG, "⚠️ Atividade sem horário específico, notificação será agendada para 00:00")
         }
 
         val notificationTime = calculateNotificationTime(activity)
@@ -103,13 +96,11 @@ class NotificationService(private val context: Context) {
         )
 
         // ✅ Agendar o alarme para exibir a notificação visual
-        Log.d(TAG, "Agendando alarme para: ${java.time.Instant.ofEpochMilli(triggerTime)}")
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             triggerTime,
             pendingIntent
         )
-        Log.d(TAG, "Notificação agendada com sucesso para: ${activity.title}")
     }
 
     /**
@@ -167,16 +158,11 @@ class NotificationService(private val context: Context) {
      * Mostra uma notificação imediatamente (para testes)
      */
     fun showNotification(activity: Activity) {
-        Log.d(TAG, "Exibindo notificação para: ${activity.title}")
-        
         // Verificar se precisa exibir alerta de visibilidade
         if (activity.visibility != VisibilityLevel.LOW) {
-            Log.d(TAG, "🎯 Atividade com visibilidade ${activity.visibility}, exibindo alerta especial")
             // Usar VisibilityService para alertas especiais
             val visibilityService = VisibilityService(context)
-            Log.d(TAG, "🔧 VisibilityService criado, chamando showVisibilityAlert")
             visibilityService.showVisibilityAlert(activity)
-            Log.d(TAG, "✅ showVisibilityAlert chamado, retornando")
             return
         }
         
@@ -216,7 +202,6 @@ class NotificationService(private val context: Context) {
             .build()
 
         notificationManager.notify(activity.id.hashCode(), notification)
-        Log.d(TAG, "Notificação padrão exibida para: ${activity.title}")
     }
 
     /**
@@ -271,15 +256,10 @@ class NotificationService(private val context: Context) {
      * Agenda uma notificação adiada para a atividade
      */
     fun scheduleSnoozedNotification(activity: Activity, minutes: Int) {
-        Log.d(TAG, "🔄 Agendando notificação adiada para: ${activity.title} em $minutes minutos")
-        
         try {
             // Calcular o horário de execução
             val now = java.time.LocalDateTime.now()
             val executionTime = now.plusMinutes(minutes.toLong())
-            
-            Log.d(TAG, "⏰ Horário atual: $now")
-            Log.d(TAG, "⏰ Horário de execução: $executionTime")
             
             // Criar intent para a notificação adiada
             val intent = Intent(context, NotificationReceiver::class.java).apply {
@@ -314,8 +294,6 @@ class NotificationService(private val context: Context) {
                     pendingIntent
                 )
             }
-            
-            Log.d(TAG, "✅ Notificação adiada agendada com sucesso para: ${activity.title} em $minutes minutos")
             
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao agendar notificação adiada", e)

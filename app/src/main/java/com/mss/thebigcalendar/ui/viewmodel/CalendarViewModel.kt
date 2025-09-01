@@ -100,16 +100,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun handleSignInResult(task: Task<GoogleSignInAccount>) {
-        android.util.Log.d("CalendarViewModel", "handleSignInResult called.")
         val account = googleAuthService.handleSignInResult(task)
         val loginSuccess = account != null
-        android.util.Log.d("CalendarViewModel", "Login success: $loginSuccess")
         _uiState.update { it.copy(
             googleSignInAccount = account,
             loginMessage = if(loginSuccess) "Login bem-sucedido!" else "Falha no login. Verifique os logs para detalhes."
         ) }
         if (loginSuccess) {
-            android.util.Log.d("CalendarViewModel", "Fetching Google Calendar events...")
             fetchGoogleCalendarEvents(account!!)
         } else {
             android.util.Log.w("CalendarViewModel", "Sign-in failed, not fetching events.")
@@ -138,9 +135,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         val isAllDay = event.start?.dateTime == null
         val hasRecurrence = event.recurrence?.isNotEmpty() == true
         
-        // Log para debug da detecção
-        Log.d("CalendarViewModel", "🔍 Analisando evento: '${event.summary}' - All-day: $isAllDay, Recorrente: $hasRecurrence")
-        
         // Palavras-chave para detectar aniversários (em português e inglês)
         val birthdayKeywords = listOf(
             "birthday", "aniversário", "nascimento", "nasc", "bday", "b-day",
@@ -154,19 +148,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             title.contains(keyword) || description.contains(keyword)
         }
         
-        if (hasBirthdayKeywords) {
-            Log.d("CalendarViewModel", "✅ Palavra-chave de aniversário encontrada: $title")
-        }
-        
         // Verificar se é um evento recorrente anual (típico de aniversários)
         val isYearlyRecurring = event.recurrence?.any { rule ->
             rule.contains("FREQ=YEARLY") || rule.contains("RRULE:FREQ=YEARLY") ||
             rule.contains("INTERVAL=1") && rule.contains("FREQ=YEARLY")
         } == true
-        
-        if (isYearlyRecurring) {
-            Log.d("CalendarViewModel", "✅ Evento recorrente anual detectado: ${event.recurrence}")
-        }
         
         // Verificar se é um evento de dia inteiro (aniversários geralmente são)
         val isAllDayEvent = isAllDay
@@ -176,26 +162,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             key == "googCalEventType" && value == "birthday"
         } == true
         
-        if (hasBirthdaySettings) {
-            Log.d("CalendarViewModel", "✅ Configurações específicas de aniversário detectadas")
-        }
-        
         // Verificar se vem de um calendário específico de aniversários
         val isFromBirthdayCalendar = event.organizer?.email?.contains("birthday") == true ||
                                    event.creator?.email?.contains("birthday") == true
-        
-        if (isFromBirthdayCalendar) {
-            Log.d("CalendarViewModel", "✅ Evento de calendário de aniversários detectado")
-        }
         
         // Verificar se tem padrões específicos de aniversário no título
         val hasBirthdayPatterns = title.matches(Regex(".*\\b\\d{1,2}/\\d{1,2}\\b.*")) || // Padrão DD/MM
                                  title.matches(Regex(".*\\b\\d{1,2}-\\d{1,2}\\b.*")) || // Padrão DD-MM
                                  title.matches(Regex(".*\\b\\d{1,2}\\.\\d{1,2}\\b.*"))   // Padrão DD.MM
-        
-        if (hasBirthdayPatterns) {
-            Log.d("CalendarViewModel", "✅ Padrão de data detectado no título: $title")
-        }
         
         // Um evento é considerado aniversário se:
         // 1. Contém palavras-chave de aniversário, OU
@@ -208,8 +182,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     hasBirthdaySettings ||
                     isFromBirthdayCalendar ||
                     hasBirthdayPatterns
-        
-        Log.d("CalendarViewModel", "🎯 Resultado da detecção: $result para '${event.summary}'")
         
         return result
     }
@@ -256,8 +228,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             // Salvar os aniversários de exemplo
             activityRepository.saveAllActivities(sampleBirthdays)
             
-            Log.d("CalendarViewModel", "🎂 Aniversários de exemplo criados: ${sampleBirthdays.size}")
-            
             // Atualizar a UI
             updateAllDateDependentUI()
         }
@@ -273,13 +243,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 
                 // Sincronização diária: só sincronizar se passou mais de 24 horas (a menos que seja forçada)
                 if (!forceSync && timeSinceLastSync < 24 * 60 * 60 * 1000) {
-                    val hoursSinceLastSync = timeSinceLastSync / 1000 / 60 / 60
-                    Log.d("CalendarViewModel", "⏰ Sincronização pulada - última sincronização há ${hoursSinceLastSync} horas")
                     _uiState.update { it.copy(isSyncing = false) }
                     return@launch
                 }
-                
-                Log.d("CalendarViewModel", "🔄 Iniciando sincronização com Google Calendar")
                 
                 // NÃO deletar eventos existentes até os novos chegarem - isso evita o "flash"
                 // Os eventos antigos serão substituídos pelos novos ao final
@@ -298,7 +264,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         calendarService.events().list("contacts").execute()
                     } catch (e: Exception) {
                         // Se não conseguir acessar o calendário de contatos, usar lista vazia
-                        Log.d("CalendarViewModel", "Não foi possível acessar o calendário de contatos: ${e.message}")
                         com.google.api.services.calendar.model.Events()
                     }
                 }
@@ -309,7 +274,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         calendarService.events().list("birthdays").execute()
                     } catch (e: Exception) {
                         // Se não conseguir acessar o calendário de aniversários, usar lista vazia
-                        Log.d("CalendarViewModel", "Não foi possível acessar o calendário de aniversários: ${e.message}")
                         com.google.api.services.calendar.model.Events()
                     }
                 }
@@ -335,35 +299,18 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         // Para eventos de dia inteiro, usar UTC para evitar problemas de fuso horário
                         // O Google Calendar envia eventos de dia inteiro no início do dia UTC
                         val utcDate = Instant.ofEpochMilli(start).atZone(ZoneOffset.UTC).toLocalDate()
-                        Log.d("CalendarViewModel", "📅 Evento de dia inteiro - Data UTC: $utcDate")
                         utcDate
                     } else {
                         // Para eventos com horário, usar fuso horário local
                         val localDate = Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalDate()
-                        Log.d("CalendarViewModel", "📅 Evento com horário - Data local: $localDate")
                         localDate
                     }
                     
                     val startTime = if (event.start?.dateTime != null) Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalTime() else null
                     val endTime = if (end != null && event.end?.dateTime != null) Instant.ofEpochMilli(end).atZone(ZoneId.systemDefault()).toLocalTime() else null
 
-                    // Log para debug de todos os eventos
-                    Log.d("CalendarViewModel", "📅 Evento recebido: ${event.summary}")
-                    Log.d("CalendarViewModel", "   Data original (timestamp): $start")
-                    Log.d("CalendarViewModel", "   Data convertida: $startDate")
-                    Log.d("CalendarViewModel", "   É evento de dia inteiro: ${event.start?.dateTime == null}")
-                    Log.d("CalendarViewModel", "   Recorrente: ${event.recurrence}")
-                    
                     // Detectar se é um aniversário baseado em características específicas
                     val isBirthday = detectBirthdayEvent(event)
-                    
-                    // Log para debug
-                    if (isBirthday) {
-                        Log.d("CalendarViewModel", "🎂 Aniversário detectado: ${event.summary}")
-                        Log.d("CalendarViewModel", "   Data original (timestamp): $start")
-                        Log.d("CalendarViewModel", "   Data convertida: $startDate")
-                        Log.d("CalendarViewModel", "   É evento de dia inteiro: ${event.start?.dateTime == null}")
-                    }
                     
                     Activity(
                         id = event.id ?: UUID.randomUUID().toString(),
@@ -386,16 +333,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 val totalEvents = activities.size
                 val birthdayEvents = activities.count { it.activityType == ActivityType.BIRTHDAY }
                 val regularEvents = activities.count { it.activityType == ActivityType.EVENT }
-                
-                Log.d("CalendarViewModel", "📊 Sincronização concluída:")
-                Log.d("CalendarViewModel", "   Total de eventos: $totalEvents")
-                Log.d("CalendarViewModel", "   Aniversários: $birthdayEvents")
-                Log.d("CalendarViewModel", "   Eventos regulares: $regularEvents")
-                
-                // Log detalhado de todos os aniversários detectados
-                activities.filter { it.activityType == ActivityType.BIRTHDAY }.forEach { birthday ->
-                    Log.d("CalendarViewModel", "🎂 Aniversário salvo: ${birthday.title} em ${birthday.date}")
-                }
                 
                 // 4. Fazer merge dos eventos (manter existentes + adicionar novos)
                 activities.forEach { newActivity ->
@@ -449,7 +386,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun loadData() {
         viewModelScope.launch {
             activityRepository.activities.collect { activities ->
-                Log.d("CalendarViewModel", "🔄 Atividades atualizadas: ${activities.size}")
                 _uiState.update { it.copy(activities = activities) }
                 updateAllDateDependentUI()
             }
@@ -463,7 +399,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         
         viewModelScope.launch {
             completedActivityRepository.completedActivities.collect { completedActivities ->
-                Log.d("CalendarViewModel", "🔄 Tarefas finalizadas atualizadas: ${completedActivities.size}")
                 _uiState.update { it.copy(completedActivities = completedActivities) }
                 // Atualizar a UI quando as tarefas finalizadas mudarem
                 updateAllDateDependentUI()
@@ -501,17 +436,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
         val newCalendarDays = List(42) { i ->
             val date = gridStartDate.plusDays(i.toLong())
-            
-            // Log para debug dos filtros
-            if (i == 0) { // Log apenas uma vez
-                Log.d("CalendarViewModel", "🔍 Estado dos filtros ao atualizar calendário:")
-                Log.d("CalendarViewModel", "   showTasks: ${state.filterOptions.showTasks}")
-                Log.d("CalendarViewModel", "   showEvents: ${state.filterOptions.showEvents}")
-                Log.d("CalendarViewModel", "   showNotes: ${state.filterOptions.showNotes}")
-                Log.d("CalendarViewModel", "   showBirthdays: ${state.filterOptions.showBirthdays}")
-                Log.d("CalendarViewModel", "   Total de atividades: ${state.activities.size}")
-                Log.d("CalendarViewModel", "   Aniversários: ${state.activities.count { it.activityType == ActivityType.BIRTHDAY }}")
-            }
             
             // Coletar todas as atividades para este dia (incluindo repetitivas)
             val allActivitiesForThisDay = mutableListOf<Activity>()
@@ -565,37 +489,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             
                             if (dateMatches) {
                                 allActivitiesForThisDay.add(completedActivity)
-                                Log.d("CalendarViewModel", "✅ Tarefa finalizada adicionada ao calendário: ${completedActivity.title} para ${date}")
                             }
                         } catch (e: Exception) {
                             Log.e("CalendarViewModel", "❌ Erro ao processar tarefa finalizada: ${completedActivity.title}", e)
                         }
-                    }
-                }
-                
-                // Log para debug se houver atividades neste dia
-                if (allActivitiesForThisDay.isNotEmpty() && i == 0) {
-                    Log.d("CalendarViewModel", "📅 Atividades filtradas para ${date}:")
-                    allActivitiesForThisDay.forEach { activity ->
-                        Log.d("CalendarViewModel", "   - ${activity.title} (${activity.activityType}) - Finalizada: ${activity.isCompleted}")
-                    }
-                }
-                
-                // Log específico para aniversários se houver
-                val birthdaysForThisDay = allActivitiesForThisDay.filter { it.activityType == ActivityType.BIRTHDAY }
-                if (birthdaysForThisDay.isNotEmpty()) {
-                    Log.d("CalendarViewModel", "🎂 Aniversários para ${date}: ${birthdaysForThisDay.size}")
-                    birthdaysForThisDay.forEach { birthday ->
-                        Log.d("CalendarViewModel", "   🎂 ${birthday.title}")
-                    }
-                }
-                
-                // Log para tarefas finalizadas se houver
-                val completedTasksForThisDay = allActivitiesForThisDay.filter { it.isCompleted }
-                if (completedTasksForThisDay.isNotEmpty()) {
-                    Log.d("CalendarViewModel", "✅ Tarefas finalizadas para ${date}: ${completedTasksForThisDay.size}")
-                    completedTasksForThisDay.forEach { completedTask ->
-                        Log.d("CalendarViewModel", "   ✅ ${completedTask.title}")
                     }
                 }
                 
@@ -673,9 +570,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
         
         // Filtrar outras atividades (excluindo aniversários e notas)
-        Log.d("CalendarViewModel", "🔍 Filtros ativos - showTasks: ${state.filterOptions.showTasks}, showEvents: ${state.filterOptions.showEvents}")
-        Log.d("CalendarViewModel", "🔍 Total de atividades no sistema: ${state.activities.size}")
-        
         // Coletar todas as tarefas para o dia selecionado (incluindo repetitivas)
         val allTasksForSelectedDate = mutableListOf<Activity>()
         
@@ -697,12 +591,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     
                     val dateMatches = activityDate.isEqual(state.selectedDate)
                     if (dateMatches) {
-                        // Log para debug de tarefas com showInCalendar = false
-                        if (!activity.showInCalendar) {
-                            Log.d("CalendarViewModel", "📅 Tarefa com showInCalendar=false incluída na seção de agendamentos: ${activity.title}")
-                        }
-                        
-                        Log.d("CalendarViewModel", "📅 Tarefa filtrada: ${activity.title} - showInCalendar: ${activity.showInCalendar} - type: ${activity.activityType}")
                         allTasksForSelectedDate.add(activity)
                     }
                     
@@ -713,9 +601,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         val recurringInstances = calculateRecurringInstancesForDate(activity, state.selectedDate)
                         allTasksForSelectedDate.addAll(recurringInstances)
                         
-                        if (recurringInstances.isNotEmpty()) {
-                            Log.d("CalendarViewModel", "🔄 Instâncias repetitivas calculadas para ${state.selectedDate}: ${recurringInstances.size}")
-                        }
                     }
                 }
             } catch (e: Exception) {
@@ -732,7 +617,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     
                     if (dateMatches) {
                         allTasksForSelectedDate.add(completedActivity)
-                        Log.d("CalendarViewModel", "✅ Tarefa finalizada adicionada à seção de agendamentos: ${completedActivity.title} para ${state.selectedDate}")
                     }
                 } catch (e: Exception) {
                     Log.e("CalendarViewModel", "❌ Erro ao processar tarefa finalizada na seção de agendamentos: ${completedActivity.title}", e)
@@ -744,23 +628,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }
             .thenBy { it.startTime ?: LocalTime.MIN }
         )
-        
-        // Log para debug
-        Log.d("CalendarViewModel", "📅 Tarefas para ${state.selectedDate}: ${otherTasks.size}")
-        Log.d("CalendarViewModel", "🎂 Aniversários para ${state.selectedDate}: ${birthdays.size}")
-        Log.d("CalendarViewModel", "📝 Notas para ${state.selectedDate}: ${notes.size}")
-        
-        // Log detalhado das tarefas encontradas
-        otherTasks.forEach { task ->
-            Log.d("CalendarViewModel", "📅 Tarefa: ${task.title} - showInCalendar: ${task.showInCalendar}")
-        }
-        
-        birthdays.forEach { birthday ->
-            Log.d("CalendarViewModel", "🎂 Aniversário: ${birthday.title}")
-        }
-        notes.forEach { note ->
-            Log.d("CalendarViewModel", "📝 Nota: ${note.title}")
-        }
         
         // Atualizar todas as listas
         _uiState.update { 
@@ -794,12 +661,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun updateAllDateDependentUI() {
-        Log.d("CalendarViewModel", "🔄 Iniciando atualização da UI")
         updateCalendarDays()
         updateTasksForSelectedDate()
         updateHolidaysForSelectedDate()
         updateSaintDaysForSelectedDate()
-        Log.d("CalendarViewModel", "✅ Atualização da UI concluída")
     }
 
     fun onPreviousMonth() {
@@ -871,9 +736,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun onFilterChange(key: String, value: Boolean) {
         when (key) {
             "showCompletedActivities" -> {
-                // Log para debug
-                Log.d("CalendarViewModel", "🔧 Visibilidade de tarefas finalizadas alterada: $value")
-                
                 // Atualizar o estado imediatamente
                 _uiState.update { it.copy(showCompletedActivities = value) }
                 
@@ -891,10 +753,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     "showBirthdays" -> currentFilters.copy(showBirthdays = value)
                     else -> currentFilters
                 }
-                
-                // Log para debug dos filtros
-                Log.d("CalendarViewModel", "🔧 Filtro alterado: $key = $value")
-                Log.d("CalendarViewModel", "📊 Estado dos filtros: $newFilters")
                 
                 // Atualizar o estado imediatamente
                 _uiState.update { it.copy(filterOptions = newFilters) }
@@ -1005,8 +863,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             // NOTA: Não geramos mais instâncias repetitivas automaticamente
             // As tarefas repetitivas serão calculadas dinamicamente quando o usuário navegar pelos meses
             if (activityToSave.recurrenceRule?.isNotEmpty() == true && activityToSave.recurrenceRule != "CUSTOM") {
-                Log.d("CalendarViewModel", "🔄 Tarefa repetitiva criada: ${activityToSave.title} - Regra: ${activityToSave.recurrenceRule}")
-                Log.d("CalendarViewModel", "📅 Instâncias serão calculadas dinamicamente ao navegar pelos meses")
             }
 
             // Sincronizar com Google Calendar se for edição de evento existente
@@ -1097,32 +953,21 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun removeRecurringInstances(baseActivity: Activity) {
         viewModelScope.launch {
             try {
-                println("🔄 Iniciando remoção de instâncias recorrentes para: ${baseActivity.title}")
-                println("🔄 ID da atividade base: ${baseActivity.id}")
-                
                 // Buscar todas as atividades que são instâncias desta atividade base
                 val allActivities = _uiState.value.activities
-                println("🔄 Total de atividades no sistema: ${allActivities.size}")
                 
                 val instancesToRemove = allActivities.filter { activity ->
                     // Verificar se é uma instância recorrente (ID contém o ID base + data)
                     val isInstance = activity.id.startsWith("${baseActivity.id}_") && 
                                    activity.id != baseActivity.id
-                    if (isInstance) {
-                        println("🔄 Encontrada instância para remover: ${activity.id} - ${activity.title}")
-                    }
                     isInstance
                 }
-                
-                println("🔄 Instâncias encontradas para remoção: ${instancesToRemove.size}")
                 
                 // Remover todas as instâncias
                 instancesToRemove.forEach { instance ->
                     activityRepository.deleteActivity(instance.id)
-                    println("🗑️ Instância recorrente removida: ${instance.id}")
                 }
                 
-                println("🗑️ Total de instâncias recorrentes removidas: ${instancesToRemove.size}")
             } catch (e: Exception) {
                 println("❌ Erro ao remover instâncias recorrentes: ${e.message}")
                 e.printStackTrace()
@@ -1186,7 +1031,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             
                             // Atualizar o evento no Google Calendar
                             calendarService.events().update("primary", activity.id, googleEvent).execute()
-                            Log.d("CalendarViewModel", "✏️ Evento atualizado no Google Calendar: ${activity.title}")
                             
                         } catch (e: Exception) {
                             Log.w("CalendarViewModel", "⚠️ Não foi possível atualizar evento no Google Calendar: ${activity.title}", e)
@@ -1215,7 +1059,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     withContext(Dispatchers.IO) {
                         try {
                             calendarService.events().delete("primary", activity.id).execute()
-                            Log.d("CalendarViewModel", "🗑️ Evento deletado do Google Calendar: ${activity.title}")
                         } catch (e: Exception) {
                             Log.w("CalendarViewModel", "⚠️ Não foi possível deletar evento do Google Calendar: ${activity.title}", e)
                             
@@ -1230,7 +1073,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                                 events.items?.forEach { event ->
                                     if (event.summary == activity.title) {
                                         calendarService.events().delete("primary", event.id).execute()
-                                        Log.d("CalendarViewModel", "🗑️ Evento deletado do Google Calendar por busca: ${activity.title}")
                                     }
                                 }
                             } catch (searchException: Exception) {
@@ -1249,11 +1091,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     fun onDeleteActivityConfirm() {
         viewModelScope.launch {
-            Log.d("CalendarViewModel", "🗑️ Função onDeleteActivityConfirm chamada")
-            
             _uiState.value.activityIdToDelete?.let { activityId ->
-                Log.d("CalendarViewModel", "🎯 ID da atividade a deletar: $activityId")
-                
                 // Buscar a atividade pelo ID ou, se for instância recorrente, buscar pela atividade base
                 var activityToDelete = _uiState.value.activities.find { it.id == activityId }
                 
@@ -1261,7 +1099,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 if (activityToDelete == null && activityId.contains("_")) {
                     val baseId = activityId.split("_").first()
                     activityToDelete = _uiState.value.activities.find { it.id == baseId }
-                    Log.d("CalendarViewModel", "🔍 Buscando atividade base para deletar com ID: $baseId")
                 }
                 
                 // Se ainda não encontrou, buscar por título e regra de recorrência
@@ -1272,55 +1109,33 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         it.id == baseId || 
                         (it.id.contains(baseId) && it.id.contains("_"))
                     }
-                    Log.d("CalendarViewModel", "🔍 Buscando por ID base ou similar: $baseId")
                 }
                 
                 if (activityToDelete != null) {
-                    Log.d("CalendarViewModel", "📋 Atividade encontrada para deletar: ${activityToDelete.title}")
-                    Log.d("CalendarViewModel", "📅 Data: ${activityToDelete.date}")
-                    Log.d("CalendarViewModel", "🔄 Regra de recorrência: '${activityToDelete.recurrenceRule}'")
-                    Log.d("CalendarViewModel", "🔍 É recorrente? ${recurrenceService.isRecurring(activityToDelete)}")
-                    Log.d("CalendarViewModel", "🔍 Tipo da regra: ${activityToDelete.recurrenceRule?.javaClass?.simpleName}")
-                    Log.d("CalendarViewModel", "🔍 Tamanho da regra: ${activityToDelete.recurrenceRule?.length}")
-                    
                     // ✅ Cancelar notificação antes de deletar
                     val notificationService = NotificationService(getApplication())
                     notificationService.cancelNotification(activityId)
                     
                     // Se é uma atividade recorrente, deletar todas as instâncias
                     if (recurrenceService.isRecurring(activityToDelete)) {
-                        Log.d("CalendarViewModel", "🗑️ Deletando atividade recorrente: ${activityToDelete.title}")
-                        Log.d("CalendarViewModel", "📅 Regra de recorrência: ${activityToDelete.recurrenceRule}")
-                        Log.d("CalendarViewModel", "📅 Data da instância selecionada: ${activityToDelete.date}")
-                        
                         val allActivities = _uiState.value.activities
                         val recurringActivities = allActivities.filter { 
                             it.title == activityToDelete.title && 
                             it.recurrenceRule == activityToDelete.recurrenceRule
                         }
                         
-                        Log.d("CalendarViewModel", "🔄 Encontradas ${recurringActivities.size} instâncias da atividade recorrente")
-                        
                         // Mover todas as instâncias para a lixeira
                         recurringActivities.forEach { activity ->
-                            Log.d("CalendarViewModel", "🗑️ Movendo instância para lixeira: ${activity.title} - ${activity.date}")
                             deletedActivityRepository.addDeletedActivity(activity)
                             activityRepository.deleteActivity(activity.id)
                             
                             // Sincronizar com Google Calendar se for evento do Google
                             if (activity.isFromGoogle) {
-                                Log.d("CalendarViewModel", "🌐 Sincronizando com Google Calendar: ${activity.title}")
                                 deleteFromGoogleCalendar(activity)
                             }
                         }
                         
-                        Log.d("CalendarViewModel", "✅ Atividade recorrente deletada com sucesso: ${activityToDelete.title}")
-                        println("🗑️ Atividade recorrente deletada: ${activityToDelete.title}")
-                        println("📅 Instâncias deletadas: ${recurringActivities.size}")
                     } else {
-                        Log.d("CalendarViewModel", "🗑️ Deletando atividade única: ${activityToDelete.title}")
-                        Log.d("CalendarViewModel", "📅 Data da atividade: ${activityToDelete.date}")
-                        
                         // Mover para a lixeira
                         deletedActivityRepository.addDeletedActivity(activityToDelete)
                         
@@ -1329,11 +1144,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         
                         // Sincronizar com Google Calendar se for evento do Google
                         if (activityToDelete.isFromGoogle) {
-                            Log.d("CalendarViewModel", "🌐 Sincronizando com Google Calendar: ${activityToDelete.title}")
                             deleteFromGoogleCalendar(activityToDelete)
                         }
                         
-                        Log.d("CalendarViewModel", "✅ Atividade única deletada com sucesso: ${activityToDelete.title}")
                     }
                 }
             }

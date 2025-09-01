@@ -32,11 +32,6 @@ class ActivityRepository(private val context: Context) {
         }
 
     suspend fun saveActivity(activity: Activity) {
-        // ✅ Log para debug da visibilidade
-        android.util.Log.d("ActivityRepository", "💾 Salvando atividade: ${activity.title}")
-        android.util.Log.d("ActivityRepository", "🔍 Visibilidade: ${activity.visibility}")
-        android.util.Log.d("ActivityRepository", "🔔 Notificações: ${activity.notificationSettings}")
-
         context.activitiesDataStore.updateData { currentActivities ->
             val existingIndex = currentActivities.activitiesList.indexOfFirst { it.id == activity.id }
             val proto = activity.toProto()

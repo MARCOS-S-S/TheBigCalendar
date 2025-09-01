@@ -84,15 +84,9 @@ class BackupService(
      */
     suspend fun createBackup(): Result<String> = withContext(Dispatchers.IO) {
         try {
-            Log.d(TAG, "🔄 Iniciando processo de backup...")
-            
             // Coletar dados para backup
             val activities = activityRepository.activities.first()
             val deletedActivities = deletedActivityRepository.deletedActivities.first()
-            
-            Log.d(TAG, "📊 Dados coletados para backup:")
-            Log.d(TAG, "   - Atividades ativas: ${activities.size}")
-            Log.d(TAG, "   - Itens na lixeira: ${deletedActivities.size}")
             
             // Criar estrutura JSON do backup
             val backupData = createBackupJson(activities, deletedActivities)
@@ -110,11 +104,6 @@ class BackupService(
             
             // Verificar se o arquivo foi criado
             if (backupFile.exists()) {
-                Log.d(TAG, "✅ Backup criado com sucesso: ${backupFile.absolutePath}")
-                Log.d(TAG, "📁 Tamanho do arquivo: ${backupFile.length()} bytes")
-                Log.d(TAG, "📁 Arquivo pode ser lido: ${backupFile.canRead()}")
-                Log.d(TAG, "📁 Arquivo pode ser escrito: ${backupFile.canWrite()}")
-                
                 Result.success(backupFile.absolutePath)
             } else {
                 Log.e(TAG, "❌ Arquivo de backup não foi criado")
@@ -139,10 +128,6 @@ class BackupService(
             File(context.getExternalFilesDir(null), BACKUP_FOLDER)
         }
         
-        Log.d(TAG, "📁 Tentando criar diretório de backup: ${backupDir.absolutePath}")
-        Log.d(TAG, "📁 Diretório pai existe: ${backupDir.parentFile?.exists()}")
-        Log.d(TAG, "📁 Permissão de escrita: ${backupDir.parentFile?.canWrite()}")
-        
         if (!backupDir.exists()) {
             val created = backupDir.mkdirs()
             if (created) {
@@ -154,7 +139,6 @@ class BackupService(
                 Log.w(TAG, "❌ Environment.isExternalStorageManager: ${Environment.isExternalStorageManager()}")
             }
         } else {
-            Log.d(TAG, "📁 Diretório de backup já existe: ${backupDir.absolutePath}")
         }
         
         return backupDir
@@ -294,8 +278,6 @@ class BackupService(
      */
     suspend fun restoreFromBackup(backupFile: File): Result<RestoreResult> = withContext(Dispatchers.IO) {
         try {
-            Log.d(TAG, "🔄 Iniciando restauração do backup: ${backupFile.name}")
-            
             val content = backupFile.readText(Charsets.UTF_8)
             val json = JSONObject(content)
             
@@ -333,10 +315,6 @@ class BackupService(
                     Log.w(TAG, "⚠️ Erro ao parsear item da lixeira $i: ${e.message}")
                 }
             }
-            
-            Log.d(TAG, "✅ Backup parseado com sucesso:")
-            Log.d(TAG, "   - Atividades: ${restoredActivities.size}")
-            Log.d(TAG, "   - Itens da lixeira: ${restoredDeletedActivities.size}")
             
             val result = RestoreResult(
                 activities = restoredActivities,

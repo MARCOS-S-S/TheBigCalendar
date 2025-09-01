@@ -40,8 +40,6 @@ class ProgressiveSyncService(
         onProgressUpdate: (SyncProgress) -> Unit
     ): Result<Int> = withContext(Dispatchers.IO) {
         try {
-            Log.d(TAG, "🔄 Iniciando sincronização progressiva")
-            
             // Fase 1: Sincronização rápida (mês atual + próximo mês)
             val quickSyncResult = performQuickSync(account, onProgressUpdate)
             if (quickSyncResult.isFailure) {
@@ -55,7 +53,6 @@ class ProgressiveSyncService(
             }
             
             val totalEvents = quickSyncResult.getOrNull() ?: 0 + (backgroundSyncResult.getOrNull() ?: 0)
-            Log.d(TAG, "✅ Sincronização progressiva concluída: $totalEvents eventos")
             
             // Atualizar timestamp da última sincronização
             syncRepository.updateLastSyncTime(System.currentTimeMillis())
@@ -76,8 +73,6 @@ class ProgressiveSyncService(
         onProgressUpdate: (SyncProgress) -> Unit
     ): Result<Int> = withContext(Dispatchers.IO) {
         try {
-            Log.d(TAG, "🚀 Fase 1: Sincronização rápida")
-            
             onProgressUpdate(SyncProgress(
                 currentStep = "Sincronizando mês atual...",
                 progress = 10,
@@ -134,7 +129,6 @@ class ProgressiveSyncService(
                 currentPhase = SyncPhase.QUICK_SYNC
             ))
             
-            Log.d(TAG, "✅ Sincronização rápida concluída: ${activities.size} eventos")
             Result.success(activities.size)
             
         } catch (e: Exception) {
@@ -151,8 +145,6 @@ class ProgressiveSyncService(
         onProgressUpdate: (SyncProgress) -> Unit
     ): Result<Int> = withContext(Dispatchers.IO) {
         try {
-            Log.d(TAG, "🔄 Fase 2: Sincronização em background")
-            
             onProgressUpdate(SyncProgress(
                 currentStep = "Sincronizando resto do ano...",
                 progress = 75,
@@ -209,7 +201,6 @@ class ProgressiveSyncService(
                 currentPhase = SyncPhase.BACKGROUND_SYNC
             ))
             
-            Log.d(TAG, "✅ Sincronização em background concluída: ${activities.size} eventos")
             Result.success(activities.size)
             
         } catch (e: Exception) {
@@ -244,7 +235,6 @@ class ProgressiveSyncService(
             
             do {
                 pageCount++
-                Log.d(TAG, "📄 Buscando página $pageCount de eventos")
                 
                 val events = withTimeout(15.seconds) {
                     val request = calendarService.events()
@@ -265,8 +255,6 @@ class ProgressiveSyncService(
                 val pageEvents = events.items ?: emptyList()
                 allEvents.addAll(pageEvents)
                 
-                Log.d(TAG, "📄 Página $pageCount: ${pageEvents.size} eventos encontrados")
-                
                 pageToken = events.nextPageToken
                 
                 // Limite de segurança para evitar loop infinito
@@ -277,7 +265,6 @@ class ProgressiveSyncService(
                 
             } while (pageToken != null)
             
-            Log.d(TAG, "✅ Paginação concluída: ${allEvents.size} eventos em $pageCount páginas")
             allEvents
             
         } catch (e: Exception) {
