@@ -68,6 +68,13 @@ object GreetingService {
         val greeting = getGreetingMessage(userName)
         return "$emoji $greeting"
     }
+    
+    /**
+     * Extrai o primeiro nome de um nome completo
+     */
+    fun getFirstName(fullName: String?): String? {
+        return fullName?.split(" ")?.firstOrNull()?.takeIf { it.isNotBlank() }
+    }
 }
 
 /**

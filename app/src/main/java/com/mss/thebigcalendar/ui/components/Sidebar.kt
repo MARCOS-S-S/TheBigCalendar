@@ -62,11 +62,16 @@ fun Sidebar(
 ) {
     val context = LocalContext.current
     val quoteOfTheDay = rememberQuoteOfTheDay(context)
+    
+    // Obter o primeiro nome do usuário do Google Sign-In
+    val userName = uiState.googleSignInAccount?.displayName?.let { fullName ->
+        GreetingService.getFirstName(fullName)
+    }
     ModalDrawerSheet(
         drawerContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
     ) {
         Column(
-            modifier = Modifier.width(280.dp)
+            modifier = Modifier.width(320.dp)
                 .padding(NavigationDrawerItemDefaults.ItemPadding)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -77,7 +82,7 @@ fun Sidebar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = GreetingService.getFullGreetingMessage(),
+                    text = GreetingService.getFullGreetingMessage(userName),
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     color = MaterialTheme.colorScheme.onSurface
