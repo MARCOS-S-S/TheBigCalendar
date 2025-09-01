@@ -1,5 +1,11 @@
 [
     {
+        "name": "São Jerônimo",
+        "date": "09-30",
+        "summary": "Celebrado em 30 de setembro, São Jerônimo foi uma das figuras mais influentes da Igreja Católica, reconhecido por sua vasta erudição e, principalmente, por sua monumental tradução da Bíblia para o latim, conhecida como Vulgata. Considerado Doutor da Igreja, sua vida foi marcada por uma intensa dedicação aos estudos das Sagradas Escrituras.",
+        "wikipediaLink": "https://pt.wikipedia.org/wiki/Jer%C3%B4nimo"
+    },
+    {
         "name": "Nossa Senhora da Defesa",
         "date": "01-18",
         "summary": "A devoção a Nossa Senhora da Defesa (ou Notre-Dame de la Défense) tem origem na França e se popularizou em várias partes do mundo. O título remete à proteção da Virgem Maria em momentos de perigo, como guerras, epidemias e calamidades. Ela é invocada como a defensora dos fiéis, aquela que intercede e protege seus filhos contra todos os males.",
@@ -278,7 +284,7 @@
     {
         "name": "Padre Pio",
         "date": "09-23",
-        "summary": "Francesco Forgione, conhecido como Padre Pio de Pietrelcina, foi um frade capuchinho italiano. Sua vida foi marcada por fenômenos místicos, incluindo os estigmas (as chagas de Cristo), que he carregou por 50 anos. Passava horas no confessionário, tinha o dom da bilocação e da leitura das consciências. É um dos santos mais populares do século XX.",
+        "summary": "São Pio de Pietrelcina, mundialmente conhecido como Padre Pio, foi um frade capuchinho italiano, sacerdote e místico, venerado por sua profunda piedade e pelos dons espirituais extraordinários que marcaram sua vida. Nascido como Francesco Forgione em 25 de maio de 1887, em Pietrelcina, Itália, ele é uma das figuras santas mais populares e reverenciadas do século XX.",
         "wikipediaLink": "https://pt.wikipedia.org/wiki/Pio_de_Pietrelcina"
     },
     {

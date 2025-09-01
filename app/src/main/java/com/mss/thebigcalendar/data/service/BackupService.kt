@@ -184,6 +184,7 @@ class BackupService(
             notificationJson.put("isEnabled", activity.notificationSettings.isEnabled)
             notificationJson.put("notificationType", activity.notificationSettings.notificationType.name)
             notificationJson.put("customMinutesBefore", activity.notificationSettings.customMinutesBefore)
+            notificationJson.put("notificationTime", activity.notificationSettings.notificationTime?.toString() ?: "")
             activityJson.put("notificationSettings", notificationJson)
             
             activitiesArray.put(activityJson)
@@ -378,16 +379,35 @@ class BackupService(
                     com.mss.thebigcalendar.data.model.NotificationType.FIFTEEN_MINUTES_BEFORE
                 }
                 
+                val notificationTime = notificationJson.optString("notificationTime").takeIf { it.isNotEmpty() }?.let {
+                    try {
+                        java.time.LocalTime.parse(it)
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                
                 com.mss.thebigcalendar.data.model.NotificationSettings(
                     isEnabled = notificationJson.optBoolean("isEnabled", true),
                     notificationType = notificationType,
-                    customMinutesBefore = notificationJson.optInt("customMinutesBefore", 15)
+                    customMinutesBefore = notificationJson.optInt("customMinutesBefore", 15),
+                    notificationTime = notificationTime
                 )
             } else {
-                com.mss.thebigcalendar.data.model.NotificationSettings()
+                com.mss.thebigcalendar.data.model.NotificationSettings(
+                    isEnabled = false,
+                    notificationTime = null,
+                    notificationType = com.mss.thebigcalendar.data.model.NotificationType.BEFORE_ACTIVITY,
+                    customMinutesBefore = null
+                )
             }
         } catch (e: Exception) {
-            com.mss.thebigcalendar.data.model.NotificationSettings()
+            com.mss.thebigcalendar.data.model.NotificationSettings(
+                isEnabled = false,
+                notificationTime = null,
+                notificationType = com.mss.thebigcalendar.data.model.NotificationType.BEFORE_ACTIVITY,
+                customMinutesBefore = null
+            )
         }
         
         return com.mss.thebigcalendar.data.model.Activity(

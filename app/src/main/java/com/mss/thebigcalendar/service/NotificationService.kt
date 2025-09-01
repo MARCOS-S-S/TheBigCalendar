@@ -101,29 +101,45 @@ class NotificationService(private val context: Context) {
             context,
             activity.id.hashCode(),
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
+        
+        Log.d(TAG, "🔔 PendingIntent criado com requestCode: ${activity.id.hashCode()}")
 
         // ✅ Agendar o alarme para exibir a notificação visual
+        Log.d(TAG, "⏰ Agendando alarme para timestamp: $triggerTime")
+        Log.d(TAG, "⏰ Timestamp atual: ${System.currentTimeMillis()}")
+        Log.d(TAG, "⏰ Diferença em minutos: ${(triggerTime - System.currentTimeMillis()) / (1000 * 60)}")
+        
+        // Verificar se o timestamp é no futuro
+        if (triggerTime <= System.currentTimeMillis()) {
+            Log.w(TAG, "⚠️ ATENÇÃO: Timestamp está no passado ou presente! Não agendando.")
+            return
+        }
+        
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             triggerTime,
             pendingIntent
         )
+        
+        Log.d(TAG, "✅ Alarme agendado com sucesso")
     }
 
     /**
      * Cancela uma notificação agendada
      */
     fun cancelNotification(activityId: String) {
+        Log.d(TAG, "🔔 Cancelando notificação para atividade: $activityId")
         val intent = Intent(context, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             activityId.hashCode(),
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager.cancel(pendingIntent)
+        Log.d(TAG, "✅ Notificação cancelada para atividade: $activityId")
     }
 
     /**
@@ -190,7 +206,7 @@ class NotificationService(private val context: Context) {
             context,
             activity.id.hashCode(),
             mainIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
@@ -245,7 +261,7 @@ class NotificationService(private val context: Context) {
             context,
             (activity.id + "_snooze").hashCode(),
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 
@@ -262,7 +278,7 @@ class NotificationService(private val context: Context) {
             context,
             (activity.id + "_dismiss").hashCode(),
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 
@@ -289,7 +305,7 @@ class NotificationService(private val context: Context) {
                 context,
                 (activity.id + "_snooze_${minutes}min").hashCode(),
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
             )
             
             // Agendar o alarme

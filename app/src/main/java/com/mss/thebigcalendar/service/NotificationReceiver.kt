@@ -23,15 +23,22 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        Log.d(TAG, "🔔 NotificationReceiver.onReceive chamado")
+        Log.d(TAG, "🔔 Action: ${intent.action}")
+        Log.d(TAG, "🔔 Timestamp atual: ${System.currentTimeMillis()}")
+        
         when (intent.action) {
             NotificationService.ACTION_VIEW_ACTIVITY -> {
                 // ✅ Exibir a notificação visual quando o alarme for acionado
+                Log.d(TAG, "🔔 Processando ACTION_VIEW_ACTIVITY")
                 handleViewActivity(context, intent)
             }
             NotificationService.ACTION_SNOOZE -> {
+                Log.d(TAG, "🔔 Processando ACTION_SNOOZE")
                 handleSnooze(context, intent)
             }
             NotificationService.ACTION_DISMISS -> {
+                Log.d(TAG, "🔔 Processando ACTION_DISMISS")
                 handleDismiss(context, intent)
             }
         }

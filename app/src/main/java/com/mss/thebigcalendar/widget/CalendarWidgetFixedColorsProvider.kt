@@ -8,7 +8,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.text.Html
 import android.widget.RemoteViews
 import com.mss.thebigcalendar.MainActivity
 import com.mss.thebigcalendar.R
@@ -54,13 +53,13 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.widget_day_of_week, dayOfWeek)
         views.setTextViewText(R.id.widget_day_month, dayMonth)
         
-        // Atualizar horário com cores diferentes para hora e minutos
-        val hoje = LocalDate.now()
-        val dia: DayOfWeek = hoje.dayOfWeek
-        val formatador = DateTimeFormatter.ofPattern("dd ' de ' MMMM", Locale("pt", "BR"))
-        val dataFormatada = hoje.format(formatador)
+//         Atualizar horário com cores diferentes para hora e minutos
+//        val hoje = LocalDate.now()
+//        val dia: DayOfWeek = hoje.dayOfWeek
+//        val formatador = DateTimeFormatter.ofPattern("dd ' de ' MMMM", Locale("pt", "BR"))
+//        val dataFormatada = hoje.format(formatador)
 //        val minutes = String.format("%02d", currentTime.minute)
-        
+//
         // Criar texto HTML com cores diferentes
 //        val coloredTime = "<font color='#FF0000'>$dia</font><font color='#FFFFFF'>:$dataFormatada</font>"
 //        views.setTextViewText(R.id.widget_date, Html.fromHtml(dataFormatada, Html.FROM_HTML_MODE_COMPACT))
@@ -136,7 +135,7 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                                     activityDate == today
                                 }
                             }
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             false
                         }
                     }.sortedWith(
@@ -174,7 +173,7 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                             }
                         }.sortedWith(
                             compareByDescending<com.mss.thebigcalendar.data.model.Activity> { 
-                                it.categoryColor?.toIntOrNull() ?: 0 
+                                it.categoryColor.toIntOrNull() ?: 0
                             }.thenBy { 
                                 it.startTime ?: LocalTime.MIN 
                             }
@@ -197,7 +196,7 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                         appWidgetManager.updateAppWidget(appWidgetId, views)
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 CoroutineScope(Dispatchers.Main).launch {
                     views.setTextViewText(R.id.widget_tasks, android.text.Html.fromHtml("Erro ao carregar tarefas", android.text.Html.FROM_HTML_MODE_COMPACT))
                     appWidgetManager.updateAppWidget(appWidgetId, views)
