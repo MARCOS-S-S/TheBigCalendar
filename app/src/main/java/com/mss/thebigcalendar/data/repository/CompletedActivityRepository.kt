@@ -81,6 +81,7 @@ class CompletedActivityRepository(private val context: Context) {
             .setVisibility(this.visibility.name)
             .setShowInCalendar(this.showInCalendar)
             .setNotificationSettings(this.notificationSettings.toProto())
+            .addAllExcludedDates(this.excludedDates)
             .build()
     }
 
@@ -105,7 +106,8 @@ class CompletedActivityRepository(private val context: Context) {
             } catch (e: Exception) {
                 VisibilityLevel.LOW
             },
-            showInCalendar = this.showInCalendar
+            showInCalendar = this.showInCalendar,
+            excludedDates = this.excludedDatesList.toList()
         )
     }
 

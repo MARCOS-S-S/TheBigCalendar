@@ -1,6 +1,7 @@
 package com.mss.thebigcalendar.service
 
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -17,10 +18,14 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
-import com.mss.thebigcalendar.data.model.VisibilityLevel
 import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.NotificationSettings
-import java.time.LocalDateTime
+import com.mss.thebigcalendar.data.model.VisibilityLevel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -245,7 +250,10 @@ class VisibilityService(private val context: Context) {
             completeButton.setOnClickListener {
                 try {
                     windowManager.removeView(fullScreenView)
-                    // TODO: Marcar atividade como concluída no repositório
+                    
+                    // Marcar atividade como concluída
+                    markActivityAsCompleted(activity)
+                    
                 } catch (e: Exception) {
                     Log.w(TAG, "❌ Erro ao remover alerta de tela inteira: ${e.message}")
                 }
@@ -263,6 +271,19 @@ class VisibilityService(private val context: Context) {
      * Notificação de fallback quando não há permissão de sobreposição
      */
     private fun showFallbackNotification(activity: Activity, alertType: String) {
+        // Intent para marcar como concluída
+        val completeIntent = Intent(context, NotificationReceiver::class.java).apply {
+            action = NotificationService.ACTION_DISMISS
+            putExtra(NotificationService.EXTRA_ACTIVITY_ID, activity.id)
+        }
+        
+        val completePendingIntent = PendingIntent.getBroadcast(
+            context,
+            (activity.id + "_complete_fallback").hashCode(),
+            completeIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
         val notification = NotificationCompat.Builder(context, VISIBILITY_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
             .setContentTitle("$alertType: ${activity.title}")
@@ -271,6 +292,11 @@ class VisibilityService(private val context: Context) {
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
             .setVibrate(longArrayOf(0, 500, 200, 500))
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel,
+                "Finalizado",
+                completePendingIntent
+            )
             .build()
 
         notificationManager.notify(activity.id.hashCode(), notification)
@@ -287,6 +313,119 @@ class VisibilityService(private val context: Context) {
             "Às ${activity.startTime.format(formatter)}"
         } else {
             "Sem horário definido"
+        }
+    }
+
+    /**
+     * Marca uma atividade como concluída
+     */
+    private fun markActivityAsCompleted(activity: Activity) {
+        // Usar CoroutineScope com SupervisorJob para evitar cancelamento
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        
+        scope.launch {
+            try {
+                val repository = com.mss.thebigcalendar.data.repository.ActivityRepository(context)
+                val completedRepository = com.mss.thebigcalendar.data.repository.CompletedActivityRepository(context)
+                val notificationService = NotificationService(context)
+                val recurrenceService = com.mss.thebigcalendar.service.RecurrenceService()
+                
+                // Verificar se é uma instância recorrente (ID contém data)
+                val isRecurringInstance = activity.id.contains("_") && activity.id.split("_").size == 2
+                
+                if (isRecurringInstance) {
+                    // Tratar instância recorrente específica
+                    val parts = activity.id.split("_")
+                    val baseId = parts[0]
+                    val instanceDate = parts[1]
+                    
+                    Log.d(TAG, "🔄 Processando instância recorrente via overlay - Base ID: $baseId, Data: $instanceDate")
+                    
+                    // Buscar a atividade base
+                    val activities = repository.activities.first()
+                    val baseActivity = activities.find { it.id == baseId }
+                    
+                    if (baseActivity != null && recurrenceService.isRecurring(baseActivity)) {
+                        Log.d(TAG, "📋 Atividade base encontrada: ${baseActivity.title}")
+                        
+                        // Criar instância específica para salvar como concluída
+                        val instanceToComplete = baseActivity.copy(
+                            id = activity.id,
+                            date = instanceDate,
+                            isCompleted = true,
+                            showInCalendar = false
+                        )
+                        
+                        // Salvar instância específica como concluída
+                        completedRepository.addCompletedActivity(instanceToComplete)
+                        
+                        // Adicionar data à lista de exclusões da atividade base
+                        val updatedExcludedDates = baseActivity.excludedDates + instanceDate
+                        val updatedBaseActivity = baseActivity.copy(excludedDates = updatedExcludedDates)
+                        
+                        // Atualizar a atividade base com a nova lista de exclusões
+                        repository.saveActivity(updatedBaseActivity)
+                        
+                        Log.d(TAG, "✅ Instância recorrente marcada como concluída via overlay: ${instanceToComplete.title} - Data: $instanceDate")
+                        
+                    } else {
+                        Log.w(TAG, "⚠️ Atividade base não encontrada ou não é recorrente: $baseId")
+                    }
+                } else {
+                    // Tratar atividade única ou atividade base
+                    // Verificar se é uma atividade recorrente
+                    if (recurrenceService.isRecurring(activity)) {
+                        // Para atividades recorrentes (primeira instância), sempre tratar como instância específica
+                        val activityDate = activity.date
+                        
+                        Log.d(TAG, "🔄 Processando primeira instância recorrente via overlay - ID: ${activity.id}, Data: $activityDate")
+                        
+                        // Criar instância específica para salvar como concluída
+                        val instanceToComplete = activity.copy(
+                            id = activity.id,
+                            date = activityDate,
+                            isCompleted = true,
+                            showInCalendar = false
+                        )
+                        
+                        // Salvar instância específica como concluída
+                        completedRepository.addCompletedActivity(instanceToComplete)
+                        
+                        // Adicionar data à lista de exclusões da atividade base
+                        val updatedExcludedDates = activity.excludedDates + activityDate
+                        val updatedBaseActivity = activity.copy(excludedDates = updatedExcludedDates)
+                        
+                        // Atualizar a atividade base com a nova lista de exclusões
+                        repository.saveActivity(updatedBaseActivity)
+                        
+                        Log.d(TAG, "✅ Primeira instância recorrente marcada como concluída via overlay: ${instanceToComplete.title} - Data: $activityDate")
+                        
+                    } else {
+                        // Tratar atividade única (não recorrente)
+                        Log.d(TAG, "✅ Marcando atividade única como concluída via overlay: ${activity.title}")
+                        
+                        // Marcar como concluída e salvar no repositório de finalizadas
+                        val completedActivity = activity.copy(
+                            isCompleted = true,
+                            showInCalendar = false
+                        )
+                        
+                        // Salvar no repositório de atividades finalizadas
+                        completedRepository.addCompletedActivity(completedActivity)
+                        
+                        // Remover da lista principal
+                        repository.deleteActivity(activity.id)
+                        
+                        Log.d(TAG, "✅ Atividade única marcada como concluída via overlay: ${completedActivity.title}")
+                    }
+                }
+                
+                // Cancelar notificação se existir
+                notificationService.cancelNotification(activity.id)
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Erro ao marcar atividade como concluída via overlay", e)
+            }
         }
     }
 

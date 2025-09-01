@@ -41,7 +41,8 @@ data class Activity(
     val isCompleted: Boolean = false,
     val visibility: VisibilityLevel = VisibilityLevel.LOW, // Nova opção de visibilidade
     val showInCalendar: Boolean = true, // Nova opção para mostrar no calendário
-    val isFromGoogle: Boolean = false
+    val isFromGoogle: Boolean = false,
+    val excludedDates: List<String> = emptyList() // Datas de instâncias recorrentes excluídas
 )
 
 // Representa cada célula individual na grade do calendário

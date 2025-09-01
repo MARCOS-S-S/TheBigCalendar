@@ -102,6 +102,7 @@ class ActivityRepository(private val context: Context) {
             .setVisibility(this.visibility.name)
             .setShowInCalendar(this.showInCalendar)
             .setNotificationSettings(this.notificationSettings.toProto())
+            .addAllExcludedDates(this.excludedDates)
             .build()
     }
 
@@ -126,7 +127,8 @@ class ActivityRepository(private val context: Context) {
             } catch (e: Exception) {
                 com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
             },
-            showInCalendar = this.showInCalendar
+            showInCalendar = this.showInCalendar,
+            excludedDates = this.excludedDatesList.toList()
         )
     }
 

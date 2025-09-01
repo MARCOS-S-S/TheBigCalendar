@@ -76,6 +76,15 @@ class NotificationService(private val context: Context) {
         val notificationTime = calculateNotificationTime(activity)
         val triggerTime = getTriggerTime(activity.date, notificationTime)
         
+        // Log para debug
+        Log.d(TAG, "🔔 Agendando notificação para atividade: ${activity.title}")
+        Log.d(TAG, "📅 Data da atividade: ${activity.date}")
+        Log.d(TAG, "⏰ Horário da atividade: ${activity.startTime}")
+        Log.d(TAG, "🔔 Horário da notificação: $notificationTime")
+        Log.d(TAG, "⏰ Trigger time (timestamp): $triggerTime")
+        Log.d(TAG, "🔔 Tipo de notificação: ${activity.notificationSettings.notificationType}")
+        Log.d(TAG, "🔔 Horário específico configurado: ${activity.notificationSettings.notificationTime}")
+        
         // Cancelar notificação anterior se existir
         cancelNotification(activity.id)
         
@@ -121,14 +130,19 @@ class NotificationService(private val context: Context) {
      * Calcula o horário da notificação baseado nas configurações
      */
     private fun calculateNotificationTime(activity: Activity): LocalDateTime {
-        // Se não há horário específico, usar início do dia (00:00)
+        val notificationType = activity.notificationSettings.notificationType
+        
+        // Se há um horário específico de notificação configurado, usar ele
+        if (activity.notificationSettings.notificationTime != null) {
+            return LocalDateTime.parse("${activity.date}T${activity.notificationSettings.notificationTime}")
+        }
+        
+        // Se não há horário específico de notificação, calcular baseado no tipo
         val activityDateTime = if (activity.startTime != null) {
             LocalDateTime.parse("${activity.date}T${activity.startTime}")
         } else {
             LocalDateTime.parse("${activity.date}T00:00")
         }
-        
-        val notificationType = activity.notificationSettings.notificationType
         
         return when (notificationType) {
             com.mss.thebigcalendar.data.model.NotificationType.NONE -> activityDateTime

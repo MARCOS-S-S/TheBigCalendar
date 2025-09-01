@@ -55,7 +55,10 @@ class RecurrenceService {
     ) {
         var currentDate = baseDate.plusDays(1)
         while (!currentDate.isAfter(endDate)) {
-            instances.add(createRecurringInstance(baseActivity, currentDate))
+            // Verificar se esta data não foi excluída
+            if (!baseActivity.excludedDates.contains(currentDate.toString())) {
+                instances.add(createRecurringInstance(baseActivity, currentDate))
+            }
             currentDate = currentDate.plusDays(1)
         }
     }
@@ -71,7 +74,10 @@ class RecurrenceService {
     ) {
         var currentDate = baseDate.plusWeeks(1)
         while (!currentDate.isAfter(endDate)) {
-            instances.add(createRecurringInstance(baseActivity, currentDate))
+            // Verificar se esta data não foi excluída
+            if (!baseActivity.excludedDates.contains(currentDate.toString())) {
+                instances.add(createRecurringInstance(baseActivity, currentDate))
+            }
             currentDate = currentDate.plusWeeks(1)
         }
     }
@@ -91,7 +97,10 @@ class RecurrenceService {
             val targetDay = minOf(baseDate.dayOfMonth, currentDate.lengthOfMonth())
             val adjustedDate = currentDate.withDayOfMonth(targetDay)
             
-            instances.add(createRecurringInstance(baseActivity, adjustedDate))
+            // Verificar se esta data não foi excluída
+            if (!baseActivity.excludedDates.contains(adjustedDate.toString())) {
+                instances.add(createRecurringInstance(baseActivity, adjustedDate))
+            }
             currentDate = currentDate.plusMonths(1)
         }
     }
@@ -107,7 +116,10 @@ class RecurrenceService {
     ) {
         var currentDate = baseDate.plusYears(1)
         while (!currentDate.isAfter(endDate)) {
-            instances.add(createRecurringInstance(baseActivity, currentDate))
+            // Verificar se esta data não foi excluída
+            if (!baseActivity.excludedDates.contains(currentDate.toString())) {
+                instances.add(createRecurringInstance(baseActivity, currentDate))
+            }
             currentDate = currentDate.plusYears(1)
         }
     }
@@ -152,7 +164,10 @@ class RecurrenceService {
     ) {
         var currentDate = baseDate.plusDays(interval.toLong())
         while (!currentDate.isAfter(endDate)) {
-            instances.add(createRecurringInstance(baseActivity, currentDate))
+            // Verificar se esta data não foi excluída
+            if (!baseActivity.excludedDates.contains(currentDate.toString())) {
+                instances.add(createRecurringInstance(baseActivity, currentDate))
+            }
             currentDate = currentDate.plusDays(interval.toLong())
         }
     }

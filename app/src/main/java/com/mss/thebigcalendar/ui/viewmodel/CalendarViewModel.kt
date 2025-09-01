@@ -525,7 +525,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             if (dateMatches) {
                                 // Verificar se a atividade deve aparecer no calendário
                                 val shouldShowInCalendar = activity.showInCalendar
-                                if (shouldShowInCalendar) {
+                                
+                                // Para atividades recorrentes, verificar se esta data específica foi excluída
+                                val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
+                                    activity.excludedDates.contains(date.toString())
+                                } else {
+                                    false
+                                }
+                                
+                                if (shouldShowInCalendar && !isExcluded) {
                                     allActivitiesForThisDay.add(activity)
                                 }
                             }
@@ -660,7 +668,16 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     
                     val dateMatches = activityDate.isEqual(state.selectedDate)
                     if (dateMatches) {
-                        allTasksForSelectedDate.add(activity)
+                        // Para atividades recorrentes, verificar se esta data específica foi excluída
+                        val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
+                            activity.excludedDates.contains(state.selectedDate.toString())
+                        } else {
+                            false
+                        }
+                        
+                        if (!isExcluded) {
+                            allTasksForSelectedDate.add(activity)
+                        }
                     }
                     
                     // Se a atividade é repetitiva, calcular se deve aparecer neste dia
@@ -969,6 +986,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         
         try {
             val baseDate = LocalDate.parse(baseActivity.date)
+            val targetDateString = targetDate.toString()
+            
+            // Verificar se esta data específica foi excluída
+            if (baseActivity.excludedDates.contains(targetDateString)) {
+                Log.d("CalendarViewModel", "🚫 Data $targetDateString excluída para atividade ${baseActivity.title}")
+                return instances
+            }
             
             // Se a data base é posterior à data alvo, não há instâncias
             if (baseDate.isAfter(targetDate)) {
@@ -1345,80 +1369,116 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             Log.d("CalendarViewModel", "🎯 Função markActivityAsCompleted chamada para ID: $activityId")
             
-            // Buscar a atividade pelo ID ou, se for instância recorrente, buscar pela atividade base
-            var activityToComplete = _uiState.value.activities.find { it.id == activityId }
+            // Verificar se é uma instância recorrente (ID contém data)
+            val isRecurringInstance = activityId.contains("_") && activityId.split("_").size == 2
             
-            // Se não encontrou pelo ID e parece ser uma instância recorrente, buscar pela atividade base
-            if (activityToComplete == null && activityId.contains("_")) {
-                val baseId = activityId.split("_").first()
-                activityToComplete = _uiState.value.activities.find { it.id == baseId }
-                Log.d("CalendarViewModel", "🔍 Buscando atividade base com ID: $baseId")
-            }
-            
-            if (activityToComplete != null) {
-                Log.d("CalendarViewModel", "📋 Atividade encontrada: ${activityToComplete.title}")
-                Log.d("CalendarViewModel", "📅 Data: ${activityToComplete.date}")
-                Log.d("CalendarViewModel", "🔄 Regra de recorrência: '${activityToComplete.recurrenceRule}'")
-                Log.d("CalendarViewModel", "🔍 É recorrente? ${recurrenceService.isRecurring(activityToComplete)}")
-                Log.d("CalendarViewModel", "🔍 Tipo da regra: ${activityToComplete.recurrenceRule?.javaClass?.simpleName}")
-                Log.d("CalendarViewModel", "🔍 Tamanho da regra: ${activityToComplete.recurrenceRule?.length}")
+            if (isRecurringInstance) {
+                // Tratar instância recorrente específica
+                val parts = activityId.split("_")
+                val baseId = parts[0]
+                val instanceDate = parts[1]
                 
-                // Verificar se é uma tarefa recorrente
-                if (recurrenceService.isRecurring(activityToComplete)) {
-                    Log.d("CalendarViewModel", "🔄 Marcando tarefa recorrente como concluída: ${activityToComplete.title}")
-                    Log.d("CalendarViewModel", "📅 Regra de recorrência: ${activityToComplete.recurrenceRule}")
-                    Log.d("CalendarViewModel", "📅 Data da instância: ${activityToComplete.date}")
+                Log.d("CalendarViewModel", "🔄 Processando instância recorrente - Base ID: $baseId, Data: $instanceDate")
+                
+                // Buscar a atividade base
+                val baseActivity = _uiState.value.activities.find { it.id == baseId }
+                
+                if (baseActivity != null && recurrenceService.isRecurring(baseActivity)) {
+                    Log.d("CalendarViewModel", "📋 Atividade base encontrada: ${baseActivity.title}")
                     
-                    // Para tarefas recorrentes, marcar como concluída e salvar no repositório de finalizadas
-                    val completedActivity = activityToComplete.copy(
+                    // Criar instância específica para salvar como concluída
+                    val instanceToComplete = baseActivity.copy(
+                        id = activityId,
+                        date = instanceDate,
                         isCompleted = true,
-                        showInCalendar = false // Ocultar do calendário mensal
+                        showInCalendar = false
                     )
                     
-                    // Salvar no repositório de atividades finalizadas
-                    completedActivityRepository.addCompletedActivity(completedActivity)
+                    // Salvar instância específica como concluída
+                    completedActivityRepository.addCompletedActivity(instanceToComplete)
                     
-                    // Remover da lista principal
-                    activityRepository.deleteActivity(activityToComplete.id)
+                    // Adicionar data à lista de exclusões da atividade base
+                    val updatedExcludedDates = baseActivity.excludedDates + instanceDate
+                    val updatedBaseActivity = baseActivity.copy(excludedDates = updatedExcludedDates)
                     
-                    // Sincronizar com Google Calendar se for evento do Google
-                    if (activityToComplete.isFromGoogle) {
-                        deleteFromGoogleCalendar(activityToComplete)
-                    }
+                    // Atualizar a atividade base com a nova lista de exclusões
+                    activityRepository.saveActivity(updatedBaseActivity)
                     
-                    Log.d("CalendarViewModel", "✅ Tarefa recorrente marcada como concluída: ${completedActivity.title}")
-                    println("✅ Tarefa recorrente marcada como concluída: ${completedActivity.title}")
+                    Log.d("CalendarViewModel", "✅ Instância recorrente marcada como concluída: ${instanceToComplete.title} - Data: $instanceDate")
+                    println("✅ Instância recorrente marcada como concluída: ${instanceToComplete.title} - Data: $instanceDate")
                     
-                    // Atualizar a UI após marcar como concluída
+                    // Atualizar a UI
                     updateAllDateDependentUI()
+                    
                 } else {
-                    Log.d("CalendarViewModel", "✅ Marcando tarefa única como concluída: ${activityToComplete.title}")
-                    
-                    // Marcar como concluída e salvar no repositório de finalizadas
-                    val completedActivity = activityToComplete.copy(
-                        isCompleted = true,
-                        showInCalendar = false // Ocultar do calendário mensal
-                    )
-                    
-                    // Salvar no repositório de atividades finalizadas
-                    completedActivityRepository.addCompletedActivity(completedActivity)
-                    
-                    // Remover da lista principal
-                    activityRepository.deleteActivity(activityId)
-                    
-                    // Sincronizar com Google Calendar se for evento do Google
-                    if (activityToComplete.isFromGoogle) {
-                        deleteFromGoogleCalendar(activityToComplete)
-                    }
-                    
-                    Log.d("CalendarViewModel", "✅ Tarefa única marcada como concluída: ${completedActivity.title}")
-                    println("✅ Tarefa única marcada como concluída: ${completedActivity.title}")
-                    
-                    // Atualizar a UI após marcar como concluída
-                    updateAllDateDependentUI()
+                    Log.w("CalendarViewModel", "⚠️ Atividade base não encontrada ou não é recorrente: $baseId")
                 }
             } else {
-                Log.w("CalendarViewModel", "⚠️ Atividade não encontrada para ID: $activityId")
+                // Tratar atividade única ou atividade base
+                val activityToComplete = _uiState.value.activities.find { it.id == activityId }
+                
+                if (activityToComplete != null) {
+                    // Verificar se é uma atividade recorrente
+                    if (recurrenceService.isRecurring(activityToComplete)) {
+                        // Para atividades recorrentes (primeira instância), sempre tratar como instância específica
+                        val activityDate = activityToComplete.date
+                        
+                        Log.d("CalendarViewModel", "🔄 Processando primeira instância recorrente - ID: $activityId, Data: $activityDate")
+                        
+                        // Criar instância específica para salvar como concluída
+                        val instanceToComplete = activityToComplete.copy(
+                            id = activityId,
+                            date = activityDate,
+                            isCompleted = true,
+                            showInCalendar = false
+                        )
+                        
+                        // Salvar instância específica como concluída
+                        completedActivityRepository.addCompletedActivity(instanceToComplete)
+                        
+                        // Adicionar data à lista de exclusões da atividade base
+                        val updatedExcludedDates = activityToComplete.excludedDates + activityDate
+                        val updatedBaseActivity = activityToComplete.copy(excludedDates = updatedExcludedDates)
+                        
+                        // Atualizar a atividade base com a nova lista de exclusões
+                        activityRepository.saveActivity(updatedBaseActivity)
+                        
+                        Log.d("CalendarViewModel", "✅ Primeira instância recorrente marcada como concluída: ${instanceToComplete.title} - Data: $activityDate")
+                        println("✅ Primeira instância recorrente marcada como concluída: ${instanceToComplete.title} - Data: $activityDate")
+                        
+                        // Atualizar a UI
+                        updateAllDateDependentUI()
+                        
+                    } else {
+                        // Tratar atividade única (não recorrente)
+                        Log.d("CalendarViewModel", "✅ Marcando atividade única como concluída: ${activityToComplete.title}")
+                        
+                        // Marcar como concluída e salvar no repositório de finalizadas
+                        val completedActivity = activityToComplete.copy(
+                            isCompleted = true,
+                            showInCalendar = false // Ocultar do calendário mensal
+                        )
+                        
+                        // Salvar no repositório de atividades finalizadas
+                        completedActivityRepository.addCompletedActivity(completedActivity)
+                        
+                        // Remover da lista principal
+                        activityRepository.deleteActivity(activityId)
+                        
+                        // Sincronizar com Google Calendar se for evento do Google
+                        if (activityToComplete.isFromGoogle) {
+                            deleteFromGoogleCalendar(activityToComplete)
+                        }
+                        
+                        Log.d("CalendarViewModel", "✅ Atividade única marcada como concluída: ${completedActivity.title}")
+                        println("✅ Atividade única marcada como concluída: ${completedActivity.title}")
+                        
+                        // Atualizar a UI após marcar como concluída
+                        updateAllDateDependentUI()
+                    }
+                } else {
+                    Log.w("CalendarViewModel", "⚠️ Atividade não encontrada para ID: $activityId")
+                }
             }
         }
     }
