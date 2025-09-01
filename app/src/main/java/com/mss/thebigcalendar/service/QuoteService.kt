@@ -86,6 +86,63 @@ class QuoteService(private val context: Context) {
     }
     
     /**
+     * Obtém a frase do dia de forma síncrona (para evitar piscadas na UI)
+     */
+    fun getQuoteOfTheDaySync(): Quote? {
+        val quotes = loadQuotesSync()
+        if (quotes.isEmpty()) return null
+        
+        val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+        val lastDate = prefs.getString(KEY_LAST_QUOTE_DATE, "")
+        val lastIndex = prefs.getInt(KEY_LAST_QUOTE_INDEX, 0)
+        
+        return if (today != lastDate) {
+            // Nova data, usar próxima frase
+            val nextIndex = (lastIndex + 1) % quotes.size
+            val quote = quotes[nextIndex]
+            
+            // Salvar nova data e índice
+            prefs.edit()
+                .putString(KEY_LAST_QUOTE_DATE, today)
+                .putInt(KEY_LAST_QUOTE_INDEX, nextIndex)
+                .apply()
+            
+            Log.d(TAG, "📅 Nova frase do dia (sync): ${quote.autor} - ${quote.frase}")
+            quote
+        } else {
+            // Mesmo dia, usar frase salva
+            quotes[lastIndex]
+        }
+    }
+    
+    /**
+     * Carrega as frases de forma síncrona
+     */
+    private fun loadQuotesSync(): List<Quote> {
+        if (quotes != null) return quotes!!
+        
+        return try {
+            val jsonString = context.assets.open("frases.json").bufferedReader().use { it.readText() }
+            val jsonArray = JSONArray(jsonString)
+            val quotesList = mutableListOf<Quote>()
+            
+            for (i in 0 until jsonArray.length()) {
+                val jsonObject = jsonArray.getJSONObject(i)
+                val autor = jsonObject.getString("autor")
+                val frase = jsonObject.getString("frase")
+                quotesList.add(Quote(autor = autor, frase = frase))
+            }
+            
+            quotes = quotesList
+            Log.d(TAG, "✅ ${quotesList.size} frases carregadas com sucesso (sync)")
+            quotesList
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao carregar frases (sync)", e)
+            emptyList()
+        }
+    }
+    
+    /**
      * Obtém uma frase aleatória
      */
     suspend fun getRandomQuote(): Quote? {

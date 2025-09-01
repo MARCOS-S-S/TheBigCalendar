@@ -75,15 +75,12 @@ object GreetingService {
  */
 @Composable
 fun rememberQuoteOfTheDay(context: Context): Quote? {
-    var quote by remember { mutableStateOf<Quote?>(null) }
-    val scope = rememberCoroutineScope()
-    
-    LaunchedEffect(Unit) {
-        scope.launch {
+    return remember {
+        try {
             val quoteService = QuoteService(context)
-            quote = quoteService.getQuoteOfTheDay()
+            quoteService.getQuoteOfTheDaySync()
+        } catch (e: Exception) {
+            null
         }
     }
-    
-    return quote
 }
