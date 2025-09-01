@@ -24,6 +24,7 @@ import com.mss.thebigcalendar.ui.screens.TrashScreen
 import com.mss.thebigcalendar.ui.screens.BackupScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
+import com.mss.thebigcalendar.ui.onboarding.OnboardingFlow
 import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
@@ -62,6 +63,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val uiState by viewModel.uiState.collectAsState()
             var isThemeLoaded by remember { mutableStateOf(false) }
+            var showOnboarding by remember { mutableStateOf(true) }
 
             LaunchedEffect(Unit) {
                 viewModel.uiState.first()
@@ -83,7 +85,18 @@ class MainActivity : ComponentActivity() {
                         else -> isSystemInDarkTheme()
                     }
                 ) {
-                    when {
+                    if (showOnboarding) {
+                        OnboardingFlow(
+                            onComplete = {
+                                showOnboarding = false
+                            },
+                            onGoogleSignIn = {
+                                // Usar a função de login do Google existente
+                                viewModel.onSignInClicked()
+                            }
+                        )
+                    } else {
+                        when {
                         uiState.isSearchScreenOpen -> {
                             SearchScreen(
                                 viewModel = viewModel,
@@ -106,6 +119,7 @@ class MainActivity : ComponentActivity() {
                         }
                         else -> {
                             CalendarScreen(viewModel)
+                        }
                         }
                     }
                 }
