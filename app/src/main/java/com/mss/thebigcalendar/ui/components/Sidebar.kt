@@ -70,11 +70,18 @@ fun Sidebar(
                 .padding(NavigationDrawerItemDefaults.ItemPadding)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Cabeçalho com o botão de fechar
+            // Cabeçalho com mensagem de boas-vindas e botão de fechar
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Text(
+                    text = GreetingService.getFullGreetingMessage(),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
                 IconButton(onClick = onRequestClose) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -83,14 +90,6 @@ fun Sidebar(
                     )
                 }
             }
-
-            // Mensagem de boas-vindas
-            Text(
-                text = GreetingService.getFullGreetingMessage(),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                color = MaterialTheme.colorScheme.onSurface
-            )
 
             // Frase do dia
             quoteOfTheDay?.let { quote ->
