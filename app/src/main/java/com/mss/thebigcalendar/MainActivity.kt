@@ -29,6 +29,7 @@ import com.mss.thebigcalendar.ui.screens.CalendarScreen
 import com.mss.thebigcalendar.ui.screens.SearchScreen
 import com.mss.thebigcalendar.ui.screens.TrashScreen
 import com.mss.thebigcalendar.ui.screens.ChartScreen
+import com.mss.thebigcalendar.ui.screens.CompletedTasksScreen
 import com.mss.thebigcalendar.ui.screens.BackupScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
@@ -82,6 +83,7 @@ class MainActivity : ComponentActivity() {
                     state.isSearchScreenOpen -> viewModel.closeSearchScreen()
                     state.isTrashScreenOpen -> viewModel.closeTrashScreen()
                     state.isBackupScreenOpen -> viewModel.closeBackupScreen()
+                    state.isCompletedTasksScreenOpen -> viewModel.closeCompletedTasksScreen()
                     else -> finish()
                 }
             }
@@ -149,6 +151,13 @@ class MainActivity : ComponentActivity() {
                         )
                     } else {
                         when {
+                        uiState.isCompletedTasksScreenOpen -> {
+                            CompletedTasksScreen(
+                                onBackClick = { viewModel.closeCompletedTasksScreen() },
+                                completedActivities = uiState.completedActivities,
+                                onBackPressedDispatcher = onBackPressedDispatcher
+                            )
+                        }
                         uiState.isSearchScreenOpen -> {
                             SearchScreen(
                                 viewModel = viewModel,
@@ -168,6 +177,7 @@ class MainActivity : ComponentActivity() {
                                 onBackClick = { viewModel.closeChartScreen() },
                                 activities = uiState.activities,
                                 completedActivities = uiState.completedActivities,
+                                onNavigateToCompletedTasks = { viewModel.onCompletedTasksClick() },
                                 onBackPressedDispatcher = onBackPressedDispatcher
                             )
                         }

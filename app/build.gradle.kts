@@ -107,6 +107,9 @@ dependencies {
     
     // WorkManager para sincronização em background
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+    
+    // Biblioteca para gráficos
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     // Dependências de Teste
     testImplementation(libs.junit)

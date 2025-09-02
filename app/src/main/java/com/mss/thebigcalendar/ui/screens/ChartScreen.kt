@@ -1,5 +1,6 @@
 package com.mss.thebigcalendar.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import com.mss.thebigcalendar.ui.components.PieChartComponent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BarChart
@@ -44,6 +46,7 @@ fun ChartScreen(
     activities: List<com.mss.thebigcalendar.data.model.Activity> = emptyList(),
     completedActivities: List<com.mss.thebigcalendar.data.model.Activity> = emptyList(),
     onBackPressedDispatcher: OnBackPressedDispatcher? = null,
+    onNavigateToCompletedTasks: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Tratar o botão de voltar do sistema
@@ -136,42 +139,11 @@ fun ChartScreen(
                 }
             }
 
-            // Placeholder para futuras funcionalidades
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = "📊",
-                            style = MaterialTheme.typography.displayMedium
-                        )
-                        Text(
-                            text = "Gráficos em breve",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            text = "Esta área será preenchida com gráficos e estatísticas dos seus agendamentos.",
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+            // Gráfico de pizza com distribuição de atividades
+            PieChartComponent(
+                activities = activities,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             // Card para estatísticas básicas
             Card(
@@ -219,7 +191,8 @@ fun ChartScreen(
                         }
                         
                         Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.clickable { onNavigateToCompletedTasks() }
                         ) {
                             Text(
                                 text = completedTasks.toString(),

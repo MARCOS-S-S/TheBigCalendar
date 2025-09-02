@@ -1627,6 +1627,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(isChartScreenOpen = false) }
     }
 
+    // --- Tarefas Concluídas ---
+    fun onCompletedTasksClick() {
+        println("📋 Abrindo tela de tarefas concluídas")
+        _uiState.update { it.copy(isCompletedTasksScreenOpen = true) }
+    }
+
+    fun closeCompletedTasksScreen() {
+        println("🚪 Fechando tela de tarefas concluídas")
+        _uiState.update { it.copy(isCompletedTasksScreenOpen = false) }
+    }
+
     // --- Lixeira ---
     
     fun onTrashIconClick() {
