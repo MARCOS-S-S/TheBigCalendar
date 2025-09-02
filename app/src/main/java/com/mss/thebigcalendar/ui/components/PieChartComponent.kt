@@ -1,5 +1,6 @@
 package com.mss.thebigcalendar.ui.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,9 +21,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlin.math.cos
+import kotlin.math.sin
 import com.mss.thebigcalendar.data.model.Activity
 
 data class ChartData(
@@ -98,35 +105,33 @@ private fun SimplePieChart(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        // Criar círculos concêntricos para simular um gráfico de pizza
-        val totalValue = data.sumOf { it.value }
-        
-        if (totalValue > 0) {
-            var currentAngle = 0f
-            
-            data.forEach { item ->
-                val angle = (item.value.toFloat() / totalValue) * 360f
+        Canvas(
+            modifier = Modifier.size(200.dp)
+        ) {
+            val totalValue = data.sumOf { it.value }
+            if (totalValue > 0) {
+                val center = Offset(size.width / 2, size.height / 2)
+                val radius = minOf(size.width, size.height) / 2 * 0.8f
+                var startAngle = -90f // Começar do topo
                 
-                // Para simplificar, vamos mostrar apenas um círculo com a cor predominante
-                // Em uma implementação real, você usaria Canvas para desenhar o gráfico de pizza
-                if (item == data.maxByOrNull { it.value }) {
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .padding(4.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "${item.percentage.toInt()}%",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    }
+                data.forEach { item ->
+                    val sweepAngle = (item.value.toFloat() / totalValue) * 360f
+                    
+                    // Desenhar o arco
+                    drawArc(
+                        color = item.color,
+                        startAngle = startAngle,
+                        sweepAngle = sweepAngle,
+                        useCenter = true,
+                        topLeft = Offset(
+                            center.x - radius,
+                            center.y - radius
+                        ),
+                        size = Size(radius * 2, radius * 2)
+                    )
+                    
+                    startAngle += sweepAngle
                 }
-                
-                currentAngle += angle
             }
         }
     }
