@@ -175,6 +175,13 @@ fun Sidebar(
                 checked = uiState.showCompletedActivities,
                 onCheckedChange = { onFilterChange("showCompletedActivities", it) }
             )
+            
+            // Opção para mostrar fases da lua
+            FilterCheckboxItem(
+                label = "Fases da Lua",
+                checked = uiState.showMoonPhases,
+                onCheckedChange = { onFilterChange("showMoonPhases", it) }
+            )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
 

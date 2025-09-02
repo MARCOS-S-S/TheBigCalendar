@@ -70,7 +70,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val recurrenceService = RecurrenceService()
     private val deletedActivityRepository = DeletedActivityRepository(application)
     private val completedActivityRepository = CompletedActivityRepository(application)
-    private val backupService = BackupService(application, activityRepository, deletedActivityRepository)
+    private val backupService = BackupService(application, activityRepository, deletedActivityRepository, completedActivityRepository)
     private val visibilityService = VisibilityService(application)
 
     // Debounce para otimizar atualizações do calendário
@@ -847,6 +847,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 
                 // Atualizar a UI
                 updateAllDateDependentUI()
+            }
+            "showMoonPhases" -> {
+                // Atualizar o estado imediatamente
+                _uiState.update { it.copy(showMoonPhases = value) }
             }
             else -> {
                 val currentFilters = _uiState.value.filterOptions
@@ -1784,6 +1788,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         updateAllDateDependentUI()
     }
     
+    fun toggleMoonPhasesVisibility() {
+        _uiState.update { it.copy(showMoonPhases = !it.showMoonPhases) }
+    }
+    
     fun getCompletedActivities(): List<Activity> {
         return _uiState.value.completedActivities
     }
@@ -1990,6 +1998,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         println("✅ Backup restaurado com sucesso:")
                         println("   - Atividades: ${result.activities.size}")
                         println("   - Itens da lixeira: ${result.deletedActivities.size}")
+                        println("   - Atividades concluídas: ${result.completedActivities.size}")
                         
                         // Limpar dados atuais
                         clearAllCurrentData()
@@ -2004,8 +2013,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             deletedActivityRepository.addDeletedActivity(deletedActivity.originalActivity)
                         }
                         
+                        // Restaurar atividades concluídas
+                        result.completedActivities.forEach { activity ->
+                            completedActivityRepository.addCompletedActivity(activity)
+                        }
+                        
                         _uiState.update { it.copy(
-                            backupMessage = "Backup restaurado com sucesso! ${result.activities.size} atividades e ${result.deletedActivities.size} itens da lixeira restaurados."
+                            backupMessage = "Backup restaurado com sucesso! ${result.activities.size} atividades, ${result.deletedActivities.size} itens da lixeira e ${result.completedActivities.size} atividades concluídas restaurados."
                         ) }
                         
                         // Recarregar dados da UI

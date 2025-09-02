@@ -14,6 +14,7 @@ import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.DeletedActivity
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
+import com.mss.thebigcalendar.data.repository.CompletedActivityRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -26,7 +27,8 @@ import java.time.format.DateTimeFormatter
 class BackupService(
     private val context: Context,
     private val activityRepository: ActivityRepository,
-    private val deletedActivityRepository: DeletedActivityRepository
+    private val deletedActivityRepository: DeletedActivityRepository,
+    private val completedActivityRepository: CompletedActivityRepository
 ) {
     
     companion object {
@@ -89,9 +91,10 @@ class BackupService(
             // Coletar dados para backup
             val activities = activityRepository.activities.first()
             val deletedActivities = deletedActivityRepository.deletedActivities.first()
+            val completedActivities = completedActivityRepository.completedActivities.first()
             
             // Criar estrutura JSON do backup
-            val backupData = createBackupJson(activities, deletedActivities)
+            val backupData = createBackupJson(activities, deletedActivities, completedActivities)
             
             // Criar diretório de backup se não existir
             val backupDir = createBackupDirectory()
@@ -150,7 +153,7 @@ class BackupService(
     /**
      * Cria a estrutura JSON do backup
      */
-    private fun createBackupJson(activities: List<Activity>, deletedActivities: List<DeletedActivity>): String {
+    private fun createBackupJson(activities: List<Activity>, deletedActivities: List<DeletedActivity>, completedActivities: List<Activity>): String {
         val backupJson = JSONObject()
         
         // Metadados do backup
@@ -159,6 +162,7 @@ class BackupService(
         backupJson.put("appVersion", "TheBigCalendar")
         backupJson.put("totalActivities", activities.size)
         backupJson.put("totalDeletedActivities", deletedActivities.size)
+        backupJson.put("totalCompletedActivities", completedActivities.size)
         
         // Atividades ativas
         val activitiesArray = JSONArray()
@@ -224,6 +228,38 @@ class BackupService(
         }
         backupJson.put("deletedActivities", deletedActivitiesArray)
         
+        // Atividades concluídas
+        val completedActivitiesArray = JSONArray()
+        completedActivities.forEach { activity ->
+            val activityJson = JSONObject()
+            activityJson.put("id", activity.id)
+            activityJson.put("title", activity.title)
+            activityJson.put("description", activity.description ?: "")
+            activityJson.put("date", activity.date)
+            activityJson.put("startTime", activity.startTime?.toString() ?: "")
+            activityJson.put("endTime", activity.endTime?.toString() ?: "")
+            activityJson.put("isAllDay", activity.isAllDay)
+            activityJson.put("location", activity.location ?: "")
+            activityJson.put("categoryColor", activity.categoryColor)
+            activityJson.put("activityType", activity.activityType.name)
+            activityJson.put("recurrenceRule", activity.recurrenceRule ?: "")
+            activityJson.put("isCompleted", activity.isCompleted)
+            activityJson.put("visibility", activity.visibility.name)
+            activityJson.put("showInCalendar", activity.showInCalendar)
+            activityJson.put("isFromGoogle", activity.isFromGoogle)
+            
+            // Configurações de notificação
+            val notificationJson = JSONObject()
+            notificationJson.put("isEnabled", activity.notificationSettings.isEnabled)
+            notificationJson.put("notificationType", activity.notificationSettings.notificationType.name)
+            notificationJson.put("customMinutesBefore", activity.notificationSettings.customMinutesBefore)
+            notificationJson.put("notificationTime", activity.notificationSettings.notificationTime?.toString() ?: "")
+            activityJson.put("notificationSettings", notificationJson)
+            
+            completedActivitiesArray.put(activityJson)
+        }
+        backupJson.put("completedActivities", completedActivitiesArray)
+        
         return backupJson.toString(2) // Pretty print com indentação
     }
     
@@ -269,6 +305,7 @@ class BackupService(
                 createdAt = json.optString("createdAt", ""),
                 totalActivities = json.optInt("totalActivities", 0),
                 totalDeletedActivities = json.optInt("totalDeletedActivities", 0),
+                totalCompletedActivities = json.optInt("totalCompletedActivities", 0),
                 backupVersion = json.optString("backupVersion", "1.0")
             )
             
@@ -323,9 +360,24 @@ class BackupService(
                 }
             }
             
+            // Extrair atividades concluídas
+            val completedActivitiesArray = json.optJSONArray("completedActivities") ?: JSONArray()
+            val restoredCompletedActivities = mutableListOf<com.mss.thebigcalendar.data.model.Activity>()
+            
+            for (i in 0 until completedActivitiesArray.length()) {
+                val activityJson = completedActivitiesArray.getJSONObject(i)
+                try {
+                    val activity = parseActivityFromJson(activityJson)
+                    restoredCompletedActivities.add(activity)
+                } catch (e: Exception) {
+                    Log.w(TAG, "⚠️ Erro ao parsear atividade concluída $i: ${e.message}")
+                }
+            }
+            
             val result = RestoreResult(
                 activities = restoredActivities,
                 deletedActivities = restoredDeletedActivities,
+                completedActivities = restoredCompletedActivities,
                 backupFileName = backupFile.name,
                 backupCreatedAt = json.optString("createdAt", "")
             )
@@ -465,6 +517,7 @@ data class BackupInfo(
     val createdAt: String,
     val totalActivities: Int,
     val totalDeletedActivities: Int,
+    val totalCompletedActivities: Int,
     val backupVersion: String
 )
 
@@ -474,6 +527,7 @@ data class BackupInfo(
 data class RestoreResult(
     val activities: List<com.mss.thebigcalendar.data.model.Activity>,
     val deletedActivities: List<com.mss.thebigcalendar.data.model.DeletedActivity>,
+    val completedActivities: List<com.mss.thebigcalendar.data.model.Activity>,
     val backupFileName: String,
     val backupCreatedAt: String
 )

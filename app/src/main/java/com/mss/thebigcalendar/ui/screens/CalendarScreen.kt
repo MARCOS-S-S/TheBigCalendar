@@ -70,6 +70,7 @@ import com.mss.thebigcalendar.ui.components.CreateActivityModal
 import com.mss.thebigcalendar.ui.components.DeleteConfirmationDialog
 import com.mss.thebigcalendar.ui.components.HolidaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.MonthlyCalendar
+import com.mss.thebigcalendar.ui.components.MoonPhasesComponent
 import com.mss.thebigcalendar.ui.components.SaintDaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.SaintInfoDialog
 import com.mss.thebigcalendar.ui.components.Sidebar
@@ -81,6 +82,7 @@ import com.mss.thebigcalendar.ui.screens.ChartScreen
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
+import java.time.YearMonth
 
 fun Modifier.clickableWithoutRipple(onClick: () -> Unit): Modifier = composed {
     clickable(indication = null,
@@ -313,7 +315,7 @@ fun MainCalendarView(
                 ViewMode.MONTHLY -> {
                     LazyColumn(modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() }) {
                         item {
-                            MonthlyCalendar(
+                            Column(
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp, vertical = 16.dp)
                                     .border(
@@ -322,26 +324,38 @@ fun MainCalendarView(
                                         shape = MaterialTheme.shapes.medium
                                     )
                                     .padding(vertical = 8.dp)
-                                    .pointerInput(Unit) {
-                                        detectHorizontalDragGestures(
-                                            onHorizontalDrag = { _, dragAmount ->
-                                                horizontalDragOffset += dragAmount
-                                            },
-                                            onDragEnd = {
-                                                val swipeThreshold = 100f
-                                                if (horizontalDragOffset > swipeThreshold) {
-                                                    viewModel.onPreviousMonth()
-                                                } else if (horizontalDragOffset < -swipeThreshold) {
-                                                    viewModel.onNextMonth()
+                            ) {
+                                MonthlyCalendar(
+                                    modifier = Modifier
+                                        .pointerInput(Unit) {
+                                            detectHorizontalDragGestures(
+                                                onHorizontalDrag = { _, dragAmount ->
+                                                    horizontalDragOffset += dragAmount
+                                                },
+                                                onDragEnd = {
+                                                    val swipeThreshold = 100f
+                                                    if (horizontalDragOffset > swipeThreshold) {
+                                                        viewModel.onPreviousMonth()
+                                                    } else if (horizontalDragOffset < -swipeThreshold) {
+                                                        viewModel.onNextMonth()
+                                                    }
+                                                    horizontalDragOffset = 0f
                                                 }
-                                                horizontalDragOffset = 0f
-                                            }
-                                        )
-                                    },
-                                calendarDays = uiState.calendarDays,
-                                onDateSelected = { viewModel.onDateSelected(it) },
-                                theme = uiState.theme
-                            )
+                                            )
+                                        },
+                                    calendarDays = uiState.calendarDays,
+                                    onDateSelected = { viewModel.onDateSelected(it) },
+                                    theme = uiState.theme
+                                )
+                                
+                                // Fases da Lua dentro da mesma borda (se habilitado)
+                                if (uiState.showMoonPhases) {
+                                    MoonPhasesComponent(
+                                        yearMonth = YearMonth.of(uiState.selectedDate.year, uiState.selectedDate.monthValue),
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 0.dp)
+                                    )
+                                }
+                            }
                         }
                         // Seção de Aniversários
                         if (uiState.birthdaysForSelectedDate.isNotEmpty()) {
