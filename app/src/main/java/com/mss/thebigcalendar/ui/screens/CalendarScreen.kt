@@ -351,7 +351,7 @@ fun MainCalendarView(
                                 // Fases da Lua dentro da mesma borda (se habilitado)
                                 if (uiState.showMoonPhases) {
                                     MoonPhasesComponent(
-                                        yearMonth = YearMonth.of(uiState.selectedDate.year, uiState.selectedDate.monthValue),
+                                        yearMonth = uiState.displayedYearMonth,
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 0.dp)
                                     )
                                 }
