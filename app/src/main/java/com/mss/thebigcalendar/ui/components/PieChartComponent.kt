@@ -1,6 +1,7 @@
 package com.mss.thebigcalendar.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -159,14 +160,16 @@ private fun ChartLegend(
                     Box(
                         modifier = Modifier
                             .size(12.dp)
-                            .clip(CircleShape),
+                            .clip(CircleShape)
+                            .background(item.color),
                         contentAlignment = Alignment.Center
                     ) {
                         // Círculo colorido para a legenda
                     }
                     Text(
                         text = item.label,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = item.color
                     )
                 }
                 
