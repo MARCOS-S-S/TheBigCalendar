@@ -27,6 +27,7 @@ class OnboardingManager(private val context: Context) {
         private const val TAG = "OnboardingManager"
         private const val PREFS_NAME = "onboarding_prefs"
         private const val KEY_WELCOME_SHOWN = "welcome_shown"
+
         private const val KEY_STORAGE_PERMISSION_SHOWN = "storage_permission_shown"
         private const val KEY_GOOGLE_CONNECTED = "google_connected"
         private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
@@ -48,6 +49,8 @@ class OnboardingManager(private val context: Context) {
         prefs.edit().putBoolean(KEY_WELCOME_SHOWN, true).apply()
         Log.d(TAG, "✅ Janela de boas-vindas marcada como exibida")
     }
+    
+
     
     /**
      * Verifica se a janela de permissão de armazenamento já foi exibida
@@ -220,6 +223,8 @@ fun WelcomeDialog(
     }
 }
 
+
+
 /**
  * Composable para a janela de permissão de armazenamento
  */
@@ -327,7 +332,7 @@ fun OnboardingFlow(
 ) {
     val context = LocalContext.current
     val onboardingManager = remember { OnboardingManager(context) }
-    
+
     var showWelcome by remember { mutableStateOf(false) }
     var showStoragePermission by remember { mutableStateOf(false) }
     
@@ -383,6 +388,8 @@ fun OnboardingFlow(
             }
         )
     }
+    
+
     
     // Janela de permissão de armazenamento
     if (showStoragePermission) {

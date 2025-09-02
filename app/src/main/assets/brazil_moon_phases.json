@@ -1,0 +1,226 @@
+{
+  "ano": 2025,
+  "fuso_horario_referencia": "Horário de Brasília (UTC-3)",
+  "meses": {
+    "janeiro": [
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-01-06T20:56"
+      },
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-01-13T19:26"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-01-21T17:30"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-01-29T09:35"
+      }
+    ],
+    "fevereiro": [
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-02-05T05:02"
+      },
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-02-12T10:53"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-02-20T14:32"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-02-27T21:44"
+      }
+    ],
+    "marco": [
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-03-06T13:31"
+      },
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-03-14T03:54"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-03-22T08:29"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-03-29T07:57"
+      }
+    ],
+    "abril": [
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-04-04T23:14"
+      },
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-04-12T21:22"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-04-20T22:35"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-04-27T16:31"
+      }
+    ],
+    "maio": [
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-05-04T10:51"
+      },
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-05-12T13:55"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-05-20T08:58"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-05-27T00:02"
+      }
+    ],
+    "junho": [
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-06-03T00:40"
+      },
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-06-11T04:43"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-06-18T16:19"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-06-25T07:31"
+      }
+    ],
+    "julho": [
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-07-02T16:30"
+      },
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-07-10T17:36"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-07-17T21:37"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-07-24T16:11"
+      }
+    ],
+    "agosto": [
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-08-01T09:41"
+      },
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-08-09T04:55"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-08-16T02:12"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-08-23T03:06"
+      },
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-08-31T03:25"
+      }
+    ],
+    "setembro": [
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-09-07T15:08"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-09-14T07:32"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-09-21T16:54"
+      },
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-09-29T20:53"
+      }
+    ],
+    "outubro": [
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-10-07T00:47"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-10-13T15:12"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-10-21T09:25"
+      },
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-10-29T13:20"
+      }
+    ],
+    "novembro": [
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-11-28T03:58"
+      },
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-11-05T10:19"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-11-12T02:28"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-11-20T03:47"
+      }
+    ],
+    "dezembro": [
+      {
+        "fase": "Lua Cheia",
+        "data_hora": "2025-12-04T20:14"
+      },
+      {
+        "fase": "Lua Minguante",
+        "data_hora": "2025-12-11T17:51"
+      },
+      {
+        "fase": "Lua Nova",
+        "data_hora": "2025-12-19T22:43"
+      },
+      {
+        "fase": "Lua Crescente",
+        "data_hora": "2025-12-27T16:09"
+      }
+    ]
+  }
+}

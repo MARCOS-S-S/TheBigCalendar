@@ -21,14 +21,23 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mss.thebigcalendar.data.repository.MoonPhaseRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlin.math.*
@@ -55,7 +64,33 @@ fun MoonPhasesComponent(
     yearMonth: YearMonth,
     modifier: Modifier = Modifier
 ) {
-    val moonPhases = calculateMoonPhasesForMonth(yearMonth)
+    val context = LocalContext.current
+    var moonPhases by remember { mutableStateOf<List<MoonPhase>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+    
+    LaunchedEffect(yearMonth) {
+        isLoading = true
+        error = null
+        
+        try {
+            val repository = MoonPhaseRepository(context)
+            val phases = withContext(Dispatchers.IO) {
+                repository.getMoonPhasesForMonth(yearMonth)
+            }
+            moonPhases = phases
+            // Log para debug
+            phases.forEach { phase ->
+                println("🌙 Componente recebeu: ${phase.date} - ${phase.phase}")
+            }
+        } catch (e: Exception) {
+            error = e.message
+            // Fallback para cálculo local em caso de erro
+            moonPhases = calculateMoonPhasesForMonth(yearMonth)
+        } finally {
+            isLoading = false
+        }
+    }
     
     Box(
         modifier = modifier.fillMaxWidth(),
@@ -64,34 +99,55 @@ fun MoonPhasesComponent(
         Column(
             modifier = Modifier.fillMaxWidth(0.6f) // Ocupa 60% da largura
         ) {
-            // Mostrar as principais fases da lua
-            val mainPhases = moonPhases.filter { phase ->
-                phase.phase == MoonPhaseType.NEW_MOON ||
-                phase.phase == MoonPhaseType.FIRST_QUARTER ||
-                phase.phase == MoonPhaseType.FULL_MOON ||
-                phase.phase == MoonPhaseType.LAST_QUARTER
-            }
-            
-            if (mainPhases.isNotEmpty()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    mainPhases.take(4).forEach { moonPhase ->
-                        MoonPhaseItem(
-                            moonPhase = moonPhase,
-                            modifier = Modifier.weight(1f)
-                        )
+            when {
+                isLoading -> {
+                    Text(
+                        text = "Carregando fases da lua...",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                error != null -> {
+                    Text(
+                        text = "Erro ao carregar fases da lua",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                moonPhases.isNotEmpty() -> {
+                    // Mostrar as principais fases da lua
+                    val mainPhases = moonPhases.filter { phase ->
+                        phase.phase == MoonPhaseType.NEW_MOON ||
+                        phase.phase == MoonPhaseType.FIRST_QUARTER ||
+                        phase.phase == MoonPhaseType.FULL_MOON ||
+                        phase.phase == MoonPhaseType.LAST_QUARTER
+                    }
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        mainPhases.take(4).forEach { moonPhase ->
+                            MoonPhaseItem(
+                                moonPhase = moonPhase,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
                 }
-            } else {
-                Text(
-                    text = "Calculando...",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                else -> {
+                    Text(
+                        text = "Nenhuma fase da lua encontrada",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }

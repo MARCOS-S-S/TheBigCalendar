@@ -110,6 +110,9 @@ dependencies {
     
     // Biblioteca para gráficos
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    
+    // Dependência do Gson para leitura do arquivo JSON
+    implementation("com.google.code.gson:gson:2.10.1")
 
     // Dependências de Teste
     testImplementation(libs.junit)

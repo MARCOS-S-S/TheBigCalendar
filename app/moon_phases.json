@@ -1,0 +1,225 @@
+{
+  "ano": 2025,
+  "meses": {
+    "janeiro": [
+      {
+        "fase": "Lua Minguante",
+        "dia": 6
+      },
+      {
+        "fase": "Lua Nova",
+        "dia": 13
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 21
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 29
+      }
+    ],
+    "fevereiro": [
+      {
+        "fase": "Lua Minguante",
+        "dia": 5
+      },
+      {
+        "fase": "Lua Nova",
+        "dia": 12
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 20
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 27
+      }
+    ],
+    "marco": [
+      {
+        "fase": "Lua Minguante",
+        "dia": 6
+      },
+      {
+        "fase": "Lua Nova",
+        "dia": 14
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 22
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 29
+      }
+    ],
+    "abril": [
+      {
+        "fase": "Lua Minguante",
+        "dia": 4
+      },
+      {
+        "fase": "Lua Nova",
+        "dia": 12
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 20
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 27
+      }
+    ],
+    "maio": [
+      {
+        "fase": "Lua Minguante",
+        "dia": 4
+      },
+      {
+        "fase": "Lua Nova",
+        "dia": 12
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 20
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 27
+      }
+    ],
+    "junho": [
+      {
+        "fase": "Lua Minguante",
+        "dia": 3
+      },
+      {
+        "fase": "Lua Nova",
+        "dia": 11
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 18
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 25
+      }
+    ],
+    "julho": [
+      {
+        "fase": "Lua Minguante",
+        "dia": 2
+      },
+      {
+        "fase": "Lua Nova",
+        "dia": 10
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 17
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 24
+      }
+    ],
+    "agosto": [
+      {
+        "fase": "Lua Minguante",
+        "dia": 1
+      },
+      {
+        "fase": "Lua Nova",
+        "dia": 9
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 16
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 23
+      },
+      {
+        "fase": "Lua Minguante",
+        "dia": 31
+      }
+    ],
+    "setembro": [
+      {
+        "fase": "Lua Nova",
+        "dia": 7
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 14
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 21
+      },
+      {
+        "fase": "Lua Minguante",
+        "dia": 29
+      }
+    ],
+    "outubro": [
+      {
+        "fase": "Lua Nova",
+        "dia": 7
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 13
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 21
+      },
+      {
+        "fase": "Lua Minguante",
+        "dia": 29
+      }
+    ],
+    "novembro": [
+      {
+        "fase": "Lua Nova",
+        "dia": 5
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 12
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 20
+      },
+      {
+        "fase": "Lua Minguante",
+        "dia": 28
+      }
+    ],
+    "dezembro": [
+      {
+        "fase": "Lua Nova",
+        "dia": 4
+      },
+      {
+        "fase": "Lua Crescente",
+        "dia": 11
+      },
+      {
+        "fase": "Lua Cheia",
+        "dia": 19
+      },
+      {
+        "fase": "Lua Minguante",
+        "dia": 27
+      }
+    ]
+  }
+}
