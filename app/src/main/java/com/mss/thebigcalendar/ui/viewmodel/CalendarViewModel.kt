@@ -48,6 +48,8 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 import androidx.work.WorkManager
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import com.mss.thebigcalendar.service.ProgressiveSyncService
@@ -1784,6 +1786,49 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     
     fun getCompletedActivities(): List<Activity> {
         return _uiState.value.completedActivities
+    }
+    
+    /**
+     * Calcula os dados para o gráfico de barras dos últimos 7 dias
+     */
+    fun getLast7DaysCompletedTasksData(): List<com.mss.thebigcalendar.ui.components.BarChartData> {
+        val today = LocalDate.now()
+        val completedActivities = _uiState.value.completedActivities
+        
+        // Criar lista dos últimos 7 dias
+        val last7Days = (0..6).map { daysAgo ->
+            today.minusDays(daysAgo.toLong())
+        }.reversed() // Do mais antigo para o mais recente
+        
+        return last7Days.map { date ->
+            val dateString = date.toString()
+            val count = completedActivities.count { activity ->
+                activity.date == dateString
+            }
+            
+            // Formatar o label do dia (ex: "Seg", "Ter", etc.)
+            val dayLabel = when (date.dayOfWeek.value) {
+                1 -> "Seg"
+                2 -> "Ter" 
+                3 -> "Qua"
+                4 -> "Qui"
+                5 -> "Sex"
+                6 -> "Sáb"
+                7 -> "Dom"
+                else -> date.dayOfWeek.name.take(3)
+            }
+            
+            com.mss.thebigcalendar.ui.components.BarChartData(
+                label = dayLabel,
+                value = count,
+                color = when (count) {
+                    0 -> Color(0xFF79747E) // outline color
+                    in 1..2 -> Color(0xFF6750A4) // primary color
+                    in 3..5 -> Color(0xFF625B71) // secondary color
+                    else -> Color(0xFF7D5260) // tertiary color
+                }
+            )
+        }
     }
     
     // --- Backup ---

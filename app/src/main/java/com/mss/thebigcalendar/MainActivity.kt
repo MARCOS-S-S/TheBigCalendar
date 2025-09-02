@@ -177,6 +177,7 @@ class MainActivity : ComponentActivity() {
                                 onBackClick = { viewModel.closeChartScreen() },
                                 activities = uiState.activities,
                                 completedActivities = uiState.completedActivities,
+                                last7DaysData = viewModel.getLast7DaysCompletedTasksData(),
                                 onNavigateToCompletedTasks = { viewModel.onCompletedTasksClick() },
                                 onBackPressedDispatcher = onBackPressedDispatcher
                             )
