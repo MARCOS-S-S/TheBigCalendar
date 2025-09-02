@@ -93,10 +93,10 @@ private fun DayCell(
         .aspectRatio(1f / 1.35f)
         .clip(MaterialTheme.shapes.small)
         .then(
-            if (day.isToday) {
-                Modifier.border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small)
-            } else {
-                Modifier
+            when {
+                day.isToday -> Modifier.border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small)
+                day.isCurrentMonth -> Modifier.border(0.5.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), MaterialTheme.shapes.small)
+                else -> Modifier
             }
         )
         .background(
