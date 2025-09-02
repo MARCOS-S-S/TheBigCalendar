@@ -165,7 +165,10 @@ class MainActivity : ComponentActivity() {
                         }
                         uiState.isChartScreenOpen -> {
                             ChartScreen(
-                                onBackClick = { viewModel.closeChartScreen() }
+                                onBackClick = { viewModel.closeChartScreen() },
+                                activities = uiState.activities,
+                                completedActivities = uiState.completedActivities,
+                                onBackPressedDispatcher = onBackPressedDispatcher
                             )
                         }
                         uiState.isBackupScreenOpen -> {

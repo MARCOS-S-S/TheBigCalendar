@@ -30,14 +30,37 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import com.mss.thebigcalendar.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChartScreen(
     onBackClick: () -> Unit,
+    activities: List<com.mss.thebigcalendar.data.model.Activity> = emptyList(),
+    completedActivities: List<com.mss.thebigcalendar.data.model.Activity> = emptyList(),
+    onBackPressedDispatcher: OnBackPressedDispatcher? = null,
     modifier: Modifier = Modifier
 ) {
+    // Tratar o botão de voltar do sistema
+    onBackPressedDispatcher?.let { dispatcher ->
+        DisposableEffect(dispatcher) {
+            val callback = object : androidx.activity.OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    onBackClick()
+                }
+            }
+            dispatcher.addCallback(callback)
+            onDispose {
+                callback.remove()
+            }
+        }
+    }
+    
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -150,7 +173,7 @@ fun ChartScreen(
                 }
             }
 
-            // Card para estatísticas básicas (placeholder)
+            // Card para estatísticas básicas
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -167,6 +190,14 @@ fun ChartScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     
+                    // Calcular estatísticas reais
+                    val totalActivities = activities.size
+                    val completedTasks = completedActivities.size
+                    val scheduledEvents = activities.count { 
+                        it.activityType == com.mss.thebigcalendar.data.model.ActivityType.EVENT && 
+                        !it.isCompleted 
+                    }
+                    
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -175,7 +206,7 @@ fun ChartScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "0",
+                                text = totalActivities.toString(),
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
@@ -191,7 +222,7 @@ fun ChartScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "0",
+                                text = completedTasks.toString(),
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.secondary
@@ -207,7 +238,7 @@ fun ChartScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "0",
+                                text = scheduledEvents.toString(),
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.tertiary
