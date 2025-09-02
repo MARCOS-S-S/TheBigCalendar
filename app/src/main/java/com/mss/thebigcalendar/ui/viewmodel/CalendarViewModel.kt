@@ -1573,6 +1573,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(isSearchScreenOpen = true) }
     }
 
+    fun onChartIconClick() {
+        println("📊 Abrindo tela de gráfico")
+        _uiState.update { it.copy(isChartScreenOpen = true) }
+    }
+
         fun closeSearchScreen() {
         println("🚪 Fechando tela de pesquisa")
         _uiState.update {
@@ -1582,6 +1587,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 searchResults = emptyList()
             )
         }
+    }
+
+    fun closeChartScreen() {
+        println("🚪 Fechando tela de gráfico")
+        _uiState.update { it.copy(isChartScreenOpen = false) }
     }
 
     // --- Lixeira ---

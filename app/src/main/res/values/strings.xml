@@ -161,6 +161,7 @@
     <string name="widget_fixed_colors_description">Widget do calendário com relógio e tarefas do dia (cores fixas)</string>
     <string name="go_to_today">Ir para hoje</string>
     <string name="search">Pesquisar</string>
+    <string name="chart">Gráfico</string>
 
     <!-- SearchScreen.kt -->
     <string name="search_results">Resultados (%1$d)</string>

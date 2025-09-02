@@ -101,6 +101,7 @@ data class CalendarUiState(
     val searchQuery: String = "",
     val searchResults: List<SearchResult> = emptyList(),
     val isSearchScreenOpen: Boolean = false,
+    val isChartScreenOpen: Boolean = false,
     val deletedActivities: List<DeletedActivity> = emptyList(),
     val isTrashScreenOpen: Boolean = false,
     val isBackupScreenOpen: Boolean = false,

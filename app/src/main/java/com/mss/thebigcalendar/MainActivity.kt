@@ -28,6 +28,7 @@ import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.ui.screens.CalendarScreen
 import com.mss.thebigcalendar.ui.screens.SearchScreen
 import com.mss.thebigcalendar.ui.screens.TrashScreen
+import com.mss.thebigcalendar.ui.screens.ChartScreen
 import com.mss.thebigcalendar.ui.screens.BackupScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
@@ -160,6 +161,11 @@ class MainActivity : ComponentActivity() {
                             TrashScreen(
                                 viewModel = viewModel,
                                 onNavigateBack = { viewModel.closeTrashScreen() }
+                            )
+                        }
+                        uiState.isChartScreenOpen -> {
+                            ChartScreen(
+                                onBackClick = { viewModel.closeChartScreen() }
                             )
                         }
                         uiState.isBackupScreenOpen -> {

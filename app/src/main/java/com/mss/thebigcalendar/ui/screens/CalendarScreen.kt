@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Today
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -76,6 +77,7 @@ import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.NotesForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.StoragePermissionDialog
 import com.mss.thebigcalendar.ui.components.YearlyCalendarView
+import com.mss.thebigcalendar.ui.screens.ChartScreen
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -227,7 +229,10 @@ fun MainCalendarView(
                             }
                             ViewMode.YEARLY -> uiState.displayedYearMonth.year.toString()
                         }
-                        Text(text)
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.titleMedium
+                        )
                         if (uiState.viewMode == ViewMode.MONTHLY) {
                             IconButton(onClick = { viewModel.onGoToToday() }) {
                                 Icon(Icons.Default.Today, contentDescription = stringResource(id = R.string.go_to_today))
@@ -252,6 +257,11 @@ fun MainCalendarView(
                     if (uiState.viewMode == ViewMode.MONTHLY) {
                         IconButton(onClick = { viewModel.onSearchIconClick() }) {
                             Icon(Icons.Default.Search, stringResource(id = R.string.search))
+                        }
+                        
+                        // Botão de gráfico
+                        IconButton(onClick = { viewModel.onChartIconClick() }) {
+                            Icon(Icons.Filled.BarChart, stringResource(id = R.string.chart))
                         }
                         
                         // Botão de criar agendamento (menor)
