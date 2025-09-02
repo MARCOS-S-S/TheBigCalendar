@@ -884,6 +884,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                                            activityData.id != "new" && 
                                            !activityData.id.isBlank()
             
+            Log.d("CalendarViewModel", "🔍 DEBUG - ID da atividade: ${activityData.id}")
+            Log.d("CalendarViewModel", "🔍 DEBUG - Contém '_': ${activityData.id.contains("_")}")
+            Log.d("CalendarViewModel", "🔍 DEBUG - Não é 'new': ${activityData.id != "new"}")
+            Log.d("CalendarViewModel", "🔍 DEBUG - Não está vazio: ${!activityData.id.isBlank()}")
+            Log.d("CalendarViewModel", "🔍 DEBUG - É instância recorrente: $isEditingRecurringInstance")
+            
             if (isEditingRecurringInstance) {
                 // É uma edição de instância recorrente - aplicar mudanças à atividade base
                 val baseId = activityData.id.split("_").first()
@@ -908,11 +914,25 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     // Salvar a atividade base atualizada
                     activityRepository.saveActivity(updatedBaseActivity)
                     
-                    // Agendar notificação se configurada
-                    if (updatedBaseActivity.notificationSettings.isEnabled &&
-                        updatedBaseActivity.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
-                        val notificationService = NotificationService(getApplication())
-                        notificationService.scheduleNotification(updatedBaseActivity)
+                    // Agendar notificação se configurada - usar a instância específica com data correta
+                    if (activityData.notificationSettings.isEnabled &&
+                        activityData.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
+                        
+                        // Extrair a data da instância específica do ID
+                        val instanceDate = activityData.id.split("_").getOrNull(1)
+                        Log.d("CalendarViewModel", "🔍 DEBUG - ID da atividade: ${activityData.id}")
+                        Log.d("CalendarViewModel", "🔍 DEBUG - Data extraída do ID: $instanceDate")
+                        Log.d("CalendarViewModel", "🔍 DEBUG - Data original da atividade: ${activityData.date}")
+                        
+                        if (instanceDate != null) {
+                            // Criar uma cópia da atividade com a data correta da instância
+                            val instanceActivity = activityData.copy(date = instanceDate)
+                            Log.d("CalendarViewModel", "🔍 DEBUG - Data final da instância: ${instanceActivity.date}")
+                            val notificationService = NotificationService(getApplication())
+                            notificationService.scheduleNotification(instanceActivity)
+                        } else {
+                            Log.w("CalendarViewModel", "⚠️ Não foi possível extrair a data do ID: ${activityData.id}")
+                        }
                     }
                     
                     // Sincronizar com Google Calendar se for evento do Google
@@ -960,8 +980,21 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             if (activityToSave.notificationSettings.isEnabled &&
                 activityToSave.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
 
+                // Para atividades repetitivas, agendar notificação para a data selecionada
+                val activityForNotification = if (activityToSave.recurrenceRule?.isNotEmpty() == true) {
+                    // Se é uma atividade repetitiva, usar a data selecionada no calendário
+                    activityToSave.copy(date = _uiState.value.selectedDate.toString())
+                } else {
+                    // Se não é repetitiva, usar a data original
+                    activityToSave
+                }
+                
+                Log.d("CalendarViewModel", "🔍 DEBUG - Atividade para notificação: ${activityForNotification.title}")
+                Log.d("CalendarViewModel", "🔍 DEBUG - Data para notificação: ${activityForNotification.date}")
+                Log.d("CalendarViewModel", "🔍 DEBUG - É repetitiva: ${activityToSave.recurrenceRule?.isNotEmpty() == true}")
+                
                 val notificationService = NotificationService(getApplication())
-                notificationService.scheduleNotification(activityToSave)
+                notificationService.scheduleNotification(activityForNotification)
             }
 
             // NOTA: Não geramos mais instâncias repetitivas automaticamente

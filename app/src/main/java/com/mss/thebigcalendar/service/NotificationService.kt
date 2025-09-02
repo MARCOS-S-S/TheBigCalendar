@@ -162,7 +162,10 @@ class NotificationService(private val context: Context) {
         
         return when (notificationType) {
             com.mss.thebigcalendar.data.model.NotificationType.NONE -> activityDateTime
-            com.mss.thebigcalendar.data.model.NotificationType.BEFORE_ACTIVITY -> activityDateTime
+            com.mss.thebigcalendar.data.model.NotificationType.BEFORE_ACTIVITY -> {
+                // Para BEFORE_ACTIVITY, usar o horário exato da atividade (0 minutos antes)
+                activityDateTime
+            }
             com.mss.thebigcalendar.data.model.NotificationType.CUSTOM -> {
                 val customMinutes = activity.notificationSettings.customMinutesBefore ?: 15
                 activityDateTime.minusMinutes(customMinutes.toLong())
