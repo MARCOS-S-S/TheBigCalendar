@@ -178,6 +178,7 @@ class MainActivity : ComponentActivity() {
                                 activities = uiState.activities,
                                 completedActivities = uiState.completedActivities,
                                 last7DaysData = viewModel.getLast7DaysCompletedTasksData(),
+                                lastYearData = viewModel.getLastYearCompletedTasksData(),
                                 onNavigateToCompletedTasks = { viewModel.onCompletedTasksClick() },
                                 onBackPressedDispatcher = onBackPressedDispatcher
                             )

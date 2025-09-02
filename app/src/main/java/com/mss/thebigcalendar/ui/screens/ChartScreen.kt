@@ -49,6 +49,7 @@ fun ChartScreen(
     activities: List<com.mss.thebigcalendar.data.model.Activity> = emptyList(),
     completedActivities: List<com.mss.thebigcalendar.data.model.Activity> = emptyList(),
     last7DaysData: List<com.mss.thebigcalendar.ui.components.BarChartData> = emptyList(),
+    lastYearData: List<com.mss.thebigcalendar.ui.components.BarChartData> = emptyList(),
     onBackPressedDispatcher: OnBackPressedDispatcher? = null,
     onNavigateToCompletedTasks: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -149,6 +150,16 @@ fun ChartScreen(
                 // Gráfico de barras dos últimos 7 dias
                 BarChartComponent(
                     data = last7DaysData,
+                    title = "Tarefas Concluídas - Últimos 7 Dias",
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            item {
+                // Gráfico de barras do último ano
+                BarChartComponent(
+                    data = lastYearData,
+                    title = "Tarefas Concluídas - Último Ano",
                     modifier = Modifier.fillMaxWidth()
                 )
             }

@@ -1831,6 +1831,55 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
     
+    /**
+     * Calcula os dados para o gráfico de barras do último ano (12 meses)
+     */
+    fun getLastYearCompletedTasksData(): List<com.mss.thebigcalendar.ui.components.BarChartData> {
+        val today = LocalDate.now()
+        val completedActivities = _uiState.value.completedActivities
+        
+        // Criar lista dos últimos 12 meses
+        val last12Months = (0..11).map { monthsAgo ->
+            today.minusMonths(monthsAgo.toLong())
+        }.reversed() // Do mais antigo para o mais recente
+        
+        return last12Months.map { date ->
+            val yearMonth = "${date.year}-${date.monthValue.toString().padStart(2, '0')}"
+            val count = completedActivities.count { activity ->
+                activity.date.startsWith(yearMonth)
+            }
+            
+            // Formatar o label do mês (ex: "Jan", "Fev", etc.)
+            val monthLabel = when (date.monthValue) {
+                1 -> "Jan"
+                2 -> "Fev"
+                3 -> "Mar"
+                4 -> "Abr"
+                5 -> "Mai"
+                6 -> "Jun"
+                7 -> "Jul"
+                8 -> "Ago"
+                9 -> "Set"
+                10 -> "Out"
+                11 -> "Nov"
+                12 -> "Dez"
+                else -> date.month.name.take(3)
+            }
+            
+            com.mss.thebigcalendar.ui.components.BarChartData(
+                label = monthLabel,
+                value = count,
+                color = when (count) {
+                    0 -> Color(0xFF79747E) // outline color
+                    in 1..5 -> Color(0xFF6750A4) // primary color
+                    in 6..15 -> Color(0xFF625B71) // secondary color
+                    in 16..30 -> Color(0xFF7D5260) // tertiary color
+                    else -> Color(0xFF4A148C) // high productivity color
+                }
+            )
+        }
+    }
+    
     // --- Backup ---
     
     fun onBackupIconClick() {

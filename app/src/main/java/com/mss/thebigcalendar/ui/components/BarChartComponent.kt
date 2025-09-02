@@ -29,6 +29,7 @@ data class BarChartData(
 @Composable
 fun BarChartComponent(
     data: List<BarChartData>,
+    title: String = "Gráfico de Barras",
     modifier: Modifier = Modifier
 ) {
     if (data.isEmpty()) {
@@ -68,7 +69,7 @@ fun BarChartComponent(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Tarefas Concluídas - Últimos 7 Dias",
+                text = title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
