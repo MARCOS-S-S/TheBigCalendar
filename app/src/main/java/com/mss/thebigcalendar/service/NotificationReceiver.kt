@@ -53,6 +53,8 @@ class NotificationReceiver : BroadcastReceiver() {
         val activityDate = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_DATE)
         val activityTime = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_TIME)
         
+
+        
         // ✅ Buscar a atividade REAL do repositório para obter a visibilidade configurada
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         
@@ -63,7 +65,29 @@ class NotificationReceiver : BroadcastReceiver() {
                 
                 // ✅ Usar first() em vez de collect() para obter apenas o primeiro valor
                 val activities = repository.activities.first()
-                val realActivity = activities.find { it.id == activityId }
+                
+                // ✅ Verificar se é uma instância recorrente (ID contém data)
+                val isRecurringInstance = activityId?.contains("_") == true && activityId.split("_").size == 2
+                
+                val realActivity = if (isRecurringInstance) {
+                    // Para instâncias recorrentes, buscar pela atividade base
+                    val baseId = activityId.split("_")[0]
+                    val instanceDate = activityId.split("_")[1]
+                    val baseActivity = activities.find { it.id == baseId }
+                    
+                    if (baseActivity != null) {
+                        // Criar uma instância específica da atividade base
+                        baseActivity.copy(
+                            id = activityId,
+                            date = instanceDate
+                        )
+                    } else {
+                        null
+                    }
+                } else {
+                    // Para atividades únicas, buscar normalmente
+                    activities.find { it.id == activityId }
+                }
                 
                 if (realActivity != null) {
                     // ✅ Mudar para Main thread para exibir overlay

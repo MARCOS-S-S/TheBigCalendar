@@ -89,9 +89,18 @@ class NotificationService(private val context: Context) {
         cancelNotification(activity.id)
         
         // ✅ Criar intent para exibir a notificação visual
+        // Para atividades recorrentes, usar o ID da instância específica
+        val activityIdForNotification = if (activity.id.contains("_")) {
+            // Já é uma instância específica
+            activity.id
+        } else {
+            // É uma atividade base, criar ID da instância específica
+            "${activity.id}_${activity.date}"
+        }
+        
         val intent = Intent(context, NotificationReceiver::class.java).apply {
             action = ACTION_VIEW_ACTIVITY
-            putExtra(EXTRA_ACTIVITY_ID, activity.id)
+            putExtra(EXTRA_ACTIVITY_ID, activityIdForNotification)
             putExtra(EXTRA_ACTIVITY_TITLE, activity.title)
             putExtra(EXTRA_ACTIVITY_DATE, activity.date)
             putExtra(EXTRA_ACTIVITY_TIME, activity.startTime?.toString() ?: "")
@@ -99,12 +108,12 @@ class NotificationService(private val context: Context) {
 
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            activity.id.hashCode(),
+            activityIdForNotification.hashCode(),
             intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         
-        Log.d(TAG, "🔔 PendingIntent criado com requestCode: ${activity.id.hashCode()}")
+        Log.d(TAG, "🔔 PendingIntent criado com requestCode: ${activityIdForNotification.hashCode()}")
 
         // ✅ Agendar o alarme para exibir a notificação visual
         Log.d(TAG, "⏰ Agendando alarme para timestamp: $triggerTime")
