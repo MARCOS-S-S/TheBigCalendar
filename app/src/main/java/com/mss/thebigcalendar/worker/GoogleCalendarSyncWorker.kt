@@ -22,12 +22,10 @@ class GoogleCalendarSyncWorker(
     
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
-            Log.d(TAG, "🔄 Iniciando sincronização em background")
             
             // Verificar se há conta Google conectada
             val account = GoogleSignIn.getLastSignedInAccount(applicationContext)
             if (account == null) {
-                Log.d(TAG, "⚠️ Nenhuma conta Google conectada")
                 return@withContext Result.success()
             }
             
@@ -36,21 +34,16 @@ class GoogleCalendarSyncWorker(
             val progressiveSyncService = ProgressiveSyncService(applicationContext, googleCalendarService)
             
             val result = progressiveSyncService.syncProgressively(account) { progress ->
-                Log.d(TAG, "📊 Progresso: ${progress.progress}% - ${progress.currentStep}")
+                // Progresso da sincronização
             }
             
             if (result.isSuccess) {
-                val totalEvents = result.getOrNull() ?: 0
-                Log.d(TAG, "✅ Sincronização em background concluída: $totalEvents eventos")
                 Result.success()
             } else {
-                val exception = result.exceptionOrNull()
-                Log.e(TAG, "❌ Erro na sincronização em background", exception)
                 Result.retry()
             }
             
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro inesperado na sincronização em background", e)
             Result.failure()
         }
     }

@@ -161,9 +161,6 @@ fun CreateActivityModal(
             )
         } else {
             // ✅ Para atividades existentes, preservar as configurações salvas
-            Log.d("CreateActivityModal", "🔍 Editando atividade existente: ${currentActivity.title}")
-            Log.d("CreateActivityModal", "🔍 Visibilidade salva: ${currentActivity.visibility}")
-            Log.d("CreateActivityModal", "🔔 Notificações salvas: ${currentActivity.notificationSettings}")
         }
     }
 

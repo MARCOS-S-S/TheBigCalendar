@@ -111,12 +111,10 @@ class BackupService(
             if (backupFile.exists()) {
                 Result.success(backupFile.absolutePath)
             } else {
-                Log.e(TAG, "❌ Arquivo de backup não foi criado")
                 Result.failure(Exception("Falha ao criar arquivo de backup"))
             }
             
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao criar backup", e)
             Result.failure(e)
         }
     }
@@ -136,13 +134,8 @@ class BackupService(
         
         if (!backupDir.exists()) {
             val created = backupDir.mkdirs()
-            if (created) {
-                Log.d(TAG, "✅ Diretório de backup criado com sucesso: ${backupDir.absolutePath}")
-            } else {
-                Log.w(TAG, "❌ Não foi possível criar o diretório de backup")
-                Log.w(TAG, "❌ Verificando permissões...")
-                Log.w(TAG, "❌ hasStoragePermission: ${hasStoragePermission()}")
-                Log.w(TAG, "❌ Environment.isExternalStorageManager: ${Environment.isExternalStorageManager()}")
+            if (!created) {
+                // Não foi possível criar o diretório de backup
             }
         } else {
         }
@@ -285,7 +278,6 @@ class BackupService(
             backupFiles.sortedByDescending { it.lastModified() }.toList()
             
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao listar arquivos de backup", e)
             emptyList()
         }
     }
@@ -312,7 +304,6 @@ class BackupService(
             Result.success(info)
             
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao ler informações do backup", e)
             Result.failure(e)
         }
     }
@@ -328,7 +319,6 @@ class BackupService(
             // Verificar versão do backup
             val backupVersion = json.optString("backupVersion", "1.0")
             if (backupVersion != "1.0") {
-                Log.w(TAG, "⚠️ Versão de backup não suportada: $backupVersion")
                 return@withContext Result.failure(Exception("Versão de backup não suportada: $backupVersion"))
             }
             
@@ -342,7 +332,7 @@ class BackupService(
                     val activity = parseActivityFromJson(activityJson)
                     restoredActivities.add(activity)
                 } catch (e: Exception) {
-                    Log.w(TAG, "⚠️ Erro ao parsear atividade $i: ${e.message}")
+                    // Erro ao parsear atividade - continuar com outras
                 }
             }
             
@@ -356,7 +346,7 @@ class BackupService(
                     val deletedActivity = parseDeletedActivityFromJson(deletedJson)
                     restoredDeletedActivities.add(deletedActivity)
                 } catch (e: Exception) {
-                    Log.w(TAG, "⚠️ Erro ao parsear item da lixeira $i: ${e.message}")
+                    // Erro ao parsear item da lixeira - continuar com outros
                 }
             }
             
@@ -370,7 +360,7 @@ class BackupService(
                     val activity = parseActivityFromJson(activityJson)
                     restoredCompletedActivities.add(activity)
                 } catch (e: Exception) {
-                    Log.w(TAG, "⚠️ Erro ao parsear atividade concluída $i: ${e.message}")
+                    // Erro ao parsear atividade concluída - continuar com outras
                 }
             }
             
@@ -385,7 +375,6 @@ class BackupService(
             Result.success(result)
             
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao restaurar backup", e)
             Result.failure(e)
         }
     }

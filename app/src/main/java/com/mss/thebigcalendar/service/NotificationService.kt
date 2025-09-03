@@ -76,14 +76,7 @@ class NotificationService(private val context: Context) {
         val notificationTime = calculateNotificationTime(activity)
         val triggerTime = getTriggerTime(activity.date, notificationTime)
         
-        // Log para debug
-        Log.d(TAG, "🔔 Agendando notificação para atividade: ${activity.title}")
-        Log.d(TAG, "📅 Data da atividade: ${activity.date}")
-        Log.d(TAG, "⏰ Horário da atividade: ${activity.startTime}")
-        Log.d(TAG, "🔔 Horário da notificação: $notificationTime")
-        Log.d(TAG, "⏰ Trigger time (timestamp): $triggerTime")
-        Log.d(TAG, "🔔 Tipo de notificação: ${activity.notificationSettings.notificationType}")
-        Log.d(TAG, "🔔 Horário específico configurado: ${activity.notificationSettings.notificationTime}")
+
         
         // Cancelar notificação anterior se existir
         cancelNotification(activity.id)
@@ -112,17 +105,10 @@ class NotificationService(private val context: Context) {
             intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
-        
-        Log.d(TAG, "🔔 PendingIntent criado com requestCode: ${activityIdForNotification.hashCode()}")
 
-        // ✅ Agendar o alarme para exibir a notificação visual
-        Log.d(TAG, "⏰ Agendando alarme para timestamp: $triggerTime")
-        Log.d(TAG, "⏰ Timestamp atual: ${System.currentTimeMillis()}")
-        Log.d(TAG, "⏰ Diferença em minutos: ${(triggerTime - System.currentTimeMillis()) / (1000 * 60)}")
         
         // Verificar se o timestamp é no futuro
         if (triggerTime <= System.currentTimeMillis()) {
-            Log.w(TAG, "⚠️ ATENÇÃO: Timestamp está no passado ou presente! Não agendando.")
             return
         }
         
@@ -131,15 +117,13 @@ class NotificationService(private val context: Context) {
             triggerTime,
             pendingIntent
         )
-        
-        Log.d(TAG, "✅ Alarme agendado com sucesso")
+
     }
 
     /**
      * Cancela uma notificação agendada
      */
     fun cancelNotification(activityId: String) {
-        Log.d(TAG, "🔔 Cancelando notificação para atividade: $activityId")
         val intent = Intent(context, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -148,7 +132,6 @@ class NotificationService(private val context: Context) {
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager.cancel(pendingIntent)
-        Log.d(TAG, "✅ Notificação cancelada para atividade: $activityId")
     }
 
     /**
@@ -338,7 +321,7 @@ class NotificationService(private val context: Context) {
             }
             
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao agendar notificação adiada", e)
+            // Erro ao agendar notificação adiada
         }
     }
 }

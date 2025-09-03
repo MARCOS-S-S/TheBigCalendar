@@ -135,7 +135,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun clearCalendarCache() {
         cachedCalendarDays = null
         lastUpdateParams = null
-        Log.d("CalendarViewModel", "🗑️ Cache do calendário limpo")
     }
 
     private fun checkForExistingSignIn() {
@@ -507,7 +506,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
         
         // Cache miss - precisamos recalcular
-        Log.d("CalendarViewModel", "🔄 Cache miss - recalculando calendário")
 
         val firstDayOfMonth = state.displayedYearMonth.atDay(1)
         val daysFromPrevMonthOffset = (firstDayOfMonth.dayOfWeek.value % 7)
@@ -563,7 +561,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             }
                         }
                     } catch (e: Exception) {
-                        Log.e("CalendarViewModel", "❌ Erro ao processar atividade: ${activity.title}", e)
+                        // Erro ao processar atividade - continuar com outras atividades
                     }
                 }
                 
@@ -578,7 +576,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                                 allActivitiesForThisDay.add(completedActivity)
                             }
                         } catch (e: Exception) {
-                            Log.e("CalendarViewModel", "❌ Erro ao processar tarefa finalizada: ${completedActivity.title}", e)
+                            // Erro ao processar tarefa finalizada - continuar com outras
                         }
                     }
                 }
@@ -634,7 +632,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         false
                     }
                 } catch (e: Exception) {
-                    Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para aniversário: ${activity.title}", e)
                     false
                 }
             }.sortedBy { it.title }
@@ -653,7 +650,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         false
                     }
                 } catch (e: Exception) {
-                    Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para nota: ${activity.title}", e)
                     false
                 }
             }.sortedBy { it.title }
@@ -705,7 +701,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     }
                 }
             } catch (e: Exception) {
-                Log.e("CalendarViewModel", "❌ Erro ao parsear data: ${activity.date} para atividade: ${activity.title}", e)
+                // Erro ao processar atividade - continuar com outras
             }
         }
         
@@ -720,7 +716,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         allTasksForSelectedDate.add(completedActivity)
                     }
                 } catch (e: Exception) {
-                    Log.e("CalendarViewModel", "❌ Erro ao processar tarefa finalizada na seção de agendamentos: ${completedActivity.title}", e)
+                    // Erro ao processar tarefa finalizada - continuar com outras
                 }
             }
         }
@@ -945,12 +941,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             val isEditingRecurringInstance = activityData.id.contains("_") && 
                                            activityData.id != "new" && 
                                            !activityData.id.isBlank()
-            
-            Log.d("CalendarViewModel", "🔍 DEBUG - ID da atividade: ${activityData.id}")
-            Log.d("CalendarViewModel", "🔍 DEBUG - Contém '_': ${activityData.id.contains("_")}")
-            Log.d("CalendarViewModel", "🔍 DEBUG - Não é 'new': ${activityData.id != "new"}")
-            Log.d("CalendarViewModel", "🔍 DEBUG - Não está vazio: ${!activityData.id.isBlank()}")
-            Log.d("CalendarViewModel", "🔍 DEBUG - É instância recorrente: $isEditingRecurringInstance")
+
             
             if (isEditingRecurringInstance) {
                 // É uma edição de instância recorrente - aplicar mudanças à atividade base
@@ -982,18 +973,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         
                         // Extrair a data da instância específica do ID
                         val instanceDate = activityData.id.split("_").getOrNull(1)
-                        Log.d("CalendarViewModel", "🔍 DEBUG - ID da atividade: ${activityData.id}")
-                        Log.d("CalendarViewModel", "🔍 DEBUG - Data extraída do ID: $instanceDate")
-                        Log.d("CalendarViewModel", "🔍 DEBUG - Data original da atividade: ${activityData.date}")
-                        
                         if (instanceDate != null) {
                             // Criar uma cópia da atividade com a data correta da instância
                             val instanceActivity = activityData.copy(date = instanceDate)
-                            Log.d("CalendarViewModel", "🔍 DEBUG - Data final da instância: ${instanceActivity.date}")
                             val notificationService = NotificationService(getApplication())
                             notificationService.scheduleNotification(instanceActivity)
-                        } else {
-                            Log.w("CalendarViewModel", "⚠️ Não foi possível extrair a data do ID: ${activityData.id}")
                         }
                     }
                     
@@ -1050,10 +1034,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     // Se não é repetitiva, usar a data original
                     activityToSave
                 }
-                
-                Log.d("CalendarViewModel", "🔍 DEBUG - Atividade para notificação: ${activityForNotification.title}")
-                Log.d("CalendarViewModel", "🔍 DEBUG - Data para notificação: ${activityForNotification.date}")
-                Log.d("CalendarViewModel", "🔍 DEBUG - É repetitiva: ${activityToSave.recurrenceRule?.isNotEmpty() == true}")
+
                 
                 val notificationService = NotificationService(getApplication())
                 notificationService.scheduleNotification(activityForNotification)
@@ -1085,7 +1066,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             
             // Verificar se esta data específica foi excluída
             if (baseActivity.excludedDates.contains(targetDateString)) {
-                Log.d("CalendarViewModel", "🚫 Data $targetDateString excluída para atividade ${baseActivity.title}")
                 return instances
             }
             
@@ -1147,7 +1127,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 }
             }
         } catch (e: Exception) {
-            Log.e("CalendarViewModel", "❌ Erro ao calcular instâncias repetitivas: ${e.message}")
+            // Erro ao calcular instâncias repetitivas - retornar lista vazia
         }
         
         return instances
@@ -1365,11 +1345,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun onBackupRequest() {
         viewModelScope.launch {
             try {
-                Log.d("CalendarViewModel", "🔄 Iniciando processo de backup...")
-                
                 // Verificar permissões antes de fazer backup
                 if (!backupService.hasStoragePermission()) {
-                    Log.w("CalendarViewModel", "⚠️ Sem permissão de armazenamento")
                     _uiState.update { it.copy(
                         backupMessage = "Permissão de armazenamento necessária para backup",
                         needsStoragePermission = true
@@ -1380,7 +1357,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 val result = backupService.createBackup()
                 result.fold(
                     onSuccess = { backupPath ->
-                        Log.d("CalendarViewModel", "✅ Backup criado com sucesso: $backupPath")
                         // Atualizar o estado para mostrar sucesso
                         _uiState.update { it.copy(
                             backupMessage = "Backup criado com sucesso: ${backupPath.substringAfterLast("/")}"
@@ -1462,7 +1438,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     
     fun markActivityAsCompleted(activityId: String) {
         viewModelScope.launch {
-            Log.d("CalendarViewModel", "🎯 Função markActivityAsCompleted chamada para ID: $activityId")
             
             // Verificar se é uma instância recorrente (ID contém data)
             val isRecurringInstance = activityId.contains("_") && activityId.split("_").size == 2
@@ -1472,14 +1447,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 val parts = activityId.split("_")
                 val baseId = parts[0]
                 val instanceDate = parts[1]
-                
-                Log.d("CalendarViewModel", "🔄 Processando instância recorrente - Base ID: $baseId, Data: $instanceDate")
+
                 
                 // Buscar a atividade base
                 val baseActivity = _uiState.value.activities.find { it.id == baseId }
                 
                 if (baseActivity != null && recurrenceService.isRecurring(baseActivity)) {
-                    Log.d("CalendarViewModel", "📋 Atividade base encontrada: ${baseActivity.title}")
+
                     
                     // Criar instância específica para salvar como concluída
                     val instanceToComplete = baseActivity.copy(
@@ -1498,15 +1472,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     
                     // Atualizar a atividade base com a nova lista de exclusões
                     activityRepository.saveActivity(updatedBaseActivity)
-                    
-                    Log.d("CalendarViewModel", "✅ Instância recorrente marcada como concluída: ${instanceToComplete.title} - Data: $instanceDate")
-                    println("✅ Instância recorrente marcada como concluída: ${instanceToComplete.title} - Data: $instanceDate")
+
                     
                     // Atualizar a UI
                     updateAllDateDependentUI()
                     
-                } else {
-                    Log.w("CalendarViewModel", "⚠️ Atividade base não encontrada ou não é recorrente: $baseId")
                 }
             } else {
                 // Tratar atividade única ou atividade base
@@ -1517,8 +1487,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     if (recurrenceService.isRecurring(activityToComplete)) {
                         // Para atividades recorrentes (primeira instância), sempre tratar como instância específica
                         val activityDate = activityToComplete.date
-                        
-                        Log.d("CalendarViewModel", "🔄 Processando primeira instância recorrente - ID: $activityId, Data: $activityDate")
+
                         
                         // Criar instância específica para salvar como concluída
                         val instanceToComplete = activityToComplete.copy(
@@ -1537,16 +1506,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         
                         // Atualizar a atividade base com a nova lista de exclusões
                         activityRepository.saveActivity(updatedBaseActivity)
-                        
-                        Log.d("CalendarViewModel", "✅ Primeira instância recorrente marcada como concluída: ${instanceToComplete.title} - Data: $activityDate")
-                        println("✅ Primeira instância recorrente marcada como concluída: ${instanceToComplete.title} - Data: $activityDate")
+
                         
                         // Atualizar a UI
                         updateAllDateDependentUI()
                         
                     } else {
                         // Tratar atividade única (não recorrente)
-                        Log.d("CalendarViewModel", "✅ Marcando atividade única como concluída: ${activityToComplete.title}")
                         
                         // Marcar como concluída e salvar no repositório de finalizadas
                         val completedActivity = activityToComplete.copy(
@@ -1564,24 +1530,18 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         if (activityToComplete.isFromGoogle) {
                             deleteFromGoogleCalendar(activityToComplete)
                         }
-                        
-                        Log.d("CalendarViewModel", "✅ Atividade única marcada como concluída: ${completedActivity.title}")
-                        println("✅ Atividade única marcada como concluída: ${completedActivity.title}")
+
                         
                         // Atualizar a UI após marcar como concluída
                         updateAllDateDependentUI()
                     }
-                } else {
-                    Log.w("CalendarViewModel", "⚠️ Atividade não encontrada para ID: $activityId")
                 }
             }
         }
     }
 
     fun requestDeleteActivity(activityId: String) {
-        Log.d("CalendarViewModel", "🗑️ Função requestDeleteActivity chamada para ID: $activityId")
         _uiState.update { it.copy(activityIdToDelete = activityId, activityIdWithDeleteButtonVisible = null) }
-        Log.d("CalendarViewModel", "✅ Estado atualizado com activityIdToDelete: $activityId")
     }
 
     fun cancelDeleteActivity() = _uiState.update { it.copy(activityIdToDelete = null) }
@@ -1715,7 +1675,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun forceGoogleSync() {
         val account = _uiState.value.googleSignInAccount
         if (account != null) {
-            Log.d("CalendarViewModel", "🔄 Forçando sincronização manual com Google Calendar")
             fetchGoogleCalendarEvents(account, forceSync = true)
         }
     }
@@ -1723,7 +1682,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun manualGoogleSync() {
         val account = _uiState.value.googleSignInAccount
         if (account != null) {
-            Log.d("CalendarViewModel", "🔄 Sincronização manual solicitada pelo usuário")
             fetchGoogleCalendarEvents(account, forceSync = true)
         }
     }

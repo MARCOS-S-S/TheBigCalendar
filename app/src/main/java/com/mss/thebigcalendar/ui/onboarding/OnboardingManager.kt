@@ -47,7 +47,6 @@ class OnboardingManager(private val context: Context) {
      */
     fun markWelcomeShown() {
         prefs.edit().putBoolean(KEY_WELCOME_SHOWN, true).apply()
-        Log.d(TAG, "✅ Janela de boas-vindas marcada como exibida")
     }
     
 
@@ -64,7 +63,6 @@ class OnboardingManager(private val context: Context) {
      */
     fun markStoragePermissionShown() {
         prefs.edit().putBoolean(KEY_STORAGE_PERMISSION_SHOWN, true).apply()
-        Log.d(TAG, "✅ Janela de permissão de armazenamento marcada como exibida")
     }
     
     /**
@@ -79,7 +77,6 @@ class OnboardingManager(private val context: Context) {
      */
     fun markGoogleConnected() {
         prefs.edit().putBoolean(KEY_GOOGLE_CONNECTED, true).apply()
-        Log.d(TAG, "✅ Google marcado como conectado")
     }
     
     /**
@@ -94,7 +91,6 @@ class OnboardingManager(private val context: Context) {
      */
     fun markOnboardingCompleted() {
         prefs.edit().putBoolean(KEY_ONBOARDING_COMPLETED, true).apply()
-        Log.d(TAG, "✅ Onboarding marcado como completado")
     }
     
     /**
@@ -102,7 +98,6 @@ class OnboardingManager(private val context: Context) {
      */
     fun resetOnboarding() {
         prefs.edit().clear().apply()
-        Log.d(TAG, "🔄 Onboarding resetado")
     }
     
     /**

@@ -104,7 +104,6 @@ class VisibilityService(private val context: Context) {
                 if (hasPermission) {
                     showMediumVisibilityAlert(activity)
                 } else {
-                    Log.d(TAG, "⚠️ Sem permissão para visibilidade média, usando fallback")
                     // Fallback para notificação se não tiver permissão
                     showFallbackNotification(activity, "Alerta Médio")
                 }
@@ -113,7 +112,6 @@ class VisibilityService(private val context: Context) {
                 if (hasPermission) {
                     showHighVisibilityAlert(activity)
                 } else {
-                    Log.d(TAG, "⚠️ Sem permissão para visibilidade alta, usando fallback")
                     // Fallback para notificação se não tiver permissão
                     showFallbackNotification(activity, "Alerta Alto")
                 }
@@ -128,7 +126,6 @@ class VisibilityService(private val context: Context) {
         try {
             // ✅ Verificar se estamos na Main thread
             if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) {
-                Log.w(TAG, "⚠️ Não estamos na Main thread, mudando para Main thread")
                 // Usar Handler para executar na Main thread
                 android.os.Handler(android.os.Looper.getMainLooper()).post {
                     showMediumVisibilityAlert(activity)
@@ -171,12 +168,11 @@ class VisibilityService(private val context: Context) {
                 try {
                     windowManager.removeView(bannerView)
                 } catch (e: Exception) {
-                    Log.w(TAG, "Erro ao remover banner: ${e.message}")
+                    // Erro ao remover banner
                 }
             }, 5000)
 
         } catch (e: Exception) {
-            Log.e(TAG, "Erro ao exibir banner de visibilidade média", e)
             // Fallback para notificação
             showFallbackNotification(activity, "Alerta Médio")
         }
@@ -189,7 +185,6 @@ class VisibilityService(private val context: Context) {
         try {
             // ✅ Verificar se estamos na Main thread
             if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) {
-                Log.w(TAG, "⚠️ Não estamos na Main thread, mudando para Main thread")
                 // Usar Handler para executar na Main thread
                 android.os.Handler(android.os.Looper.getMainLooper()).post {
                     showHighVisibilityAlert(activity)
@@ -241,7 +236,7 @@ class VisibilityService(private val context: Context) {
                 try {
                     showSnoozeOptionsDialog(activity, fullScreenView)
                 } catch (e: Exception) {
-                    Log.w(TAG, "❌ Erro ao mostrar opções de adiamento: ${e.message}")
+                    // Erro ao mostrar opções de adiamento
                 }
             }
 
@@ -255,13 +250,12 @@ class VisibilityService(private val context: Context) {
                     markActivityAsCompleted(activity)
                     
                 } catch (e: Exception) {
-                    Log.w(TAG, "❌ Erro ao remover alerta de tela inteira: ${e.message}")
+                    // Erro ao remover alerta de tela inteira
                 }
             }
 
 
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao exibir alerta de visibilidade alta", e)
             // Fallback para notificação
             showFallbackNotification(activity, "Alerta Alto")
         }
@@ -338,15 +332,13 @@ class VisibilityService(private val context: Context) {
                     val parts = activity.id.split("_")
                     val baseId = parts[0]
                     val instanceDate = parts[1]
-                    
-                    Log.d(TAG, "🔄 Processando instância recorrente via overlay - Base ID: $baseId, Data: $instanceDate")
+
                     
                     // Buscar a atividade base
                     val activities = repository.activities.first()
                     val baseActivity = activities.find { it.id == baseId }
                     
                     if (baseActivity != null && recurrenceService.isRecurring(baseActivity)) {
-                        Log.d(TAG, "📋 Atividade base encontrada: ${baseActivity.title}")
                         
                         // Criar instância específica para salvar como concluída
                         val instanceToComplete = baseActivity.copy(
@@ -365,11 +357,8 @@ class VisibilityService(private val context: Context) {
                         
                         // Atualizar a atividade base com a nova lista de exclusões
                         repository.saveActivity(updatedBaseActivity)
+
                         
-                        Log.d(TAG, "✅ Instância recorrente marcada como concluída via overlay: ${instanceToComplete.title} - Data: $instanceDate")
-                        
-                    } else {
-                        Log.w(TAG, "⚠️ Atividade base não encontrada ou não é recorrente: $baseId")
                     }
                 } else {
                     // Tratar atividade única ou atividade base
@@ -377,8 +366,7 @@ class VisibilityService(private val context: Context) {
                     if (recurrenceService.isRecurring(activity)) {
                         // Para atividades recorrentes (primeira instância), sempre tratar como instância específica
                         val activityDate = activity.date
-                        
-                        Log.d(TAG, "🔄 Processando primeira instância recorrente via overlay - ID: ${activity.id}, Data: $activityDate")
+
                         
                         // Criar instância específica para salvar como concluída
                         val instanceToComplete = activity.copy(
@@ -397,12 +385,10 @@ class VisibilityService(private val context: Context) {
                         
                         // Atualizar a atividade base com a nova lista de exclusões
                         repository.saveActivity(updatedBaseActivity)
-                        
-                        Log.d(TAG, "✅ Primeira instância recorrente marcada como concluída via overlay: ${instanceToComplete.title} - Data: $activityDate")
+
                         
                     } else {
                         // Tratar atividade única (não recorrente)
-                        Log.d(TAG, "✅ Marcando atividade única como concluída via overlay: ${activity.title}")
                         
                         // Marcar como concluída e salvar no repositório de finalizadas
                         val completedActivity = activity.copy(
@@ -415,8 +401,7 @@ class VisibilityService(private val context: Context) {
                         
                         // Remover da lista principal
                         repository.deleteActivity(activity.id)
-                        
-                        Log.d(TAG, "✅ Atividade única marcada como concluída via overlay: ${completedActivity.title}")
+
                     }
                 }
                 
@@ -424,7 +409,7 @@ class VisibilityService(private val context: Context) {
                 notificationService.cancelNotification(activity.id)
                 
             } catch (e: Exception) {
-                Log.e(TAG, "❌ Erro ao marcar atividade como concluída via overlay", e)
+                // Erro ao marcar atividade como concluída via overlay
             }
         }
     }
@@ -478,12 +463,12 @@ class VisibilityService(private val context: Context) {
                 try {
                     windowManager.removeView(dialogView)
                 } catch (e: Exception) {
-                    Log.w(TAG, "❌ Erro ao remover diálogo de adiamento: ${e.message}")
+                    // Erro ao remover diálogo de adiamento
                 }
             }
             
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao exibir diálogo de opções de adiamento", e)
+            // Erro ao exibir diálogo de opções de adiamento
         }
     }
 
@@ -501,7 +486,7 @@ class VisibilityService(private val context: Context) {
             notificationService.scheduleSnoozedNotification(activity, minutes)
             
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Erro ao adiar atividade", e)
+            // Erro ao adiar atividade
         }
     }
     
