@@ -26,6 +26,7 @@ class SettingsRepository(private val context: Context) {
         val SHOW_TASKS = booleanPreferencesKey("show_tasks")
         val SHOW_BIRTHDAYS = booleanPreferencesKey("show_birthdays")
         val SHOW_NOTES = booleanPreferencesKey("show_notes")
+        val SHOW_MOON_PHASES = booleanPreferencesKey("show_moon_phases")
     }
 
     val theme: Flow<Theme> = context.dataStore.data
@@ -37,6 +38,11 @@ class SettingsRepository(private val context: Context) {
     val username: Flow<String> = context.dataStore.data
         .map { preferences ->
             preferences[PreferencesKeys.USERNAME] ?: "Usuário"
+        }
+
+    val showMoonPhases: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[PreferencesKeys.SHOW_MOON_PHASES] ?: true
         }
 
             val filterOptions: Flow<CalendarFilterOptions> = context.dataStore.data
@@ -71,6 +77,12 @@ class SettingsRepository(private val context: Context) {
             preferences[PreferencesKeys.SHOW_TASKS] = filterOptions.showTasks
             preferences[PreferencesKeys.SHOW_BIRTHDAYS] = filterOptions.showBirthdays
             preferences[PreferencesKeys.SHOW_NOTES] = filterOptions.showNotes
+        }
+    }
+
+    suspend fun saveShowMoonPhases(showMoonPhases: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_MOON_PHASES] = showMoonPhases
         }
     }
 }

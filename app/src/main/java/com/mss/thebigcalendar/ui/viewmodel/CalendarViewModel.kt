@@ -429,6 +429,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 updateAllDateDependentUI()
             }
         }
+        viewModelScope.launch {
+            settingsRepository.showMoonPhases.collect { showMoonPhases ->
+                _uiState.update { it.copy(showMoonPhases = showMoonPhases) }
+            }
+        }
     }
 
 
@@ -851,6 +856,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             "showMoonPhases" -> {
                 // Atualizar o estado imediatamente
                 _uiState.update { it.copy(showMoonPhases = value) }
+                
+                // Salvar a configuração
+                viewModelScope.launch {
+                    settingsRepository.saveShowMoonPhases(value)
+                }
             }
             else -> {
                 val currentFilters = _uiState.value.filterOptions
