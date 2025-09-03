@@ -17,6 +17,7 @@ import com.mss.thebigcalendar.data.model.Holiday
 import com.mss.thebigcalendar.data.model.SearchResult
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
+import com.mss.thebigcalendar.data.model.NotificationSoundSettings
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
 import com.mss.thebigcalendar.data.repository.SettingsRepository
@@ -439,6 +440,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             settingsRepository.showMoonPhases.collect { showMoonPhases ->
                 _uiState.update { it.copy(showMoonPhases = showMoonPhases) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.notificationSoundSettings.collect { soundSettings ->
+                _uiState.update { it.copy(notificationSoundSettings = soundSettings) }
             }
         }
     }
@@ -932,6 +938,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun onThemeChange(newTheme: Theme) {
         viewModelScope.launch {
             settingsRepository.saveTheme(newTheme)
+        }
+    }
+
+    fun onNotificationSoundSettingsChange(soundSettings: NotificationSoundSettings) {
+        viewModelScope.launch {
+            settingsRepository.saveNotificationSoundSettings(soundSettings)
         }
     }
 

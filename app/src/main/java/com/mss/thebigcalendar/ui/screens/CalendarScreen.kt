@@ -184,7 +184,34 @@ fun CalendarScreen(
                                 onSignOutClicked = { viewModel.signOut() },
                                 isSyncing = uiState.isSyncing,
                                 onManualSync = { viewModel.onManualSync() },
-                                syncProgress = uiState.syncProgress
+                                syncProgress = uiState.syncProgress,
+                                onNotificationSoundSettingsClick = { viewModel.onNavigateToSettings("NotificationSounds") }
+                            )
+                        }
+                    }
+                }
+                "NotificationSounds" -> {
+                    Scaffold(
+                        topBar = {
+                            TopAppBar(
+                                title = { Text("Sons de Notificação") },
+                                navigationIcon = {
+                                    IconButton(onClick = { viewModel.onNavigateToSettings("General") }) {
+                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar")
+                                    }
+                                }
+                            )
+                        }
+                    ) { paddingValues ->
+                        Column(
+                            modifier = Modifier
+                                .padding(paddingValues)
+                                .fillMaxSize()
+                        ) {
+                            NotificationSoundSettingsScreen(
+                                currentSettings = uiState.notificationSoundSettings,
+                                onSettingsChanged = { viewModel.onNotificationSoundSettingsChange(it) },
+                                onBackClick = { viewModel.onNavigateToSettings("General") }
                             )
                         }
                     }

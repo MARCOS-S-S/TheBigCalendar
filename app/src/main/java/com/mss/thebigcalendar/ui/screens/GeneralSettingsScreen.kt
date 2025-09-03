@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -18,6 +20,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,7 +41,8 @@ fun GeneralSettingsScreen(
     onSignOutClicked: () -> Unit,
     isSyncing: Boolean = false,
     onManualSync: () -> Unit = {},
-    syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null
+    syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null,
+    onNotificationSoundSettingsClick: () -> Unit = {}
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -61,6 +66,48 @@ fun GeneralSettingsScreen(
                     onThemeChange(if (isChecked) Theme.DARK else Theme.LIGHT)
                 }
             )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Configurações de Som de Notificação
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onNotificationSoundSettingsClick,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = "Sons de Notificação",
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(
+                        text = "Sons de Notificação",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "Configure o som para cada nível de visibilidade",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = "Abrir configurações",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

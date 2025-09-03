@@ -113,7 +113,8 @@ data class CalendarUiState(
     val completedActivities: List<Activity> = emptyList(),
     val trashSortOrder: String = "newest_first",
     val lastGoogleSyncTime: Long = 0L,
-    val showMoonPhases: Boolean = true
+    val showMoonPhases: Boolean = true,
+    val notificationSoundSettings: NotificationSoundSettings = NotificationSoundSettings()
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

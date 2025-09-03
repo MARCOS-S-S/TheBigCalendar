@@ -12,10 +12,16 @@ import androidx.core.app.NotificationCompat
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.NotificationType
 import com.mss.thebigcalendar.data.model.VisibilityLevel
+import com.mss.thebigcalendar.data.model.NotificationSoundSettings
+import com.mss.thebigcalendar.data.model.NotificationSoundType
+import com.mss.thebigcalendar.data.model.getSoundForVisibility
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class NotificationService(private val context: Context) {
+class NotificationService(
+    private val context: Context,
+    private val soundSettings: NotificationSoundSettings = NotificationSoundSettings()
+) {
 
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -212,6 +218,7 @@ class NotificationService(private val context: Context) {
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
+            .setSound(getNotificationSound(activity.visibility))
             .addAction(
                 android.R.drawable.ic_menu_revert,
                 "Adiar 5 min",
@@ -240,6 +247,23 @@ class NotificationService(private val context: Context) {
         }
         
         return "Atividade programada para hoje$timeText"
+    }
+
+    /**
+     * Obtém o som da notificação baseado no nível de visibilidade
+     */
+    private fun getNotificationSound(visibility: VisibilityLevel): android.net.Uri? {
+        val soundResource = soundSettings.getSoundForVisibility(visibility)
+        
+        return when (soundResource) {
+            "default" -> null // Usar som padrão do sistema
+            "vibration_only" -> null // Apenas vibração
+            else -> {
+                // Para outros sons, usar o som padrão do sistema por enquanto
+                // Em uma implementação completa, você poderia mapear para recursos de som específicos
+                null
+            }
+        }
     }
 
     /**
