@@ -101,12 +101,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     /**
      * Gera uma chave única baseada nos parâmetros que afetam o calendário
+     * A data selecionada não afeta o cache do calendário, apenas a exibição dos detalhes
      */
     private fun generateCalendarCacheKey(): String {
         val state = _uiState.value
         return buildString {
             append("${state.displayedYearMonth}_")
-            append("${state.selectedDate}_") // Adicionar data selecionada
+            // Removido selectedDate - não afeta o cache do calendário
             append("${state.filterOptions.showHolidays}_")
             append("${state.filterOptions.showSaintDays}_")
             append("${state.filterOptions.showEvents}_")
@@ -114,6 +115,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             append("${state.filterOptions.showNotes}_")
             append("${state.filterOptions.showBirthdays}_")
             append("${state.showCompletedActivities}_")
+            append("${state.showMoonPhases}_")
             append("${state.activities.size}_")
             append("${state.completedActivities.size}_")
             append("${state.nationalHolidays.size}_")
@@ -123,6 +125,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     /**
      * Limpa o cache do calendário quando necessário
+     * O cache deve ser limpo apenas quando:
+     * - O mês/ano exibido muda
+     * - As atividades/feriados mudam
+     * - Os filtros mudam
+     * - O ViewModel é destruído
+     * NÃO deve ser limpo quando apenas a data selecionada muda
      */
     private fun clearCalendarCache() {
         cachedCalendarDays = null
@@ -767,6 +775,21 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * Atualiza apenas a propriedade isSelected dos dias do calendário
+     * sem recriar todo o cache - otimização para mudança de data selecionada
+     * 
+     * Esta otimização permite que o dia selecionado seja marcado visualmente
+     * sem invalidar o cache do calendário, mantendo a performance
+     */
+    private fun updateSelectedDateInCalendar() {
+        val state = _uiState.value
+        val updatedCalendarDays = state.calendarDays.map { day ->
+            day.copy(isSelected = day.date.isEqual(state.selectedDate))
+        }
+        _uiState.update { it.copy(calendarDays = updatedCalendarDays) }
+    }
+
     fun onPreviousMonth() {
         _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.minusMonths(1)) }
         // Limpar cache quando muda o mês
@@ -790,25 +813,34 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onGoToToday() {
+        val currentState = _uiState.value
+        val today = LocalDate.now()
+        val currentMonth = YearMonth.now()
+        val monthChanged = currentState.displayedYearMonth != currentMonth
+        
         _uiState.update {
             it.copy(
-                displayedYearMonth = YearMonth.now(),
-                selectedDate = LocalDate.now()
+                displayedYearMonth = currentMonth,
+                selectedDate = today
             )
         }
-        // Limpar cache quando vai para hoje
-        clearCalendarCache()
+        
+        // Só limpar cache se o mês mudou
+        if (monthChanged) {
+            clearCalendarCache()
+        }
         updateAllDateDependentUI()
     }
 
     fun onDateSelected(date: LocalDate) {
         val state = _uiState.value
         val shouldOpenModal = state.selectedDate.isEqual(date) && date.month == state.displayedYearMonth.month
+        val monthChanged = state.displayedYearMonth.month != date.month || state.displayedYearMonth.year != date.year
 
         _uiState.update {
             it.copy(
                 selectedDate = date,
-                displayedYearMonth = if (it.displayedYearMonth.month != date.month || it.displayedYearMonth.year != date.year) {
+                displayedYearMonth = if (monthChanged) {
                     YearMonth.from(date)
                 } else {
                     it.displayedYearMonth
@@ -817,9 +849,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             )
         }
         
-        // Limpar cache quando a data selecionada muda
-        clearCalendarCache()
-        updateAllDateDependentUI()
+        if (monthChanged) {
+            // Se o mês mudou, limpar cache e recriar calendário
+            clearCalendarCache()
+            updateAllDateDependentUI()
+        } else {
+            // Se apenas a data selecionada mudou, atualizar apenas a marcação visual
+            updateSelectedDateInCalendar()
+            updateTasksForSelectedDate()
+            updateHolidaysForSelectedDate()
+            updateSaintDaysForSelectedDate()
+        }
 
         if (shouldOpenModal) {
             openCreateActivityModal()
@@ -827,6 +867,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onYearlyMonthClicked(yearMonth: YearMonth) {
+        val currentState = _uiState.value
+        val monthChanged = currentState.displayedYearMonth != yearMonth
+        
         _uiState.update {
             it.copy(
                 displayedYearMonth = yearMonth,
@@ -835,8 +878,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 isSidebarOpen = false
             )
         }
-        // Limpar cache quando muda o mês/ano
-        clearCalendarCache()
+        
+        // Só limpar cache se o mês mudou
+        if (monthChanged) {
+            clearCalendarCache()
+        }
         updateAllDateDependentUI()
     }
 
