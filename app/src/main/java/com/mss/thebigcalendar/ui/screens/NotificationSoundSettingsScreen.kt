@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import com.mss.thebigcalendar.data.model.NotificationSoundSettings
 import com.mss.thebigcalendar.data.model.NotificationSoundType
 import com.mss.thebigcalendar.data.model.VisibilityLevel
+import com.mss.thebigcalendar.service.SoundPreviewService
 import android.provider.CalendarContract.Colors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,9 +29,19 @@ fun NotificationSoundSettingsScreen(
     onSettingsChanged: (NotificationSoundSettings) -> Unit,
     onBackClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val soundPreviewService = remember { SoundPreviewService(context) }
+    
     var lowVisibilitySound by remember { mutableStateOf(currentSettings.lowVisibilitySound) }
     var mediumVisibilitySound by remember { mutableStateOf(currentSettings.mediumVisibilitySound) }
     var highVisibilitySound by remember { mutableStateOf(currentSettings.highVisibilitySound) }
+    
+    // Limpar recursos quando o composable for removido
+    DisposableEffect(Unit) {
+        onDispose {
+            soundPreviewService.cleanup()
+        }
+    }
 
     // Atualizar configurações quando os valores mudarem
     LaunchedEffect(lowVisibilitySound, mediumVisibilitySound, highVisibilitySound) {
@@ -113,6 +126,7 @@ fun NotificationSoundSettingsScreen(
                     description = "Som para notificações padrão",
                     currentSound = lowVisibilitySound,
                     onSoundSelected = { lowVisibilitySound = it },
+                    onSoundPreview = { soundPreviewService.playSoundPreview(it) },
                     levelColor = Color.Green
                 )
             }
@@ -123,6 +137,7 @@ fun NotificationSoundSettingsScreen(
                     description = "Som para banners de notificação",
                     currentSound = mediumVisibilitySound,
                     onSoundSelected = { mediumVisibilitySound = it },
+                    onSoundPreview = { soundPreviewService.playSoundPreview(it) },
                     levelColor = Color.Yellow
                 )
             }
@@ -133,6 +148,7 @@ fun NotificationSoundSettingsScreen(
                     description = "Som para alertas de tela cheia",
                     currentSound = highVisibilitySound,
                     onSoundSelected = { highVisibilitySound = it },
+                    onSoundPreview = { soundPreviewService.playSoundPreview(it) },
                     levelColor = Color.Red
                 )
             }
@@ -146,6 +162,7 @@ private fun SoundSelectionCard(
     description: String,
     currentSound: String,
     onSoundSelected: (String) -> Unit,
+    onSoundPreview: (NotificationSoundType) -> Unit,
     levelColor: Color
 ) {
     Card(
@@ -202,6 +219,21 @@ private fun SoundSelectionCard(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.weight(1f)
                     )
+                    
+                    // Botão de preview (exceto para "Apenas vibração")
+                    if (soundType != NotificationSoundType.VIBRATION_ONLY) {
+                        IconButton(
+                            onClick = { onSoundPreview(soundType) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Default.PlayArrow,
+                                contentDescription = "Reproduzir som",
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                 }
             }
         }
