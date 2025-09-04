@@ -95,6 +95,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         checkForExistingSignIn()
         // Garantir que o calendário inicie no mês atual
         onGoToToday()
+        
+        // Registrar broadcast receiver para atualizações de notificações
+        registerNotificationBroadcastReceiver()
     }
 
     override fun onCleared() {
@@ -103,6 +106,30 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         updateJob?.cancel()
         // Limpar cache
         clearCalendarCache()
+        // Desregistrar broadcast receiver
+        try {
+            getApplication<Application>().unregisterReceiver(notificationBroadcastReceiver)
+        } catch (e: Exception) {
+            // Ignorar erro se o receiver não estiver registrado
+        }
+    }
+    
+    private val notificationBroadcastReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context?, intent: android.content.Intent?) {
+            if (intent?.action == "com.mss.thebigcalendar.ACTIVITY_COMPLETED") {
+                val activityId = intent.getStringExtra("activity_id")
+                if (activityId != null) {
+                    Log.d("CalendarViewModel", "🔔 Recebido broadcast de atividade concluída: $activityId")
+                    // Atualizar a UI
+                    updateAllDateDependentUI()
+                }
+            }
+        }
+    }
+    
+    private fun registerNotificationBroadcastReceiver() {
+        val filter = android.content.IntentFilter("com.mss.thebigcalendar.ACTIVITY_COMPLETED")
+        getApplication<Application>().registerReceiver(notificationBroadcastReceiver, filter)
     }
 
     /**
@@ -1512,6 +1539,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
     
     fun markActivityAsCompleted(activityId: String) {
+        viewModelScope.launch {
+            markActivityAsCompletedInternal(activityId)
+        }
+    }
+    
+    /**
+     * Função interna para marcar atividade como concluída (pode ser chamada por notificações)
+     */
+    fun markActivityAsCompletedInternal(activityId: String) {
         viewModelScope.launch {
             
             // Verificar se é uma instância recorrente (ID contém data)

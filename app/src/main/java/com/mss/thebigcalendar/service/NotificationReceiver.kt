@@ -26,6 +26,9 @@ class NotificationReceiver : BroadcastReceiver() {
         Log.d(TAG, "🔔 NotificationReceiver.onReceive chamado")
         Log.d(TAG, "🔔 Action: ${intent.action}")
         Log.d(TAG, "🔔 Timestamp atual: ${System.currentTimeMillis()}")
+        Log.d(TAG, "🔔 Intent extras: ${intent.extras?.keySet()?.joinToString()}")
+        Log.d(TAG, "🔔 Intent data: ${intent.dataString}")
+        Log.d(TAG, "🔔 Intent flags: ${intent.flags}")
         
         when (intent.action) {
             NotificationService.ACTION_VIEW_ACTIVITY -> {
@@ -39,6 +42,7 @@ class NotificationReceiver : BroadcastReceiver() {
             }
             NotificationService.ACTION_DISMISS -> {
                 Log.d(TAG, "🔔 Processando ACTION_DISMISS")
+                Log.d(TAG, "🔔 CLICOU NO BOTÃO FINALIZADO!")
                 handleDismiss(context, intent)
             }
         }
@@ -63,6 +67,12 @@ class NotificationReceiver : BroadcastReceiver() {
                 val repository = ActivityRepository(context)
                 val notificationService = NotificationService(context)
                 
+                // Cancelar a notificação imediatamente
+                if (activityId != null) {
+                    notificationService.cancelNotification(activityId)
+                    Log.d(TAG, "🔔 Notificação cancelada imediatamente")
+                }
+                
                 // ✅ Usar first() em vez de collect() para obter apenas o primeiro valor
                 val activities = repository.activities.first()
                 
@@ -72,10 +82,11 @@ class NotificationReceiver : BroadcastReceiver() {
                 // ✅ Verificar se é uma instância recorrente (ID contém data)
                 val isRecurringInstance = activityId?.contains("_") == true && activityId.split("_").size == 2
                 
-                val realActivity = if (isRecurringInstance) {
+                val realActivity = if (isRecurringInstance && activityId != null) {
                     // Para instâncias recorrentes, buscar pela atividade base
-                    val baseId = activityId.split("_")[0]
-                    val instanceDate = activityId.split("_")[1]
+                    val parts = activityId.split("_")
+                    val baseId = parts.getOrNull(0) ?: ""
+                    val instanceDate = parts.getOrNull(1) ?: ""
                     val baseActivity = activities.find { it.id == baseId }
                     
                     Log.d(TAG, "🔔 Instância recorrente - Base ID: $baseId, Data: $instanceDate")
@@ -180,6 +191,15 @@ class NotificationReceiver : BroadcastReceiver() {
         val activityId = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_ID)
         val snoozeMinutes = intent.getIntExtra("snooze_minutes", 5)
         
+        Log.d(TAG, "🔔 Adiando notificação por $snoozeMinutes minutos para atividade: $activityId")
+        
+                    // Cancelar a notificação imediatamente
+            val notificationService = NotificationService(context)
+            if (activityId != null) {
+                notificationService.cancelNotification(activityId)
+                Log.d(TAG, "🔔 Notificação cancelada imediatamente")
+            }
+        
         // Usar CoroutineScope com SupervisorJob para evitar cancelamento
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         
@@ -187,34 +207,56 @@ class NotificationReceiver : BroadcastReceiver() {
             try {
                 val repository = ActivityRepository(context)
                 
-                // Coletar o Flow para obter a lista de atividades
-                repository.activities.collect { activities ->
-                    val activity = activities.find { it.id == activityId }
+                // Usar first() em vez de collect() para obter apenas o primeiro valor
+                val activities = repository.activities.first()
+                
+                // Verificar se é uma instância recorrente (ID contém data)
+                val isRecurringInstance = activityId?.contains("_") == true && activityId.split("_").size == 2
+                
+                val activity = if (isRecurringInstance) {
+                    // Para instâncias recorrentes, buscar pela atividade base
+                    val parts = activityId?.split("_")
+                    val baseId = parts?.getOrNull(0) ?: ""
+                    activities.find { it.id == baseId }
+                } else {
+                    // Para atividades únicas, buscar pelo ID completo
+                    activities.find { it.id == activityId }
+                }
+                
+                Log.d(TAG, "🔍 Buscando atividade para adiar - ID: $activityId")
+                Log.d(TAG, "📋 Total de atividades disponíveis: ${activities.size}")
+                Log.d(TAG, "🔍 IDs disponíveis: ${activities.map { it.id }}")
+                Log.d(TAG, "🔄 É instância recorrente: $isRecurringInstance")
+                
+                if (activity != null) {
+                    Log.d(TAG, "🔔 Atividade encontrada para adiar: ${activity.title}")
                     
-                    if (activity != null) {
-                        // Reagendar notificação para alguns minutos depois
-                        val notificationService = NotificationService(context)
-                        
-                        // Criar uma atividade temporária com horário ajustado
-                        val currentTime = LocalDateTime.now()
-                        val snoozedTime = currentTime.plusMinutes(snoozeMinutes.toLong())
-                        
-                        val snoozedActivity = activity.copy(
-                            startTime = snoozedTime.toLocalTime(),
-                            date = snoozedTime.toLocalDate().toString()
-                        )
-                        
-                        notificationService.scheduleNotification(snoozedActivity)
-                        
-                        // Mostrar notificação de confirmação
-                        notificationService.showNotification(snoozedActivity)
-                        
-                        // Parar de coletar após encontrar a atividade
-                        return@collect
-                    }
+                    // Criar uma atividade temporária com horário ajustado
+                    val currentTime = LocalDateTime.now()
+                    val snoozedTime = currentTime.plusMinutes(snoozeMinutes.toLong())
+                    
+                    val snoozedActivity = activity.copy(
+                        id = if (isRecurringInstance) {
+                            // Para instâncias recorrentes, usar o ID com a nova data
+                            "${activity.id}_${snoozedTime.toLocalDate()}"
+                        } else {
+                            // Para atividades únicas, manter o ID original
+                            activity.id
+                        },
+                        startTime = snoozedTime.toLocalTime(),
+                        date = snoozedTime.toLocalDate().toString()
+                    )
+                    
+                    // Agendar nova notificação
+                    notificationService.scheduleNotification(snoozedActivity)
+                    
+                    Log.d(TAG, "🔔 Notificação adiada com sucesso para: ${snoozedTime}")
+                    
+                } else {
+                    Log.w(TAG, "⚠️ Atividade não encontrada para adiar: $activityId")
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Erro ao adiar notificação", e)
+                Log.e(TAG, "❌ Erro ao adiar notificação", e)
             }
         }
     }
@@ -225,7 +267,14 @@ class NotificationReceiver : BroadcastReceiver() {
     private fun handleDismiss(context: Context, intent: Intent) {
         val activityId = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_ID)
         
+        Log.d(TAG, "🔔 Marcando atividade como concluída: $activityId")
+        
         if (activityId != null) {
+            // Cancelar a notificação imediatamente
+            val notificationService = NotificationService(context)
+            notificationService.cancelNotification(activityId)
+            Log.d(TAG, "🔔 Notificação cancelada imediatamente")
+            
             // Usar CoroutineScope com SupervisorJob para evitar cancelamento
             val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
             
@@ -233,7 +282,6 @@ class NotificationReceiver : BroadcastReceiver() {
                 try {
                     val repository = ActivityRepository(context)
                     val completedRepository = com.mss.thebigcalendar.data.repository.CompletedActivityRepository(context)
-                    val notificationService = NotificationService(context)
                     val recurrenceService = com.mss.thebigcalendar.service.RecurrenceService()
                     
                     // Verificar se é uma instância recorrente (ID contém data)
@@ -242,8 +290,8 @@ class NotificationReceiver : BroadcastReceiver() {
                     if (isRecurringInstance) {
                         // Tratar instância recorrente específica
                         val parts = activityId.split("_")
-                        val baseId = parts[0]
-                        val instanceDate = parts[1]
+                        val baseId = parts.getOrNull(0) ?: ""
+                        val instanceDate = parts.getOrNull(1) ?: ""
                         
                         Log.d(TAG, "🔄 Processando instância recorrente via notificação - Base ID: $baseId, Data: $instanceDate")
                         
@@ -251,36 +299,65 @@ class NotificationReceiver : BroadcastReceiver() {
                         val activities = repository.activities.first()
                         val baseActivity = activities.find { it.id == baseId }
                         
-                        if (baseActivity != null && recurrenceService.isRecurring(baseActivity)) {
+                        Log.d(TAG, "🔍 Buscando atividade base - ID: $baseId")
+                        Log.d(TAG, "📋 Total de atividades disponíveis: ${activities.size}")
+                        Log.d(TAG, "🔍 IDs disponíveis: ${activities.map { it.id }}")
+                        
+                        if (baseActivity != null) {
                             Log.d(TAG, "📋 Atividade base encontrada: ${baseActivity.title}")
                             
-                            // Criar instância específica para salvar como concluída
-                            val instanceToComplete = baseActivity.copy(
-                                id = activityId,
-                                date = instanceDate,
-                                isCompleted = true,
-                                showInCalendar = false
-                            )
-                            
-                            // Salvar instância específica como concluída
-                            completedRepository.addCompletedActivity(instanceToComplete)
-                            
-                            // Adicionar data à lista de exclusões da atividade base
-                            val updatedExcludedDates = baseActivity.excludedDates + instanceDate
-                            val updatedBaseActivity = baseActivity.copy(excludedDates = updatedExcludedDates)
-                            
-                            // Atualizar a atividade base com a nova lista de exclusões
-                            repository.saveActivity(updatedBaseActivity)
-                            
-                            Log.d(TAG, "✅ Instância recorrente marcada como concluída via notificação: ${instanceToComplete.title} - Data: $instanceDate")
-                            
+                            if (recurrenceService.isRecurring(baseActivity)) {
+                                Log.d(TAG, "🔄 Atividade é recorrente, processando instância específica")
+                                
+                                // Criar instância específica para salvar como concluída
+                                val instanceToComplete = baseActivity.copy(
+                                    id = activityId,
+                                    date = instanceDate,
+                                    isCompleted = true,
+                                    showInCalendar = false
+                                )
+                                
+                                // Salvar instância específica como concluída
+                                completedRepository.addCompletedActivity(instanceToComplete)
+                                
+                                // Adicionar data à lista de exclusões da atividade base
+                                val updatedExcludedDates = baseActivity.excludedDates + instanceDate
+                                val updatedBaseActivity = baseActivity.copy(excludedDates = updatedExcludedDates)
+                                
+                                // Atualizar a atividade base com a nova lista de exclusões
+                                repository.saveActivity(updatedBaseActivity)
+                                
+                                Log.d(TAG, "✅ Instância recorrente marcada como concluída via notificação: ${instanceToComplete.title} - Data: $instanceDate")
+                            } else {
+                                Log.d(TAG, "📝 Atividade não é recorrente, tratando como única")
+                                
+                                // Tratar como atividade única
+                                val completedActivity = baseActivity.copy(
+                                    id = activityId,
+                                    date = instanceDate,
+                                    isCompleted = true,
+                                    showInCalendar = false
+                                )
+                                
+                                // Salvar no repositório de atividades finalizadas
+                                completedRepository.addCompletedActivity(completedActivity)
+                                
+                                // Remover da lista principal
+                                repository.deleteActivity(baseId)
+                                
+                                Log.d(TAG, "✅ Atividade única marcada como concluída via notificação: ${completedActivity.title}")
+                            }
                         } else {
-                            Log.w(TAG, "⚠️ Atividade base não encontrada ou não é recorrente: $baseId")
+                            Log.w(TAG, "⚠️ Atividade base não encontrada: $baseId")
                         }
                     } else {
                         // Tratar atividade única ou atividade base
                         val activities = repository.activities.first()
                         val activity = activities.find { it.id == activityId }
+                        
+                        Log.d(TAG, "🔍 Buscando atividade única para marcar como concluída - ID: $activityId")
+                        Log.d(TAG, "📋 Total de atividades disponíveis: ${activities.size}")
+                        Log.d(TAG, "🔍 IDs disponíveis: ${activities.map { it.id }}")
                         
                         if (activity != null) {
                             // Verificar se é uma atividade recorrente
@@ -333,14 +410,22 @@ class NotificationReceiver : BroadcastReceiver() {
                         }
                     }
                     
-                    // Cancelar a notificação agendada
-                    notificationService.cancelNotification(activityId)
+                    Log.d(TAG, "🔔 Processamento concluído com sucesso")
+                    
+                    // Enviar broadcast para atualizar a UI
+                    if (activityId != null) {
+                        val updateIntent = Intent("com.mss.thebigcalendar.ACTIVITY_COMPLETED")
+                        updateIntent.putExtra("activity_id", activityId)
+                        context.sendBroadcast(updateIntent)
+                    }
                     
                 } catch (e: Exception) {
                     Log.e(TAG, "❌ Erro ao marcar atividade como concluída via notificação", e)
                     // Em caso de erro, pelo menos cancelar a notificação
-                    val notificationService = NotificationService(context)
-                    notificationService.cancelNotification(activityId)
+                    if (activityId != null) {
+                        val notificationService = NotificationService(context)
+                        notificationService.cancelNotification(activityId)
+                    }
                 }
             }
         }

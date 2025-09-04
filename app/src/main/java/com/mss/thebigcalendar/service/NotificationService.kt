@@ -133,9 +133,13 @@ class NotificationService(
     }
 
     /**
-     * Cancela uma notificação agendada
+     * Cancela uma notificação agendada e a notificação atual
      */
     fun cancelNotification(activityId: String) {
+        Log.d(TAG, "🔔 Cancelando notificação para atividade: $activityId")
+        Log.d(TAG, "🔔 CANCELAMENTO DE NOTIFICAÇÃO INICIADO!")
+        
+        // Cancelar o alarme agendado
         val intent = Intent(context, NotificationReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -144,6 +148,41 @@ class NotificationService(
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager.cancel(pendingIntent)
+        
+        // Tentar cancelar também o alarme base (para casos de instâncias recorrentes)
+        if (activityId.contains("_")) {
+            val baseId = activityId.split("_")[0]
+            val baseIntent = Intent(context, NotificationReceiver::class.java)
+            val basePendingIntent = PendingIntent.getBroadcast(
+                context,
+                baseId.hashCode(),
+                baseIntent,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            )
+            alarmManager.cancel(basePendingIntent)
+            Log.d(TAG, "🔔 Alarmes base e instância cancelados")
+        } else {
+            Log.d(TAG, "🔔 Alarme cancelado")
+        }
+        
+        // Cancelar a notificação atual (se estiver sendo exibida)
+        val notificationId = activityId.hashCode()
+        Log.d(TAG, "🔔 Cancelando notificação com ID: $notificationId")
+        notificationManager.cancel(notificationId)
+        
+        // Tentar cancelar também com IDs alternativos (para casos de instâncias recorrentes)
+        val baseId = if (activityId.contains("_")) {
+            activityId.split("_")[0]
+        } else {
+            activityId
+        }
+        val baseNotificationId = baseId.hashCode()
+        if (baseNotificationId != notificationId) {
+            Log.d(TAG, "🔔 Cancelando também notificação base com ID: $baseNotificationId")
+            notificationManager.cancel(baseNotificationId)
+        }
+        
+        Log.d(TAG, "🔔 Notificação e alarme cancelados com sucesso")
     }
 
     /**
@@ -229,6 +268,13 @@ class NotificationService(
         val soundUri = getNotificationSound()
         Log.d(TAG, "🔔 Som da notificação: $soundUri")
         
+        val snoozePendingIntent = createSnoozePendingIntent(activity, 5)
+        val dismissPendingIntent = createDismissPendingIntent(activity)
+        
+        Log.d(TAG, "🔔 Criando PendingIntents - Snooze: ${snoozePendingIntent != null}, Dismiss: ${dismissPendingIntent != null}")
+        Log.d(TAG, "🔔 Snooze PendingIntent ID: ${(activity.id + "_snooze").hashCode()}")
+        Log.d(TAG, "🔔 Dismiss PendingIntent ID: ${(activity.id + "_dismiss").hashCode()}")
+        
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("🔔 Lembrete: ${activity.title}")
@@ -239,14 +285,14 @@ class NotificationService(
             .setContentIntent(pendingIntent)
             .setSound(soundUri)
             .addAction(
-                android.R.drawable.ic_menu_revert,
-                "Adiar 5 min",
-                createSnoozePendingIntent(activity, 5)
-            )
-            .addAction(
                 android.R.drawable.ic_menu_close_clear_cancel,
                 "Finalizado",
-                createDismissPendingIntent(activity)
+                dismissPendingIntent
+            )
+            .addAction(
+                android.R.drawable.ic_menu_revert,
+                "Adiar 5 min",
+                snoozePendingIntent
             )
             .setVibrate(longArrayOf(0, 500, 200, 500)) // ✅ Adicionar vibração
             .setLights(0xFF0000FF.toInt(), 1000, 1000) // ✅ Adicionar luz LED
@@ -287,6 +333,8 @@ class NotificationService(
             putExtra("snooze_minutes", minutes)
         }
         
+        Log.d(TAG, "🔔 Criando Snooze PendingIntent para atividade: ${activity.title}, ID: ${activity.id}")
+        
         return PendingIntent.getBroadcast(
             context,
             (activity.id + "_snooze").hashCode(),
@@ -303,6 +351,8 @@ class NotificationService(
             action = ACTION_DISMISS
             putExtra(EXTRA_ACTIVITY_ID, activity.id)
         }
+        
+        Log.d(TAG, "🔔 Criando Dismiss PendingIntent para atividade: ${activity.title}, ID: ${activity.id}")
         
         return PendingIntent.getBroadcast(
             context,
