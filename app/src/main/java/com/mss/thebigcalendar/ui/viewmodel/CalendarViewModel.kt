@@ -480,16 +480,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
      */
     private fun loadActivitiesForCurrentMonth() {
         val currentMonth = _uiState.value.displayedYearMonth
-        Log.d("CalendarViewModel", "🔄 Iniciando carregamento de atividades para mês: ${currentMonth}")
         
         viewModelScope.launch {
             activityRepository.getActivitiesForMonth(currentMonth).collect { activities ->
-                Log.d("CalendarViewModel", "📥 Atividades recebidas do Repository: ${activities.size}")
-                Log.d("CalendarViewModel", "📅 Mês: ${currentMonth}")
-                
                 _uiState.update { it.copy(activities = activities) }
-                
-                Log.d("CalendarViewModel", "✅ Estado atualizado com ${activities.size} atividades")
                 
                 // Limpar cache quando as atividades mudam
                 clearCalendarCache()
@@ -503,15 +497,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
      * Atualiza as atividades quando o mês muda
      */
     private fun updateActivitiesForNewMonth(newMonth: YearMonth) {
-        Log.d("CalendarViewModel", "🔄 Atualizando atividades para novo mês: ${newMonth}")
-        
         viewModelScope.launch {
             activityRepository.getActivitiesForMonth(newMonth).collect { activities ->
-                Log.d("CalendarViewModel", "📥 Atividades carregadas para ${newMonth}: ${activities.size}")
-                
                 _uiState.update { it.copy(activities = activities) }
-                
-                Log.d("CalendarViewModel", "✅ Estado atualizado com ${activities.size} atividades para ${newMonth}")
                 
                 // Limpar cache quando as atividades mudam
                 clearCalendarCache()
@@ -833,22 +821,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onPreviousMonth() {
-        val oldMonth = _uiState.value.displayedYearMonth
-        val newMonth = oldMonth.minusMonths(1)
-        
-        Log.d("CalendarViewModel", "⬅️ Navegando para mês anterior: ${oldMonth} → ${newMonth}")
-        
+        val newMonth = _uiState.value.displayedYearMonth.minusMonths(1)
         _uiState.update { it.copy(displayedYearMonth = newMonth) }
         // Carregar atividades do novo mês
         updateActivitiesForNewMonth(newMonth)
     }
 
     fun onNextMonth() {
-        val oldMonth = _uiState.value.displayedYearMonth
-        val newMonth = oldMonth.plusMonths(1)
-        
-        Log.d("CalendarViewModel", "➡️ Navegando para próximo mês: ${oldMonth} → ${newMonth}")
-        
+        val newMonth = _uiState.value.displayedYearMonth.plusMonths(1)
         _uiState.update { it.copy(displayedYearMonth = newMonth) }
         // Carregar atividades do novo mês
         updateActivitiesForNewMonth(newMonth)
@@ -889,10 +869,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         val shouldOpenModal = state.selectedDate.isEqual(date) && date.month == state.displayedYearMonth.month
         val monthChanged = state.displayedYearMonth.month != date.month || state.displayedYearMonth.year != date.year
 
-        Log.d("CalendarViewModel", "🎯 Data selecionada: ${date}")
-        Log.d("CalendarViewModel", "📅 Mês mudou: ${monthChanged}")
-        Log.d("CalendarViewModel", "📊 Mês atual: ${state.displayedYearMonth}")
-
         _uiState.update {
             it.copy(
                 selectedDate = date,
@@ -908,11 +884,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         if (monthChanged) {
             // Se o mês mudou, carregar atividades do novo mês
             val newMonth = YearMonth.from(date)
-            Log.d("CalendarViewModel", "🔄 Mês mudou, carregando atividades para: ${newMonth}")
             updateActivitiesForNewMonth(newMonth)
         } else {
             // Se apenas a data selecionada mudou, atualizar apenas a marcação visual
-            Log.d("CalendarViewModel", "📌 Apenas dia mudou, atualizando seleção")
             updateSelectedDateInCalendar()
             updateTasksForSelectedDate()
             updateHolidaysForSelectedDate()
@@ -928,9 +902,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         val currentState = _uiState.value
         val monthChanged = currentState.displayedYearMonth != yearMonth
         
-        Log.d("CalendarViewModel", "📅 Clicou em mês na visualização anual: ${yearMonth}")
-        Log.d("CalendarViewModel", "🔄 Mês mudou: ${monthChanged}")
-        
         _uiState.update {
             it.copy(
                 displayedYearMonth = yearMonth,
@@ -942,7 +913,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         
         // Se o mês mudou, carregar atividades do novo mês
         if (monthChanged) {
-            Log.d("CalendarViewModel", "🔄 Carregando atividades para mês clicado: ${yearMonth}")
             updateActivitiesForNewMonth(yearMonth)
         }
     }

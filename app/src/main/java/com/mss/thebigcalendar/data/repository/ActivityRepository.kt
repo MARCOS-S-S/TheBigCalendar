@@ -43,9 +43,6 @@ class ActivityRepository(private val context: Context) {
                     proto.toActivity()
                 }
                 
-                android.util.Log.d("ActivityRepository", "📅 Carregando atividades para mês: ${yearMonth}")
-                android.util.Log.d("ActivityRepository", "📊 Total de atividades no banco: ${allActivities.size}")
-                
                 val filteredActivities = allActivities.filter { activity ->
                     try {
                         val activityDate = LocalDate.parse(activity.date)
@@ -61,48 +58,18 @@ class ActivityRepository(private val context: Context) {
                             isInMonth
                         }
                         
-                        // Log para debug de aniversários
-                        if (activity.activityType == ActivityType.BIRTHDAY) {
-                            android.util.Log.d("ActivityRepository", "🎂 Verificando aniversário: ${activity.title} - Data: ${activityDate} - Mês: ${activityDate.month} - Mês solicitado: ${yearMonth.month} - Incluir: ${isBirthdayInMonth}")
-                        }
-                        
                         // Para atividades recorrentes, verificar se há instâncias no mês
                         val hasRecurringInstances = if (activity.recurrenceRule?.isNotEmpty() == true && 
                                                        activity.recurrenceRule != "CUSTOM") {
-                            val hasInstances = hasRecurringInstancesInMonth(activity, yearMonth)
-                            if (hasInstances) {
-                                android.util.Log.d("ActivityRepository", "🔄 Atividade recorrente incluída: ${activity.title} - Regra: ${activity.recurrenceRule}")
-                            }
-                            hasInstances
+                            hasRecurringInstancesInMonth(activity, yearMonth)
                         } else {
                             false
                         }
                         
-                        val shouldInclude = isBirthdayInMonth || hasRecurringInstances
-                        
-                        if (shouldInclude) {
-                            android.util.Log.d("ActivityRepository", "✅ Incluindo atividade: ${activity.title} (${activity.date}) - Tipo: ${activity.activityType} - isBirthdayInMonth: ${isBirthdayInMonth} - hasRecurringInstances: ${hasRecurringInstances}")
-                        }
-                        
-                        shouldInclude
+                        isBirthdayInMonth || hasRecurringInstances
                     } catch (e: Exception) {
-                        android.util.Log.e("ActivityRepository", "❌ Erro ao processar atividade: ${activity.title}", e)
+                        android.util.Log.e("ActivityRepository", "Erro ao processar atividade: ${activity.title}", e)
                         false
-                    }
-                }
-                
-                android.util.Log.d("ActivityRepository", "📈 Atividades filtradas para ${yearMonth}: ${filteredActivities.size}")
-                android.util.Log.d("ActivityRepository", "🎯 Aniversários: ${filteredActivities.count { it.activityType == ActivityType.BIRTHDAY }}")
-                android.util.Log.d("ActivityRepository", "📝 Tarefas: ${filteredActivities.count { it.activityType == ActivityType.TASK }}")
-                android.util.Log.d("ActivityRepository", "📅 Eventos: ${filteredActivities.count { it.activityType == ActivityType.EVENT }}")
-                android.util.Log.d("ActivityRepository", "📋 Notas: ${filteredActivities.count { it.activityType == ActivityType.NOTE }}")
-                
-                // Log detalhado dos aniversários do mês
-                val augustBirthdays = filteredActivities.filter { it.activityType == ActivityType.BIRTHDAY }
-                if (augustBirthdays.isNotEmpty()) {
-                    android.util.Log.d("ActivityRepository", "🎂 Aniversários de ${yearMonth.month.name}:")
-                    augustBirthdays.forEach { birthday ->
-                        android.util.Log.d("ActivityRepository", "   - ${birthday.title} (${birthday.date})")
                     }
                 }
                 
@@ -150,7 +117,7 @@ class ActivityRepository(private val context: Context) {
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("ActivityRepository", "❌ Erro ao verificar atividade recorrente: ${activity.title}", e)
+            android.util.Log.e("ActivityRepository", "Erro ao verificar atividade recorrente: ${activity.title}", e)
             return false
         }
     }
