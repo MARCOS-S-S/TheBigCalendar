@@ -452,15 +452,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     
     private fun loadData() {
-        viewModelScope.launch {
-            activityRepository.activities.collect { activities ->
-                _uiState.update { it.copy(activities = activities) }
-                // Limpar cache quando as atividades mudam
-                clearCalendarCache()
-                // Usar debounce para evitar múltiplas atualizações rápidas
-                updateAllDateDependentUI()
-            }
-        }
+        // Carregar apenas as atividades do mês atual
+        loadActivitiesForCurrentMonth()
         
         viewModelScope.launch {
             deletedActivityRepository.deletedActivities.collect { deletedActivities ->
@@ -479,6 +472,53 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
         
         loadInitialHolidaysAndSaints()
+    }
+
+    /**
+     * Carrega apenas as atividades do mês atual
+     * Otimização para reduzir uso de memória e melhorar performance
+     */
+    private fun loadActivitiesForCurrentMonth() {
+        val currentMonth = _uiState.value.displayedYearMonth
+        Log.d("CalendarViewModel", "🔄 Iniciando carregamento de atividades para mês: ${currentMonth}")
+        
+        viewModelScope.launch {
+            activityRepository.getActivitiesForMonth(currentMonth).collect { activities ->
+                Log.d("CalendarViewModel", "📥 Atividades recebidas do Repository: ${activities.size}")
+                Log.d("CalendarViewModel", "📅 Mês: ${currentMonth}")
+                
+                _uiState.update { it.copy(activities = activities) }
+                
+                Log.d("CalendarViewModel", "✅ Estado atualizado com ${activities.size} atividades")
+                
+                // Limpar cache quando as atividades mudam
+                clearCalendarCache()
+                // Usar debounce para evitar múltiplas atualizações rápidas
+                updateAllDateDependentUI()
+            }
+        }
+    }
+
+    /**
+     * Atualiza as atividades quando o mês muda
+     */
+    private fun updateActivitiesForNewMonth(newMonth: YearMonth) {
+        Log.d("CalendarViewModel", "🔄 Atualizando atividades para novo mês: ${newMonth}")
+        
+        viewModelScope.launch {
+            activityRepository.getActivitiesForMonth(newMonth).collect { activities ->
+                Log.d("CalendarViewModel", "📥 Atividades carregadas para ${newMonth}: ${activities.size}")
+                
+                _uiState.update { it.copy(activities = activities) }
+                
+                Log.d("CalendarViewModel", "✅ Estado atualizado com ${activities.size} atividades para ${newMonth}")
+                
+                // Limpar cache quando as atividades mudam
+                clearCalendarCache()
+                // Atualizar o calendário
+                updateAllDateDependentUI()
+            }
+        }
     }
 
     private fun loadInitialHolidaysAndSaints() {
@@ -793,17 +833,25 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onPreviousMonth() {
-        _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.minusMonths(1)) }
-        // Limpar cache quando muda o mês
-        clearCalendarCache()
-        updateAllDateDependentUI()
+        val oldMonth = _uiState.value.displayedYearMonth
+        val newMonth = oldMonth.minusMonths(1)
+        
+        Log.d("CalendarViewModel", "⬅️ Navegando para mês anterior: ${oldMonth} → ${newMonth}")
+        
+        _uiState.update { it.copy(displayedYearMonth = newMonth) }
+        // Carregar atividades do novo mês
+        updateActivitiesForNewMonth(newMonth)
     }
 
     fun onNextMonth() {
-        _uiState.update { it.copy(displayedYearMonth = it.displayedYearMonth.plusMonths(1)) }
-        // Limpar cache quando muda o mês
-        clearCalendarCache()
-        updateAllDateDependentUI()
+        val oldMonth = _uiState.value.displayedYearMonth
+        val newMonth = oldMonth.plusMonths(1)
+        
+        Log.d("CalendarViewModel", "➡️ Navegando para próximo mês: ${oldMonth} → ${newMonth}")
+        
+        _uiState.update { it.copy(displayedYearMonth = newMonth) }
+        // Carregar atividades do novo mês
+        updateActivitiesForNewMonth(newMonth)
     }
 
     fun onPreviousYear() {
@@ -827,17 +875,23 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             )
         }
         
-        // Só limpar cache se o mês mudou
+        // Se o mês mudou, carregar atividades do novo mês
         if (monthChanged) {
-            clearCalendarCache()
+            updateActivitiesForNewMonth(currentMonth)
+        } else {
+            // Se apenas o dia mudou, apenas atualizar a data selecionada
+            updateSelectedDateInCalendar()
         }
-        updateAllDateDependentUI()
     }
 
     fun onDateSelected(date: LocalDate) {
         val state = _uiState.value
         val shouldOpenModal = state.selectedDate.isEqual(date) && date.month == state.displayedYearMonth.month
         val monthChanged = state.displayedYearMonth.month != date.month || state.displayedYearMonth.year != date.year
+
+        Log.d("CalendarViewModel", "🎯 Data selecionada: ${date}")
+        Log.d("CalendarViewModel", "📅 Mês mudou: ${monthChanged}")
+        Log.d("CalendarViewModel", "📊 Mês atual: ${state.displayedYearMonth}")
 
         _uiState.update {
             it.copy(
@@ -852,11 +906,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
         
         if (monthChanged) {
-            // Se o mês mudou, limpar cache e recriar calendário
-            clearCalendarCache()
-            updateAllDateDependentUI()
+            // Se o mês mudou, carregar atividades do novo mês
+            val newMonth = YearMonth.from(date)
+            Log.d("CalendarViewModel", "🔄 Mês mudou, carregando atividades para: ${newMonth}")
+            updateActivitiesForNewMonth(newMonth)
         } else {
             // Se apenas a data selecionada mudou, atualizar apenas a marcação visual
+            Log.d("CalendarViewModel", "📌 Apenas dia mudou, atualizando seleção")
             updateSelectedDateInCalendar()
             updateTasksForSelectedDate()
             updateHolidaysForSelectedDate()
@@ -872,6 +928,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         val currentState = _uiState.value
         val monthChanged = currentState.displayedYearMonth != yearMonth
         
+        Log.d("CalendarViewModel", "📅 Clicou em mês na visualização anual: ${yearMonth}")
+        Log.d("CalendarViewModel", "🔄 Mês mudou: ${monthChanged}")
+        
         _uiState.update {
             it.copy(
                 displayedYearMonth = yearMonth,
@@ -881,11 +940,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             )
         }
         
-        // Só limpar cache se o mês mudou
+        // Se o mês mudou, carregar atividades do novo mês
         if (monthChanged) {
-            clearCalendarCache()
+            Log.d("CalendarViewModel", "🔄 Carregando atividades para mês clicado: ${yearMonth}")
+            updateActivitiesForNewMonth(yearMonth)
         }
-        updateAllDateDependentUI()
     }
 
     fun onViewModeChange(newMode: ViewMode) {
@@ -1062,6 +1121,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 updateGoogleCalendarEvent(activityToSave)
             }
 
+            // Recarregar atividades do mês atual após salvar
+            loadActivitiesForCurrentMonth()
+            
             closeCreateActivityModal()
         }
     }

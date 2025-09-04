@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.YearMonth
 import java.util.UUID
 
 private val Context.activitiesDataStore: DataStore<Activities> by dataStore(
@@ -30,6 +31,158 @@ class ActivityRepository(private val context: Context) {
                 proto.toActivity()
             }
         }
+
+    /**
+     * Carrega apenas as atividades de um mês específico
+     * Otimização para reduzir o uso de memória e melhorar performance
+     */
+    fun getActivitiesForMonth(yearMonth: YearMonth): Flow<List<Activity>> {
+        return context.activitiesDataStore.data
+            .map { activitiesProto ->
+                val allActivities = activitiesProto.activitiesList.map { proto ->
+                    proto.toActivity()
+                }
+                
+                android.util.Log.d("ActivityRepository", "📅 Carregando atividades para mês: ${yearMonth}")
+                android.util.Log.d("ActivityRepository", "📊 Total de atividades no banco: ${allActivities.size}")
+                
+                val filteredActivities = allActivities.filter { activity ->
+                    try {
+                        val activityDate = LocalDate.parse(activity.date)
+                        val isInMonth = activityDate.year == yearMonth.year && 
+                                       activityDate.month == yearMonth.month
+                        
+                        // Para aniversários, verificar se é o mesmo mês (ignorando ano)
+                        val isBirthdayInMonth = if (activity.activityType == ActivityType.BIRTHDAY) {
+                            // Para aniversários, incluir apenas se for do mês correto (independente do ano)
+                            activityDate.month == yearMonth.month
+                        } else {
+                            // Para outros tipos, verificar se está exatamente no mês solicitado
+                            isInMonth
+                        }
+                        
+                        // Log para debug de aniversários
+                        if (activity.activityType == ActivityType.BIRTHDAY) {
+                            android.util.Log.d("ActivityRepository", "🎂 Verificando aniversário: ${activity.title} - Data: ${activityDate} - Mês: ${activityDate.month} - Mês solicitado: ${yearMonth.month} - Incluir: ${isBirthdayInMonth}")
+                        }
+                        
+                        // Para atividades recorrentes, verificar se há instâncias no mês
+                        val hasRecurringInstances = if (activity.recurrenceRule?.isNotEmpty() == true && 
+                                                       activity.recurrenceRule != "CUSTOM") {
+                            val hasInstances = hasRecurringInstancesInMonth(activity, yearMonth)
+                            if (hasInstances) {
+                                android.util.Log.d("ActivityRepository", "🔄 Atividade recorrente incluída: ${activity.title} - Regra: ${activity.recurrenceRule}")
+                            }
+                            hasInstances
+                        } else {
+                            false
+                        }
+                        
+                        val shouldInclude = isBirthdayInMonth || hasRecurringInstances
+                        
+                        if (shouldInclude) {
+                            android.util.Log.d("ActivityRepository", "✅ Incluindo atividade: ${activity.title} (${activity.date}) - Tipo: ${activity.activityType} - isBirthdayInMonth: ${isBirthdayInMonth} - hasRecurringInstances: ${hasRecurringInstances}")
+                        }
+                        
+                        shouldInclude
+                    } catch (e: Exception) {
+                        android.util.Log.e("ActivityRepository", "❌ Erro ao processar atividade: ${activity.title}", e)
+                        false
+                    }
+                }
+                
+                android.util.Log.d("ActivityRepository", "📈 Atividades filtradas para ${yearMonth}: ${filteredActivities.size}")
+                android.util.Log.d("ActivityRepository", "🎯 Aniversários: ${filteredActivities.count { it.activityType == ActivityType.BIRTHDAY }}")
+                android.util.Log.d("ActivityRepository", "📝 Tarefas: ${filteredActivities.count { it.activityType == ActivityType.TASK }}")
+                android.util.Log.d("ActivityRepository", "📅 Eventos: ${filteredActivities.count { it.activityType == ActivityType.EVENT }}")
+                android.util.Log.d("ActivityRepository", "📋 Notas: ${filteredActivities.count { it.activityType == ActivityType.NOTE }}")
+                
+                // Log detalhado dos aniversários do mês
+                val augustBirthdays = filteredActivities.filter { it.activityType == ActivityType.BIRTHDAY }
+                if (augustBirthdays.isNotEmpty()) {
+                    android.util.Log.d("ActivityRepository", "🎂 Aniversários de ${yearMonth.month.name}:")
+                    augustBirthdays.forEach { birthday ->
+                        android.util.Log.d("ActivityRepository", "   - ${birthday.title} (${birthday.date})")
+                    }
+                }
+                
+                filteredActivities
+            }
+    }
+
+    /**
+     * Verifica se uma atividade recorrente tem instâncias em um mês específico
+     */
+    private fun hasRecurringInstancesInMonth(activity: Activity, yearMonth: YearMonth): Boolean {
+        try {
+            val startDate = LocalDate.parse(activity.date)
+            val monthStart = yearMonth.atDay(1)
+            val monthEnd = yearMonth.atEndOfMonth()
+            
+            // Se a data de início é posterior ao fim do mês, não há instâncias
+            if (startDate.isAfter(monthEnd)) {
+                return false
+            }
+            
+            // Para atividades recorrentes, verificar se há pelo menos uma instância no mês
+            return when (activity.recurrenceRule) {
+                "DAILY" -> {
+                    // Diárias só se a data de início for antes ou igual ao fim do mês
+                    !startDate.isAfter(monthEnd)
+                }
+                "WEEKLY" -> {
+                    // Semanais só se houver pelo menos uma semana no mês
+                    val weeksInMonth = (monthEnd.dayOfMonth - monthStart.dayOfMonth + 1) / 7 + 1
+                    weeksInMonth > 0 && !startDate.isAfter(monthEnd)
+                }
+                "MONTHLY" -> {
+                    // Mensais só se o dia de início for válido no mês
+                    val startDay = startDate.dayOfMonth
+                    startDay <= monthEnd.dayOfMonth && startDate.month == yearMonth.month
+                }
+                "YEARLY" -> {
+                    // Anuais só se for do mesmo mês
+                    startDate.month == yearMonth.month
+                }
+                else -> {
+                    // Para regras complexas, não incluir automaticamente
+                    false
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("ActivityRepository", "❌ Erro ao verificar atividade recorrente: ${activity.title}", e)
+            return false
+        }
+    }
+
+    /**
+     * Carrega atividades para um período específico (útil para visualização mensal)
+     */
+    fun getActivitiesForPeriod(startDate: LocalDate, endDate: LocalDate): Flow<List<Activity>> {
+        return context.activitiesDataStore.data
+            .map { activitiesProto ->
+                activitiesProto.activitiesList.map { proto ->
+                    proto.toActivity()
+                }.filter { activity ->
+                    try {
+                        val activityDate = LocalDate.parse(activity.date)
+                        val isInPeriod = !activityDate.isBefore(startDate) && !activityDate.isAfter(endDate)
+                        
+                        // Para aniversários, verificar se está no período (ignorando ano)
+                        val isBirthdayInPeriod = if (activity.activityType == ActivityType.BIRTHDAY) {
+                            val birthdayInYear = LocalDate.of(startDate.year, activityDate.month, activityDate.dayOfMonth)
+                            !birthdayInYear.isBefore(startDate) && !birthdayInYear.isAfter(endDate)
+                        } else {
+                            isInPeriod
+                        }
+                        
+                        isBirthdayInPeriod
+                    } catch (e: Exception) {
+                        false
+                    }
+                }
+            }
+    }
 
     suspend fun saveActivity(activity: Activity) {
         context.activitiesDataStore.updateData { currentActivities ->
