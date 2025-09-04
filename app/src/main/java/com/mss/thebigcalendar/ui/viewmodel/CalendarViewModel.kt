@@ -17,7 +17,7 @@ import com.mss.thebigcalendar.data.model.Holiday
 import com.mss.thebigcalendar.data.model.SearchResult
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
-import com.mss.thebigcalendar.data.model.NotificationSoundSettings
+
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
 import com.mss.thebigcalendar.data.repository.SettingsRepository
@@ -80,6 +80,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     // Cache para evitar recálculos desnecessários do calendário
     private var cachedCalendarDays: List<CalendarDay>? = null
     private var lastUpdateParams: String? = null
+    
+    // Cache para aniversários por data
+    private var cachedBirthdays: Map<LocalDate, List<Activity>> = emptyMap()
+    private var cachedNotes: Map<LocalDate, List<Activity>> = emptyMap()
+    private var cachedTasks: Map<LocalDate, List<Activity>> = emptyMap()
 
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
@@ -136,6 +141,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun clearCalendarCache() {
         cachedCalendarDays = null
         lastUpdateParams = null
+    }
+    
+    private fun clearActivityCache() {
+        cachedBirthdays = emptyMap()
+        cachedNotes = emptyMap()
+        cachedTasks = emptyMap()
     }
 
     private fun checkForExistingSignIn() {
@@ -443,9 +454,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
         }
         viewModelScope.launch {
-            settingsRepository.notificationSoundSettings.collect { soundSettings ->
-                _uiState.update { it.copy(notificationSoundSettings = soundSettings) }
-            }
+            
         }
     }
 
@@ -487,6 +496,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 
                 // Limpar cache quando as atividades mudam
                 clearCalendarCache()
+                clearActivityCache()
                 // Usar debounce para evitar múltiplas atualizações rápidas
                 updateAllDateDependentUI()
             }
@@ -503,6 +513,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 
                 // Limpar cache quando as atividades mudam
                 clearCalendarCache()
+                clearActivityCache()
                 // Atualizar o calendário
                 updateAllDateDependentUI()
             }
@@ -654,39 +665,51 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun updateTasksForSelectedDate() {
         val state = _uiState.value
         
-        // Separar aniversários das outras atividades
+        // Separar aniversários das outras atividades usando cache
         val birthdays = if (state.filterOptions.showBirthdays) {
-            state.activities.filter { activity ->
-                try {
-                    if (activity.activityType == ActivityType.BIRTHDAY) {
-                        val activityDate = LocalDate.parse(activity.date)
-                        // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
-                        activityDate.month == state.selectedDate.month && activityDate.dayOfMonth == state.selectedDate.dayOfMonth
-                    } else {
+            cachedBirthdays[state.selectedDate] ?: run {
+                val filtered = state.activities.filter { activity ->
+                    try {
+                        if (activity.activityType == ActivityType.BIRTHDAY) {
+                            val activityDate = LocalDate.parse(activity.date)
+                            // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
+                            activityDate.month == state.selectedDate.month && activityDate.dayOfMonth == state.selectedDate.dayOfMonth
+                        } else {
+                            false
+                        }
+                    } catch (e: Exception) {
                         false
                     }
-                } catch (e: Exception) {
-                    false
-                }
-            }.sortedBy { it.title }
+                }.sortedBy { it.title }
+                
+                // Atualizar cache
+                cachedBirthdays = cachedBirthdays + (state.selectedDate to filtered)
+                filtered
+            }
         } else {
             emptyList()
         }
         
-        // Separar notas das outras atividades
+        // Separar notas das outras atividades usando cache
         val notes = if (state.filterOptions.showNotes) {
-            state.activities.filter { activity ->
-                try {
-                    if (activity.activityType == ActivityType.NOTE) {
-                        val activityDate = LocalDate.parse(activity.date)
-                        activityDate.isEqual(state.selectedDate)
-                    } else {
+            cachedNotes[state.selectedDate] ?: run {
+                val filtered = state.activities.filter { activity ->
+                    try {
+                        if (activity.activityType == ActivityType.NOTE) {
+                            val activityDate = LocalDate.parse(activity.date)
+                            activityDate.isEqual(state.selectedDate)
+                        } else {
+                            false
+                        }
+                    } catch (e: Exception) {
                         false
                     }
-                } catch (e: Exception) {
-                    false
-                }
-            }.sortedBy { it.title }
+                }.sortedBy { it.title }
+                
+                // Atualizar cache
+                cachedNotes = cachedNotes + (state.selectedDate to filtered)
+                filtered
+            }
         } else {
             emptyList()
         }
@@ -970,11 +993,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun onNotificationSoundSettingsChange(soundSettings: NotificationSoundSettings) {
-        viewModelScope.launch {
-            settingsRepository.saveNotificationSoundSettings(soundSettings)
-        }
-    }
+
 
     fun onSaveActivity(activityData: Activity) {
         viewModelScope.launch {
@@ -1064,9 +1083,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             activityRepository.saveActivity(activityToSave)
 
             // ✅ Agendar notificação se configurada
+            Log.d("CalendarViewModel", "🔔 Verificando configurações de notificação para: ${activityToSave.title}")
+            Log.d("CalendarViewModel", "🔔 Notificação habilitada: ${activityToSave.notificationSettings.isEnabled}")
+            Log.d("CalendarViewModel", "🔔 Tipo de notificação: ${activityToSave.notificationSettings.notificationType}")
+            
             if (activityToSave.notificationSettings.isEnabled &&
                 activityToSave.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
 
+                Log.d("CalendarViewModel", "🔔 Agendando notificação para atividade: ${activityToSave.title}")
+                
                 // Para atividades repetitivas, agendar notificação para a data selecionada
                 val activityForNotification = if (activityToSave.recurrenceRule?.isNotEmpty() == true) {
                     // Se é uma atividade repetitiva, usar a data selecionada no calendário
@@ -1076,9 +1101,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     activityToSave
                 }
 
+                Log.d("CalendarViewModel", "🔔 Data da notificação: ${activityForNotification.date}")
+                Log.d("CalendarViewModel", "🔔 Horário da atividade: ${activityForNotification.startTime}")
                 
                 val notificationService = NotificationService(getApplication())
                 notificationService.scheduleNotification(activityForNotification)
+                
+                Log.d("CalendarViewModel", "🔔 Notificação agendada com sucesso!")
+            } else {
+                Log.d("CalendarViewModel", "🔔 Notificação não agendada - configurações desabilitadas")
             }
 
             // NOTA: Não geramos mais instâncias repetitivas automaticamente
@@ -2120,4 +2151,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             println("⚠️ Erro ao limpar dados atuais: ${e.message}")
         }
     }
+    
+
 }

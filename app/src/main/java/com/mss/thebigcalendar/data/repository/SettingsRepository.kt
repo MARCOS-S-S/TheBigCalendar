@@ -9,7 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.mss.thebigcalendar.data.model.CalendarFilterOptions
 import com.mss.thebigcalendar.data.model.Theme
-import com.mss.thebigcalendar.data.model.NotificationSoundSettings
+
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -28,9 +28,7 @@ class SettingsRepository(private val context: Context) {
         val SHOW_BIRTHDAYS = booleanPreferencesKey("show_birthdays")
         val SHOW_NOTES = booleanPreferencesKey("show_notes")
         val SHOW_MOON_PHASES = booleanPreferencesKey("show_moon_phases")
-        val LOW_VISIBILITY_SOUND = stringPreferencesKey("low_visibility_sound")
-        val MEDIUM_VISIBILITY_SOUND = stringPreferencesKey("medium_visibility_sound")
-        val HIGH_VISIBILITY_SOUND = stringPreferencesKey("high_visibility_sound")
+
     }
 
     val theme: Flow<Theme> = context.dataStore.data
@@ -49,14 +47,7 @@ class SettingsRepository(private val context: Context) {
             preferences[PreferencesKeys.SHOW_MOON_PHASES] ?: true
         }
 
-    val notificationSoundSettings: Flow<NotificationSoundSettings> = context.dataStore.data
-        .map { preferences ->
-            NotificationSoundSettings(
-                lowVisibilitySound = preferences[PreferencesKeys.LOW_VISIBILITY_SOUND] ?: "default",
-                mediumVisibilitySound = preferences[PreferencesKeys.MEDIUM_VISIBILITY_SOUND] ?: "default",
-                highVisibilitySound = preferences[PreferencesKeys.HIGH_VISIBILITY_SOUND] ?: "default"
-            )
-        }
+
 
             val filterOptions: Flow<CalendarFilterOptions> = context.dataStore.data
         .map { preferences ->
@@ -99,11 +90,5 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun saveNotificationSoundSettings(soundSettings: NotificationSoundSettings) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.LOW_VISIBILITY_SOUND] = soundSettings.lowVisibilitySound
-            preferences[PreferencesKeys.MEDIUM_VISIBILITY_SOUND] = soundSettings.mediumVisibilitySound
-            preferences[PreferencesKeys.HIGH_VISIBILITY_SOUND] = soundSettings.highVisibilitySound
-        }
-    }
+
 }

@@ -66,6 +66,9 @@ class NotificationReceiver : BroadcastReceiver() {
                 // ✅ Usar first() em vez de collect() para obter apenas o primeiro valor
                 val activities = repository.activities.first()
                 
+                Log.d(TAG, "🔔 Buscando atividade com ID: $activityId")
+                Log.d(TAG, "🔔 Total de atividades no repositório: ${activities.size}")
+                
                 // ✅ Verificar se é uma instância recorrente (ID contém data)
                 val isRecurringInstance = activityId?.contains("_") == true && activityId.split("_").size == 2
                 
@@ -74,6 +77,9 @@ class NotificationReceiver : BroadcastReceiver() {
                     val baseId = activityId.split("_")[0]
                     val instanceDate = activityId.split("_")[1]
                     val baseActivity = activities.find { it.id == baseId }
+                    
+                    Log.d(TAG, "🔔 Instância recorrente - Base ID: $baseId, Data: $instanceDate")
+                    Log.d(TAG, "🔔 Atividade base encontrada: ${baseActivity != null}")
                     
                     if (baseActivity != null) {
                         // Criar uma instância específica da atividade base
@@ -86,10 +92,17 @@ class NotificationReceiver : BroadcastReceiver() {
                     }
                 } else {
                     // Para atividades únicas, buscar normalmente
-                    activities.find { it.id == activityId }
+                    val foundActivity = activities.find { it.id == activityId }
+                    Log.d(TAG, "🔔 Atividade única encontrada: ${foundActivity != null}")
+                    if (foundActivity != null) {
+                        Log.d(TAG, "🔔 Atividade encontrada: ${foundActivity.title} - ID: ${foundActivity.id}")
+                    }
+                    foundActivity
                 }
                 
                 if (realActivity != null) {
+                    Log.d(TAG, "🔔 Atividade encontrada, exibindo notificação: ${realActivity.title}")
+                    Log.d(TAG, "🔔 Visibilidade da atividade: ${realActivity.visibility}")
                     // ✅ Mudar para Main thread para exibir overlay
                     withContext(Dispatchers.Main) {
                         notificationService.showNotification(realActivity)
@@ -97,6 +110,7 @@ class NotificationReceiver : BroadcastReceiver() {
                     
                 } else {
                     Log.w(TAG, "⚠️ Atividade não encontrada no repositório, usando fallback")
+                    Log.w(TAG, "⚠️ IDs disponíveis: ${activities.map { it.id }}")
                     
                     // Fallback: criar uma atividade temporária se não encontrar a real
                     val tempActivity = com.mss.thebigcalendar.data.model.Activity(

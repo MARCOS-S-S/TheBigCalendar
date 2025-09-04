@@ -12,15 +12,13 @@ import androidx.core.app.NotificationCompat
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.NotificationType
 import com.mss.thebigcalendar.data.model.VisibilityLevel
-import com.mss.thebigcalendar.data.model.NotificationSoundSettings
-import com.mss.thebigcalendar.data.model.NotificationSoundType
-import com.mss.thebigcalendar.data.model.getSoundForVisibility
+
+
 import java.time.LocalDateTime
 import java.time.ZoneId
 
 class NotificationService(
-    private val context: Context,
-    private val soundSettings: NotificationSoundSettings = NotificationSoundSettings()
+    private val context: Context
 ) {
 
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -61,8 +59,16 @@ class NotificationService(
                 description = CHANNEL_DESCRIPTION
                 enableVibration(true)
                 enableLights(true)
+                setShowBadge(true)
+                setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI, 
+                    android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build())
+                setBypassDnd(true) // Ignorar "Não perturbe"
             }
             notificationManager.createNotificationChannel(channel)
+            Log.d(TAG, "🔔 Canal de notificação criado com som: ${android.provider.Settings.System.DEFAULT_NOTIFICATION_URI}")
         }
     }
 
@@ -189,8 +195,18 @@ class NotificationService(
      * Mostra uma notificação imediatamente (para testes)
      */
     fun showNotification(activity: Activity) {
+        Log.d(TAG, "🔔 showNotification chamado para: ${activity.title}")
+        
+        // Verificar permissões primeiro
+        val permissionChecker = NotificationPermissionChecker(context)
+        if (!permissionChecker.canShowNotifications()) {
+            Log.e(TAG, "🔔 Não é possível mostrar notificações - permissões não concedidas")
+            return
+        }
+        
         // Verificar se precisa exibir alerta de visibilidade
         if (activity.visibility != VisibilityLevel.LOW) {
+            Log.d(TAG, "🔔 Usando VisibilityService para visibilidade: ${activity.visibility}")
             // Usar VisibilityService para alertas especiais
             val visibilityService = VisibilityService(context)
             visibilityService.showVisibilityAlert(activity)
@@ -210,6 +226,9 @@ class NotificationService(
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val soundUri = getNotificationSound()
+        Log.d(TAG, "🔔 Som da notificação: $soundUri")
+        
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("🔔 Lembrete: ${activity.title}")
@@ -218,7 +237,7 @@ class NotificationService(
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
-            .setSound(getNotificationSound(activity.visibility))
+            .setSound(soundUri)
             .addAction(
                 android.R.drawable.ic_menu_revert,
                 "Adiar 5 min",
@@ -233,7 +252,9 @@ class NotificationService(
             .setLights(0xFF0000FF.toInt(), 1000, 1000) // ✅ Adicionar luz LED
             .build()
 
+        Log.d(TAG, "🔔 Enviando notificação com ID: ${activity.id.hashCode()}")
         notificationManager.notify(activity.id.hashCode(), notification)
+        Log.d(TAG, "🔔 Notificação enviada com sucesso!")
     }
 
     /**
@@ -250,20 +271,10 @@ class NotificationService(
     }
 
     /**
-     * Obtém o som da notificação baseado no nível de visibilidade
+     * Obtém o som padrão de notificação do sistema
      */
-    private fun getNotificationSound(visibility: VisibilityLevel): android.net.Uri? {
-        val soundResource = soundSettings.getSoundForVisibility(visibility)
-        
-        return when (soundResource) {
-            "default" -> null // Usar som padrão do sistema
-            "vibration_only" -> null // Apenas vibração
-            else -> {
-                // Para outros sons, usar o som padrão do sistema por enquanto
-                // Em uma implementação completa, você poderia mapear para recursos de som específicos
-                null
-            }
-        }
+    private fun getNotificationSound(): android.net.Uri? {
+        return android.provider.Settings.System.DEFAULT_NOTIFICATION_URI
     }
 
     /**

@@ -52,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -185,37 +186,12 @@ fun CalendarScreen(
                                 isSyncing = uiState.isSyncing,
                                 onManualSync = { viewModel.onManualSync() },
                                 syncProgress = uiState.syncProgress,
-                                onNotificationSoundSettingsClick = { viewModel.onNavigateToSettings("NotificationSounds") }
+    
                             )
                         }
                     }
                 }
-                "NotificationSounds" -> {
-                    Scaffold(
-                        topBar = {
-                            TopAppBar(
-                                title = { Text("Sons de Notificação") },
-                                navigationIcon = {
-                                    IconButton(onClick = { viewModel.onNavigateToSettings("General") }) {
-                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Voltar")
-                                    }
-                                }
-                            )
-                        }
-                    ) { paddingValues ->
-                        Column(
-                            modifier = Modifier
-                                .padding(paddingValues)
-                                .fillMaxSize()
-                        ) {
-                            NotificationSoundSettingsScreen(
-                                currentSettings = uiState.notificationSoundSettings,
-                                onSettingsChanged = { viewModel.onNotificationSoundSettingsChange(it) },
-                                onBackClick = { viewModel.onNavigateToSettings("General") }
-                            )
-                        }
-                    }
-                }
+
                 else -> {
                     MainCalendarView(viewModel, uiState, scope, drawerState, snackbarHostState)
                 }
@@ -387,72 +363,68 @@ fun MainCalendarView(
                         }
                         
                         // Seção de Aniversários
-                        if (uiState.birthdaysForSelectedDate.isNotEmpty()) {
-                            item {
-                                BirthdaysForSelectedDaySection(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                    birthdays = uiState.birthdaysForSelectedDate,
-                                    selectedDate = uiState.selectedDate,
-                                    activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
-                                    onBirthdayClick = {
-                                        if (uiState.activityIdWithDeleteButtonVisible != null) {
-                                            viewModel.hideDeleteButton()
-                                        } else {
-                                            viewModel.openCreateActivityModal(it, it.activityType)
-                                        }
-                                    },
-                                    onBirthdayLongClick = { viewModel.onTaskLongPressed(it) },
-                                    onDeleteClick = { viewModel.requestDeleteActivity(it) },
-                                    onCompleteClick = { viewModel.markActivityAsCompleted(it) },
-                                    onAddBirthdayClick = { viewModel.openCreateActivityModal(activityType = ActivityType.BIRTHDAY) }
-                                )
-                            }
+                        item {
+                            BirthdaysForSelectedDaySection(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                birthdays = uiState.birthdaysForSelectedDate,
+                                selectedDate = uiState.selectedDate,
+                                activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
+                                onBirthdayClick = {
+                                    if (uiState.activityIdWithDeleteButtonVisible != null) {
+                                        viewModel.hideDeleteButton()
+                                    } else {
+                                        viewModel.openCreateActivityModal(it, it.activityType)
+                                    }
+                                },
+                                onBirthdayLongClick = { viewModel.onTaskLongPressed(it) },
+                                onDeleteClick = { viewModel.requestDeleteActivity(it) },
+                                onCompleteClick = { viewModel.markActivityAsCompleted(it) },
+                                onAddBirthdayClick = { viewModel.openCreateActivityModal(activityType = ActivityType.BIRTHDAY) }
+                            )
                         }
                         
+
+                        
                         // Seção de Notas
-                        if (uiState.notesForSelectedDate.isNotEmpty()) {
-                            item {
-                                NotesForSelectedDaySection(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                    notes = uiState.notesForSelectedDate,
-                                    selectedDate = uiState.selectedDate,
-                                    activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
-                                    onNoteClick = {
-                                        if (uiState.activityIdWithDeleteButtonVisible != null) {
-                                            viewModel.hideDeleteButton()
-                                        } else {
-                                            viewModel.openCreateActivityModal(it, it.activityType)
-                                        }
-                                    },
-                                    onNoteLongClick = { viewModel.onTaskLongPressed(it) },
-                                    onDeleteClick = { viewModel.requestDeleteActivity(it) },
-                                    onCompleteClick = { viewModel.markActivityAsCompleted(it) },
-                                    onAddNoteClick = { viewModel.openCreateActivityModal(activityType = ActivityType.NOTE) }
-                                )
-                            }
+                        item {
+                            NotesForSelectedDaySection(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                notes = uiState.notesForSelectedDate,
+                                selectedDate = uiState.selectedDate,
+                                activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
+                                onNoteClick = {
+                                    if (uiState.activityIdWithDeleteButtonVisible != null) {
+                                        viewModel.hideDeleteButton()
+                                    } else {
+                                        viewModel.openCreateActivityModal(it, it.activityType)
+                                    }
+                                },
+                                onNoteLongClick = { viewModel.onTaskLongPressed(it) },
+                                onDeleteClick = { viewModel.requestDeleteActivity(it) },
+                                onCompleteClick = { viewModel.markActivityAsCompleted(it) },
+                                onAddNoteClick = { viewModel.openCreateActivityModal(activityType = ActivityType.NOTE) }
+                            )
                         }
                         
                         // Seção de Tarefas e Eventos
-                        if (uiState.tasksForSelectedDate.isNotEmpty()) {
-                            item {
-                                TasksForSelectedDaySection(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                    tasks = uiState.tasksForSelectedDate,
-                                    selectedDate = uiState.selectedDate,
-                                    activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
-                                    onTaskClick = {
-                                        if (uiState.activityIdWithDeleteButtonVisible != null) {
-                                            viewModel.hideDeleteButton()
-                                        } else {
-                                            viewModel.openCreateActivityModal(it, it.activityType)
-                                        }
-                                    },
-                                    onTaskLongClick = { viewModel.onTaskLongPressed(it) },
-                                    onDeleteClick = { viewModel.requestDeleteActivity(it) },
-                                    onCompleteClick = { viewModel.markActivityAsCompleted(it) },
-                                    onAddTaskClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
-                                )
-                            }
+                        item {
+                            TasksForSelectedDaySection(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                tasks = uiState.tasksForSelectedDate,
+                                selectedDate = uiState.selectedDate,
+                                activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
+                                onTaskClick = {
+                                    if (uiState.activityIdWithDeleteButtonVisible != null) {
+                                        viewModel.hideDeleteButton()
+                                    } else {
+                                        viewModel.openCreateActivityModal(it, it.activityType)
+                                    }
+                                },
+                                onTaskLongClick = { viewModel.onTaskLongPressed(it) },
+                                onDeleteClick = { viewModel.requestDeleteActivity(it) },
+                                onCompleteClick = { viewModel.markActivityAsCompleted(it) },
+                                onAddTaskClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
+                            )
                         }
                         
                         if (uiState.holidaysForSelectedDate.isNotEmpty()) {

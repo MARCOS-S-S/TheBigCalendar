@@ -1,107 +1,124 @@
 package com.mss.thebigcalendar.service
 
-import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import com.mss.thebigcalendar.data.model.Activity
+import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.NotificationSettings
 import com.mss.thebigcalendar.data.model.NotificationType
+import com.mss.thebigcalendar.data.model.VisibilityLevel
 import java.time.LocalDate
 import java.time.LocalTime
 
 /**
- * Serviço de teste para verificar se as notificações estão funcionando
+ * Serviço para testar notificações
  */
 class NotificationTestService(private val context: Context) {
 
     companion object {
         private const val TAG = "NotificationTestService"
-        const val TEST_CHANNEL_ID = "test_notifications"
-    }
-
-    private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-    init {
-        createTestNotificationChannel()
     }
 
     /**
-     * Cria canal de notificação para testes
+     * Testa notificação imediata
      */
-    private fun createTestNotificationChannel() {
-        val channel = android.app.NotificationChannel(
-            TEST_CHANNEL_ID,
-            "Testes de Notificação",
-            NotificationManager.IMPORTANCE_HIGH
-        ).apply {
-            description = "Canal para testes de notificação"
-            enableVibration(true)
-            enableLights(true)
-        }
-        notificationManager.createNotificationChannel(channel)
-    }
-
-    /**
-     * Mostra uma notificação de teste imediatamente
-     */
-    fun showTestNotification() {
-        Log.d(TAG, "Mostrando notificação de teste")
+    fun testImmediateNotification() {
+        Log.d(TAG, "🧪 Testando notificação imediata")
         
-        val notification = NotificationCompat.Builder(context, TEST_CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("🧪 Teste de Notificação")
-            .setContentText("Se você vê esta notificação, o sistema está funcionando!")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        notificationManager.notify(999, notification)
-        Log.d(TAG, "Notificação de teste exibida")
-    }
-
-    /**
-     * Testa o agendamento de uma notificação
-     */
-    fun testScheduleNotification() {
-        Log.d(TAG, "Testando agendamento de notificação")
-        
-        // Criar uma atividade de teste para daqui a 1 minuto
         val testActivity = Activity(
-            id = "test_${System.currentTimeMillis()}",
-            title = "🧪 Atividade de Teste",
-            description = "Esta é uma atividade de teste para verificar notificações",
+            id = "test_immediate",
+            title = "Teste Imediato",
+            description = "Esta é uma notificação de teste imediata",
             date = LocalDate.now().toString(),
             startTime = LocalTime.now().plusMinutes(1),
             endTime = LocalTime.now().plusMinutes(2),
             isAllDay = false,
             location = null,
-            categoryColor = "#FF0000",
-            activityType = com.mss.thebigcalendar.data.model.ActivityType.TASK,
+            categoryColor = "#FF5722",
+            activityType = ActivityType.TASK,
             recurrenceRule = null,
             notificationSettings = NotificationSettings(
                 isEnabled = true,
-                notificationType = NotificationType.FIVE_MINUTES_BEFORE
+                notificationType = NotificationType.BEFORE_ACTIVITY
             ),
-            showInCalendar = true
+            isCompleted = false,
+            visibility = VisibilityLevel.LOW,
+            showInCalendar = true,
+            isFromGoogle = false,
+            excludedDates = emptyList()
         )
 
-        // Usar o NotificationService real para agendar
         val notificationService = NotificationService(context)
-        notificationService.scheduleNotification(testActivity)
+        notificationService.showNotification(testActivity)
         
-        Log.d(TAG, "Notificação de teste agendada para: ${testActivity.startTime}")
+        Log.d(TAG, "🧪 Notificação imediata exibida")
     }
 
     /**
-     * Verifica se as permissões estão funcionando
+     * Testa agendamento de notificação
      */
-    fun checkPermissions(): Boolean {
-        val hasNotificationPermission = context.checkSelfPermission(
-            android.Manifest.permission.POST_NOTIFICATIONS
-        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+    fun testScheduleNotification() {
+        Log.d(TAG, "🧪 Testando agendamento de notificação")
         
-        Log.d(TAG, "Permissão POST_NOTIFICATIONS: $hasNotificationPermission")
-        return hasNotificationPermission
+        // Criar atividade para daqui a 1 minuto
+        val tomorrow = LocalDate.now().plusDays(1)
+        val testTime = LocalTime.now().plusMinutes(1)
+        
+        val testActivity = Activity(
+            id = "test_scheduled",
+            title = "Teste Agendado",
+            description = "Esta é uma notificação de teste agendada",
+            date = tomorrow.toString(),
+            startTime = testTime,
+            endTime = testTime.plusMinutes(1),
+            isAllDay = false,
+            location = null,
+            categoryColor = "#FF5722",
+            activityType = ActivityType.TASK,
+            recurrenceRule = null,
+            notificationSettings = NotificationSettings(
+                isEnabled = true,
+                notificationType = NotificationType.BEFORE_ACTIVITY
+            ),
+            isCompleted = false,
+            visibility = VisibilityLevel.LOW,
+            showInCalendar = true,
+            isFromGoogle = false,
+            excludedDates = emptyList()
+        )
+
+        val notificationService = NotificationService(context)
+        notificationService.scheduleNotification(testActivity)
+        
+        Log.d(TAG, "🧪 Notificação agendada para amanhã às ${testTime}")
+    }
+
+    /**
+     * Testa notificação simples
+     */
+    fun testSimpleNotification() {
+        Log.d(TAG, "🧪 Testando notificação simples")
+        
+        val simpleTest = SimpleNotificationTest(context)
+        simpleTest.showSimpleTestNotification()
+        
+        Log.d(TAG, "🧪 Notificação simples exibida")
+    }
+    
+    /**
+     * Verifica permissões de notificação
+     */
+    fun checkPermissions() {
+        Log.d(TAG, "🧪 Verificando permissões de notificação")
+        
+        val permissionChecker = NotificationPermissionChecker(context)
+        val canShow = permissionChecker.canShowNotifications()
+        
+        Log.d(TAG, "🧪 Pode mostrar notificações: $canShow")
+        
+        if (!canShow) {
+            Log.w(TAG, "🧪 ATENÇÃO: Permissões de notificação não concedidas!")
+            Log.w(TAG, "🧪 Vá em Configurações > Apps > TheBigCalendar > Notificações")
+        }
     }
 }

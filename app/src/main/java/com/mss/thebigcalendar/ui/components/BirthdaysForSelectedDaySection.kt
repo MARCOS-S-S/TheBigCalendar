@@ -13,6 +13,8 @@ import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,7 +44,12 @@ fun BirthdaysForSelectedDaySection(
     onCompleteClick: (String) -> Unit = {},
     onAddBirthdayClick: () -> Unit = {}
 ) {
-    if (birthdays.isEmpty()) return
+    // Otimização: Usar derivedStateOf para evitar recálculos desnecessários
+    val hasBirthdays by remember(birthdays) {
+        derivedStateOf { birthdays.isNotEmpty() }
+    }
+    
+    if (!hasBirthdays) return
     
     val dateFormat = stringResource(id = R.string.date_format_day_month)
     val dateFormatter = remember(dateFormat) { DateTimeFormatter.ofPattern(dateFormat, Locale("pt", "BR")) }
@@ -80,6 +87,7 @@ fun BirthdaysForSelectedDaySection(
             }
         }
         
+        // Otimização: Usar Column com forEach para evitar LazyColumn aninhado
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             birthdays.forEach { birthday ->
                 BirthdayItem(

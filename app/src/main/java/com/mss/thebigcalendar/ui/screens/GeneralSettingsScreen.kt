@@ -41,8 +41,7 @@ fun GeneralSettingsScreen(
     onSignOutClicked: () -> Unit,
     isSyncing: Boolean = false,
     onManualSync: () -> Unit = {},
-    syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null,
-    onNotificationSoundSettingsClick: () -> Unit = {}
+    syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
@@ -68,49 +67,7 @@ fun GeneralSettingsScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // Configurações de Som de Notificação
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = onNotificationSoundSettingsClick,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Sons de Notificação",
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text(
-                        text = "Sons de Notificação",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = "Configure o som para cada nível de visibilidade",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Abrir configurações",
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
