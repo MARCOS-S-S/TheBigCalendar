@@ -330,9 +330,8 @@ fun MainCalendarView(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             )
-        },
-
-            ) { paddingValues ->
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -340,7 +339,9 @@ fun MainCalendarView(
         ) {
             when (uiState.viewMode) {
                 ViewMode.MONTHLY -> {
-                    LazyColumn(modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() }) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() }
+                    ) {
                         item {
                             Column(
                                 modifier = Modifier
@@ -384,6 +385,7 @@ fun MainCalendarView(
                                 }
                             }
                         }
+                        
                         // Seção de Aniversários
                         if (uiState.birthdaysForSelectedDate.isNotEmpty()) {
                             item {
@@ -430,7 +432,7 @@ fun MainCalendarView(
                             }
                         }
                         
-                        // Seção de Tarefas e Eventos (excluindo aniversários e notas)
+                        // Seção de Tarefas e Eventos
                         if (uiState.tasksForSelectedDate.isNotEmpty()) {
                             item {
                                 TasksForSelectedDaySection(
@@ -452,6 +454,7 @@ fun MainCalendarView(
                                 )
                             }
                         }
+                        
                         if (uiState.holidaysForSelectedDate.isNotEmpty()) {
                             item {
                                 HolidaysForSelectedDaySection(
@@ -460,6 +463,7 @@ fun MainCalendarView(
                                 )
                             }
                         }
+                        
                         if (uiState.saintDaysForSelectedDate.isNotEmpty()) {
                             item {
                                 SaintDaysForSelectedDaySection(
