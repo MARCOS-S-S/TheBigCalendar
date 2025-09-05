@@ -361,8 +361,29 @@ fun MainCalendarView(
                                 }
                             }
                         }
+
+                        // Feriados nacionais no topo
+                        if (uiState.holidaysForSelectedDate.isNotEmpty()) {
+                            item {
+                                HolidaysForSelectedDaySection(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                    holidays = uiState.holidaysForSelectedDate
+                                )
+                            }
+                        }
+
+                        // Dias de santos logo abaixo dos feriados
+                        if (uiState.saintDaysForSelectedDate.isNotEmpty()) {
+                            item {
+                                SaintDaysForSelectedDaySection(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                    saints = uiState.saintDaysForSelectedDate,
+                                    onSaintClick = { viewModel.onSaintDayClick(it) }
+                                )
+                            }
+                        }
                         
-                        // Seção de Aniversários
+                        // Seção de Aniversários (após santos)
                         item {
                             BirthdaysForSelectedDaySection(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
@@ -425,25 +446,6 @@ fun MainCalendarView(
                                 onCompleteClick = { viewModel.markActivityAsCompleted(it) },
                                 onAddTaskClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
                             )
-                        }
-                        
-                        if (uiState.holidaysForSelectedDate.isNotEmpty()) {
-                            item {
-                                HolidaysForSelectedDaySection(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                    holidays = uiState.holidaysForSelectedDate
-                                )
-                            }
-                        }
-                        
-                        if (uiState.saintDaysForSelectedDate.isNotEmpty()) {
-                            item {
-                                SaintDaysForSelectedDaySection(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                    saints = uiState.saintDaysForSelectedDate,
-                                    onSaintClick = { viewModel.onSaintDayClick(it) }
-                                )
-                            }
                         }
                     }
                 }
