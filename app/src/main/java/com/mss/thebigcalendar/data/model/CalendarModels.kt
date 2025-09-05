@@ -1,6 +1,7 @@
 package com.mss.thebigcalendar.data.model
 
 import android.content.Intent
+import androidx.compose.runtime.Immutable
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.mss.thebigcalendar.data.service.BackupInfo
 //import com.google.android.gms.common.config.GservicesValue.value
@@ -46,6 +47,7 @@ data class Activity(
 )
 
 // Representa cada célula individual na grade do calendário
+@Immutable
 data class CalendarDay(
     val date: LocalDate,
     val isCurrentMonth: Boolean,
@@ -120,4 +122,5 @@ data class CalendarUiState(
 enum class Theme { LIGHT, DARK, SYSTEM }
 enum class ViewMode { MONTHLY, YEARLY }
 enum class HolidayType { NATIONAL, COMMEMORATIVE, SAINT }
+@Immutable
 data class Holiday(val name: String, val date: String, val type: HolidayType, val summary: String? = null, val wikipediaLink: String? = null)

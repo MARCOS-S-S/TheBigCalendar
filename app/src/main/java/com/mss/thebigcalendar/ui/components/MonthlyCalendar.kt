@@ -31,6 +31,8 @@ import com.mss.thebigcalendar.data.model.CalendarDay
 import java.time.LocalDate
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import com.mss.thebigcalendar.data.model.Activity
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -61,7 +63,8 @@ fun MonthlyCalendar(
         }
 
         Column {
-            calendarDays.chunked(7).forEach { week ->
+            val weeks = remember(calendarDays) { calendarDays.chunked(7) }
+            weeks.forEach { week ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
@@ -158,8 +161,8 @@ private fun DayCell(
             )
         }
 
-        // Filtrar apenas tarefas que devem aparecer no calendário
-        val visibleTasks = day.tasks.filter { it.showInCalendar }
+        // Filtrar apenas tarefas que devem aparecer no calendário (memoizado por lista de tarefas)
+        val visibleTasks = remember(day.tasks) { day.tasks.filter { it.showInCalendar } }
         
         if (visibleTasks.isNotEmpty()) {
             Spacer(modifier = Modifier.height(1.dp))

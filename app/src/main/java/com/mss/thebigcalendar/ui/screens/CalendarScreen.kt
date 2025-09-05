@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -315,10 +316,15 @@ fun MainCalendarView(
         ) {
             when (uiState.viewMode) {
                 ViewMode.MONTHLY -> {
+                    val listState = rememberLazyListState()
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() }
+                        modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() },
+                        state = listState
                     ) {
-                        item {
+                        item(
+                            key = "calendar-${uiState.displayedYearMonth}",
+                            contentType = "calendarHeader"
+                        ) {
                             Column(
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp, vertical = 16.dp)
@@ -364,7 +370,10 @@ fun MainCalendarView(
 
                         // Feriados nacionais no topo
                         if (uiState.holidaysForSelectedDate.isNotEmpty()) {
-                            item {
+                            item(
+                                key = "holidays-${uiState.selectedDate}",
+                                contentType = "holidays"
+                            ) {
                                 HolidaysForSelectedDaySection(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                     holidays = uiState.holidaysForSelectedDate
@@ -374,7 +383,10 @@ fun MainCalendarView(
 
                         // Dias de santos logo abaixo dos feriados
                         if (uiState.saintDaysForSelectedDate.isNotEmpty()) {
-                            item {
+                            item(
+                                key = "saints-${uiState.selectedDate}",
+                                contentType = "saints"
+                            ) {
                                 SaintDaysForSelectedDaySection(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                     saints = uiState.saintDaysForSelectedDate,
@@ -384,7 +396,10 @@ fun MainCalendarView(
                         }
                         
                         // Seção de Aniversários (após santos)
-                        item {
+                        item(
+                            key = "birthdays-${uiState.selectedDate}",
+                            contentType = "birthdays"
+                        ) {
                             BirthdaysForSelectedDaySection(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                 birthdays = uiState.birthdaysForSelectedDate,
@@ -407,7 +422,10 @@ fun MainCalendarView(
 
                         
                         // Seção de Notas
-                        item {
+                        item(
+                            key = "notes-${uiState.selectedDate}",
+                            contentType = "notes"
+                        ) {
                             NotesForSelectedDaySection(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                 notes = uiState.notesForSelectedDate,
@@ -428,7 +446,10 @@ fun MainCalendarView(
                         }
                         
                         // Seção de Tarefas e Eventos
-                        item {
+                        item(
+                            key = "tasks-${uiState.selectedDate}",
+                            contentType = "tasks"
+                        ) {
                             TasksForSelectedDaySection(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                                 tasks = uiState.tasksForSelectedDate,
