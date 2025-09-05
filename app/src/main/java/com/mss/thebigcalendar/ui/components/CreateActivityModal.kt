@@ -57,7 +57,8 @@ import java.time.format.DateTimeFormatter
 fun CreateActivityModal(
     activityToEdit: Activity?,
     onDismissRequest: () -> Unit,
-    onSaveActivity: (Activity) -> Unit
+    onSaveActivity: (Activity, Boolean) -> Unit,
+    isGoogleLoggedIn: Boolean
 ) {
     val currentActivity = activityToEdit ?: return
 
@@ -102,6 +103,9 @@ fun CreateActivityModal(
             }
         ) 
     }
+    
+    // Toggle para sincronizar com Google (visível apenas quando logado)
+    var syncWithGoogle by remember(currentActivity.id) { mutableStateOf(false) }
     
     // Estado para repetições
     var isRepetitionMenuExpanded by remember { mutableStateOf(false) }
@@ -286,6 +290,25 @@ fun CreateActivityModal(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Toggle "Sincronizar com Google" (apenas quando logado e não é nota)
+                if (isGoogleLoggedIn && selectedActivityType != ActivityType.NOTE) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.sync_with_google),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        androidx.compose.material3.Switch(
+                            checked = syncWithGoogle,
+                            onCheckedChange = { syncWithGoogle = it }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 // Seletor de notificações (visível para todos os tipos exceto notas)
                 if (selectedActivityType != ActivityType.NOTE) {
                     NotificationSelector(
@@ -400,7 +423,7 @@ fun CreateActivityModal(
                         recurrenceRule = convertRepetitionOptionToRule(selectedRepetition, repetitionMapping)
                     )
                     if (updatedActivity.title.isNotBlank()) {
-                        onSaveActivity(updatedActivity)
+                        onSaveActivity(updatedActivity, syncWithGoogle)
                         onDismissRequest()
                     }
                 },

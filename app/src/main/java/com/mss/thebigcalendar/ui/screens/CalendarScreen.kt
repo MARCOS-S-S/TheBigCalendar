@@ -464,7 +464,8 @@ fun MainCalendarView(
             CreateActivityModal(
                 activityToEdit = uiState.activityToEdit!!,
                 onDismissRequest = { viewModel.closeCreateActivityModal() },
-                onSaveActivity = { viewModel.onSaveActivity(it) }
+                onSaveActivity = { activity, syncWithGoogle -> viewModel.onSaveActivity(activity, syncWithGoogle) },
+                isGoogleLoggedIn = uiState.googleSignInAccount != null
             )
         }
 

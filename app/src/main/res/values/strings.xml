@@ -44,6 +44,7 @@
     <string name="ok">OK</string>
     <string name="show_in_calendar">Mostrar no calendário</string>
     <string name="show_in_calendar_description">A tarefa não aparecerá abaixo do dia no calendário</string>
+    <string name="sync_with_google">Sincronizar com Google Calendar</string>
 
     <!-- DeleteConfirmationDialog.kt -->
     <string name="delete_confirmation_title">Confirmar Exclusão</string>

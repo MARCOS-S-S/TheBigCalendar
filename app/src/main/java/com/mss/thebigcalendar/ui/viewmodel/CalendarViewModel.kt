@@ -1022,7 +1022,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
 
 
-    fun onSaveActivity(activityData: Activity) {
+    fun onSaveActivity(activityData: Activity, syncWithGoogle: Boolean = false) {
         viewModelScope.launch {
             // Verificar se é uma edição de instância recorrente
             val isEditingRecurringInstance = activityData.id.contains("_") && 
@@ -1079,7 +1079,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
             
             // Lógica original para atividades não recorrentes ou novas
-            val activityToSave = if (activityData.id == "new" || activityData.id.isBlank()) {
+            var activityToSave = if (activityData.id == "new" || activityData.id.isBlank()) {
                 activityData.copy(id = UUID.randomUUID().toString())
             } else {
                 activityData
@@ -1106,7 +1106,24 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 removeRecurringInstances(existingActivity)
             }
 
-            // Salvar a atividade principal
+            // Se for nova e o usuário optou por sincronizar com Google, tentar inserir primeiro no Google
+            val isNewActivity = activityData.id == "new" || activityData.id.isBlank()
+            if (isNewActivity && syncWithGoogle) {
+                val account = _uiState.value.googleSignInAccount
+                if (account != null) {
+                    try {
+                        val googleEventId = insertGoogleCalendarEvent(activityToSave, account)
+                        if (!googleEventId.isNullOrBlank()) {
+                            // Usar o ID do Google e marcar como vindo do Google para habilitar atualizações/exclusões
+                            activityToSave = activityToSave.copy(id = googleEventId, isFromGoogle = true)
+                        }
+                    } catch (e: Exception) {
+                        Log.e("CalendarViewModel", "❌ Falha ao inserir no Google Calendar", e)
+                    }
+                }
+            }
+
+            // Salvar a atividade principal (com possível ID do Google)
             activityRepository.saveActivity(activityToSave)
 
             // ✅ Agendar notificação se configurada
@@ -1329,6 +1346,72 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 }
             } catch (e: Exception) {
                 Log.e("CalendarViewModel", "❌ Erro ao atualizar evento no Google Calendar: ${activity.title}", e)
+            }
+        }
+    }
+
+    /**
+     * Insere um novo evento no Google Calendar e retorna o ID do evento criado
+     */
+    private suspend fun insertGoogleCalendarEvent(activity: Activity, account: GoogleSignInAccount): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val calendarService = googleCalendarService.getCalendarService(account)
+
+                val googleEvent = com.google.api.services.calendar.model.Event().apply {
+                    summary = activity.title
+                    description = activity.description
+                    location = activity.location
+
+                    // Datas/horários
+                    if (activity.isAllDay) {
+                        start = com.google.api.services.calendar.model.EventDateTime().apply {
+                            date = com.google.api.client.util.DateTime(activity.date)
+                        }
+                        end = com.google.api.services.calendar.model.EventDateTime().apply {
+                            date = com.google.api.client.util.DateTime(activity.date)
+                        }
+                    } else {
+                        val startDateTime = java.time.LocalDateTime.of(
+                            java.time.LocalDate.parse(activity.date),
+                            activity.startTime ?: java.time.LocalTime.of(9, 0)
+                        )
+                        val endDateTime = java.time.LocalDateTime.of(
+                            java.time.LocalDate.parse(activity.date),
+                            activity.endTime ?: (activity.startTime?.plusHours(1) ?: java.time.LocalTime.of(10, 0))
+                        )
+
+                        start = com.google.api.services.calendar.model.EventDateTime().apply {
+                            dateTime = com.google.api.client.util.DateTime(
+                                startDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                            )
+                        }
+                        end = com.google.api.services.calendar.model.EventDateTime().apply {
+                            dateTime = com.google.api.client.util.DateTime(
+                                endDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                            )
+                        }
+                    }
+
+                    // Regra de repetição: para aniversários, padronizar YEARLY se não houver
+                    when (activity.activityType) {
+                        com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> {
+                            val rule = activity.recurrenceRule?.takeIf { it.isNotEmpty() } ?: "RRULE:FREQ=YEARLY"
+                            recurrence = listOf(rule)
+                        }
+                        else -> {
+                            if (!activity.recurrenceRule.isNullOrEmpty()) {
+                                recurrence = listOf(activity.recurrenceRule)
+                            }
+                        }
+                    }
+                }
+
+                val created = calendarService.events().insert("primary", googleEvent).execute()
+                created?.id
+            } catch (e: Exception) {
+                Log.e("CalendarViewModel", "❌ Erro ao inserir evento no Google Calendar", e)
+                null
             }
         }
     }
