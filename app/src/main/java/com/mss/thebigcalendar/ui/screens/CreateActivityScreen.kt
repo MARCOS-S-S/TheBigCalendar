@@ -85,7 +85,9 @@ fun CreateActivityScreen(
         )
     }
 
-    var syncWithGoogle by remember(currentActivity.id) { mutableStateOf(false) }
+    var syncWithGoogle by remember(currentActivity.id) { 
+        mutableStateOf(currentActivity.isFromGoogle)
+    }
     var isRepetitionMenuExpanded by remember { mutableStateOf(false) }
 
     val repetitionOptions = listOf(

@@ -431,10 +431,18 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 val regularEvents = activities.count { it.activityType == ActivityType.EVENT }
                 
                 // 4. Fazer merge dos eventos (manter existentes + adicionar novos)
+                val currentActivities = activityRepository.activities.first()
                 activities.forEach { newActivity ->
-                    // Se já existe uma atividade com o mesmo ID, atualizar
-                    // Se não existe, adicionar nova
-                    activityRepository.saveActivity(newActivity)
+                    // Verificar se já existe uma atividade com o mesmo ID
+                    val existingActivity = currentActivities.find { it.id == newActivity.id }
+                    if (existingActivity != null) {
+                        // Se já existe, preservar a cor personalizada do usuário
+                        val updatedActivity = newActivity.copy(categoryColor = existingActivity.categoryColor)
+                        activityRepository.saveActivity(updatedActivity)
+                    } else {
+                        // Se não existe, adicionar nova com cor padrão
+                        activityRepository.saveActivity(newActivity)
+                    }
                 }
                 
                 // 5. Atualizar a UI após salvar as atividades
