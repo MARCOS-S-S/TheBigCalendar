@@ -68,7 +68,7 @@ import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.SearchResult
 import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.ui.components.BirthdaysForSelectedDaySection
-import com.mss.thebigcalendar.ui.components.CreateActivityModal
+import com.mss.thebigcalendar.ui.screens.CreateActivityScreen
 import com.mss.thebigcalendar.ui.components.DeleteConfirmationDialog
 import com.mss.thebigcalendar.ui.components.HolidaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.MonthlyCalendar
@@ -111,14 +111,14 @@ fun CalendarScreen(
             drawerState.close()
         }
     }
-    
+
     // Detecta quando o drawer é fechado por gesto e atualiza o ViewModel
     LaunchedEffect(drawerState.currentValue) {
         if (drawerState.currentValue == DrawerValue.Closed && uiState.isSidebarOpen) {
             viewModel.closeSidebar()
         }
     }
-    
+
     // Mostra mensagens de backup
     LaunchedEffect(uiState.backupMessage) {
         uiState.backupMessage?.let { message ->
@@ -127,57 +127,171 @@ fun CalendarScreen(
         }
     }
 
+    val blurRadius by animateFloatAsState(
+        targetValue = if (drawerState.isOpen) 8f else 0f,
+        animationSpec = tween(durationMillis = 1, easing = FastOutSlowInEasing),
+        label = ""
+    )
 
-    Box(modifier = Modifier.fillMaxSize()) {
+
+    if (uiState.activityToEdit != null) {
+        CreateActivityScreen(
+            activityToEdit = uiState.activityToEdit,
+            onDismissRequest = { viewModel.closeCreateActivityModal() },
+            onSaveActivity = { activity, syncWithGoogle ->
+                viewModel.onSaveActivity(activity, syncWithGoogle)
+            },
+            isGoogleLoggedIn = uiState.googleSignInAccount != null
+        )
+    } else {
         ModalNavigationDrawer(
             drawerState = drawerState,
             gesturesEnabled = uiState.currentSettingsScreen == null,
             drawerContent = {
-                // Renderização condicional para melhor performance
                 if (drawerState.targetValue == DrawerValue.Open || drawerState.isOpen) {
-                                    Sidebar(
-                    uiState = uiState,
-                    onViewModeChange = { viewModel.onViewModeChange(it) },
-                    onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
-                    onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
-                    onBackup = { viewModel.onBackupIconClick() },
-                    onRequestClose = { 
-                        scope.launch { drawerState.close() }
-                        viewModel.closeSidebar() 
-                    }
-                )
+                    Sidebar(
+                        uiState = uiState,
+                        onViewModeChange = { viewModel.onViewModeChange(it) },
+                        onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
+                        onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
+                        onBackup = { viewModel.onBackupIconClick() },
+                        onRequestClose = {
+                            scope.launch { drawerState.close() }
+                            viewModel.closeSidebar()
+                        }
+                    )
                 }
             }
         ) {
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .then(
-                    if (uiState.activityToEdit != null || uiState.isSidebarOpen) {
-                        Modifier.blur(radius = 8.dp)
-                    } else {
-                        Modifier
-                    }
-                )
-            ) {
-            when (uiState.currentSettingsScreen) {
-                "General" -> {
-                    Scaffold(
-                        topBar = {
-                            TopAppBar(
-                                title = { Text(stringResource(id = R.string.general)) },
-                                navigationIcon = {
-                                    IconButton(onClick = { viewModel.onNavigateToSettings(null) }) {
-                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.back))
+            Scaffold(
+                topBar = {
+                    if (uiState.currentSettingsScreen == null) {
+                        TopAppBar(
+                            title = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    val text = when (uiState.viewMode) {
+                                        ViewMode.MONTHLY -> {
+                                            val monthName = uiState.displayedYearMonth.month
+                                                .getDisplayName(
+                                                    java.time.format.TextStyle.FULL,
+                                                    Locale("pt", "BR")
+                                                )
+                                                .replaceFirstChar {
+                                                    it.titlecase(
+                                                        Locale(
+                                                            "pt",
+                                                            "BR"
+                                                        )
+                                                    )
+                                                }
+                                            stringResource(
+                                                id = R.string.month_year_format,
+                                                monthName,
+                                                uiState.displayedYearMonth.year
+                                            )
+                                        }
+
+                                        ViewMode.YEARLY -> uiState.displayedYearMonth.year.toString()
+                                    }
+                                    Text(
+                                        text = text,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    if (uiState.viewMode == ViewMode.MONTHLY) {
+                                        IconButton(onClick = { viewModel.onGoToToday() }) {
+                                            Icon(
+                                                Icons.Default.Today,
+                                                contentDescription = stringResource(id = R.string.go_to_today)
+                                            )
+                                        }
                                     }
                                 }
+                            },
+                            navigationIcon = {
+                                IconButton(onClick = {
+                                    viewModel.openSidebar()
+                                }) {
+                                    Icon(
+                                        Icons.Default.Menu,
+                                        stringResource(id = R.string.open_close_menu)
+                                    )
+                                }
+                            },
+                            actions = {
+                                val (prevAction, nextAction) = when (uiState.viewMode) {
+                                    ViewMode.MONTHLY -> Pair(
+                                        { viewModel.onPreviousMonth() },
+                                        { viewModel.onNextMonth() })
+
+                                    ViewMode.YEARLY -> Pair(
+                                        { viewModel.onPreviousYear() },
+                                        { viewModel.onNextYear() })
+                                }
+
+                                if (uiState.viewMode == ViewMode.MONTHLY) {
+                                    IconButton(onClick = { viewModel.onSearchIconClick() }) {
+                                        Icon(
+                                            Icons.Default.Search,
+                                            stringResource(id = R.string.search)
+                                        )
+                                    }
+                                    IconButton(onClick = { viewModel.onChartIconClick() }) {
+                                        Icon(
+                                            Icons.Filled.BarChart,
+                                            stringResource(id = R.string.chart)
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) },
+                                        modifier = Modifier.size(40.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Add,
+                                            contentDescription = stringResource(id = R.string.add_appointment),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = { viewModel.onTrashIconClick() },
+                                        modifier = Modifier.size(40.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = stringResource(id = R.string.trash),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                } else {
+                                    IconButton(onClick = prevAction) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.ArrowBack,
+                                            stringResource(id = R.string.previous)
+                                        )
+                                    }
+                                    IconButton(onClick = nextAction) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.ArrowForward,
+                                            stringResource(id = R.string.next)
+                                        )
+                                    }
+                                }
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             )
-                        }
-                    ) { paddingValues ->
-                        Column(
-                            modifier = Modifier
-                                .padding(paddingValues)
-                                .fillMaxSize()
-                        ) {
+                        )
+                    }
+                },
+                snackbarHost = { SnackbarHost(snackbarHostState) }
+            ) { paddingValues ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .blur(radius = blurRadius.dp)
+                ) {
+                    when (uiState.currentSettingsScreen) {
+                        "General" -> {
                             GeneralSettingsScreen(
                                 currentTheme = uiState.theme,
                                 onThemeChange = { viewModel.onThemeChange(it) },
@@ -187,28 +301,64 @@ fun CalendarScreen(
                                 isSyncing = uiState.isSyncing,
                                 onManualSync = { viewModel.onManualSync() },
                                 syncProgress = uiState.syncProgress,
-    
+                            )
+                        }
+
+                        else -> {
+                            MainCalendarView(
+                                viewModel,
+                                uiState,
+                                scope,
+                                drawerState,
+                                snackbarHostState
                             )
                         }
                     }
-                }
 
-                else -> {
-                    MainCalendarView(viewModel, uiState, scope, drawerState, snackbarHostState)
+                    uiState.activityIdToDelete?.let { activityId ->
+                        var activityToDelete = uiState.activities.find { it.id == activityId }
+                        if (activityToDelete == null && activityId.contains("_")) {
+                            val baseId = activityId.split("_").first()
+                            activityToDelete = uiState.activities.find { it.id == baseId }
+                        }
+                        if (activityToDelete == null && activityId.contains("_")) {
+                            val baseId = activityId.split("_").first()
+                            activityToDelete = uiState.activities.find { 
+                                it.id == baseId || 
+                                (it.id.contains(baseId) && it.id.contains("_"))
+                            }
+                        }
+                        
+                        if (activityToDelete != null) {
+                            DeleteConfirmationDialog(
+                                activityTitle = activityToDelete.title,
+                                onConfirm = { viewModel.onDeleteActivityConfirm() },
+                                onDismiss = { viewModel.cancelDeleteActivity() }
+                            )
+                        }
+                    }
+
+                    uiState.saintInfoToShow?.let { saint ->
+                        SaintInfoDialog(
+                            saint = saint,
+                            onDismiss = { viewModel.onSaintInfoDialogDismiss() }
+                        )
+                    }
+                    
+                    if (uiState.needsStoragePermission) {
+                        StoragePermissionDialog(
+                            onDismiss = { viewModel.clearBackupMessage() },
+                            onPermissionGranted = {
+                                viewModel.clearBackupMessage()
+                                viewModel.onBackupRequest()
+                            }
+                        )
+                    }
                 }
             }
         }
-        
-        // Snackbar por cima de tudo
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-        )
-            } // Fechamento do Box com desfoque
-        } // Fechamento do ModalNavigationDrawer
     }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -217,327 +367,173 @@ fun MainCalendarView(
     uiState: com.mss.thebigcalendar.data.model.CalendarUiState,
     scope: kotlinx.coroutines.CoroutineScope,
     drawerState: androidx.compose.material3.DrawerState,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    modifier: Modifier = Modifier
 ) {
     var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
-    Scaffold(
-        modifier = Modifier.clickableWithoutRipple { viewModel.hideDeleteButton() },
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        val text = when (uiState.viewMode) {
-                            ViewMode.MONTHLY -> {
-                                val monthName = uiState.displayedYearMonth.month
-                                    .getDisplayName(java.time.format.TextStyle.FULL, Locale("pt", "BR"))
-                                    .replaceFirstChar { it.titlecase(Locale("pt", "BR")) }
-                                stringResource(id = R.string.month_year_format, monthName, uiState.displayedYearMonth.year)
-                            }
-                            ViewMode.YEARLY -> uiState.displayedYearMonth.year.toString()
-                        }
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        if (uiState.viewMode == ViewMode.MONTHLY) {
-                            IconButton(onClick = { viewModel.onGoToToday() }) {
-                                Icon(Icons.Default.Today, contentDescription = stringResource(id = R.string.go_to_today))
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .clickableWithoutRipple { viewModel.hideDeleteButton() }
+    ) {
+        when (uiState.viewMode) {
+            ViewMode.MONTHLY -> {
+                val listState = rememberLazyListState()
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() },
+                    state = listState
+                ) {
+                    item(
+                        key = "calendar-${uiState.displayedYearMonth}",
+                        contentType = "calendarHeader"
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp, vertical = 16.dp)
+                                .border(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.outline,
+                                    shape = MaterialTheme.shapes.medium
+                                )
+                                .padding(vertical = 8.dp)
+                        ) {
+                            MonthlyCalendar(
+                                modifier = Modifier
+                                    .pointerInput(Unit) {
+                                        detectHorizontalDragGestures(
+                                            onHorizontalDrag = { _, dragAmount ->
+                                                horizontalDragOffset += dragAmount
+                                            },
+                                            onDragEnd = {
+                                                val swipeThreshold = 100f
+                                                if (horizontalDragOffset > swipeThreshold) {
+                                                    viewModel.onPreviousMonth()
+                                                } else if (horizontalDragOffset < -swipeThreshold) {
+                                                    viewModel.onNextMonth()
+                                                }
+                                                horizontalDragOffset = 0f
+                                            }
+                                        )
+                                    },
+                                calendarDays = uiState.calendarDays,
+                                onDateSelected = { viewModel.onDateSelected(it) },
+                                theme = uiState.theme
+                            )
+                            
+                            if (uiState.showMoonPhases) {
+                                MoonPhasesComponent(
+                                    yearMonth = uiState.displayedYearMonth,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 0.dp)
+                                )
                             }
                         }
                     }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { 
-                        viewModel.openSidebar()
-                    }) {
-                        Icon(Icons.Default.Menu, stringResource(id = R.string.open_close_menu))
+
+                    if (uiState.holidaysForSelectedDate.isNotEmpty()) {
+                        item(
+                            key = "holidays-${uiState.selectedDate}",
+                            contentType = "holidays"
+                        ) {
+                            HolidaysForSelectedDaySection(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                holidays = uiState.holidaysForSelectedDate
+                            )
+                        }
                     }
-                },
-                actions = {
-                    val (prevAction, nextAction) = when (uiState.viewMode) {
-                        ViewMode.MONTHLY -> Pair({ viewModel.onPreviousMonth() }, { viewModel.onNextMonth() })
-                        ViewMode.YEARLY -> Pair({ viewModel.onPreviousYear() }, { viewModel.onNextYear() })
+
+                    if (uiState.saintDaysForSelectedDate.isNotEmpty()) {
+                        item(
+                            key = "saints-${uiState.selectedDate}",
+                            contentType = "saints"
+                        ) {
+                            SaintDaysForSelectedDaySection(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                saints = uiState.saintDaysForSelectedDate,
+                                onSaintClick = { viewModel.onSaintDayClick(it) }
+                            )
+                        }
                     }
                     
-                    // Botão de pesquisa (apenas na visualização mensal)
-                    if (uiState.viewMode == ViewMode.MONTHLY) {
-                        IconButton(onClick = { viewModel.onSearchIconClick() }) {
-                            Icon(Icons.Default.Search, stringResource(id = R.string.search))
-                        }
-                        
-                        // Botão de gráfico
-                        IconButton(onClick = { viewModel.onChartIconClick() }) {
-                            Icon(Icons.Filled.BarChart, stringResource(id = R.string.chart))
-                        }
-                        
-                        // Botão de criar agendamento (menor)
-                        IconButton(
-                            onClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) },
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Icon(
-                                Icons.Filled.Add, 
-                                contentDescription = stringResource(id = R.string.add_appointment),
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        
-                        // Botão da lixeira (menor)
-                        IconButton(
-                            onClick = { viewModel.onTrashIconClick() },
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.Delete, 
-                                contentDescription = stringResource(id = R.string.trash),
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    } else {
-                        // Para visualização anual, manter as setas de navegação
-                        IconButton(onClick = prevAction) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(id = R.string.previous))
-                        }
-                        IconButton(onClick = nextAction) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowForward, stringResource(id = R.string.next))
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-            when (uiState.viewMode) {
-                ViewMode.MONTHLY -> {
-                    val listState = rememberLazyListState()
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() },
-                        state = listState
+                    item(
+                        key = "birthdays-${uiState.selectedDate}",
+                        contentType = "birthdays"
                     ) {
-                        item(
-                            key = "calendar-${uiState.displayedYearMonth}",
-                            contentType = "calendarHeader"
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .padding(horizontal = 8.dp, vertical = 16.dp)
-                                    .border(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colorScheme.outline,
-                                        shape = MaterialTheme.shapes.medium
-                                    )
-                                    .padding(vertical = 8.dp)
-                            ) {
-                                MonthlyCalendar(
-                                    modifier = Modifier
-                                        .pointerInput(Unit) {
-                                            detectHorizontalDragGestures(
-                                                onHorizontalDrag = { _, dragAmount ->
-                                                    horizontalDragOffset += dragAmount
-                                                },
-                                                onDragEnd = {
-                                                    val swipeThreshold = 100f
-                                                    if (horizontalDragOffset > swipeThreshold) {
-                                                        viewModel.onPreviousMonth()
-                                                    } else if (horizontalDragOffset < -swipeThreshold) {
-                                                        viewModel.onNextMonth()
-                                                    }
-                                                    horizontalDragOffset = 0f
-                                                }
-                                            )
-                                        },
-                                    calendarDays = uiState.calendarDays,
-                                    onDateSelected = { viewModel.onDateSelected(it) },
-                                    theme = uiState.theme
-                                )
-                                
-                                // Fases da Lua dentro da mesma borda (se habilitado)
-                                if (uiState.showMoonPhases) {
-                                    MoonPhasesComponent(
-                                        yearMonth = uiState.displayedYearMonth,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 0.dp)
-                                    )
+                        BirthdaysForSelectedDaySection(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                            birthdays = uiState.birthdaysForSelectedDate,
+                            selectedDate = uiState.selectedDate,
+                            activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
+                            onBirthdayClick = {
+                                if (uiState.activityIdWithDeleteButtonVisible != null) {
+                                    viewModel.hideDeleteButton()
+                                } else {
+                                    viewModel.openCreateActivityModal(it, it.activityType)
                                 }
-                            }
-                        }
-
-                        // Feriados nacionais no topo
-                        if (uiState.holidaysForSelectedDate.isNotEmpty()) {
-                            item(
-                                key = "holidays-${uiState.selectedDate}",
-                                contentType = "holidays"
-                            ) {
-                                HolidaysForSelectedDaySection(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                    holidays = uiState.holidaysForSelectedDate
-                                )
-                            }
-                        }
-
-                        // Dias de santos logo abaixo dos feriados
-                        if (uiState.saintDaysForSelectedDate.isNotEmpty()) {
-                            item(
-                                key = "saints-${uiState.selectedDate}",
-                                contentType = "saints"
-                            ) {
-                                SaintDaysForSelectedDaySection(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                    saints = uiState.saintDaysForSelectedDate,
-                                    onSaintClick = { viewModel.onSaintDayClick(it) }
-                                )
-                            }
-                        }
-                        
-                        // Seção de Aniversários (após santos)
-                        item(
-                            key = "birthdays-${uiState.selectedDate}",
-                            contentType = "birthdays"
-                        ) {
-                            BirthdaysForSelectedDaySection(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                birthdays = uiState.birthdaysForSelectedDate,
-                                selectedDate = uiState.selectedDate,
-                                activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
-                                onBirthdayClick = {
-                                    if (uiState.activityIdWithDeleteButtonVisible != null) {
-                                        viewModel.hideDeleteButton()
-                                    } else {
-                                        viewModel.openCreateActivityModal(it, it.activityType)
-                                    }
-                                },
-                                onBirthdayLongClick = { viewModel.onTaskLongPressed(it) },
-                                onDeleteClick = { viewModel.requestDeleteActivity(it) },
-                                onCompleteClick = { viewModel.markActivityAsCompleted(it) },
-                                onAddBirthdayClick = { viewModel.openCreateActivityModal(activityType = ActivityType.BIRTHDAY) }
-                            )
-                        }
-                        
-
-                        
-                        // Seção de Notas
-                        item(
-                            key = "notes-${uiState.selectedDate}",
-                            contentType = "notes"
-                        ) {
-                            NotesForSelectedDaySection(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                notes = uiState.notesForSelectedDate,
-                                selectedDate = uiState.selectedDate,
-                                activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
-                                onNoteClick = {
-                                    if (uiState.activityIdWithDeleteButtonVisible != null) {
-                                        viewModel.hideDeleteButton()
-                                    } else {
-                                        viewModel.openCreateActivityModal(it, it.activityType)
-                                    }
-                                },
-                                onNoteLongClick = { viewModel.onTaskLongPressed(it) },
-                                onDeleteClick = { viewModel.requestDeleteActivity(it) },
-                                onCompleteClick = { viewModel.markActivityAsCompleted(it) },
-                                onAddNoteClick = { viewModel.openCreateActivityModal(activityType = ActivityType.NOTE) }
-                            )
-                        }
-                        
-                        // Seção de Tarefas e Eventos
-                        item(
-                            key = "tasks-${uiState.selectedDate}",
-                            contentType = "tasks"
-                        ) {
-                            TasksForSelectedDaySection(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                                tasks = uiState.tasksForSelectedDate,
-                                selectedDate = uiState.selectedDate,
-                                activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
-                                onTaskClick = {
-                                    if (uiState.activityIdWithDeleteButtonVisible != null) {
-                                        viewModel.hideDeleteButton()
-                                    } else {
-                                        viewModel.openCreateActivityModal(it, it.activityType)
-                                    }
-                                },
-                                onTaskLongClick = { viewModel.onTaskLongPressed(it) },
-                                onDeleteClick = { viewModel.requestDeleteActivity(it) },
-                                onCompleteClick = { viewModel.markActivityAsCompleted(it) },
-                                onAddTaskClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
-                            )
-                        }
+                            },
+                            onBirthdayLongClick = { viewModel.onTaskLongPressed(it) },
+                            onDeleteClick = { viewModel.requestDeleteActivity(it) },
+                            onCompleteClick = { viewModel.markActivityAsCompleted(it) },
+                            onAddBirthdayClick = { viewModel.openCreateActivityModal(activityType = ActivityType.BIRTHDAY) }
+                        )
+                    }
+                    
+                    item(
+                        key = "notes-${uiState.selectedDate}",
+                        contentType = "notes"
+                    ) {
+                        NotesForSelectedDaySection(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                            notes = uiState.notesForSelectedDate,
+                            selectedDate = uiState.selectedDate,
+                            activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
+                            onNoteClick = {
+                                if (uiState.activityIdWithDeleteButtonVisible != null) {
+                                    viewModel.hideDeleteButton()
+                                } else {
+                                    viewModel.openCreateActivityModal(it, it.activityType)
+                                }
+                            },
+                            onNoteLongClick = { viewModel.onTaskLongPressed(it) },
+                            onDeleteClick = { viewModel.requestDeleteActivity(it) },
+                            onCompleteClick = { viewModel.markActivityAsCompleted(it) },
+                            onAddNoteClick = { viewModel.openCreateActivityModal(activityType = ActivityType.NOTE) }
+                        )
+                    }
+                    
+                    item(
+                        key = "tasks-${uiState.selectedDate}",
+                        contentType = "tasks"
+                    ) {
+                        TasksForSelectedDaySection(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                            tasks = uiState.tasksForSelectedDate,
+                            selectedDate = uiState.selectedDate,
+                            activityIdWithDeleteVisible = uiState.activityIdWithDeleteButtonVisible,
+                            onTaskClick = {
+                                if (uiState.activityIdWithDeleteButtonVisible != null) {
+                                    viewModel.hideDeleteButton()
+                                } else {
+                                    viewModel.openCreateActivityModal(it, it.activityType)
+                                }
+                            },
+                            onTaskLongClick = { viewModel.onTaskLongPressed(it) },
+                            onDeleteClick = { viewModel.requestDeleteActivity(it) },
+                            onCompleteClick = { viewModel.markActivityAsCompleted(it) },
+                            onAddTaskClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
+                        )
                     }
                 }
-                ViewMode.YEARLY -> {
-                    YearlyCalendarView(
-                        modifier = Modifier.fillMaxSize(),
-                        year = uiState.displayedYearMonth.year,
-                        onMonthClicked = { viewModel.onYearlyMonthClicked(it) },
-                        onNavigateYear = { delta ->
-                            if (delta > 0) viewModel.onNextYear() else viewModel.onPreviousYear()
-                        }
-                    )
-                }
             }
-        }
-
-        if (uiState.activityToEdit != null) {
-            CreateActivityModal(
-                activityToEdit = uiState.activityToEdit!!,
-                onDismissRequest = { viewModel.closeCreateActivityModal() },
-                onSaveActivity = { activity, syncWithGoogle -> viewModel.onSaveActivity(activity, syncWithGoogle) },
-                isGoogleLoggedIn = uiState.googleSignInAccount != null
-            )
-        }
-
-        uiState.activityIdToDelete?.let { activityId ->
-            // Buscar a atividade pelo ID ou, se for instância recorrente, buscar pela atividade base
-            var activityToDelete = uiState.activities.find { it.id == activityId }
-            
-            // Se não encontrou pelo ID e parece ser uma instância recorrente, buscar pela atividade base
-            if (activityToDelete == null && activityId.contains("_")) {
-                val baseId = activityId.split("_").first()
-                activityToDelete = uiState.activities.find { it.id == baseId }
-            }
-            
-            // Se ainda não encontrou, buscar por IDs similares
-            if (activityToDelete == null && activityId.contains("_")) {
-                val baseId = activityId.split("_").first()
-                activityToDelete = uiState.activities.find { 
-                    it.id == baseId || 
-                    (it.id.contains(baseId) && it.id.contains("_"))
-                }
-            }
-            
-            if (activityToDelete != null) {
-                DeleteConfirmationDialog(
-                    activityTitle = activityToDelete.title,
-                    onConfirm = { viewModel.onDeleteActivityConfirm() },
-                    onDismiss = { viewModel.cancelDeleteActivity() }
+            ViewMode.YEARLY -> {
+                YearlyCalendarView(
+                    modifier = Modifier.fillMaxSize(),
+                    year = uiState.displayedYearMonth.year,
+                    onMonthClicked = { viewModel.onYearlyMonthClicked(it) },
+                    onNavigateYear = { delta ->
+                        if (delta > 0) viewModel.onNextYear() else viewModel.onPreviousYear()
+                    }
                 )
             }
         }
-
-        uiState.saintInfoToShow?.let { saint ->
-            SaintInfoDialog(
-                saint = saint,
-                onDismiss = { viewModel.onSaintInfoDialogDismiss() }
-            )
-        }
-        
-        // Diálogo de permissão de armazenamento
-        if (uiState.needsStoragePermission) {
-            StoragePermissionDialog(
-                onDismiss = { viewModel.clearBackupMessage() },
-                onPermissionGranted = {
-                    viewModel.clearBackupMessage()
-                    // Tentar fazer backup novamente
-                    viewModel.onBackupRequest()
-                }
-            )
-        }
-
-            } // Fechamento do Box com desfoque
-        } // Fechamento do ModalNavigationDrawer
+    }
+}
