@@ -3,6 +3,8 @@ package com.mss.thebigcalendar.ui.onboarding
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -10,13 +12,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.mss.thebigcalendar.R
 
 /**
  * Gerenciador de janelas de onboarding (primeira inicialização)
@@ -345,67 +350,85 @@ fun OnboardingFlow(
             }
         }
     }
-    
-    // Janela de boas-vindas
-    if (showWelcome) {
-        WelcomeDialog(
-            onDismiss = {
-                showWelcome = false
-                onboardingManager.markWelcomeShown()
-                // Verificar se deve mostrar próxima janela
-                if (onboardingManager.shouldShowStoragePermission()) {
-                    showStoragePermission = true
-                } else {
-                    onComplete()
-                }
-            },
-            onGoogleSignIn = {
-                // Chama a função de login do Google existente
-                onGoogleSignIn()
-                showWelcome = false
-                onboardingManager.markWelcomeShown()
-                // Verificar se deve mostrar próxima janela
-                if (onboardingManager.shouldShowStoragePermission()) {
-                    showStoragePermission = true
-                } else {
-                    onComplete()
-                }
-            },
-            onSkip = {
-                showWelcome = false
-                onboardingManager.markWelcomeShown()
-                // Verificar se deve mostrar próxima janela
-                if (onboardingManager.shouldShowStoragePermission()) {
-                    showStoragePermission = true
-                } else {
-                    onComplete()
-                }
-            }
-        )
-    }
-    
 
-    
-    // Janela de permissão de armazenamento
-    if (showStoragePermission) {
-        StoragePermissionDialog(
-            onDismiss = {
-                showStoragePermission = false
-                onboardingManager.markStoragePermissionShown()
-                onComplete()
-            },
-            onRequestPermission = {
-                // Chama a função de solicitar permissão
-                onRequestStoragePermission()
-                showStoragePermission = false
-                onboardingManager.markStoragePermissionShown()
-                onComplete()
-            },
-            onSkip = {
-                showStoragePermission = false
-                onboardingManager.markStoragePermissionShown()
-                onComplete()
-            }
+    // Tela de fundo com imagem
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Imagem de fundo
+        Image(
+            painter = painterResource(id = R.drawable.tbc_background),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
         )
+        
+        // Overlay escuro para melhorar legibilidade
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.3f))
+        )
+        
+        // Janela de boas-vindas
+        if (showWelcome) {
+            WelcomeDialog(
+                onDismiss = {
+                    showWelcome = false
+                    onboardingManager.markWelcomeShown()
+                    // Verificar se deve mostrar próxima janela
+                    if (onboardingManager.shouldShowStoragePermission()) {
+                        showStoragePermission = true
+                    } else {
+                        onComplete()
+                    }
+                },
+                onGoogleSignIn = {
+                    // Chama a função de login do Google existente
+                    onGoogleSignIn()
+                    showWelcome = false
+                    onboardingManager.markWelcomeShown()
+                    // Verificar se deve mostrar próxima janela
+                    if (onboardingManager.shouldShowStoragePermission()) {
+                        showStoragePermission = true
+                    } else {
+                        onComplete()
+                    }
+                },
+                onSkip = {
+                    showWelcome = false
+                    onboardingManager.markWelcomeShown()
+                    // Verificar se deve mostrar próxima janela
+                    if (onboardingManager.shouldShowStoragePermission()) {
+                        showStoragePermission = true
+                    } else {
+                        onComplete()
+                    }
+                }
+            )
+        }
+        
+        // Janela de permissão de armazenamento
+        if (showStoragePermission) {
+            StoragePermissionDialog(
+                onDismiss = {
+                    showStoragePermission = false
+                    onboardingManager.markStoragePermissionShown()
+                    onComplete()
+                },
+                onRequestPermission = {
+                    // Chama a função de solicitar permissão
+                    onRequestStoragePermission()
+                    showStoragePermission = false
+                    onboardingManager.markStoragePermissionShown()
+                    onComplete()
+                },
+                onSkip = {
+                    showStoragePermission = false
+                    onboardingManager.markStoragePermissionShown()
+                    onComplete()
+                }
+            )
+        }
     }
 }
