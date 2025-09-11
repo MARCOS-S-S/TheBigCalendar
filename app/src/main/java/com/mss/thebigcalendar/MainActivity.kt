@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
             override fun handleOnBackPressed() {
                 val state = viewModel.uiState.value
                 when {
+                    state.activityToEdit != null -> viewModel.closeCreateActivityModal()
                     state.isSidebarOpen -> viewModel.closeSidebar()
                     state.currentSettingsScreen != null -> viewModel.closeSettingsScreen()
                     state.isSearchScreenOpen -> viewModel.closeSearchScreen()
