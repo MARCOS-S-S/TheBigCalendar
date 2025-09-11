@@ -1,8 +1,9 @@
 package com.mss.thebigcalendar.ui.screens
 
+import android.graphics.RenderEffect
+import android.graphics.Shader
 import android.os.Build
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
+ 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -51,8 +52,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+ 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Alignment
@@ -60,6 +60,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asComposeRenderEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -128,10 +130,7 @@ fun CalendarScreen(
         }
     }
 
-    val blurRadius by animateFloatAsState(
-        targetValue = if (drawerState.isOpen) 8f else 0f,
-        label = ""
-    )
+    val blurRadius = if (drawerState.targetValue == DrawerValue.Open || drawerState.isOpen) 8f else 0f
 
 
     if (uiState.activityToEdit != null) {
@@ -147,6 +146,7 @@ fun CalendarScreen(
         ModalNavigationDrawer(
             drawerState = drawerState,
             gesturesEnabled = uiState.currentSettingsScreen == null,
+            scrimColor = Color.Black.copy(alpha = 0.7f),
             drawerContent = {
                 if (drawerState.targetValue == DrawerValue.Open || drawerState.isOpen) {
                     Sidebar(
@@ -164,7 +164,17 @@ fun CalendarScreen(
             }
         ) {
             val scaffoldModifier = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                Modifier.blur(radius = blurRadius.dp)
+                Modifier.graphicsLayer(
+                    renderEffect = if (blurRadius > 0) {
+                        RenderEffect.createBlurEffect(
+                            blurRadius,
+                            blurRadius,
+                            Shader.TileMode.DECAL
+                        ).asComposeRenderEffect()
+                    } else {
+                        null
+                    }
+                )
             } else {
                 Modifier
             }
