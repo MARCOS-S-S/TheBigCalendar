@@ -1,5 +1,6 @@
 package com.mss.thebigcalendar.ui.screens
 
+import android.os.Build
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
@@ -129,7 +130,6 @@ fun CalendarScreen(
 
     val blurRadius by animateFloatAsState(
         targetValue = if (drawerState.isOpen) 8f else 0f,
-        animationSpec = tween(durationMillis = 1, easing = FastOutSlowInEasing),
         label = ""
     )
 
@@ -163,7 +163,14 @@ fun CalendarScreen(
                 }
             }
         ) {
+            val scaffoldModifier = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                Modifier.blur(radius = blurRadius.dp)
+            } else {
+                Modifier
+            }
+
             Scaffold(
+                modifier = scaffoldModifier,
                 topBar = {
                     if (uiState.currentSettingsScreen == null) {
                         TopAppBar(
@@ -288,7 +295,6 @@ fun CalendarScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .blur(radius = blurRadius.dp)
                 ) {
                     when (uiState.currentSettingsScreen) {
                         "General" -> {
