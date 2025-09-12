@@ -31,7 +31,14 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Theme
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GeneralSettingsScreen(
     currentTheme: Theme,
@@ -41,63 +48,30 @@ fun GeneralSettingsScreen(
     onSignOutClicked: () -> Unit,
     isSyncing: Boolean = false,
     onManualSync: () -> Unit = {},
-    syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null
+    syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null,
+    onBackClick: () -> Unit // New parameter for back button
 ) {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.sidebar_change_theme),
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Switch(
-                checked = when (currentTheme) {
-                    Theme.LIGHT -> false
-                    Theme.DARK -> true
-                    Theme.SYSTEM -> isSystemInDarkTheme()
-                },
-                onCheckedChange = { isChecked ->
-                    onThemeChange(if (isChecked) Theme.DARK else Theme.LIGHT)
-                }
-            )
-        }
-
-
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp)
-        ) {
-            Text(
-                text = "Conta Google",
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            if (googleAccount != null) {
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(googleAccount.email ?: "", style = MaterialTheme.typography.bodySmall)
-                    Button(onClick = onSignOutClicked) {
-                        Text("Desconectar")
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(id = R.string.general)) }, // Use string resource for "Geral"
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(id = R.string.back)
+                        )
                     }
-                }
-            } else {
-                Button(onClick = onSignInClicked) {
-                    Text("Conectar")
-                }
-            }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            )
         }
-
-        // Botão de sincronização manual (só aparece quando conectado)
-        if (googleAccount != null) {
-            Spacer(modifier = Modifier.height(16.dp))
-            
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier.padding(paddingValues).padding(horizontal = 16.dp)
+        ) { // Apply padding from Scaffold and add horizontal padding
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -105,56 +79,111 @@ fun GeneralSettingsScreen(
                     .padding(vertical = 10.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.synchronization),
+                    text = stringResource(id = R.string.sidebar_change_theme),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                Button(
-                    onClick = onManualSync,
-                    enabled = !isSyncing
-                ) {
-                    if (isSyncing) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(id = R.string.syncing))
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Sync,
-                            contentDescription = "Sincronizar",
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(stringResource(id = R.string.sync_now))
+                Switch(
+                    checked = when (currentTheme) {
+                        Theme.LIGHT -> false
+                        Theme.DARK -> true
+                        Theme.SYSTEM -> isSystemInDarkTheme()
+                    },
+                    onCheckedChange = { isChecked ->
+                        onThemeChange(if (isChecked) Theme.DARK else Theme.LIGHT)
+                    }
+                )
+            }
+
+
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+            ) {
+                Text(
+                    text = "Conta Google",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                if (googleAccount != null) {
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(googleAccount.email ?: "", style = MaterialTheme.typography.bodySmall)
+                        Button(onClick = onSignOutClicked) {
+                            Text("Desconectar")
+                        }
+                    }
+                } else {
+                    Button(onClick = onSignInClicked) {
+                        Text("Conectar")
                     }
                 }
-                
-                // Mostrar progresso detalhado se disponível
-                if (isSyncing && syncProgress != null) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+            }
+
+            // Botão de sincronização manual (só aparece quando conectado)
+            if (googleAccount != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.synchronization),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(
+                        onClick = onManualSync,
+                        enabled = !isSyncing
                     ) {
-                        Text(
-                            text = syncProgress.currentStep,
-                            style = MaterialTheme.typography.bodySmall,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        LinearProgressIndicator(
-                            progress = syncProgress.progress / 100f,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        if (syncProgress.totalEvents > 0) {
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "${syncProgress.processedEvents}/${syncProgress.totalEvents} eventos",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                        if (isSyncing) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp
                             )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(id = R.string.syncing))
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Sync,
+                                contentDescription = "Sincronizar",
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(id = R.string.sync_now))
+                        }
+                    }
+
+                    // Mostrar progresso detalhado se disponível
+                    if (isSyncing && syncProgress != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = syncProgress.currentStep,
+                                style = MaterialTheme.typography.bodySmall,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            LinearProgressIndicator(
+                                progress = syncProgress.progress / 100f,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            if (syncProgress.totalEvents > 0) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "${syncProgress.processedEvents}/${syncProgress.totalEvents} eventos",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }

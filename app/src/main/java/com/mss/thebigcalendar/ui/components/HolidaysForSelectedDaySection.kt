@@ -2,6 +2,7 @@ package com.mss.thebigcalendar.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Holiday
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Color
+import com.mss.thebigcalendar.data.model.HolidayType
 
 @Composable
 fun HolidaysForSelectedDaySection(
@@ -30,6 +33,7 @@ fun HolidaysForSelectedDaySection(
                 text = stringResource(id = R.string.holidays),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
+                color = Color.Red, // Set text color to red
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

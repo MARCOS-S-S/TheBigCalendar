@@ -323,6 +323,7 @@ fun CalendarScreen(
                                 isSyncing = uiState.isSyncing,
                                 onManualSync = { viewModel.onManualSync() },
                                 syncProgress = uiState.syncProgress,
+                                onBackClick = { viewModel.closeSettingsScreen() }
                             )
                         }
 
