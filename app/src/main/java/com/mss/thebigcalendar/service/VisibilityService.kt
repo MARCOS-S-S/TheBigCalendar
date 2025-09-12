@@ -248,8 +248,12 @@ class VisibilityService(private val context: Context) {
                 try {
                     windowManager.removeView(fullScreenView)
 
-                    // Marcar atividade como concluída
-                    markActivityAsCompleted(activity)
+                    // Enviar broadcast para que o NotificationReceiver marque a atividade como concluída
+                    val completeIntent = Intent(context, NotificationReceiver::class.java).apply {
+                        action = NotificationService.ACTION_DISMISS
+                        putExtra(NotificationService.EXTRA_ACTIVITY_ID, activity.id)
+                    }
+                    context.sendBroadcast(completeIntent)
 
                 } catch (e: Exception) {
                     Log.e(TAG, "❌ Erro ao processar botão de conclusão do alerta", e)
@@ -313,116 +317,6 @@ class VisibilityService(private val context: Context) {
     }
 
     
-
-    /**
-     * Marca uma atividade como concluída
-     */
-    private fun markActivityAsCompleted(activity: Activity) {
-        // Usar CoroutineScope com SupervisorJob para evitar cancelamento
-        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        
-        scope.launch {
-            try {
-                val repository = com.mss.thebigcalendar.data.repository.ActivityRepository(context)
-                val completedRepository = com.mss.thebigcalendar.data.repository.CompletedActivityRepository(context)
-                val notificationService = NotificationService(context)
-                val recurrenceService = com.mss.thebigcalendar.service.RecurrenceService()
-                
-                // Verificar se é uma instância recorrente (ID contém data)
-                val isRecurringInstance = activity.id.contains("_") && activity.id.split("_").size == 2
-                
-                if (isRecurringInstance) {
-                    // Tratar instância recorrente específica
-                    val parts = activity.id.split("_")
-                    val baseId = parts[0]
-                    val instanceDate = parts[1]
-
-                    
-                    // Buscar a atividade base
-                    val activities = repository.activities.first()
-                    val baseActivity = activities.find { it.id == baseId }
-                    
-                    if (baseActivity != null && recurrenceService.isRecurring(baseActivity)) {
-                        
-                        // Criar instância específica para salvar como concluída
-                        val instanceToComplete = baseActivity.copy(
-                            id = activity.id,
-                            date = instanceDate,
-                            isCompleted = true,
-                            showInCalendar = false
-                        )
-                        
-                        // Salvar instância específica como concluída
-                        completedRepository.addCompletedActivity(instanceToComplete)
-                        
-                        // Adicionar data à lista de exclusões da atividade base
-                        val updatedExcludedDates = baseActivity.excludedDates + instanceDate
-                        val updatedBaseActivity = baseActivity.copy(excludedDates = updatedExcludedDates)
-                        
-                        // Atualizar a atividade base com a nova lista de exclusões
-                        repository.saveActivity(updatedBaseActivity)
-
-                        
-                    }
-                } else {
-                    // Tratar atividade única ou atividade base
-                    // Verificar se é uma atividade recorrente
-                    if (recurrenceService.isRecurring(activity)) {
-                        // Para atividades recorrentes (primeira instância), sempre tratar como instância específica
-                        val activityDate = activity.date
-
-                        
-                        // Criar instância específica para salvar como concluída
-                        val instanceToComplete = activity.copy(
-                            id = activity.id,
-                            date = activityDate,
-                            isCompleted = true,
-                            showInCalendar = false
-                        )
-                        
-                        // Salvar instância específica como concluída
-                        completedRepository.addCompletedActivity(instanceToComplete)
-                        
-                        // Adicionar data à lista de exclusões da atividade base
-                        val updatedExcludedDates = activity.excludedDates + activityDate
-                        val updatedBaseActivity = activity.copy(excludedDates = updatedExcludedDates)
-                        
-                        // Atualizar a atividade base com a nova lista de exclusões
-                        repository.saveActivity(updatedBaseActivity)
-
-                        
-                    } else {
-                        // Tratar atividade única (não recorrente)
-                        
-                        // Marcar como concluída e salvar no repositório de finalizadas
-                        val completedActivity = activity.copy(
-                            isCompleted = true,
-                            showInCalendar = false
-                        )
-                        
-                        // Salvar no repositório de atividades finalizadas
-                        completedRepository.addCompletedActivity(completedActivity)
-                        
-                        // Remover da lista principal
-                        repository.deleteActivity(activity.id)
-
-                    }
-                }
-                
-                // Cancelar notificação se existir
-                notificationService.cancelNotification(activity.id)
-
-                // Enviar broadcast para atualizar a UI
-                val updateIntent = Intent("com.mss.thebigcalendar.ACTIVITY_COMPLETED")
-                updateIntent.putExtra("activity_id", activity.id)
-                context.sendBroadcast(updateIntent)
-                
-            } catch (e: Exception) {
-                // Erro ao marcar atividade como concluída via overlay
-                Log.e(TAG, "❌ Erro ao marcar atividade como concluída via overlay", e)
-            }
-        }
-    }
 
     /**
      * Exibe o diálogo de opções de adiamento
