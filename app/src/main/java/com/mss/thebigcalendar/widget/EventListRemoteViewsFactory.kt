@@ -119,14 +119,8 @@ class EventListRemoteViewsFactory(private val context: Context, intent: Intent) 
 
         views.setTextViewText(R.id.event_item_title, "$prefix${activity.title}")
 
-        val timeText = if (activity.startTime != null && activity.endTime != null) {
-            "${activity.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} - ${activity.endTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))}"
-        } else if (activity.startTime != null) {
-            activity.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))
-        } else {
-            ""
-        }
-        views.setTextViewText(R.id.event_item_time, timeText)
+        val descriptionText = activity.description.takeIf { !it.isNullOrBlank() } ?: ""
+        views.setTextViewText(R.id.event_item_time, descriptionText)
 
         // Set fill-in intent for click handling (optional, but good practice)
         val fillInIntent = Intent()
