@@ -36,6 +36,7 @@ class OnboardingManager(private val context: Context) {
         private const val KEY_STORAGE_PERMISSION_SHOWN = "storage_permission_shown"
         private const val KEY_GOOGLE_CONNECTED = "google_connected"
         private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
+        private const val KEY_NOTIFICATION_PERMISSION_SHOWN = "notification_permission_shown"
     }
     
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -68,6 +69,20 @@ class OnboardingManager(private val context: Context) {
      */
     fun markStoragePermissionShown() {
         prefs.edit().putBoolean(KEY_STORAGE_PERMISSION_SHOWN, true).apply()
+    }
+
+    /**
+     * Verifica se a janela de permissão de notificação já foi exibida
+     */
+    fun isNotificationPermissionShown(): Boolean {
+        return prefs.getBoolean(KEY_NOTIFICATION_PERMISSION_SHOWN, false)
+    }
+
+    /**
+     * Marca a janela de permissão de notificação como exibida
+     */
+    fun markNotificationPermissionShown() {
+        prefs.edit().putBoolean(KEY_NOTIFICATION_PERMISSION_SHOWN, true).apply()
     }
     
     /**
@@ -124,6 +139,13 @@ class OnboardingManager(private val context: Context) {
      */
     fun shouldShowStoragePermission(): Boolean {
         return isWelcomeShown() && !isStoragePermissionShown()
+    }
+
+    /**
+     * Verifica se deve exibir a janela de permissão de notificação
+     */
+    fun shouldShowNotificationPermission(): Boolean {
+        return isStoragePermissionShown() && !isNotificationPermissionShown()
     }
 }
 
@@ -322,32 +344,125 @@ fun StoragePermissionDialog(
 }
 
 /**
+ * Composable para a janela de permissão de notificação
+ */
+@Composable
+fun NotificationPermissionDialog(
+    onDismiss: () -> Unit,
+    onRequestPermission: () -> Unit,
+    onSkip: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Ícone de notificação
+                Text(
+                    text = "🔔",
+                    fontSize = 48.sp,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                
+                // Título
+                Text(
+                    text = "Permissão de Notificação",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                // Subtítulo
+                Text(
+                    text = "Para não perder seus compromissos",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+                
+                // Descrição
+                Text(
+                    text = "O TheBigCalendar usa notificações para te lembrar de eventos e tarefas importantes. Permita o envio de notificações para aproveitar ao máximo o aplicativo.",
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = 32.dp)
+                )
+                
+                // Botão solicitar permissão
+                Button(
+                    onClick = onRequestPermission,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(
+                        text = "Permitir Notificações",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                
+                // Botão pular
+                TextButton(
+                    onClick = onSkip,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Pular por enquanto",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
  * Composable para gerenciar o fluxo de onboarding
  */
 @Composable
 fun OnboardingFlow(
     onComplete: () -> Unit,
     onGoogleSignIn: () -> Unit,
-    onRequestStoragePermission: () -> Unit
+    onRequestStoragePermission: () -> Unit,
+    onRequestNotificationPermission: () -> Unit
 ) {
     val context = LocalContext.current
     val onboardingManager = remember { OnboardingManager(context) }
 
     var showWelcome by remember { mutableStateOf(false) }
     var showStoragePermission by remember { mutableStateOf(false) }
+    var showNotificationPermission by remember { mutableStateOf(false) }
     
     // Verificar se deve exibir onboarding
     LaunchedEffect(Unit) {
         when {
-            onboardingManager.shouldShowWelcome() -> {
-                showWelcome = true
-            }
-            onboardingManager.shouldShowStoragePermission() -> {
-                showStoragePermission = true
-            }
-            else -> {
-                onComplete()
-            }
+            onboardingManager.shouldShowWelcome() -> showWelcome = true
+            onboardingManager.shouldShowStoragePermission() -> showStoragePermission = true
+            onboardingManager.shouldShowNotificationPermission() -> showNotificationPermission = true
+            else -> onComplete()
         }
     }
 
@@ -376,21 +491,22 @@ fun OnboardingFlow(
                 onDismiss = {
                     showWelcome = false
                     onboardingManager.markWelcomeShown()
-                    // Verificar se deve mostrar próxima janela
                     if (onboardingManager.shouldShowStoragePermission()) {
                         showStoragePermission = true
+                    } else if (onboardingManager.shouldShowNotificationPermission()) {
+                        showNotificationPermission = true
                     } else {
                         onComplete()
                     }
                 },
                 onGoogleSignIn = {
-                    // Chama a função de login do Google existente
                     onGoogleSignIn()
                     showWelcome = false
                     onboardingManager.markWelcomeShown()
-                    // Verificar se deve mostrar próxima janela
                     if (onboardingManager.shouldShowStoragePermission()) {
                         showStoragePermission = true
+                    } else if (onboardingManager.shouldShowNotificationPermission()) {
+                        showNotificationPermission = true
                     } else {
                         onComplete()
                     }
@@ -398,9 +514,10 @@ fun OnboardingFlow(
                 onSkip = {
                     showWelcome = false
                     onboardingManager.markWelcomeShown()
-                    // Verificar se deve mostrar próxima janela
                     if (onboardingManager.shouldShowStoragePermission()) {
                         showStoragePermission = true
+                    } else if (onboardingManager.shouldShowNotificationPermission()) {
+                        showNotificationPermission = true
                     } else {
                         onComplete()
                     }
@@ -414,18 +531,51 @@ fun OnboardingFlow(
                 onDismiss = {
                     showStoragePermission = false
                     onboardingManager.markStoragePermissionShown()
-                    onComplete()
+                    if (onboardingManager.shouldShowNotificationPermission()) {
+                        showNotificationPermission = true
+                    } else {
+                        onComplete()
+                    }
                 },
                 onRequestPermission = {
-                    // Chama a função de solicitar permissão
                     onRequestStoragePermission()
                     showStoragePermission = false
                     onboardingManager.markStoragePermissionShown()
-                    onComplete()
+                    if (onboardingManager.shouldShowNotificationPermission()) {
+                        showNotificationPermission = true
+                    } else {
+                        onComplete()
+                    }
                 },
                 onSkip = {
                     showStoragePermission = false
                     onboardingManager.markStoragePermissionShown()
+                    if (onboardingManager.shouldShowNotificationPermission()) {
+                        showNotificationPermission = true
+                    } else {
+                        onComplete()
+                    }
+                }
+            )
+        }
+
+        // Janela de permissão de notificação
+        if (showNotificationPermission) {
+            NotificationPermissionDialog(
+                onDismiss = {
+                    showNotificationPermission = false
+                    onboardingManager.markNotificationPermissionShown()
+                    onComplete()
+                },
+                onRequestPermission = {
+                    onRequestNotificationPermission()
+                    showNotificationPermission = false
+                    onboardingManager.markNotificationPermissionShown()
+                    onComplete()
+                },
+                onSkip = {
+                    showNotificationPermission = false
+                    onboardingManager.markNotificationPermissionShown()
                     onComplete()
                 }
             )
