@@ -1,16 +1,12 @@
 [
- {
-   "autor": "Aristóteles",
-   "frase": "A coragem é a primeira das qualidades humanas."
- },
- {
-   "autor": "René Descartes",
-   "frase": "Penso, logo existo."
- },
- {
-   "autor": "Confúcio",
-   "frase": "Não importa o quão devagar você vá, desde que não pare."
- },
+  {
+    "autor": "Confúcio",
+    "frase": "Não importa o quão devagar você vá, desde que não pare."
+  },
+  {
+    "autor": "Abraham Lincoln",
+    "frase": "A melhor coisa sobre o futuro é que ele vem um dia de cada vez."
+  },
  {
    "autor": "Lao-Tsé",
    "frase": "Uma jornada de mil milhas começa com um único passo."
@@ -24,36 +20,12 @@
    "frase": "A felicidade da sua vida depende da qualidade dos seus pensamentos."
  },
  {
-   "autor": "Leonardo da Vinci",
-   "frase": "A simplicidade é o último grau de sofisticação."
- },
- {
-   "autor": "Albert Einstein",
-   "frase": "A imaginação é mais importante que o conhecimento."
- },
- {
-   "autor": "Isaac Newton",
-   "frase": "Se vi mais longe, foi por estar sobre ombros de gigantes."
- },
- {
-   "autor": "Jean-Jacques Rousseau",
-   "frase": "O homem nasce livre e por toda a parte encontra-se a ferros."
- },
- {
    "autor": "Immanuel Kant",
    "frase": "Aja de tal forma que trates a humanidade como um fim e nunca como um meio."
  },
  {
-   "autor": "Sun Tzu",
-   "frase": "A suprema arte da guerra é derrotar o inimigo sem lutar."
- },
- {
    "autor": "Martin Luther King Jr.",
    "frase": "Eu tenho um sonho."
- },
- {
-   "autor": "Nelson Mandela",
-   "frase": "A educação é a arma mais poderosa que você pode usar para mudar o mundo."
  },
  {
    "autor": "Mahatma Gandhi",
@@ -128,14 +100,6 @@
    "frase": "Não podemos fazer grandes coisas, apenas pequenas coisas com grande amor."
  },
  {
-   "autor": "Anne Frank",
-   "frase": "Apesar de tudo, eu ainda acredito na bondade humana."
- },
- {
-   "autor": "Helen Keller",
-   "frase": "A melhor e mais bonita coisa do mundo não pode ser vista ou tocada. Deve ser sentida com o coração."
- },
- {
    "autor": "Maya Angelou",
    "frase": "Tente ser um arco-íris na nuvem de alguém."
  },
@@ -150,14 +114,6 @@
  {
    "autor": "Malala Yousafzai",
    "frase": "Uma criança, um professor, um livro e uma caneta podem mudar o mundo."
- },
- {
-   "autor": "Michelle Obama",
-   "frase": "Quando eles vão baixo, nós vamos alto."
- },
- {
-   "autor": "William Shakespeare",
-   "frase": "Ser ou não ser, eis a questão."
  },
  {
    "autor": "Oscar Wilde",
@@ -580,20 +536,8 @@
    "frase": "Nossa maior fraqueza está em desistir. O caminho mais certo para o sucesso é sempre tentar mais uma vez."
  },
  {
-   "autor": "Abraham Lincoln",
-   "frase": "A melhor coisa sobre o futuro é que ele vem um dia de cada vez."
- },
- {
-   "autor": "Benjamin Franklin",
-   "frase": "Investir em conhecimento rende sempre os melhores juros."
- },
- {
    "autor": "Theodore Roosevelt",
    "frase": "Faça o que puder, com o que tiver, onde estiver."
- },
- {
-   "autor": "Eleanor Roosevelt",
-   "frase": "Ninguém pode fazer você se sentir inferior sem o seu consentimento."
  },
  {
    "autor": "John F. Kennedy",
@@ -602,10 +546,6 @@
  {
    "autor": "Vincent van Gogh",
    "frase": "Grandes coisas são feitas por uma série de pequenas coisas reunidas."
- },
- {
-   "autor": "Pablo Picasso",
-   "frase": "Tudo o que você pode imaginar é real."
  },
  {
    "autor": "Charles Darwin",
@@ -624,28 +564,12 @@
    "frase": "Olhe para as estrelas e não para os seus pés."
  },
  {
-   "autor": "Neil Armstrong",
-   "frase": "É um pequeno passo para um homem, um salto gigante para a humanidade."
- },
- {
    "autor": "Amelia Earhart",
    "frase": "A maneira mais eficaz de fazer algo é fazer."
  },
  {
-   "autor": "Rosa Parks",
-   "frase": "Cada pessoa deve viver sua vida como um modelo para os outros."
- },
- {
    "autor": "Harriet Tubman",
    "frase": "Todo grande sonho começa com um sonhador."
- },
- {
-   "autor": "Susan B. Anthony",
-   "frase": "O fracasso é impossível."
- },
- {
-   "autor": "Sojourner Truth",
-   "frase": "Se a primeira mulher que Deus fez foi forte o suficiente para virar o mundo de cabeça para baixo, então juntas poderemos virá-lo de volta."
  },
  {
    "autor": "Emily Dickinson",
@@ -654,10 +578,6 @@
  {
    "autor": "Jane Austen",
    "frase": "Não há charme igual à ternura do coração."
- },
- {
-   "autor": "Mary Shelley",
-   "frase": "Cuidado; pois não conheço o medo, e portanto sou poderoso."
  },
  {
    "autor": "George Eliot",
@@ -678,5 +598,5 @@
  {
    "autor": "Jim Rohn",
    "frase": "Ou você comanda o seu dia, ou o dia comanda você."
- },
+ }
 ]
