@@ -62,7 +62,7 @@ fun MonthlyCalendar(
             }
         }
 
-        Column {
+        Column(modifier = Modifier.padding(horizontal = 8.dp)) {
             val weeks = remember(calendarDays) { calendarDays.chunked(7) }
             weeks.forEach { week ->
                 Row(
