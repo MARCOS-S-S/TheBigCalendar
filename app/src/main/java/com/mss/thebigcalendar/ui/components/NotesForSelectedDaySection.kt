@@ -82,8 +82,8 @@ fun NotesForSelectedDaySection(
                 NoteItem(
                     note = note,
                     deleteButtonVisible = activityIdWithDeleteVisible == note.id,
-                    onClick = { onNoteClick(note) },
-                    onLongClick = { onNoteLongClick(note.id) },
+                    onClick = { onNoteLongClick(note.id) },
+                    onLongClick = { onNoteClick(note) },
                     onDeleteClick = { onDeleteClick(note.id) },
                     onCompleteClick = { onCompleteClick(note.id) }
                 )

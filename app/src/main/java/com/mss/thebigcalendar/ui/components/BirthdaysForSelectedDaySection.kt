@@ -93,8 +93,8 @@ fun BirthdaysForSelectedDaySection(
                 BirthdayItem(
                     birthday = birthday,
                     deleteButtonVisible = activityIdWithDeleteVisible == birthday.id,
-                    onClick = { onBirthdayClick(birthday) },
-                    onLongClick = { onBirthdayLongClick(birthday.id) },
+                    onClick = { onBirthdayLongClick(birthday.id) },
+                    onLongClick = { onBirthdayClick(birthday) },
                     onDeleteClick = { onDeleteClick(birthday.id) },
                     onCompleteClick = { onCompleteClick(birthday.id) }
                 )

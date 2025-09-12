@@ -150,8 +150,8 @@ fun TaskItem(
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
             .combinedClickable(
-                onClick = { onTaskClick(task) },
-                onLongClick = { onTaskLongClick(task.id) }
+                onClick = { onTaskLongClick(task.id) },
+                onLongClick = { onTaskClick(task) }
             )
             .padding(start = 8.dp),
         verticalAlignment = Alignment.CenterVertically
