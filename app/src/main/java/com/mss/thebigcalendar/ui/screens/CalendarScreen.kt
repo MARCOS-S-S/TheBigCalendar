@@ -186,7 +186,7 @@ fun CalendarScreen(
                         TopAppBar(
                             title = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    val text = when (uiState.viewMode) {
+                                    when (uiState.viewMode) {
                                         ViewMode.MONTHLY -> {
                                             val monthName = uiState.displayedYearMonth.month
                                                 .getDisplayName(
@@ -201,27 +201,27 @@ fun CalendarScreen(
                                                         )
                                                     )
                                                 }
-                                            stringResource(
-                                                id = R.string.month_year_format,
-                                                monthName,
-                                                uiState.displayedYearMonth.year
-                                            )
+                                            Column(horizontalAlignment = Alignment.Start) {
+                                                Text(
+                                                    text = monthName,
+                                                    style = MaterialTheme.typography.titleMedium
+                                                )
+                                                Text(
+                                                    text = uiState.displayedYearMonth.year.toString(),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
                                         }
 
-                                        ViewMode.YEARLY -> uiState.displayedYearMonth.year.toString()
-                                    }
-                                    Text(
-                                        text = text,
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                    if (uiState.viewMode == ViewMode.MONTHLY) {
-                                        IconButton(onClick = { viewModel.onGoToToday() }) {
-                                            Icon(
-                                                Icons.Default.Today,
-                                                contentDescription = stringResource(id = R.string.go_to_today)
+                                        ViewMode.YEARLY -> {
+                                            Text(
+                                                text = uiState.displayedYearMonth.year.toString(),
+                                                style = MaterialTheme.typography.titleMedium
                                             )
                                         }
                                     }
+                                    
                                 }
                             },
                             navigationIcon = {
@@ -250,6 +250,12 @@ fun CalendarScreen(
                                         Icon(
                                             Icons.Default.Search,
                                             stringResource(id = R.string.search)
+                                        )
+                                    }
+                                    IconButton(onClick = { viewModel.onGoToToday() }) {
+                                        Icon(
+                                            Icons.Default.Today,
+                                            contentDescription = stringResource(id = R.string.go_to_today)
                                         )
                                     }
                                     IconButton(onClick = { viewModel.onChartIconClick() }) {

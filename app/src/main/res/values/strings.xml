@@ -56,7 +56,7 @@
     <string name="holidays">Feriados</string>
 
     <!-- SaintDaysForSelectedDaySection.kt -->
-    <string name="saint_days">Dias de Santos Católicos</string>
+    <string name="saint_days">Santos Católicos</string>
 
     <!-- SaintInfoDialog.kt -->
     <string name="no_information_available">Nenhuma informação disponível.</string>
@@ -65,7 +65,7 @@
 
     <!-- Sidebar.kt -->
     <string name="national_holidays">Feriados nacionais</string>
-    <string name="catholic_saint_days">Dias de Santos Católicos</string>
+    <string name="catholic_saint_days">Santos Católicos</string>
     <string name="commemorative_dates">Datas comemorativas</string>
     <string name="events">Eventos</string>
     <string name="tasks">Tarefas</string>
