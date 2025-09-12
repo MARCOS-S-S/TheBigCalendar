@@ -124,6 +124,13 @@ class NotificationReceiver : BroadcastReceiver() {
                     Log.w(TAG, "⚠️ IDs disponíveis: ${activities.map { it.id }}")
                     
                     // Fallback: criar uma atividade temporária se não encontrar a real
+                    val visibilityString = intent.getStringExtra(NotificationService.EXTRA_VISIBILITY) ?: VisibilityLevel.LOW.name
+                    val visibility = try {
+                        VisibilityLevel.valueOf(visibilityString)
+                    } catch (e: Exception) {
+                        VisibilityLevel.LOW
+                    }
+
                     val tempActivity = com.mss.thebigcalendar.data.model.Activity(
                         id = activityId ?: "unknown",
                         title = activityTitle ?: "Atividade",
@@ -140,7 +147,7 @@ class NotificationReceiver : BroadcastReceiver() {
                             isEnabled = true,
                             notificationType = com.mss.thebigcalendar.data.model.NotificationType.BEFORE_ACTIVITY
                         ),
-                        visibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW,
+                        visibility = visibility,
                         showInCalendar = true
                     )
                     

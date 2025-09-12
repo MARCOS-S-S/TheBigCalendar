@@ -129,7 +129,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     
     private fun registerNotificationBroadcastReceiver() {
         val filter = android.content.IntentFilter("com.mss.thebigcalendar.ACTIVITY_COMPLETED")
-        getApplication<Application>().registerReceiver(notificationBroadcastReceiver, filter)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            getApplication<Application>().registerReceiver(notificationBroadcastReceiver, filter, android.content.Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            getApplication<Application>().registerReceiver(notificationBroadcastReceiver, filter)
+        }
     }
 
     /**
@@ -2241,6 +2245,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         // Recarregar dados da UI
                         loadData()
                         loadBackupFiles()
+
+                        // Reagendar notificações
+                        val notificationService = NotificationService(getApplication())
+                        result.activities.forEach { activity ->
+                            notificationService.scheduleNotification(activity)
+                        }
                     },
                     onFailure = { exception ->
                         println("❌ Erro ao restaurar backup: ${exception.message}")

@@ -40,6 +40,7 @@ class NotificationService(
         const val EXTRA_ACTIVITY_TITLE = "activity_title"
         const val EXTRA_ACTIVITY_DATE = "activity_date"
         const val EXTRA_ACTIVITY_TIME = "activity_time"
+        const val EXTRA_VISIBILITY = "activity_visibility"
     }
 
     init {
@@ -109,6 +110,7 @@ class NotificationService(
             putExtra(EXTRA_ACTIVITY_TITLE, activity.title)
             putExtra(EXTRA_ACTIVITY_DATE, activity.date)
             putExtra(EXTRA_ACTIVITY_TIME, activity.startTime?.toString() ?: "")
+            putExtra(EXTRA_VISIBILITY, activity.visibility.name)
         }
 
         val pendingIntent = PendingIntent.getBroadcast(
