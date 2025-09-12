@@ -32,6 +32,10 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.cos
 import kotlin.math.sin
 import com.mss.thebigcalendar.data.model.Activity
+import java.time.YearMonth
+import java.time.format.TextStyle
+import java.util.Locale
+
 
 data class ChartData(
     val label: String,
@@ -43,6 +47,7 @@ data class ChartData(
 @Composable
 fun PieChartComponent(
     activities: List<Activity>,
+    currentMonth: YearMonth, // New parameter
     modifier: Modifier = Modifier
 ) {
     // Lógica de filtragem e categorização
@@ -60,7 +65,7 @@ fun PieChartComponent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Distribuição de Atividades",
+                text = "Distribuição de Atividades (${currentMonth.month.getDisplayName(TextStyle.FULL, Locale("pt", "BR")).replaceFirstChar { it.titlecase(Locale("pt", "BR")) }})",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )

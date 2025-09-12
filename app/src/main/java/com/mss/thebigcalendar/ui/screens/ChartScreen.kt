@@ -42,6 +42,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import com.mss.thebigcalendar.R
 
+import java.time.YearMonth
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChartScreen(
@@ -50,6 +52,7 @@ fun ChartScreen(
     completedActivities: List<com.mss.thebigcalendar.data.model.Activity> = emptyList(),
     last7DaysData: List<com.mss.thebigcalendar.ui.components.BarChartData> = emptyList(),
     lastYearData: List<com.mss.thebigcalendar.ui.components.BarChartData> = emptyList(),
+    currentMonth: YearMonth, // New parameter
     onBackPressedDispatcher: OnBackPressedDispatcher? = null,
     onNavigateToCompletedTasks: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -168,6 +171,7 @@ fun ChartScreen(
                 // Gráfico de pizza com distribuição de atividades
                 PieChartComponent(
                     activities = activities,
+                    currentMonth = currentMonth, // Pass the new parameter
                     modifier = Modifier.fillMaxWidth()
                 )
             }

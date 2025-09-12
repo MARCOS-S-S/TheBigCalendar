@@ -213,6 +213,7 @@ class MainActivity : ComponentActivity() {
                                 completedActivities = uiState.completedActivities,
                                 last7DaysData = viewModel.getLast7DaysCompletedTasksData(),
                                 lastYearData = viewModel.getLastYearCompletedTasksData(),
+                                currentMonth = uiState.displayedYearMonth, // Added this line
                                 onNavigateToCompletedTasks = { viewModel.onCompletedTasksClick() },
                                 onBackPressedDispatcher = onBackPressedDispatcher
                             )
