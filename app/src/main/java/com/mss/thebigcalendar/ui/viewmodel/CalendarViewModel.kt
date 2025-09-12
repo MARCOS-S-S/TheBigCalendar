@@ -1626,7 +1626,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun closeCreateActivityModal() = _uiState.update { it.copy(activityToEdit = null) }
 
     fun onTaskLongPressed(activityId: String) {
-        _uiState.update { it.copy(activityIdWithDeleteButtonVisible = activityId) }
+        _uiState.update { currentState ->
+            if (currentState.activityIdWithDeleteButtonVisible == activityId) {
+                // If the same item is clicked again, hide the buttons
+                currentState.copy(activityIdWithDeleteButtonVisible = null)
+            } else {
+                // Otherwise, show buttons for the new item
+                currentState.copy(activityIdWithDeleteButtonVisible = activityId)
+            }
+        }
     }
 
     fun hideDeleteButton() {
