@@ -169,16 +169,7 @@ private fun BirthdayItem(
             }
         }
         
-        // Indicador de evento recorrente
-        if (!birthday.recurrenceRule.isNullOrEmpty()) {
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(
-                imageVector = Icons.Default.Refresh,
-                contentDescription = "Evento recorrente",
-                tint = Color(0xFFE91E63),
-                modifier = Modifier.size(20.dp)
-            )
-        }
+        
 
         // Botões de ação (aparecem quando deleteButtonVisible é true)
         if (deleteButtonVisible) {
