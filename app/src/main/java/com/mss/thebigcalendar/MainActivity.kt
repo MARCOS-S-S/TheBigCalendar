@@ -1,14 +1,15 @@
 package com.mss.thebigcalendar
 
-import android.content.Intent
-import android.os.Bundle
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
 import android.net.Uri
-import android.provider.Settings
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
+import android.os.PowerManager
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.mss.thebigcalendar.data.model.Theme
@@ -67,11 +69,25 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun requestIgnoreBatteryOptimizations() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+            if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
+                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                    data = Uri.parse("package:$packageName")
+                }
+                startActivity(intent)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         viewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
+
+        requestIgnoreBatteryOptimizations()
         
         // Configurar callback para o botão de voltar do sistema
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -131,6 +147,7 @@ class MainActivity : ComponentActivity() {
                                     if (!Environment.isExternalStorageManager()) {
                                         val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
                                             data = Uri.fromParts("package", packageName, null)
+                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                         }
                                         try {
                                             storagePermissionLauncher.launch(intent)
@@ -138,6 +155,7 @@ class MainActivity : ComponentActivity() {
                                             // Fallback para configurações gerais do app
                                             val fallbackIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                                 data = Uri.fromParts("package", packageName, null)
+                                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                             }
                                             storagePermissionLauncher.launch(fallbackIntent)
                                         }

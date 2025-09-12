@@ -55,6 +55,7 @@ fun StoragePermissionDialog(
             onOpenSettings = {
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", context.packageName, null)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
                 settingsLauncher.launch(intent)
             }
@@ -103,6 +104,7 @@ fun StoragePermissionDialog(
                                     // Android 11+: Abrir configurações para permissão de gerenciamento
                                     val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
                                         data = Uri.fromParts("package", context.packageName, null)
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                     }
                                     try {
                                         settingsLauncher.launch(intent)
@@ -110,6 +112,7 @@ fun StoragePermissionDialog(
                                         // Fallback para configurações gerais do app
                                         val fallbackIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                             data = Uri.fromParts("package", context.packageName, null)
+                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                         }
                                         settingsLauncher.launch(fallbackIntent)
                                     }

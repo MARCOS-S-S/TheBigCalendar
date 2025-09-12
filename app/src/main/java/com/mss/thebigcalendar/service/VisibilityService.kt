@@ -84,10 +84,12 @@ class VisibilityService(private val context: Context) {
      * Solicita permissão para sobrepor outros apps
      */
     fun requestOverlayPermission(): Intent {
-        return Intent(
+        val intent = Intent(
             Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-            Uri.parse("package:${context.packageName}")
+            Uri.fromParts("package", context.packageName, null)
         )
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        return intent
     }
 
     /**
@@ -245,12 +247,12 @@ class VisibilityService(private val context: Context) {
             completeButton.setOnClickListener {
                 try {
                     windowManager.removeView(fullScreenView)
-                    
+
                     // Marcar atividade como concluída
                     markActivityAsCompleted(activity)
-                    
+
                 } catch (e: Exception) {
-                    // Erro ao remover alerta de tela inteira
+                    Log.e(TAG, "❌ Erro ao processar botão de conclusão do alerta", e)
                 }
             }
 
@@ -309,6 +311,8 @@ class VisibilityService(private val context: Context) {
             "Sem horário definido"
         }
     }
+
+    
 
     /**
      * Marca uma atividade como concluída
@@ -407,9 +411,15 @@ class VisibilityService(private val context: Context) {
                 
                 // Cancelar notificação se existir
                 notificationService.cancelNotification(activity.id)
+
+                // Enviar broadcast para atualizar a UI
+                val updateIntent = Intent("com.mss.thebigcalendar.ACTIVITY_COMPLETED")
+                updateIntent.putExtra("activity_id", activity.id)
+                context.sendBroadcast(updateIntent)
                 
             } catch (e: Exception) {
                 // Erro ao marcar atividade como concluída via overlay
+                Log.e(TAG, "❌ Erro ao marcar atividade como concluída via overlay", e)
             }
         }
     }
