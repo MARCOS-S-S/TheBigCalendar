@@ -261,22 +261,37 @@ class RecurrenceService {
     /**
      * Obtém a próxima ocorrência de uma atividade recorrente
      */
-    fun getNextOccurrence(activity: Activity, fromDate: LocalDate = LocalDate.now()): LocalDate? {
+    fun getNextOccurrence(activity: Activity, fromDate: LocalDate): LocalDate? {
         val rule = activity.recurrenceRule ?: return null
         if (!isRecurring(activity)) return null
-        
-        val baseDate = LocalDate.parse(activity.date)
-        return when (rule) {
-            "DAILY" -> baseDate.plusDays(1)
-            "WEEKLY" -> baseDate.plusWeeks(1)
-            "MONTHLY" -> {
-                val nextMonth = baseDate.plusMonths(1)
-                val targetDay = minOf(baseDate.dayOfMonth, nextMonth.lengthOfMonth())
-                nextMonth.withDayOfMonth(targetDay)
+
+        var currentDate = fromDate
+        // Loop a reasonable number of times to find the next valid, non-excluded date
+        for (i in 1..365 * 5) { // Check for the next 5 years
+            val nextDate = when (rule) {
+                "DAILY" -> currentDate.plusDays(1)
+                "WEEKLY" -> currentDate.plusWeeks(1)
+                "MONTHLY" -> {
+                    val baseDate = LocalDate.parse(activity.date)
+                    val nextMonth = currentDate.plusMonths(1)
+                    val day = minOf(baseDate.dayOfMonth, nextMonth.lengthOfMonth())
+                    nextMonth.withDayOfMonth(day)
+                }
+                "YEARLY" -> {
+                    val baseDate = LocalDate.parse(activity.date)
+                    val nextYear = currentDate.plusYears(1)
+                    val day = minOf(baseDate.dayOfMonth, nextYear.lengthOfMonth())
+                    nextYear.withDayOfMonth(day)
+                }
+                else -> return null
             }
-            "YEARLY" -> baseDate.plusYears(1)
-            else -> null
+
+            if (!activity.excludedDates.contains(nextDate.toString())) {
+                return nextDate
+            }
+            currentDate = nextDate // Continue searching from the excluded date
         }
+        return null // No valid occurrence found in the next 5 years
     }
 
     /**

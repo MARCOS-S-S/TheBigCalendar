@@ -118,6 +118,20 @@ class NotificationReceiver : BroadcastReceiver() {
                     withContext(Dispatchers.Main) {
                         notificationService.showNotification(realActivity)
                     }
+
+                    // ✅ Agendar a próxima ocorrência se for uma atividade recorrente
+                    val recurrenceService = RecurrenceService()
+                    if (recurrenceService.isRecurring(realActivity)) {
+                        val nextOccurrenceDate = recurrenceService.getNextOccurrence(realActivity, java.time.LocalDate.parse(realActivity.date))
+                        if (nextOccurrenceDate != null) {
+                            val baseId = realActivity.id.split("_").firstOrNull() ?: realActivity.id
+                            val nextActivity = realActivity.copy(
+                                id = "${baseId}_${nextOccurrenceDate}",
+                                date = nextOccurrenceDate.toString()
+                            )
+                            notificationService.scheduleNotification(nextActivity)
+                        }
+                    }
                     
                 } else {
                     Log.w(TAG, "⚠️ Atividade não encontrada no repositório, usando fallback")
