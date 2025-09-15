@@ -24,6 +24,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import android.util.Log
+import android.app.TimePickerDialog
+import android.widget.TimePicker
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.AlarmSettings
@@ -75,7 +77,6 @@ fun AlarmScreen(
     var snoozeMinutes by remember { mutableStateOf(5) }
     
     // Estados de UI
-    var showTimePicker by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
@@ -85,6 +86,21 @@ fun AlarmScreen(
     val alarmRepository = remember { AlarmRepository(context) }
     val notificationService = remember { NotificationService(context) }
     val alarmService = remember { AlarmService(context, alarmRepository, notificationService) }
+    
+    // Função para mostrar o seletor de horário nativo do Android
+    fun showNativeTimePicker() {
+        val timePickerDialog = TimePickerDialog(
+            context,
+            { _: TimePicker, hourOfDay: Int, minute: Int ->
+                selectedTime = LocalTime.of(hourOfDay, minute)
+            },
+            selectedTime.hour,
+            selectedTime.minute,
+            true // 24 horas
+        )
+        timePickerDialog.setTitle("Selecionar Horário")
+        timePickerDialog.show()
+    }
     
     // Carregar configurações salvas do alarme
     LaunchedEffect(alarmId) {
@@ -253,12 +269,15 @@ fun AlarmScreen(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     
-                    // Horário do despertador em destaque
+                    // Horário do despertador em destaque (clicável)
                     Text(
                         text = selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                         style = MaterialTheme.typography.displayLarge,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.clickable { 
+                            showNativeTimePicker()
+                        }
                     )
                     
                     // Status do despertador
@@ -288,14 +307,49 @@ fun AlarmScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
             
-            // Seletor de horário
+            // Seletor de horário nativo do Android
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Schedule,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Selecionar Horário",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text(
+                        text = "Toque no horário acima para abrir o seletor nativo do Android",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
+            
+            // Seletor customizado comentado - usando seletor nativo do Android
+            /*
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
@@ -425,6 +479,7 @@ fun AlarmScreen(
                     }
                 }
             }
+            */
             
             // Configurações adicionais
             Card(
