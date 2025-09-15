@@ -179,15 +179,25 @@ class AlarmActivity : ComponentActivity() {
         try {
             val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
             if (alarmUri != null) {
+                // Obter o volume de alarme do sistema
+                val audioManager = getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+                val maxVolume = audioManager.getStreamMaxVolume(android.media.AudioManager.STREAM_ALARM)
+                val currentVolume = audioManager.getStreamVolume(android.media.AudioManager.STREAM_ALARM)
+                val volumeLevel = currentVolume.toFloat() / maxVolume.toFloat()
+                
+                Log.d(TAG, "🔔 Volume do alarme: $currentVolume/$maxVolume (${(volumeLevel * 100).toInt()}%)")
+                
                 mediaPlayer = MediaPlayer().apply {
                     setDataSource(this@AlarmActivity, alarmUri)
                     isLooping = true
-                    setVolume(1.0f, 1.0f)
+                    setVolume(volumeLevel, volumeLevel)
+                    setAudioStreamType(android.media.AudioManager.STREAM_ALARM)
                     prepare()
                     start()
                 }
             }
         } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao iniciar som do alarme", e)
             e.printStackTrace()
         }
     }
@@ -219,7 +229,11 @@ class AlarmActivity : ComponentActivity() {
             val alarmService = AlarmService(this@AlarmActivity, alarmRepository, notificationService)
             
             alarmSettings?.let { settings ->
+                // Cancelar alarme no sistema
                 alarmService.cancelAlarm(settings.id)
+                
+                // Cancelar notificação de status do alarme
+                alarmService.cancelAlarmNotification(settings.id)
             }
         }
         

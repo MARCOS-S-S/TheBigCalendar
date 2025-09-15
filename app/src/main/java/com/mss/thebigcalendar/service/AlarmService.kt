@@ -400,6 +400,14 @@ class AlarmService(
             val alarmUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM)
             
             if (alarmUri != null) {
+                // Obter o volume de alarme do sistema
+                val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+                val maxVolume = audioManager.getStreamMaxVolume(android.media.AudioManager.STREAM_ALARM)
+                val currentVolume = audioManager.getStreamVolume(android.media.AudioManager.STREAM_ALARM)
+                val volumeLevel = currentVolume.toFloat() / maxVolume.toFloat()
+                
+                Log.d(TAG, "🔔 Volume do alarme (Service): $currentVolume/$maxVolume (${(volumeLevel * 100).toInt()}%)")
+                
                 mediaPlayer.setDataSource(context, alarmUri)
                 mediaPlayer.setAudioAttributes(
                     android.media.AudioAttributes.Builder()
@@ -409,6 +417,7 @@ class AlarmService(
                         .build()
                 )
                 mediaPlayer.isLooping = true
+                mediaPlayer.setVolume(volumeLevel, volumeLevel)
                 mediaPlayer.prepare()
                 mediaPlayer.start()
                 
