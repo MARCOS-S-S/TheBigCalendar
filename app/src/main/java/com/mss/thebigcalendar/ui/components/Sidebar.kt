@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.outlined.Backup
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Checkbox
@@ -60,6 +61,7 @@ fun Sidebar(
     onFilterChange: (key: String, value: Boolean) -> Unit,
     onNavigateToSettings: (String) -> Unit,
     onBackup: () -> Unit,
+    onNotesClick: () -> Unit,
     onRequestClose: () -> Unit
 ) {
     val context = LocalContext.current
@@ -137,6 +139,12 @@ fun Sidebar(
                 icon = { Icon(Icons.Filled.DateRange, contentDescription = null) },
                 selected = uiState.viewMode == ViewMode.YEARLY,
                 onClick = { onViewModeChange(ViewMode.YEARLY) }
+            )
+            NavigationDrawerItem(
+                label = { Text("Notas") },
+                icon = { Icon(Icons.Filled.Note, contentDescription = null) },
+                selected = false,
+                onClick = { onNotesClick() }
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))

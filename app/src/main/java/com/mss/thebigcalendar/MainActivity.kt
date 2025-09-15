@@ -31,6 +31,7 @@ import com.mss.thebigcalendar.ui.screens.CalendarScreen
 import com.mss.thebigcalendar.ui.screens.SearchScreen
 import com.mss.thebigcalendar.ui.screens.TrashScreen
 import com.mss.thebigcalendar.ui.screens.ChartScreen
+import com.mss.thebigcalendar.ui.screens.NotesScreen
 import com.mss.thebigcalendar.ui.screens.CompletedTasksScreen
 import com.mss.thebigcalendar.ui.screens.BackupScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
@@ -106,6 +107,8 @@ class MainActivity : ComponentActivity() {
                     state.isSidebarOpen -> viewModel.closeSidebar()
                     state.currentSettingsScreen != null -> viewModel.closeSettingsScreen()
                     state.isSearchScreenOpen -> viewModel.closeSearchScreen()
+                    state.isChartScreenOpen -> viewModel.closeChartScreen()
+                    state.isNotesScreenOpen -> viewModel.closeNotesScreen()
                     state.isTrashScreenOpen -> viewModel.closeTrashScreen()
                     state.isBackupScreenOpen -> viewModel.closeBackupScreen()
                     state.isCompletedTasksScreenOpen -> viewModel.closeCompletedTasksScreen()
@@ -215,6 +218,13 @@ class MainActivity : ComponentActivity() {
                                 lastYearData = viewModel.getLastYearCompletedTasksData(),
                                 currentMonth = uiState.displayedYearMonth, // Added this line
                                 onNavigateToCompletedTasks = { viewModel.onCompletedTasksClick() },
+                                onBackPressedDispatcher = onBackPressedDispatcher
+                            )
+                        }
+                        uiState.isNotesScreenOpen -> {
+                            NotesScreen(
+                                onBackClick = { viewModel.closeNotesScreen() },
+                                activities = uiState.activities,
                                 onBackPressedDispatcher = onBackPressedDispatcher
                             )
                         }

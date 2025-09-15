@@ -1874,6 +1874,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(isChartScreenOpen = false) }
     }
 
+    // --- Tela de Notas ---
+    fun onNotesClick() {
+        println("📝 Abrindo tela de notas")
+        _uiState.update { it.copy(isNotesScreenOpen = true, isSidebarOpen = false) }
+    }
+
+    fun closeNotesScreen() {
+        println("🚪 Fechando tela de notas")
+        _uiState.update { it.copy(isNotesScreenOpen = false) }
+    }
+
     // --- Tarefas Concluídas ---
     fun onCompletedTasksClick() {
         println("📋 Abrindo tela de tarefas concluídas")

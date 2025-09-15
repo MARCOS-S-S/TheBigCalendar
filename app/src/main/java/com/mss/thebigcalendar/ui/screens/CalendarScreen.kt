@@ -155,6 +155,7 @@ fun CalendarScreen(
                         onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
                         onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
                         onBackup = { viewModel.onBackupIconClick() },
+                        onNotesClick = { viewModel.onNotesClick() },
                         onRequestClose = {
                             scope.launch { drawerState.close() }
                             viewModel.closeSidebar()
