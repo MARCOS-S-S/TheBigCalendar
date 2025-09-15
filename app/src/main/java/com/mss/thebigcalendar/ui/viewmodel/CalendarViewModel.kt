@@ -1598,11 +1598,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun closeSidebar() = _uiState.update { it.copy(isSidebarOpen = false) }
 
     fun onNavigateToSettings(screen: String?) {
-        _uiState.update { it.copy(currentSettingsScreen = screen, isSidebarOpen = false) }
+        _uiState.update { it.copy(isSettingsScreenOpen = true, isSidebarOpen = false) }
     }
 
     fun closeSettingsScreen() {
-        _uiState.update { it.copy(currentSettingsScreen = null) }
+        _uiState.update { it.copy(isSettingsScreenOpen = false) }
+    }
+
+    fun onWelcomeNameChange(newName: String) {
+        viewModelScope.launch {
+            settingsRepository.saveWelcomeName(newName)
+        }
     }
 
     fun openCreateActivityModal(activity: Activity? = null, activityType: ActivityType = ActivityType.EVENT) {

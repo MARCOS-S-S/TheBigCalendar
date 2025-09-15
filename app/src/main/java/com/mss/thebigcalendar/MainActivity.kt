@@ -32,6 +32,7 @@ import com.mss.thebigcalendar.ui.screens.SearchScreen
 import com.mss.thebigcalendar.ui.screens.TrashScreen
 import com.mss.thebigcalendar.ui.screens.ChartScreen
 import com.mss.thebigcalendar.ui.screens.NotesScreen
+import com.mss.thebigcalendar.ui.screens.GeneralSettingsScreen
 import com.mss.thebigcalendar.ui.screens.CompletedTasksScreen
 import com.mss.thebigcalendar.ui.screens.BackupScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
@@ -105,7 +106,7 @@ class MainActivity : ComponentActivity() {
                 when {
                     state.activityToEdit != null -> viewModel.closeCreateActivityModal()
                     state.isSidebarOpen -> viewModel.closeSidebar()
-                    state.currentSettingsScreen != null -> viewModel.closeSettingsScreen()
+                    state.isSettingsScreenOpen -> viewModel.closeSettingsScreen()
                     state.isSearchScreenOpen -> viewModel.closeSearchScreen()
                     state.isChartScreenOpen -> viewModel.closeChartScreen()
                     state.isNotesScreenOpen -> viewModel.closeNotesScreen()
@@ -226,6 +227,23 @@ class MainActivity : ComponentActivity() {
                                 onBackClick = { viewModel.closeNotesScreen() },
                                 activities = uiState.activities,
                                 onBackPressedDispatcher = onBackPressedDispatcher
+                            )
+                        }
+                        uiState.isSettingsScreenOpen -> {
+                            GeneralSettingsScreen(
+                                currentTheme = uiState.theme,
+                                onThemeChange = { viewModel.onThemeChange(it) },
+                                welcomeName = uiState.welcomeName,
+                                onWelcomeNameChange = { newName ->
+                                    viewModel.onWelcomeNameChange(newName)
+                                },
+                                googleAccount = uiState.googleSignInAccount,
+                                onSignInClicked = { viewModel.onSignInClicked() },
+                                onSignOutClicked = { viewModel.signOut() },
+                                isSyncing = uiState.isSyncing,
+                                onManualSync = { viewModel.onManualSync() },
+                                syncProgress = uiState.syncProgress,
+                                onBackClick = { viewModel.closeSettingsScreen() }
                             )
                         }
                         uiState.isBackupScreenOpen -> {

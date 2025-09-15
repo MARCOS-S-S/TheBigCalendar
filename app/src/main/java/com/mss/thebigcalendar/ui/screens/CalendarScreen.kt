@@ -145,7 +145,7 @@ fun CalendarScreen(
     } else {
         ModalNavigationDrawer(
             drawerState = drawerState,
-            gesturesEnabled = uiState.currentSettingsScreen == null,
+            gesturesEnabled = true,
             scrimColor = Color.Black.copy(alpha = 0.7f),
             drawerContent = {
                 if (drawerState.targetValue == DrawerValue.Open || drawerState.isOpen) {
@@ -183,8 +183,7 @@ fun CalendarScreen(
             Scaffold(
                 modifier = scaffoldModifier,
                 topBar = {
-                    if (uiState.currentSettingsScreen == null) {
-                        TopAppBar(
+                    TopAppBar(
                             title = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     when (uiState.viewMode) {
@@ -304,7 +303,6 @@ fun CalendarScreen(
                                 containerColor = MaterialTheme.colorScheme.primaryContainer
                             )
                         )
-                    }
                 },
                 snackbarHost = { SnackbarHost(snackbarHostState) }
             ) { paddingValues ->
@@ -313,34 +311,14 @@ fun CalendarScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
-                    when (uiState.currentSettingsScreen) {
-                        "General" -> {
-                            GeneralSettingsScreen(
-                                currentTheme = uiState.theme,
-                                onThemeChange = { viewModel.onThemeChange(it) },
-                                welcomeName = uiState.welcomeName,
-                                onWelcomeNameChange = { newName ->
-                                    scope.launch { viewModel.settingsRepository.saveWelcomeName(newName) }
-                                },
-                                googleAccount = uiState.googleSignInAccount,
-                                onSignInClicked = { viewModel.onSignInClicked() },
-                                onSignOutClicked = { viewModel.signOut() },
-                                isSyncing = uiState.isSyncing,
-                                onManualSync = { viewModel.onManualSync() },
-                                syncProgress = uiState.syncProgress,
-                                onBackClick = { viewModel.closeSettingsScreen() }
-                            )
-                        }
-
-                        else -> {
-                            MainCalendarView(
+                    // Conteúdo principal do calendário
+                    MainCalendarView(
                                 viewModel,
                                 uiState,
                                 scope,
                                 drawerState,
                                 snackbarHostState
                             )
-                        }
                     }
 
                     uiState.activityIdToDelete?.let { activityId ->
@@ -386,7 +364,6 @@ fun CalendarScreen(
             }
         }
     }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
