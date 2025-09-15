@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -26,9 +27,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
@@ -86,8 +89,10 @@ fun CreateActivityScreen(
     }
 
     var syncWithGoogle by remember(currentActivity.id) { 
-        mutableStateOf(currentActivity.isFromGoogle)
+        mutableStateOf(currentActivity.isFromGoogle) 
     }
+    
+    var showAlarmScreen by remember { mutableStateOf(false) }
     var isRepetitionMenuExpanded by remember { mutableStateOf(false) }
 
     val repetitionOptions = listOf(
@@ -317,6 +322,52 @@ fun CreateActivityScreen(
                     isCustomized = notificationSettings.notificationType != NotificationType.FIFTEEN_MINUTES_BEFORE
                 )
                 Spacer(modifier = Modifier.height(16.dp))
+                
+                // Opção de Despertador
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showAlarmScreen = true },
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Alarm,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Despertador",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Configure um despertador para esta tarefa",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             Box {
@@ -397,6 +448,15 @@ fun CreateActivityScreen(
                 }
             )
         }
+    }
+    
+    // Tela de Despertador
+    if (showAlarmScreen) {
+        val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+        AlarmScreen(
+            onBackClick = { showAlarmScreen = false },
+            onBackPressedDispatcher = backPressedDispatcher
+        )
     }
 }
 
