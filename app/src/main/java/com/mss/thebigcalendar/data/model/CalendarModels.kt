@@ -76,7 +76,7 @@ data class CalendarUiState(
     val selectedDate: LocalDate = LocalDate.now(),
     val viewMode: ViewMode = ViewMode.MONTHLY,
     val theme: Theme = Theme.LIGHT,
-    val username: String = "Usuário",
+    val welcomeName: String = "Usuário",
     val activities: List<Activity> = emptyList(),
     val nationalHolidays: Map<LocalDate, Holiday> = emptyMap(),
     val saintDays: Map<String, Holiday> = emptyMap(), // MM-dd -> Holiday

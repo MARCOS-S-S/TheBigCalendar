@@ -37,12 +37,23 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GeneralSettingsScreen(
     currentTheme: Theme,
     onThemeChange: (Theme) -> Unit,
+    welcomeName: String,
+    onWelcomeNameChange: (String) -> Unit,
     googleAccount: GoogleSignInAccount?,
     onSignInClicked: () -> Unit,
     onSignOutClicked: () -> Unit,
@@ -51,6 +62,16 @@ fun GeneralSettingsScreen(
     syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null,
     onBackClick: () -> Unit // New parameter for back button
 ) {
+    val scope = rememberCoroutineScope()
+    var welcomeNameInput by remember { mutableStateOf(welcomeName) }
+
+    // Sincronizar o estado local com o estado do ViewModel
+    LaunchedEffect(welcomeName) {
+        if (welcomeNameInput != welcomeName) {
+            welcomeNameInput = welcomeName
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -95,7 +116,26 @@ fun GeneralSettingsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
 
+            // Campo para o nome de boas-vindas
+            OutlinedTextField(
+                value = welcomeNameInput,
+                onValueChange = {
+                    welcomeNameInput = it
+                    scope.launch {
+                        delay(500) // Debounce para evitar muitas escritas no DataStore
+                        if (welcomeNameInput == it) { // Verificar se o valor não mudou durante o delay
+                            onWelcomeNameChange(it)
+                        }
+                    }
+                },
+                label = { Text(stringResource(id = R.string.welcome_name_setting_title)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,

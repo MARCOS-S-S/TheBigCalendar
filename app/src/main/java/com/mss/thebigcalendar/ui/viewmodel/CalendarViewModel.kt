@@ -61,7 +61,7 @@ import kotlinx.coroutines.Job
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val settingsRepository = SettingsRepository(application)
+    val settingsRepository = SettingsRepository(application)
     private val activityRepository = ActivityRepository(application)
     private val holidayRepository = HolidayRepository(application)
     private val googleAuthService = GoogleAuthService(application)
@@ -477,8 +477,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
         }
         viewModelScope.launch {
-            settingsRepository.username.collect { username ->
-                _uiState.update { it.copy(username = username) }
+            settingsRepository.welcomeName.collect { welcomeName ->
+                _uiState.update { it.copy(welcomeName = welcomeName) }
             }
         }
         viewModelScope.launch {
@@ -493,7 +493,18 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
         }
         viewModelScope.launch {
-            
+            // Observar o estado de login do Google e o nome de boas-vindas
+            _uiState.collect { uiState ->
+                val googleAccount = uiState.googleSignInAccount
+                val currentWelcomeName = uiState.welcomeName
+
+                if (googleAccount != null && currentWelcomeName == "Usuário") {
+                    val firstName = googleAccount.displayName?.split(" ")?.firstOrNull()
+                    if (!firstName.isNullOrBlank()) {
+                        settingsRepository.saveWelcomeName(firstName)
+                    }
+                }
+            }
         }
     }
 

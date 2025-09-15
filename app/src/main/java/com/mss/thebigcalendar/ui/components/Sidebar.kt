@@ -84,7 +84,7 @@ fun Sidebar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = GreetingService.getFullGreetingMessage(userName),
+                    text = GreetingService.getFullGreetingMessage(uiState.welcomeName),
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     color = MaterialTheme.colorScheme.onSurface

@@ -20,7 +20,7 @@ class SettingsRepository(private val context: Context) {
 
     private object PreferencesKeys {
         val THEME = stringPreferencesKey("theme")
-        val USERNAME = stringPreferencesKey("username")
+        val WELCOME_NAME = stringPreferencesKey("welcome_name")
         val SHOW_HOLIDAYS = booleanPreferencesKey("show_holidays")
         val SHOW_SAINT_DAYS = booleanPreferencesKey("show_saint_days")
         val SHOW_EVENTS = booleanPreferencesKey("show_events")
@@ -37,9 +37,9 @@ class SettingsRepository(private val context: Context) {
             Theme.valueOf(themeName)
         }
 
-    val username: Flow<String> = context.dataStore.data
+    val welcomeName: Flow<String> = context.dataStore.data
         .map { preferences ->
-            preferences[PreferencesKeys.USERNAME] ?: "Usuário"
+            preferences[PreferencesKeys.WELCOME_NAME] ?: "Usuário"
         }
 
     val showMoonPhases: Flow<Boolean> = context.dataStore.data
@@ -67,9 +67,9 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun saveUsername(username: String) {
+    suspend fun saveWelcomeName(name: String) {
         context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.USERNAME] = username
+            preferences[PreferencesKeys.WELCOME_NAME] = name
         }
     }
 

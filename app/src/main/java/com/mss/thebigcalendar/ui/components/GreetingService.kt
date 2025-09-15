@@ -63,9 +63,9 @@ object GreetingService {
     /**
      * Obtém uma mensagem completa com emoji e saudação
      */
-    fun getFullGreetingMessage(userName: String? = null): String {
+    fun getFullGreetingMessage(welcomeName: String? = null): String {
         val emoji = getGreetingEmoji()
-        val greeting = getGreetingMessage(userName)
+        val greeting = getGreetingMessage(welcomeName)
         return "$emoji $greeting"
     }
     

@@ -317,6 +317,10 @@ fun CalendarScreen(
                             GeneralSettingsScreen(
                                 currentTheme = uiState.theme,
                                 onThemeChange = { viewModel.onThemeChange(it) },
+                                welcomeName = uiState.welcomeName,
+                                onWelcomeNameChange = { newName ->
+                                    scope.launch { viewModel.settingsRepository.saveWelcomeName(newName) }
+                                },
                                 googleAccount = uiState.googleSignInAccount,
                                 onSignInClicked = { viewModel.onSignInClicked() },
                                 onSignOutClicked = { viewModel.signOut() },
