@@ -26,6 +26,10 @@ import kotlinx.coroutines.launch
 import android.util.Log
 import android.app.TimePickerDialog
 import android.widget.TimePicker
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.AlarmSettings
@@ -47,6 +51,143 @@ fun AlarmScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
     
+    // Estado para controlar o diálogo de permissão
+    var showPermissionDialog by remember { mutableStateOf(false) }
+    var hasOverlayPermission by remember { 
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Settings.canDrawOverlays(context)
+            } else {
+                true
+            }
+        )
+    }
+    var showThankYouMessage by remember { mutableStateOf(false) }
+    
+    // Verificar permissões quando a tela abrir
+    LaunchedEffect(Unit) {
+        // Só mostrar diálogo se realmente não tiver permissão
+        if (!hasOverlayPermission) {
+            showPermissionDialog = true
+        }
+    }
+    
+    // Estados do alarme
+    var selectedTime by remember { mutableStateOf(LocalTime.of(8, 0)) }
+    var isAlarmEnabled by remember { mutableStateOf(true) }
+    var alarmLabel by remember { mutableStateOf("") }
+    var repeatDays by remember { mutableStateOf(setOf<String>()) }
+    var soundEnabled by remember { mutableStateOf(true) }
+    var vibrationEnabled by remember { mutableStateOf(true) }
+    var snoozeMinutes by remember { mutableStateOf(5) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+    var successMessage by remember { mutableStateOf("") }
+    var isLoaded by remember { mutableStateOf(false) }
+    
+    // ID do alarme baseado na atividade ou gerado
+    val alarmId = remember(activityToEdit?.id) { 
+        activityToEdit?.id ?: "alarm_${System.currentTimeMillis()}"
+    }
+    
+    // Repositórios e serviços
+    val alarmRepository = remember { AlarmRepository(context) }
+    val notificationService = remember { NotificationService(context) }
+    val alarmService = remember { AlarmService(context, alarmRepository, notificationService) }
+    
+    // Carregar configurações existentes
+    LaunchedEffect(alarmId) {
+        try {
+            val savedAlarm = alarmRepository.getAlarmById(alarmId)
+            if (savedAlarm != null) {
+                // Carregar configurações salvas
+                selectedTime = savedAlarm.time
+                isAlarmEnabled = savedAlarm.isEnabled
+                alarmLabel = savedAlarm.label
+                repeatDays = savedAlarm.repeatDays
+                soundEnabled = savedAlarm.soundEnabled
+                vibrationEnabled = savedAlarm.vibrationEnabled
+                snoozeMinutes = savedAlarm.snoozeMinutes
+                Log.d("AlarmScreen", "✅ Configurações de alarme carregadas: $savedAlarm")
+            } else if (activityToEdit != null) {
+                // Se não há alarme salvo, usar dados da atividade
+                selectedTime = activityToEdit.startTime ?: LocalTime.of(8, 0)
+                isAlarmEnabled = true
+                alarmLabel = activityToEdit.title
+                repeatDays = setOf()
+                soundEnabled = true
+                vibrationEnabled = true
+                snoozeMinutes = 5
+                Log.d("AlarmScreen", "📝 Usando dados da atividade: ${activityToEdit.title}")
+            }
+        } catch (e: Exception) {
+            Log.e("AlarmScreen", "❌ Erro ao carregar configurações", e)
+            errorMessage = "Erro ao carregar configurações: ${e.message}"
+        } finally {
+            isLoaded = true
+        }
+    }
+    
+    // Função para mostrar seletor de horário nativo
+    fun showNativeTimePicker() {
+        val timePickerDialog = TimePickerDialog(
+            context,
+            { _: TimePicker, hourOfDay: Int, minute: Int ->
+                selectedTime = LocalTime.of(hourOfDay, minute)
+            },
+            selectedTime.hour,
+            selectedTime.minute,
+            true // 24 horas
+        )
+        timePickerDialog.setTitle("Selecionar Horário")
+        timePickerDialog.show()
+    }
+    
+    // Função para salvar alarme
+    suspend fun saveAlarm() {
+        try {
+            isLoading = true
+            errorMessage = ""
+            successMessage = ""
+            
+            val alarmSettings = AlarmSettings(
+                id = alarmId,
+                label = alarmLabel.ifBlank { "Despertador" },
+                time = selectedTime,
+                isEnabled = isAlarmEnabled,
+                repeatDays = repeatDays,
+                soundEnabled = soundEnabled,
+                vibrationEnabled = vibrationEnabled,
+                snoozeMinutes = snoozeMinutes,
+                createdAt = System.currentTimeMillis(),
+                lastModified = System.currentTimeMillis()
+            )
+            
+            // Validar configurações
+            val validation = AlarmSettings.validate(alarmSettings)
+            if (validation is AlarmSettings.ValidationResult.Error) {
+                errorMessage = validation.message
+                return
+            }
+            
+            // Salvar no repositório
+            val result = alarmRepository.saveAlarm(alarmSettings)
+            if (result.isSuccess) {
+                // Agendar alarme
+                alarmService.scheduleAlarm(alarmSettings)
+                successMessage = "Despertador salvo com sucesso!"
+                Log.d("AlarmScreen", "✅ Despertador salvo: $alarmSettings")
+            } else {
+                errorMessage = "Erro ao salvar despertador: ${result.exceptionOrNull()?.message}"
+            }
+        } catch (e: Exception) {
+            errorMessage = "Erro inesperado: ${e.message}"
+            Log.e("AlarmScreen", "❌ Erro ao salvar despertador", e)
+        } finally {
+            isLoading = false
+        }
+    }
+    
     // Tratar o botão de voltar do sistema
     onBackPressedDispatcher?.let { dispatcher ->
         DisposableEffect(dispatcher) {
@@ -62,640 +203,161 @@ fun AlarmScreen(
         }
     }
     
-    // ID único para o alarme (usar ID da atividade se estiver editando, senão criar novo)
-    val alarmId = remember(activityToEdit?.id) { 
-        activityToEdit?.id ?: "alarm_${System.currentTimeMillis()}"
-    }
-    
-    // Estados do alarme (inicializados com valores padrão)
-    var selectedTime by remember { mutableStateOf(LocalTime.of(8, 0)) }
-    var isAlarmEnabled by remember { mutableStateOf(false) }
-    var alarmLabel by remember { mutableStateOf("") }
-    var repeatDays by remember { mutableStateOf(setOf<String>()) }
-    var soundEnabled by remember { mutableStateOf(true) }
-    var vibrationEnabled by remember { mutableStateOf(true) }
-    var snoozeMinutes by remember { mutableStateOf(5) }
-    
-    // Estados de UI
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    var successMessage by remember { mutableStateOf<String?>(null) }
-    var isLoaded by remember { mutableStateOf(false) }
-    
-    // Serviços
-    val alarmRepository = remember { AlarmRepository(context) }
-    val notificationService = remember { NotificationService(context) }
-    val alarmService = remember { AlarmService(context, alarmRepository, notificationService) }
-    
-    // Função para mostrar o seletor de horário nativo do Android
-    fun showNativeTimePicker() {
-        val timePickerDialog = TimePickerDialog(
-            context,
-            { _: TimePicker, hourOfDay: Int, minute: Int ->
-                selectedTime = LocalTime.of(hourOfDay, minute)
-            },
-            selectedTime.hour,
-            selectedTime.minute,
-            true // 24 horas
-        )
-        timePickerDialog.setTitle("Selecionar Horário")
-        timePickerDialog.show()
-    }
-    
-    // Carregar configurações salvas do alarme
-    LaunchedEffect(alarmId) {
-        try {
-            val savedAlarm = alarmRepository.getAlarmById(alarmId)
-            if (savedAlarm != null) {
-                // Carregar configurações salvas do alarme
-                selectedTime = savedAlarm.time
-                isAlarmEnabled = savedAlarm.isEnabled
-                alarmLabel = savedAlarm.label
-                repeatDays = savedAlarm.repeatDays
-                soundEnabled = savedAlarm.soundEnabled
-                vibrationEnabled = savedAlarm.vibrationEnabled
-                snoozeMinutes = savedAlarm.snoozeMinutes
-                Log.d("AlarmScreen", "📱 Configurações do alarme carregadas: ${savedAlarm.label}")
-            } else if (activityToEdit != null) {
-                // Se não há alarme salvo mas há uma atividade para editar, usar dados da atividade
-                selectedTime = activityToEdit.startTime ?: LocalTime.of(8, 0)
-                isAlarmEnabled = true
-                alarmLabel = activityToEdit.title
-                repeatDays = emptySet() // Atividades não têm dias de repetição por padrão
-                soundEnabled = true
-                vibrationEnabled = true
-                snoozeMinutes = 5
-                Log.d("AlarmScreen", "📱 Usando dados da atividade para editar: ${activityToEdit.title}")
-            } else {
-                Log.d("AlarmScreen", "📱 Nenhuma configuração salva encontrada, usando padrões")
-            }
-        } catch (e: Exception) {
-            Log.e("AlarmScreen", "❌ Erro ao carregar configurações do alarme", e)
-        } finally {
-            isLoaded = true
-        }
-    }
-    
-    // Salvar configurações automaticamente quando mudarem
-    LaunchedEffect(selectedTime, isAlarmEnabled, alarmLabel, repeatDays, soundEnabled, vibrationEnabled, snoozeMinutes) {
-        if (isLoaded) {
-            try {
-                val currentAlarm = AlarmSettings.createDefault().copy(
-                    id = alarmId,
-                    label = alarmLabel,
-                    time = selectedTime,
-                    isEnabled = isAlarmEnabled,
-                    repeatDays = repeatDays,
-                    soundEnabled = soundEnabled,
-                    vibrationEnabled = vibrationEnabled,
-                    snoozeMinutes = snoozeMinutes,
-                    createdAt = System.currentTimeMillis(),
-                    lastModified = System.currentTimeMillis()
-                )
-                alarmRepository.saveAlarm(currentAlarm)
-                Log.d("AlarmScreen", "💾 Configurações do alarme salvas automaticamente")
-            } catch (e: Exception) {
-                Log.e("AlarmScreen", "❌ Erro ao salvar configurações do alarme", e)
-            }
-        }
-    }
-    
     Scaffold(
-        modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Alarm,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Text(
-                            text = if (activityToEdit != null) "Editar Despertador" else "Despertador",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                title = { 
+                    Text(
+                        if (activityToEdit != null) "Editar Despertador" else "Configurar Despertador"
+                    ) 
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(id = R.string.back)
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             )
         }
     ) { paddingValues ->
-        if (!isLoaded) {
-            // Mostrar loading enquanto carrega as configurações
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    CircularProgressIndicator()
-                    Text(
-                        text = "Carregando configurações...",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Mensagem informativa se estiver editando
-            if (activityToEdit != null) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AccessTime,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Editando despertador para: ${activityToEdit.title}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
-            }
-            
-            // Área central principal - Hora, ícone e status
-            Box(
+            // Centralizar horário, ícone e status
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(32.dp),
-                contentAlignment = Alignment.Center
+                    .padding(vertical = 16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Ícone do relógio centralizado
+                    // Ícone do alarme
                     Icon(
-                        imageVector = Icons.Default.AccessTime,
+                        imageVector = if (isAlarmEnabled) Icons.Default.AlarmOn else Icons.Default.Alarm,
                         contentDescription = null,
-                        modifier = Modifier.size(80.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        modifier = Modifier.size(64.dp),
+                        tint = if (isAlarmEnabled) 
+                            MaterialTheme.colorScheme.primary 
+                        else 
+                            MaterialTheme.colorScheme.outline
                     )
                     
-                    // Horário do despertador em destaque (clicável)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Horário (clicável)
                     Text(
                         text = selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                         style = MaterialTheme.typography.displayLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.clickable { 
-                            showNativeTimePicker()
-                        }
+                        modifier = Modifier.clickable { showNativeTimePicker() }
                     )
                     
-                    // Status do despertador
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (isAlarmEnabled) Icons.Default.AlarmOn else Icons.Default.Alarm,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = if (isAlarmEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = if (isAlarmEnabled) "Despertador ativado" else "Despertador desativado",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = if (isAlarmEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Status
+                    Text(
+                        text = if (isAlarmEnabled) "Ativado" else "Desativado",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = if (isAlarmEnabled) 
+                            MaterialTheme.colorScheme.primary 
+                        else 
+                            MaterialTheme.colorScheme.outline
+                    )
                 }
             }
             
-            // Configurações abaixo da área central
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
             
-            // Seletor de horário nativo do Android
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+            // Card de permissão necessária
+            if (!hasOverlayPermission) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    Column(
+                        modifier = Modifier.padding(16.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Schedule,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                        Text(
+                            text = "Permissão Necessária",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Para o despertador funcionar corretamente, é necessário permitir que o app exiba sobre outros apps.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            TextButton(
+                                onClick = { 
+                                    showPermissionDialog = true
+                                }
+                            ) {
+                                Text("Configurar")
+                            }
+                            TextButton(
+                                onClick = { 
+                                    hasOverlayPermission = true
+                                    showThankYouMessage = true
+                                }
+                            ) {
+                                Text("Pronto")
+                            }
+                        }
+                    }
+                }
+            } else if (showThankYouMessage) {
+                // Mensagem de agradecimento
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "✅ Obrigado!",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = "Selecionar Horário",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
+                            text = "Permissão concedida com sucesso!",
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Toque no horário acima para abrir o seletor nativo do Android",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
                 }
             }
             
-            // Seletor customizado comentado - usando seletor nativo do Android
-            /*
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Schedule,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "Horário do Despertador",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    // TimePicker real
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Botão para diminuir hora
-                        IconButton(
-                            onClick = { 
-                                selectedTime = selectedTime.minusHours(1)
-                            }
-                        ) {
-                            Text(
-                                text = "−",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        
-                        // Hora atual (clicável para abrir TimePicker)
-                        Text(
-                            text = selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")),
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable { showTimePicker = true }
-                        )
-                        
-                        // Botão para aumentar hora
-                        IconButton(
-                            onClick = { 
-                                selectedTime = selectedTime.plusHours(1)
-                            }
-                        ) {
-                            Text(
-                                text = "+",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // Controles de minutos
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Minutos:",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        
-                        IconButton(
-                            onClick = { 
-                                selectedTime = selectedTime.minusMinutes(15)
-                            }
-                        ) {
-                            Text(
-                                text = "−15",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                        
-                        IconButton(
-                            onClick = { 
-                                selectedTime = selectedTime.minusMinutes(5)
-                            }
-                        ) {
-                            Text(
-                                text = "−5",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                        
-                        IconButton(
-                            onClick = { 
-                                selectedTime = selectedTime.plusMinutes(5)
-                            }
-                        ) {
-                            Text(
-                                text = "+5",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                        
-                        IconButton(
-                            onClick = { 
-                                selectedTime = selectedTime.plusMinutes(15)
-                            }
-                        ) {
-                            Text(
-                                text = "+15",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    }
-                }
-            }
-            */
-            
-            // Configurações adicionais
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "Configurações",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    // Switch para ativar/desativar despertador
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Ativar Despertador",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Switch(
-                            checked = isAlarmEnabled,
-                            onCheckedChange = { isAlarmEnabled = it }
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // Campo para rótulo do despertador
-                    OutlinedTextField(
-                        value = alarmLabel,
-                        onValueChange = { alarmLabel = it },
-                        label = { Text("Rótulo do despertador") },
-                        placeholder = { Text("Ex: Acordar para trabalho") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // Configurações de som e vibração
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Som",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Switch(
-                            checked = soundEnabled,
-                            onCheckedChange = { soundEnabled = it }
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Vibração",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Switch(
-                            checked = vibrationEnabled,
-                            onCheckedChange = { vibrationEnabled = it }
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // Configuração de snooze
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Snooze (minutos)",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            IconButton(
-                                onClick = { 
-                                    if (snoozeMinutes > 1) snoozeMinutes--
-                                }
-                            ) {
-                                Text("-", style = MaterialTheme.typography.titleMedium)
-                            }
-                            Text(
-                                text = "$snoozeMinutes",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                            IconButton(
-                                onClick = { 
-                                    if (snoozeMinutes < 60) snoozeMinutes++
-                                }
-                            ) {
-                                Text("+", style = MaterialTheme.typography.titleMedium)
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // Dias da semana para repetição
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "Repetir",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    val daysOfWeek = listOf("Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb")
-                    
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        // Primeira linha - Domingo a Quarta-feira
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            val firstRowDays = listOf("Dom", "Seg", "Ter", "Qua")
-                            firstRowDays.forEach { day ->
-                                FilterChip(
-                                    onClick = {
-                                        repeatDays = if (repeatDays.contains(day)) {
-                                            repeatDays - day
-                                        } else {
-                                            repeatDays + day
-                                        }
-                                    },
-                                    label = { 
-                                        Text(
-                                            text = day,
-                                            maxLines = 1,
-                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                                        ) 
-                                    },
-                                    selected = repeatDays.contains(day)
-                                )
-                            }
-                        }
-                        
-                        // Segunda linha - Quinta a Sábado
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            val secondRowDays = listOf("Qui", "Sex", "Sáb")
-                            secondRowDays.forEach { day ->
-                                FilterChip(
-                                    onClick = {
-                                        repeatDays = if (repeatDays.contains(day)) {
-                                            repeatDays - day
-                                        } else {
-                                            repeatDays + day
-                                        }
-                                    },
-                                    label = { 
-                                        Text(
-                                            text = day,
-                                            maxLines = 1,
-                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                                        ) 
-                                    },
-                                    selected = repeatDays.contains(day)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Mensagens de feedback
-            errorMessage?.let { error ->
+            // Exibir mensagens de erro/sucesso
+            if (errorMessage.isNotEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -703,15 +365,14 @@ fun AlarmScreen(
                     )
                 ) {
                     Text(
-                        text = error,
+                        text = errorMessage,
                         modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        style = MaterialTheme.typography.bodyMedium
+                        color = MaterialTheme.colorScheme.onErrorContainer
                     )
                 }
             }
             
-            successMessage?.let { success ->
+            if (successMessage.isNotEmpty()) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
@@ -719,157 +380,237 @@ fun AlarmScreen(
                     )
                 ) {
                     Text(
-                        text = success,
+                        text = successMessage,
                         modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        style = MaterialTheme.typography.bodyMedium
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
             
-            // Botões de ação
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            // Toggle para ativar/desativar
+            Card(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                OutlinedButton(
-                    onClick = onBackClick,
-                    modifier = Modifier.weight(1f),
-                    enabled = !isLoading
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Ativar Despertador",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Switch(
+                        checked = isAlarmEnabled,
+                        onCheckedChange = { isAlarmEnabled = it }
+                    )
+                }
+            }
+            
+            // Campo de texto para rótulo
+            OutlinedTextField(
+                value = alarmLabel,
+                onValueChange = { alarmLabel = it },
+                label = { Text("Rótulo do Despertador") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            
+            // Dias da semana
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "Repetir",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    
+                    // Primeira linha: Dom, Seg, Ter, Qua
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        val firstRowDays = listOf("Dom", "Seg", "Ter", "Qua")
+                        firstRowDays.forEach { day ->
+                            FilterChip(
+                                onClick = {
+                                    repeatDays = if (day in repeatDays) {
+                                        repeatDays - day
+                                    } else {
+                                        repeatDays + day
+                                    }
+                                },
+                                label = { Text(day) },
+                                selected = day in repeatDays,
+                                modifier = Modifier.widthIn(min = 48.dp)
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Segunda linha: Qui, Sex, Sáb
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        val secondRowDays = listOf("Qui", "Sex", "Sáb")
+                        secondRowDays.forEach { day ->
+                            FilterChip(
+                                onClick = {
+                                    repeatDays = if (day in repeatDays) {
+                                        repeatDays - day
+                                    } else {
+                                        repeatDays + day
+                                    }
+                                },
+                                label = { Text(day) },
+                                selected = day in repeatDays,
+                                modifier = Modifier.widthIn(min = 48.dp)
+                            )
+                        }
+                    }
+                }
+            }
+            
+            // Configurações adicionais
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "Configurações",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    
+                    // Som
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Som")
+                        Switch(
+                            checked = soundEnabled,
+                            onCheckedChange = { soundEnabled = it }
+                        )
+                    }
+                    
+                    // Vibração
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Vibração")
+                        Switch(
+                            checked = vibrationEnabled,
+                            onCheckedChange = { vibrationEnabled = it }
+                        )
+                    }
+                    
+                    // Soneca
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Soneca (minutos)")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            IconButton(onClick = { if (snoozeMinutes > 1) snoozeMinutes-- }) {
+                                Text("-", fontSize = 20.sp)
+                            }
+                            Text(
+                                text = snoozeMinutes.toString(),
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.width(32.dp),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                            IconButton(onClick = { if (snoozeMinutes < 30) snoozeMinutes++ }) {
+                                Text("+", fontSize = 20.sp)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Botão salvar
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        saveAlarm()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(if (isLoading) "Salvando..." else "Salvar Despertador")
+            }
+        }
+    }
+    
+    // Diálogo de permissão
+    if (showPermissionDialog) {
+        AlertDialog(
+            onDismissRequest = { showPermissionDialog = false },
+            title = {
+                Text("Permissão Necessária")
+            },
+            text = {
+                Text("Para o despertador funcionar corretamente, é necessário permitir que o app exiba sobre outros apps. Isso permite que o alarme apareça mesmo quando o dispositivo estiver bloqueado.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showPermissionDialog = false
+                        // Abrir configurações de permissão
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
+                                data = Uri.parse("package:${context.packageName}")
+                            }
+                            try {
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                Log.e("AlarmScreen", "Erro ao abrir configurações de permissão", e)
+                            }
+                        }
+                    }
+                ) {
+                    Text("Dar Permissão")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showPermissionDialog = false }
                 ) {
                     Text("Cancelar")
                 }
-                
-                Button(
-                    onClick = {
-                        keyboardController?.hide()
-                        coroutineScope.launch {
-                            isLoading = true
-                            try {
-                                saveAlarm(
-                                    alarmId = alarmId,
-                                    selectedTime = selectedTime,
-                                    isAlarmEnabled = isAlarmEnabled,
-                                    alarmLabel = alarmLabel,
-                                    repeatDays = repeatDays,
-                                    soundEnabled = soundEnabled,
-                                    vibrationEnabled = vibrationEnabled,
-                                    snoozeMinutes = snoozeMinutes,
-                                    alarmRepository = alarmRepository,
-                                    alarmService = alarmService,
-                                    onSuccess = { 
-                                        successMessage = "Despertador salvo com sucesso!"
-                                        errorMessage = null
-                                        isLoading = false
-                                    },
-                                    onError = { error ->
-                                        errorMessage = error
-                                        successMessage = null
-                                        isLoading = false
-                                    },
-                                    onLoading = { 
-                                        isLoading = true
-                                    }
-                                )
-                            } catch (e: Exception) {
-                                errorMessage = "Erro inesperado: ${e.message}"
-                                isLoading = false
-                            }
-                        }
-                    },
-                    modifier = Modifier.weight(1f),
-                    enabled = !isLoading
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Text("Salvar Despertador")
-                    }
-                }
-            }
-            }
-        }
-        }
-    }
-}
-
-/**
- * Função para salvar o alarme
- */
-private suspend fun saveAlarm(
-    alarmId: String,
-    selectedTime: LocalTime,
-    isAlarmEnabled: Boolean,
-    alarmLabel: String,
-    repeatDays: Set<String>,
-    soundEnabled: Boolean,
-    vibrationEnabled: Boolean,
-    snoozeMinutes: Int,
-    alarmRepository: AlarmRepository,
-    alarmService: AlarmService,
-    onSuccess: () -> Unit,
-    onError: (String) -> Unit,
-    onLoading: () -> Unit
-) {
-    onLoading()
-    
-    // Validar dados
-    val label = alarmLabel.trim()
-    if (label.isEmpty()) {
-        onError("Rótulo do despertador é obrigatório")
-        return
-    }
-    
-    if (label.length > 50) {
-        onError("Rótulo muito longo (máximo 50 caracteres)")
-        return
-    }
-    
-    // Criar configurações do alarme com ID persistente
-    val alarmSettings = AlarmSettings(
-        id = alarmId,
-        label = label,
-        time = selectedTime,
-        isEnabled = isAlarmEnabled,
-        repeatDays = repeatDays,
-        soundEnabled = soundEnabled,
-        vibrationEnabled = vibrationEnabled,
-        snoozeMinutes = snoozeMinutes,
-        createdAt = System.currentTimeMillis(),
-        lastModified = System.currentTimeMillis()
-    )
-    
-    // Validar configurações
-    val validation = AlarmSettings.validate(alarmSettings)
-    if (validation is AlarmSettings.ValidationResult.Error) {
-        onError(validation.message)
-        return
-    }
-    
-    try {
-        // Salvar no repositório
-        val result = alarmRepository.saveAlarm(alarmSettings)
-        result.fold(
-            onSuccess = { savedAlarm ->
-                // Agendar no sistema
-                val scheduleResult = alarmService.scheduleAlarm(savedAlarm)
-                scheduleResult.fold(
-                    onSuccess = {
-                        onSuccess()
-                    },
-                    onFailure = { error ->
-                        onError("Erro ao agendar alarme: ${error.message}")
-                    }
-                )
-            },
-            onFailure = { error ->
-                onError("Erro ao salvar alarme: ${error.message}")
             }
         )
-    } catch (e: Exception) {
-        onError("Erro inesperado: ${e.message}")
     }
 }

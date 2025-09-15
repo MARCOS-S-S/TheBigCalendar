@@ -7,6 +7,7 @@ import android.media.RingtoneManager
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.CalendarContract
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -60,9 +61,10 @@ class AlarmActivity : ComponentActivity() {
             return
         }
         
-        // Configurar para acender a tela
+        // Configurar para acender a tela e forçar abertura
         setupWakeLock()
         setupScreen()
+        forceBringToFront()
         
         // Carregar configurações do alarme
         val alarmRepository = AlarmRepository(this)
@@ -70,6 +72,9 @@ class AlarmActivity : ComponentActivity() {
         val alarmService = AlarmService(this, alarmRepository, notificationService)
         
         lifecycleScope.launch {
+            // Cancelar notificação de alarme quando a activity abrir
+            alarmService.cancelAlarmNotification(alarmId)
+            
             alarmSettings = alarmRepository.getAlarmById(alarmId)
             if (alarmSettings == null) {
                 finish()
@@ -120,6 +125,50 @@ class AlarmActivity : ComponentActivity() {
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         if (keyguardManager.isKeyguardLocked) {
             keyguardManager.requestDismissKeyguard(this, null)
+        }
+    }
+    
+    /**
+     * Força a activity a aparecer na frente
+     */
+    private fun forceBringToFront() {
+        try {
+            // Trazer para frente usando flags de window
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+            )
+            
+            // Forçar foco e tela cheia
+            if (!isFinishing) {
+                window.setFlags(
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN
+                )
+            }
+            
+            // Tentar trazer para frente usando ActivityManager (API 21+)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                try {
+                    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+                    val tasks = activityManager.getRunningTasks(1)
+                    if (tasks.isNotEmpty()) {
+                        val topTask = tasks[0]
+                        if (topTask.topActivity?.packageName == packageName) {
+                            // Já está na frente
+                            Log.d(TAG, "🔔 Activity já está na frente")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "⚠️ Não foi possível verificar posição da activity: ${e.message}")
+                }
+            }
+            
+            Log.d(TAG, "🔔 Activity configurada para aparecer na frente")
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao forçar activity para frente", e)
         }
     }
     

@@ -207,20 +207,241 @@ class AlarmService(
             
             val alarmSettings = alarmRepository.getAlarmById(alarmId)
             if (alarmSettings != null) {
-                // Abrir AlarmActivity para exibir o alarme completo
-                openAlarmActivity(alarmSettings)
+                // Forçar abertura da tela do alarme
+                forceOpenAlarmScreen(alarmSettings)
                 
                 // Se for recorrente, reagendar para o próximo dia
                 if (alarmSettings.repeatDays.isNotEmpty()) {
                     scheduleRepeatingAlarm(alarmSettings)
                 }
-                
-                Log.d(TAG, "🔔 AlarmActivity aberta")
             } else {
                 Log.w(TAG, "🔔 Configurações de alarme não encontradas: $alarmId")
             }
         } catch (e: Exception) {
             Log.e(TAG, "🔔 Erro ao processar alarme disparado", e)
+        }
+    }
+    
+    /**
+     * Força a abertura da tela do alarme
+     */
+    private fun forceOpenAlarmScreen(alarmSettings: AlarmSettings) {
+        try {
+            Log.d(TAG, "🔔 Forçando abertura da tela do alarme: ${alarmSettings.label}")
+            
+            // Criar notificação com full screen intent
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            
+            // Canal de notificação para alarmes
+            val channelId = "alarm_fullscreen_channel"
+            val channel = android.app.NotificationChannel(
+                channelId,
+                "Alarmes Tela Cheia",
+                android.app.NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notificações de alarme em tela cheia"
+                enableLights(true)
+                enableVibration(true)
+                setShowBadge(true)
+                lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
+                setBypassDnd(true)
+                setSound(
+                    android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM),
+                    android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setFlags(android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                        .build()
+                )
+            }
+            notificationManager.createNotificationChannel(channel)
+            
+            // Intent para abrir AlarmActivity
+            val intent = Intent(context, com.mss.thebigcalendar.ui.screens.AlarmActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or 
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                        Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
+                putExtra(com.mss.thebigcalendar.ui.screens.AlarmActivity.EXTRA_ALARM_ID, alarmSettings.id)
+            }
+            
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                alarmSettings.id.hashCode(),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            
+            // Notificação com full screen intent
+            val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
+                .setContentTitle("⏰ Despertador")
+                .setContentText("${alarmSettings.label} - ${alarmSettings.time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}")
+                .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                .setContentIntent(pendingIntent)
+                .setFullScreenIntent(pendingIntent, true) // Força tela cheia
+                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_MAX)
+                .setCategory(androidx.core.app.NotificationCompat.CATEGORY_ALARM)
+                .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
+                .setAutoCancel(false)
+                .setOngoing(true)
+                .setDefaults(androidx.core.app.NotificationCompat.DEFAULT_ALL)
+                .setVibrate(longArrayOf(0, 1000, 500, 1000, 500, 1000))
+                .build()
+            
+            // Mostrar notificação
+            notificationManager.notify(alarmSettings.id.hashCode(), notification)
+            
+            // Tentar abrir a activity diretamente também
+            try {
+                context.startActivity(intent)
+                Log.d(TAG, "🔔 AlarmActivity iniciada diretamente")
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ Falha ao abrir AlarmActivity diretamente: ${e.message}")
+            }
+            
+            // Tocar som de alarme
+            playAlarmSound(alarmSettings)
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao forçar abertura da tela do alarme", e)
+        }
+    }
+    
+    /**
+     * Mostra notificação de alarme com som e vibração
+     */
+    private fun showAlarmNotification(alarmSettings: AlarmSettings) {
+        try {
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            
+            // Canal de notificação para alarmes
+            val channelId = "alarm_notification_channel"
+            val channel = android.app.NotificationChannel(
+                channelId,
+                "Alarmes",
+                android.app.NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notificações de alarme"
+                enableLights(true)
+                enableVibration(true)
+                setShowBadge(true)
+                lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
+                setBypassDnd(true) // Contornar "Não perturbe"
+                // Configurar som de alarme
+                setSound(
+                    android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM),
+                    android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setFlags(android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                        .build()
+                )
+            }
+            notificationManager.createNotificationChannel(channel)
+            
+            // Intent para abrir o app quando tocar na notificação
+            val intent = android.content.Intent(context, com.mss.thebigcalendar.MainActivity::class.java)
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                alarmSettings.id.hashCode(),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            
+            // Intent para dismiss do alarme
+            val dismissIntent = android.content.Intent(context, AlarmReceiver::class.java).apply {
+                action = "DISMISS_ALARM"
+                putExtra(EXTRA_ALARM_ID, alarmSettings.id)
+            }
+            val dismissPendingIntent = PendingIntent.getBroadcast(
+                context,
+                alarmSettings.id.hashCode() + 1000,
+                dismissIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            
+            // Notificação de alarme com ações
+            val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
+                .setContentTitle("⏰ Despertador")
+                .setContentText("${alarmSettings.label} - ${alarmSettings.time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}")
+                .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                .setContentIntent(pendingIntent)
+                .setPriority(androidx.core.app.NotificationCompat.PRIORITY_MAX)
+                .setCategory(androidx.core.app.NotificationCompat.CATEGORY_ALARM)
+                .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
+                .setAutoCancel(false) // Não remove automaticamente
+                .setOngoing(true) // Persistente
+                .setDefaults(androidx.core.app.NotificationCompat.DEFAULT_ALL) // Som e vibração
+                .setFullScreenIntent(pendingIntent, true) // Tela cheia se possível
+                .addAction(
+                    android.R.drawable.ic_menu_close_clear_cancel,
+                    "Desligar",
+                    dismissPendingIntent
+                )
+                .setVibrate(longArrayOf(0, 1000, 500, 1000, 500, 1000)) // Padrão de vibração de alarme
+                .build()
+            
+            notificationManager.notify(alarmSettings.id.hashCode(), notification)
+            Log.d(TAG, "🔔 Notificação de alarme exibida: ${alarmSettings.label}")
+            
+            // Tocar som de alarme adicional
+            playAlarmSound(alarmSettings)
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao mostrar notificação de alarme", e)
+        }
+    }
+    
+    /**
+     * Toca som de alarme diretamente
+     */
+    private fun playAlarmSound(alarmSettings: AlarmSettings) {
+        try {
+            val mediaPlayer = android.media.MediaPlayer()
+            val alarmUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM)
+            
+            if (alarmUri != null) {
+                mediaPlayer.setDataSource(context, alarmUri)
+                mediaPlayer.setAudioAttributes(
+                    android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setFlags(android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                        .build()
+                )
+                mediaPlayer.isLooping = true
+                mediaPlayer.prepare()
+                mediaPlayer.start()
+                
+                // Parar após 30 segundos se não for interrompido
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    if (mediaPlayer.isPlaying) {
+                        mediaPlayer.stop()
+                        mediaPlayer.release()
+                    }
+                }, 30000)
+                
+                Log.d(TAG, "🔊 Som de alarme tocando: ${alarmSettings.label}")
+            } else {
+                Log.w(TAG, "⚠️ URI de alarme não encontrado, usando som padrão")
+                // Fallback para som padrão
+                val ringtone = android.media.RingtoneManager.getRingtone(context, android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_RINGTONE))
+                ringtone?.play()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao tocar som de alarme", e)
+        }
+    }
+    
+    /**
+     * Cancela a notificação de alarme
+     */
+    fun cancelAlarmNotification(alarmId: String) {
+        try {
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            notificationManager.cancel(alarmId.hashCode())
+            Log.d(TAG, "🔔 Notificação de alarme cancelada: $alarmId")
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao cancelar notificação de alarme", e)
         }
     }
     
