@@ -13,12 +13,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.activity.OnBackPressedDispatcher
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import com.mss.thebigcalendar.R
+import com.mss.thebigcalendar.data.model.AlarmSettings
+import com.mss.thebigcalendar.data.repository.AlarmRepository
+import com.mss.thebigcalendar.service.AlarmService
+import com.mss.thebigcalendar.service.NotificationService
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
@@ -29,6 +38,10 @@ fun AlarmScreen(
     onBackPressedDispatcher: OnBackPressedDispatcher? = null,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val coroutineScope = rememberCoroutineScope()
+    
     // Tratar o botão de voltar do sistema
     onBackPressedDispatcher?.let { dispatcher ->
         DisposableEffect(dispatcher) {
@@ -44,10 +57,25 @@ fun AlarmScreen(
         }
     }
     
+    // Estados do alarme
     var selectedTime by remember { mutableStateOf(LocalTime.of(8, 0)) }
     var isAlarmEnabled by remember { mutableStateOf(false) }
     var alarmLabel by remember { mutableStateOf("") }
     var repeatDays by remember { mutableStateOf(setOf<String>()) }
+    var soundEnabled by remember { mutableStateOf(true) }
+    var vibrationEnabled by remember { mutableStateOf(true) }
+    var snoozeMinutes by remember { mutableStateOf(5) }
+    
+    // Estados de UI
+    var showTimePicker by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
+    
+    // Serviços
+    val alarmRepository = remember { AlarmRepository(context) }
+    val notificationService = remember { NotificationService(context) }
+    val alarmService = remember { AlarmService(context, alarmRepository, notificationService) }
     
     Scaffold(
         modifier = modifier,
@@ -176,7 +204,7 @@ fun AlarmScreen(
                     
                     Spacer(modifier = Modifier.height(12.dp))
                     
-                    // TimePicker (simulado com botões para demonstração)
+                    // TimePicker real
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -195,12 +223,13 @@ fun AlarmScreen(
                             )
                         }
                         
-                        // Hora atual
+                        // Hora atual (clicável para abrir TimePicker)
                         Text(
                             text = selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable { showTimePicker = true }
                         )
                         
                         // Botão para aumentar hora
@@ -213,6 +242,69 @@ fun AlarmScreen(
                                 text = "+",
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Controles de minutos
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Minutos:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        
+                        IconButton(
+                            onClick = { 
+                                selectedTime = selectedTime.minusMinutes(15)
+                            }
+                        ) {
+                            Text(
+                                text = "−15",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        
+                        IconButton(
+                            onClick = { 
+                                selectedTime = selectedTime.minusMinutes(5)
+                            }
+                        ) {
+                            Text(
+                                text = "−5",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        
+                        IconButton(
+                            onClick = { 
+                                selectedTime = selectedTime.plusMinutes(5)
+                            }
+                        ) {
+                            Text(
+                                text = "+5",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        
+                        IconButton(
+                            onClick = { 
+                                selectedTime = selectedTime.plusMinutes(15)
+                            }
+                        ) {
+                            Text(
+                                text = "+15",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
                             )
                         }
                     }
@@ -264,8 +356,85 @@ fun AlarmScreen(
                         onValueChange = { alarmLabel = it },
                         label = { Text("Rótulo do despertador") },
                         placeholder = { Text("Ex: Acordar para trabalho") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
                     )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Configurações de som e vibração
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Som",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = soundEnabled,
+                            onCheckedChange = { soundEnabled = it }
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Vibração",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = vibrationEnabled,
+                            onCheckedChange = { vibrationEnabled = it }
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Configuração de snooze
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Snooze (minutos)",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            IconButton(
+                                onClick = { 
+                                    if (snoozeMinutes > 1) snoozeMinutes--
+                                }
+                            ) {
+                                Text("-", style = MaterialTheme.typography.titleMedium)
+                            }
+                            Text(
+                                text = "$snoozeMinutes",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                            IconButton(
+                                onClick = { 
+                                    if (snoozeMinutes < 60) snoozeMinutes++
+                                }
+                            ) {
+                                Text("+", style = MaterialTheme.typography.titleMedium)
+                            }
+                        }
+                    }
                 }
             }
             
@@ -355,6 +524,39 @@ fun AlarmScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
+            // Mensagens de feedback
+            errorMessage?.let { error ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Text(
+                        text = error,
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+            
+            successMessage?.let { success ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Text(
+                        text = success,
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+            
             // Botões de ação
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -362,22 +564,137 @@ fun AlarmScreen(
             ) {
                 OutlinedButton(
                     onClick = onBackClick,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    enabled = !isLoading
                 ) {
                     Text("Cancelar")
                 }
                 
                 Button(
                     onClick = {
-                        // TODO: Implementar lógica de salvar despertador
-                        onBackClick()
+                        keyboardController?.hide()
+                        coroutineScope.launch {
+                            isLoading = true
+                            try {
+                                saveAlarm(
+                                    selectedTime = selectedTime,
+                                    isAlarmEnabled = isAlarmEnabled,
+                                    alarmLabel = alarmLabel,
+                                    repeatDays = repeatDays,
+                                    soundEnabled = soundEnabled,
+                                    vibrationEnabled = vibrationEnabled,
+                                    snoozeMinutes = snoozeMinutes,
+                                    alarmRepository = alarmRepository,
+                                    alarmService = alarmService,
+                                    onSuccess = { 
+                                        successMessage = "Despertador salvo com sucesso!"
+                                        errorMessage = null
+                                        isLoading = false
+                                    },
+                                    onError = { error ->
+                                        errorMessage = error
+                                        successMessage = null
+                                        isLoading = false
+                                    },
+                                    onLoading = { 
+                                        isLoading = true
+                                    }
+                                )
+                            } catch (e: Exception) {
+                                errorMessage = "Erro inesperado: ${e.message}"
+                                isLoading = false
+                            }
+                        }
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    enabled = !isLoading
                 ) {
-                    Text("Salvar Despertador")
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Salvar Despertador")
+                    }
                 }
             }
             }
         }
+    }
+}
+
+/**
+ * Função para salvar o alarme
+ */
+private suspend fun saveAlarm(
+    selectedTime: LocalTime,
+    isAlarmEnabled: Boolean,
+    alarmLabel: String,
+    repeatDays: Set<String>,
+    soundEnabled: Boolean,
+    vibrationEnabled: Boolean,
+    snoozeMinutes: Int,
+    alarmRepository: AlarmRepository,
+    alarmService: AlarmService,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit,
+    onLoading: () -> Unit
+) {
+    onLoading()
+    
+    // Validar dados
+    val label = alarmLabel.trim()
+    if (label.isEmpty()) {
+        onError("Rótulo do despertador é obrigatório")
+        return
+    }
+    
+    if (label.length > 50) {
+        onError("Rótulo muito longo (máximo 50 caracteres)")
+        return
+    }
+    
+    // Criar configurações do alarme
+    val alarmSettings = AlarmSettings(
+        id = "alarm_${System.currentTimeMillis()}",
+        label = label,
+        time = selectedTime,
+        isEnabled = isAlarmEnabled,
+        repeatDays = repeatDays,
+        soundEnabled = soundEnabled,
+        vibrationEnabled = vibrationEnabled,
+        snoozeMinutes = snoozeMinutes
+    )
+    
+    // Validar configurações
+    val validation = AlarmSettings.validate(alarmSettings)
+    if (validation is AlarmSettings.ValidationResult.Error) {
+        onError(validation.message)
+        return
+    }
+    
+    try {
+        // Salvar no repositório
+        val result = alarmRepository.saveAlarm(alarmSettings)
+        result.fold(
+            onSuccess = { savedAlarm ->
+                // Agendar no sistema
+                val scheduleResult = alarmService.scheduleAlarm(savedAlarm)
+                scheduleResult.fold(
+                    onSuccess = {
+                        onSuccess()
+                    },
+                    onFailure = { error ->
+                        onError("Erro ao agendar alarme: ${error.message}")
+                    }
+                )
+            },
+            onFailure = { error ->
+                onError("Erro ao salvar alarme: ${error.message}")
+            }
+        )
+    } catch (e: Exception) {
+        onError("Erro inesperado: ${e.message}")
     }
 }

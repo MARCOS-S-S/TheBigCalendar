@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.TURN_SCREEN_ON" />
     
 
     
@@ -47,6 +49,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <!-- Activity para exibir quando o alarme disparar -->
+        <activity
+            android:name=".ui.screens.AlarmActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:theme="@style/Theme.TheBigCalendar" />
 
         <!-- Notification Receiver para notificações do calendário -->
         <receiver
@@ -56,6 +68,15 @@
                 <action android:name="com.mss.thebigcalendar.VIEW_ACTIVITY" />
                 <action android:name="com.mss.thebigcalendar.SNOOZE" />
                 <action android:name="com.mss.thebigcalendar.DISMISS" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- Alarm Receiver para alarmes do despertador -->
+        <receiver
+            android:name=".service.AlarmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.mss.thebigcalendar.ALARM_TRIGGERED" />
             </intent-filter>
         </receiver>
         

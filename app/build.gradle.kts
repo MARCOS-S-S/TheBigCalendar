@@ -133,6 +133,7 @@ dependencies {
     
     // Dependência do Gson para leitura do arquivo JSON
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.androidx.tools.core)
 
     // Dependências de Teste
     testImplementation(libs.junit)
