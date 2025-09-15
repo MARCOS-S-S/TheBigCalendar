@@ -291,23 +291,63 @@ fun AlarmScreen(
                     
                     val daysOfWeek = listOf("Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb")
                     
-                    Row(
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        daysOfWeek.forEach { day ->
-                            FilterChip(
-                                onClick = {
-                                    repeatDays = if (repeatDays.contains(day)) {
-                                        repeatDays - day
-                                    } else {
-                                        repeatDays + day
-                                    }
-                                },
-                                label = { Text(day) },
-                                selected = repeatDays.contains(day),
-                                modifier = Modifier.weight(1f)
-                            )
+                        // Primeira linha - Domingo a Quarta-feira
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            val firstRowDays = listOf("Dom", "Seg", "Ter", "Qua")
+                            firstRowDays.forEach { day ->
+                                FilterChip(
+                                    onClick = {
+                                        repeatDays = if (repeatDays.contains(day)) {
+                                            repeatDays - day
+                                        } else {
+                                            repeatDays + day
+                                        }
+                                    },
+                                    label = { 
+                                        Text(
+                                            text = day,
+                                            maxLines = 1,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        ) 
+                                    },
+                                    selected = repeatDays.contains(day)
+                                )
+                            }
+                        }
+                        
+                        // Segunda linha - Quinta a Sábado
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            val secondRowDays = listOf("Qui", "Sex", "Sáb")
+                            secondRowDays.forEach { day ->
+                                FilterChip(
+                                    onClick = {
+                                        repeatDays = if (repeatDays.contains(day)) {
+                                            repeatDays - day
+                                        } else {
+                                            repeatDays + day
+                                        }
+                                    },
+                                    label = { 
+                                        Text(
+                                            text = day,
+                                            maxLines = 1,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                        ) 
+                                    },
+                                    selected = repeatDays.contains(day)
+                                )
+                            }
                         }
                     }
                 }
