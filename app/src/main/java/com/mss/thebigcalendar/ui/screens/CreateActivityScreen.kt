@@ -455,7 +455,8 @@ fun CreateActivityScreen(
         val backPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
         AlarmScreen(
             onBackClick = { showAlarmScreen = false },
-            onBackPressedDispatcher = backPressedDispatcher
+            onBackPressedDispatcher = backPressedDispatcher,
+            activityToEdit = currentActivity
         )
     }
 }

@@ -23,7 +23,9 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import android.util.Log
 import com.mss.thebigcalendar.R
+import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.AlarmSettings
 import com.mss.thebigcalendar.data.repository.AlarmRepository
 import com.mss.thebigcalendar.service.AlarmService
@@ -36,6 +38,7 @@ import java.time.format.DateTimeFormatter
 fun AlarmScreen(
     onBackClick: () -> Unit,
     onBackPressedDispatcher: OnBackPressedDispatcher? = null,
+    activityToEdit: Activity? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -57,7 +60,12 @@ fun AlarmScreen(
         }
     }
     
-    // Estados do alarme
+    // ID único para o alarme (usar ID da atividade se estiver editando, senão criar novo)
+    val alarmId = remember(activityToEdit?.id) { 
+        activityToEdit?.id ?: "alarm_${System.currentTimeMillis()}"
+    }
+    
+    // Estados do alarme (inicializados com valores padrão)
     var selectedTime by remember { mutableStateOf(LocalTime.of(8, 0)) }
     var isAlarmEnabled by remember { mutableStateOf(false) }
     var alarmLabel by remember { mutableStateOf("") }
@@ -71,11 +79,70 @@ fun AlarmScreen(
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
+    var isLoaded by remember { mutableStateOf(false) }
     
     // Serviços
     val alarmRepository = remember { AlarmRepository(context) }
     val notificationService = remember { NotificationService(context) }
     val alarmService = remember { AlarmService(context, alarmRepository, notificationService) }
+    
+    // Carregar configurações salvas do alarme
+    LaunchedEffect(alarmId) {
+        try {
+            val savedAlarm = alarmRepository.getAlarmById(alarmId)
+            if (savedAlarm != null) {
+                // Carregar configurações salvas do alarme
+                selectedTime = savedAlarm.time
+                isAlarmEnabled = savedAlarm.isEnabled
+                alarmLabel = savedAlarm.label
+                repeatDays = savedAlarm.repeatDays
+                soundEnabled = savedAlarm.soundEnabled
+                vibrationEnabled = savedAlarm.vibrationEnabled
+                snoozeMinutes = savedAlarm.snoozeMinutes
+                Log.d("AlarmScreen", "📱 Configurações do alarme carregadas: ${savedAlarm.label}")
+            } else if (activityToEdit != null) {
+                // Se não há alarme salvo mas há uma atividade para editar, usar dados da atividade
+                selectedTime = activityToEdit.startTime ?: LocalTime.of(8, 0)
+                isAlarmEnabled = true
+                alarmLabel = activityToEdit.title
+                repeatDays = emptySet() // Atividades não têm dias de repetição por padrão
+                soundEnabled = true
+                vibrationEnabled = true
+                snoozeMinutes = 5
+                Log.d("AlarmScreen", "📱 Usando dados da atividade para editar: ${activityToEdit.title}")
+            } else {
+                Log.d("AlarmScreen", "📱 Nenhuma configuração salva encontrada, usando padrões")
+            }
+        } catch (e: Exception) {
+            Log.e("AlarmScreen", "❌ Erro ao carregar configurações do alarme", e)
+        } finally {
+            isLoaded = true
+        }
+    }
+    
+    // Salvar configurações automaticamente quando mudarem
+    LaunchedEffect(selectedTime, isAlarmEnabled, alarmLabel, repeatDays, soundEnabled, vibrationEnabled, snoozeMinutes) {
+        if (isLoaded) {
+            try {
+                val currentAlarm = AlarmSettings.createDefault().copy(
+                    id = alarmId,
+                    label = alarmLabel,
+                    time = selectedTime,
+                    isEnabled = isAlarmEnabled,
+                    repeatDays = repeatDays,
+                    soundEnabled = soundEnabled,
+                    vibrationEnabled = vibrationEnabled,
+                    snoozeMinutes = snoozeMinutes,
+                    createdAt = System.currentTimeMillis(),
+                    lastModified = System.currentTimeMillis()
+                )
+                alarmRepository.saveAlarm(currentAlarm)
+                Log.d("AlarmScreen", "💾 Configurações do alarme salvas automaticamente")
+            } catch (e: Exception) {
+                Log.e("AlarmScreen", "❌ Erro ao salvar configurações do alarme", e)
+            }
+        }
+    }
     
     Scaffold(
         modifier = modifier,
@@ -92,7 +159,7 @@ fun AlarmScreen(
                             modifier = Modifier.size(24.dp)
                         )
                         Text(
-                            text = "Despertador",
+                            text = if (activityToEdit != null) "Editar Despertador" else "Despertador",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -112,13 +179,61 @@ fun AlarmScreen(
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState()),
+        if (!isLoaded) {
+            // Mostrar loading enquanto carrega as configurações
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CircularProgressIndicator()
+                    Text(
+                        text = "Carregando configurações...",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            // Mensagem informativa se estiver editando
+            if (activityToEdit != null) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AccessTime,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "Editando despertador para: ${activityToEdit.title}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+            }
+            
             // Área central principal - Hora, ícone e status
             Box(
                 modifier = Modifier
@@ -577,6 +692,7 @@ fun AlarmScreen(
                             isLoading = true
                             try {
                                 saveAlarm(
+                                    alarmId = alarmId,
                                     selectedTime = selectedTime,
                                     isAlarmEnabled = isAlarmEnabled,
                                     alarmLabel = alarmLabel,
@@ -621,6 +737,7 @@ fun AlarmScreen(
             }
             }
         }
+        }
     }
 }
 
@@ -628,6 +745,7 @@ fun AlarmScreen(
  * Função para salvar o alarme
  */
 private suspend fun saveAlarm(
+    alarmId: String,
     selectedTime: LocalTime,
     isAlarmEnabled: Boolean,
     alarmLabel: String,
@@ -655,16 +773,18 @@ private suspend fun saveAlarm(
         return
     }
     
-    // Criar configurações do alarme
+    // Criar configurações do alarme com ID persistente
     val alarmSettings = AlarmSettings(
-        id = "alarm_${System.currentTimeMillis()}",
+        id = alarmId,
         label = label,
         time = selectedTime,
         isEnabled = isAlarmEnabled,
         repeatDays = repeatDays,
         soundEnabled = soundEnabled,
         vibrationEnabled = vibrationEnabled,
-        snoozeMinutes = snoozeMinutes
+        snoozeMinutes = snoozeMinutes,
+        createdAt = System.currentTimeMillis(),
+        lastModified = System.currentTimeMillis()
     )
     
     // Validar configurações
