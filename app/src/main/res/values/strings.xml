@@ -314,5 +314,18 @@
     <string name="thu">Qui</string>
     <string name="fri">Sex</string>
     <string name="sat">Sáb</string>
+    
+    <!-- Additional AlarmScreen strings -->
+    <string name="error_loading_config">Erro ao carregar configurações: %1$s</string>
+    <string name="enable_alarm_title">Ativar Despertador</string>
+    <string name="repeat_title">Repetir</string>
+    <string name="settings_title">Configurações</string>
+    <string name="sound_title">Som</string>
+    <string name="vibration_title">Vibração</string>
+    <string name="snooze_minutes_title">Soneca (minutos)</string>
+    <string name="minus_button">-</string>
+    <string name="plus_button">+</string>
+    <string name="thank_you_message">✅ Obrigado!</string>
+    <string name="permission_granted_message">Permissão concedida com sucesso!</string>
 
 </resources>

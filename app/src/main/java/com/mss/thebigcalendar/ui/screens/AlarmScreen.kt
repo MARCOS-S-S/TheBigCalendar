@@ -93,6 +93,17 @@ fun AlarmScreen(
     val alarmEnabled = stringResource(id = R.string.alarm_enabled)
     val alarmDisabled = stringResource(id = R.string.alarm_disabled)
     val selectTime = stringResource(id = R.string.select_time)
+    val errorLoadingConfig = stringResource(id = R.string.error_loading_config)
+    val enableAlarmTitle = stringResource(id = R.string.enable_alarm_title)
+    val repeatTitle = stringResource(id = R.string.repeat_title)
+    val settingsTitle = stringResource(id = R.string.settings_title)
+    val soundTitle = stringResource(id = R.string.sound_title)
+    val vibrationTitle = stringResource(id = R.string.vibration_title)
+    val snoozeMinutesTitle = stringResource(id = R.string.snooze_minutes_title)
+    val minusButton = stringResource(id = R.string.minus_button)
+    val plusButton = stringResource(id = R.string.plus_button)
+    val thankYouMessage = stringResource(id = R.string.thank_you_message)
+    val permissionGrantedMessage = stringResource(id = R.string.permission_granted_message)
     
     // ID do alarme baseado na atividade ou gerado
     val alarmId = remember(activityToEdit?.id) { 
@@ -131,7 +142,7 @@ fun AlarmScreen(
             }
         } catch (e: Exception) {
             Log.e("AlarmScreen", "❌ Erro ao carregar configurações", e)
-            errorMessage = "Erro ao carregar configurações: ${e.message}"
+            errorMessage = "$errorLoadingConfig ${e.message ?: ""}"
         } finally {
             isLoaded = true
         }
@@ -408,7 +419,7 @@ fun AlarmScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Ativar Despertador",
+                        text = enableAlarmTitle,
                         style = MaterialTheme.typography.titleMedium
                     )
                     Switch(
@@ -435,7 +446,7 @@ fun AlarmScreen(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "Repetir",
+                        text = repeatTitle,
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -496,7 +507,7 @@ fun AlarmScreen(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "Configurações",
+                        text = settingsTitle,
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -509,7 +520,7 @@ fun AlarmScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Som")
+                        Text(soundTitle)
                         Switch(
                             checked = soundEnabled,
                             onCheckedChange = { soundEnabled = it }
@@ -524,7 +535,7 @@ fun AlarmScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Vibração")
+                        Text(vibrationTitle)
                         Switch(
                             checked = vibrationEnabled,
                             onCheckedChange = { vibrationEnabled = it }
@@ -539,13 +550,13 @@ fun AlarmScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Soneca (minutos)")
+                        Text(snoozeMinutesTitle)
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             IconButton(onClick = { if (snoozeMinutes > 1) snoozeMinutes-- }) {
-                                Text("-", fontSize = 20.sp)
+                                Text(minusButton, fontSize = 20.sp)
                             }
                             Text(
                                 text = snoozeMinutes.toString(),
@@ -554,7 +565,7 @@ fun AlarmScreen(
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                             IconButton(onClick = { if (snoozeMinutes < 30) snoozeMinutes++ }) {
-                                Text("+", fontSize = 20.sp)
+                                Text(plusButton, fontSize = 20.sp)
                             }
                         }
                     }
