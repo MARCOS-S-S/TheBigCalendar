@@ -85,6 +85,15 @@ fun AlarmScreen(
     var successMessage by remember { mutableStateOf("") }
     var isLoaded by remember { mutableStateOf(false) }
     
+    // Strings para usar nas funções não-Composable
+    val defaultAlarmLabel = stringResource(id = R.string.default_alarm_label)
+    val alarmSavedSuccess = stringResource(id = R.string.alarm_saved_success)
+    val errorSavingAlarm = stringResource(id = R.string.error_saving_alarm)
+    val unexpectedError = stringResource(id = R.string.unexpected_error)
+    val alarmEnabled = stringResource(id = R.string.alarm_enabled)
+    val alarmDisabled = stringResource(id = R.string.alarm_disabled)
+    val selectTime = stringResource(id = R.string.select_time)
+    
     // ID do alarme baseado na atividade ou gerado
     val alarmId = remember(activityToEdit?.id) { 
         activityToEdit?.id ?: "alarm_${System.currentTimeMillis()}"
@@ -139,7 +148,7 @@ fun AlarmScreen(
             selectedTime.minute,
             true // 24 horas
         )
-        timePickerDialog.setTitle("Selecionar Horário")
+        timePickerDialog.setTitle(selectTime)
         timePickerDialog.show()
     }
     
@@ -152,7 +161,7 @@ fun AlarmScreen(
             
             val alarmSettings = AlarmSettings(
                 id = alarmId,
-                label = alarmLabel.ifBlank { "Despertador" },
+                label = alarmLabel.ifBlank { defaultAlarmLabel },
                 time = selectedTime,
                 isEnabled = isAlarmEnabled,
                 repeatDays = repeatDays,
@@ -175,13 +184,13 @@ fun AlarmScreen(
             if (result.isSuccess) {
                 // Agendar alarme
                 alarmService.scheduleAlarm(alarmSettings)
-                successMessage = "Despertador salvo com sucesso!"
+                successMessage = alarmSavedSuccess
                 Log.d("AlarmScreen", "✅ Despertador salvo: $alarmSettings")
             } else {
-                errorMessage = "Erro ao salvar despertador: ${result.exceptionOrNull()?.message}"
+                errorMessage = "$errorSavingAlarm ${result.exceptionOrNull()?.message ?: ""}"
             }
         } catch (e: Exception) {
-            errorMessage = "Erro inesperado: ${e.message}"
+            errorMessage = "$unexpectedError ${e.message ?: ""}"
             Log.e("AlarmScreen", "❌ Erro ao salvar despertador", e)
         } finally {
             isLoading = false
@@ -208,12 +217,12 @@ fun AlarmScreen(
             TopAppBar(
                 title = { 
                     Text(
-                        if (activityToEdit != null) "Editar Despertador" else "Configurar Despertador"
+                        if (activityToEdit != null) stringResource(id = R.string.edit_alarm) else stringResource(id = R.string.configure_alarm)
                     ) 
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.back_button))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -272,7 +281,7 @@ fun AlarmScreen(
                     
                     // Status
                     Text(
-                        text = if (isAlarmEnabled) "Ativado" else "Desativado",
+                        text = if (isAlarmEnabled) alarmEnabled else alarmDisabled,
                         style = MaterialTheme.typography.titleMedium,
                         color = if (isAlarmEnabled) 
                             MaterialTheme.colorScheme.primary 
@@ -413,7 +422,7 @@ fun AlarmScreen(
             OutlinedTextField(
                 value = alarmLabel,
                 onValueChange = { alarmLabel = it },
-                label = { Text("Rótulo do Despertador") },
+                label = { Text(stringResource(id = R.string.alarm_label_hint)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -569,7 +578,7 @@ fun AlarmScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text(if (isLoading) "Salvando..." else "Salvar Despertador")
+                        Text(if (isLoading) stringResource(id = R.string.saving_alarm) else stringResource(id = R.string.save_alarm))
             }
         }
     }

@@ -277,4 +277,42 @@
     <string name="greeting_with_name">%1$s, %2$s!</string>
     <string name="greeting_without_name">%1$s!</string>
 
+    <!-- AlarmScreen.kt -->
+    <string name="select_time">Selecionar Horário</string>
+    <string name="default_alarm_label">Despertador</string>
+    <string name="alarm_saved_success">Despertador salvo com sucesso!</string>
+    <string name="error_saving_alarm">Erro ao salvar despertador: %1$s</string>
+    <string name="unexpected_error">Erro inesperado: %1$s</string>
+    <string name="edit_alarm">Editar Despertador</string>
+    <string name="configure_alarm">Configurar Despertador</string>
+    <string name="alarm_enabled">Ativado</string>
+    <string name="alarm_disabled">Desativado</string>
+    <string name="permission_required">Permissão Necessária</string>
+    <string name="overlay_permission_message_alarm">Para o despertador funcionar corretamente, é necessário permitir que o app exiba sobre outros apps.</string>
+    <string name="configure_button">Configurar</string>
+    <string name="done_button">Pronto</string>
+    <string name="thank_you">✅ Obrigado!</string>
+    <string name="permission_granted">Permissão concedida com sucesso!</string>
+    <string name="enable_alarm">Ativar Despertador</string>
+    <string name="alarm_label_hint">Rótulo do Despertador</string>
+    <string name="repeat_label">Repetir</string>
+    <string name="settings_label">Configurações</string>
+    <string name="sound_label">Som</string>
+    <string name="vibration_label">Vibração</string>
+    <string name="snooze_minutes">Soneca (minutos)</string>
+    <string name="saving_alarm">Salvando...</string>
+    <string name="save_alarm">Salvar Despertador</string>
+    <string name="overlay_permission_dialog_message">Para o despertador funcionar corretamente, é necessário permitir que o app exiba sobre outros apps. Isso permite que o alarme apareça mesmo quando o dispositivo estiver bloqueado.</string>
+    <string name="grant_permission_button">Dar Permissão</string>
+    <string name="cancel_button">Cancelar</string>
+    
+    <!-- Days of week -->
+    <string name="sun">Dom</string>
+    <string name="mon">Seg</string>
+    <string name="tue">Ter</string>
+    <string name="wed">Qua</string>
+    <string name="thu">Qui</string>
+    <string name="fri">Sex</string>
+    <string name="sat">Sáb</string>
+
 </resources>
