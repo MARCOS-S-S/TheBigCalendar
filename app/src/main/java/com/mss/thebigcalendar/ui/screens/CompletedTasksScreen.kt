@@ -48,6 +48,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.res.stringResource
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
 import java.time.LocalDate
@@ -106,7 +108,7 @@ fun CompletedTasksScreen(
                             tint = MaterialTheme.colorScheme.secondary
                         )
                         Text(
-                            text = "Tarefas Concluídas",
+                            text = stringResource(id = R.string.completed_tasks_title),
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
@@ -115,7 +117,7 @@ fun CompletedTasksScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar"
+                            contentDescription = stringResource(id = R.string.back_button)
                         )
                     }
                 },
@@ -136,7 +138,7 @@ fun CompletedTasksScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("Buscar tarefas concluídas") },
+                label = { Text(stringResource(id = R.string.search_completed_tasks)) },
                 leadingIcon = {
                     Icon(
                         Icons.Filled.Search,

@@ -21,9 +21,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mss.thebigcalendar.R
 import java.time.Month
 import java.time.YearMonth
 
@@ -49,7 +51,7 @@ fun YearlyCalendarView(
             horizontalArrangement = Arrangement.Center
         ) {
             IconButton(onClick = { onNavigateYear(-1) }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Ano Anterior")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.previous_year_desc))
             }
             Text(
                 text = year.toString(),
@@ -57,7 +59,7 @@ fun YearlyCalendarView(
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
             IconButton(onClick = { onNavigateYear(1) }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Próximo Ano")
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = stringResource(id = R.string.next_year_desc))
             }
         }
 

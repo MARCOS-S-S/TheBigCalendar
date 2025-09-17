@@ -70,7 +70,7 @@ fun NotesForSelectedDaySection(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Adicionar nota",
+                    contentDescription = stringResource(id = R.string.add_note),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
@@ -177,7 +177,7 @@ private fun NoteItem(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "OK",
+                            text = stringResource(id = R.string.ok_button),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold
@@ -198,7 +198,7 @@ private fun NoteItem(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "DEL",
+                            text = stringResource(id = R.string.del_button),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onError,
                             fontWeight = FontWeight.Bold

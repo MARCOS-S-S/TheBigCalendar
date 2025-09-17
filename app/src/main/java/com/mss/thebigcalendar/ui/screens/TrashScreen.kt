@@ -253,7 +253,7 @@ fun DeletedActivityItem(
                 text = when (activity.activityType) {
                     com.mss.thebigcalendar.data.model.ActivityType.EVENT -> stringResource(R.string.event)
                     com.mss.thebigcalendar.data.model.ActivityType.TASK -> stringResource(R.string.task)
-                    com.mss.thebigcalendar.data.model.ActivityType.NOTE -> "Nota"
+                    com.mss.thebigcalendar.data.model.ActivityType.NOTE -> stringResource(R.string.note_label)
                     com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> stringResource(R.string.birthday)
                 },
                 style = MaterialTheme.typography.bodyMedium,
@@ -316,7 +316,8 @@ private fun formatDate(dateString: String): String {
     }
 }
 
+@Composable
 private fun formatDateTime(dateTime: LocalDateTime): String {
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy 'às' HH:mm", Locale("pt", "BR"))
+    val formatter = DateTimeFormatter.ofPattern(stringResource(R.string.date_format_full_with_time), Locale("pt", "BR"))
     return dateTime.format(formatter)
 }

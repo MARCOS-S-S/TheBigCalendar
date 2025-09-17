@@ -87,7 +87,7 @@ fun ChartScreen(
                             modifier = Modifier.size(24.dp)
                         )
                         Text(
-                            text = "Estatísticas dos Agendamentos",
+                            text = stringResource(id = R.string.scheduling_statistics),
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
@@ -96,7 +96,7 @@ fun ChartScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar"
+                            contentDescription = stringResource(id = R.string.back_button)
                         )
                     }
                 },
@@ -133,14 +133,14 @@ fun ChartScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Análise de Agendamentos",
+                            text = stringResource(id = R.string.scheduling_analysis),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Aqui você encontrará estatísticas detalhadas sobre seus agendamentos, incluindo gráficos de produtividade, distribuição de atividades e muito mais.",
+                            text = stringResource(id = R.string.scheduling_analysis_description),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant

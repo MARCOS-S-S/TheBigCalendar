@@ -35,6 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.repository.MoonPhaseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -48,15 +50,15 @@ data class MoonPhase(
     val illumination: Double // 0.0 a 1.0
 )
 
-enum class MoonPhaseType(val emoji: String, val displayName: String) {
-    NEW_MOON("🌑", "Nova"),
-    WAXING_CRESCENT("🌒", "Crescente"),
-    FIRST_QUARTER("🌓", "Crescente"),
-    WAXING_GIBBOUS("🌔", "Crescente Gibosa"),
-    FULL_MOON("🌕", "Cheia"),
-    WANING_GIBBOUS("🌖", "Minguante Gibosa"),
-    LAST_QUARTER("🌗", "Minguante"),
-    WANING_CRESCENT("🌘", "Minguante")
+enum class MoonPhaseType(val emoji: String, val stringResId: Int) {
+    NEW_MOON("🌑", R.string.moon_phase_new),
+    WAXING_CRESCENT("🌒", R.string.moon_phase_waxing_crescent),
+    FIRST_QUARTER("🌓", R.string.moon_phase_first_quarter),
+    WAXING_GIBBOUS("🌔", R.string.moon_phase_waxing_gibbous),
+    FULL_MOON("🌕", R.string.moon_phase_full),
+    WANING_GIBBOUS("🌖", R.string.moon_phase_waning_gibbous),
+    LAST_QUARTER("🌗", R.string.moon_phase_last_quarter),
+    WANING_CRESCENT("🌘", R.string.moon_phase_waning_crescent)
 }
 
 @Composable
@@ -169,7 +171,7 @@ private fun MoonPhaseItem(
         )
         
         Text(
-            text = moonPhase.phase.displayName,
+            text = stringResource(id = moonPhase.phase.stringResId),
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface,

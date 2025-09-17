@@ -80,7 +80,7 @@ fun BirthdaysForSelectedDaySection(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Adicionar aniversário",
+                    contentDescription = stringResource(id = R.string.add_birthday),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )

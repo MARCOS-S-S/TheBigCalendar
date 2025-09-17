@@ -144,7 +144,7 @@ fun GeneralSettingsScreen(
                     .padding(vertical = 10.dp)
             ) {
                 Text(
-                    text = "Conta Google",
+                    text = stringResource(id = R.string.google_account),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -152,12 +152,12 @@ fun GeneralSettingsScreen(
                     Column(horizontalAlignment = Alignment.End) {
                         Text(googleAccount.email ?: "", style = MaterialTheme.typography.bodySmall)
                         Button(onClick = onSignOutClicked) {
-                            Text("Desconectar")
+                            Text(stringResource(id = R.string.disconnect))
                         }
                     }
                 } else {
                     Button(onClick = onSignInClicked) {
-                        Text("Conectar")
+                        Text(stringResource(id = R.string.connect))
                     }
                 }
             }

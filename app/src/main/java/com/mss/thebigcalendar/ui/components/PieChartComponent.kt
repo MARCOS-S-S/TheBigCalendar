@@ -29,6 +29,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.mss.thebigcalendar.R
 import kotlin.math.cos
 import kotlin.math.sin
 import com.mss.thebigcalendar.data.model.Activity
@@ -65,7 +67,10 @@ fun PieChartComponent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Distribuição de Atividades (${currentMonth.month.getDisplayName(TextStyle.FULL, Locale("pt", "BR")).replaceFirstChar { it.titlecase(Locale("pt", "BR")) }})",
+                text = stringResource(
+                    id = R.string.activity_distribution_title,
+                    currentMonth.month.getDisplayName(TextStyle.FULL, Locale("pt", "BR")).replaceFirstChar { it.titlecase(Locale("pt", "BR")) }
+                ),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -78,7 +83,7 @@ fun PieChartComponent(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Nenhuma atividade encontrada",
+                        text = stringResource(id = R.string.no_activities_found),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -188,6 +193,7 @@ private fun ChartLegend(
     }
 }
 
+@Composable
 private fun categorizeActivities(activities: List<Activity>): List<ChartData> {
     val totalActivities = activities.size
     
@@ -225,7 +231,7 @@ private fun categorizeActivities(activities: List<Activity>): List<ChartData> {
     if (tasks > 0) {
         chartData.add(
             ChartData(
-                label = "Tarefas",
+                label = stringResource(id = R.string.tasks_title),
                 value = tasks,
                 color = Color(0xFF4CAF50), // Verde
                 percentage = (tasks.toFloat() / totalActivities) * 100f
@@ -236,7 +242,7 @@ private fun categorizeActivities(activities: List<Activity>): List<ChartData> {
     if (events > 0) {
         chartData.add(
             ChartData(
-                label = "Eventos",
+                label = stringResource(id = R.string.events_title),
                 value = events,
                 color = Color(0xFF2196F3), // Azul
                 percentage = (events.toFloat() / totalActivities) * 100f
@@ -247,7 +253,7 @@ private fun categorizeActivities(activities: List<Activity>): List<ChartData> {
     if (birthdays > 0) {
         chartData.add(
             ChartData(
-                label = "Aniversários",
+                label = stringResource(id = R.string.birthdays_title),
                 value = birthdays,
                 color = Color(0xFFE91E63), // Rosa
                 percentage = (birthdays.toFloat() / totalActivities) * 100f
@@ -258,7 +264,7 @@ private fun categorizeActivities(activities: List<Activity>): List<ChartData> {
     if (notes > 0) {
         chartData.add(
             ChartData(
-                label = "Notas",
+                label = stringResource(id = R.string.notes_title),
                 value = notes,
                 color = Color(0xFFFF9800), // Laranja
                 percentage = (notes.toFloat() / totalActivities) * 100f
@@ -269,7 +275,7 @@ private fun categorizeActivities(activities: List<Activity>): List<ChartData> {
     if (other > 0) {
         chartData.add(
             ChartData(
-                label = "Outros",
+                label = stringResource(id = R.string.others_label),
                 value = other,
                 color = Color(0xFF9E9E9E), // Cinza
                 percentage = (other.toFloat() / totalActivities) * 100f

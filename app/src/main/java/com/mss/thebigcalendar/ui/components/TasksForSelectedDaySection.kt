@@ -86,7 +86,7 @@ fun TasksForSelectedDaySection(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Adicionar tarefa ou evento",
+                    contentDescription = stringResource(id = R.string.add_task_or_event),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )

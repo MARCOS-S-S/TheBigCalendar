@@ -220,4 +220,61 @@
     <string name="no_data_available">Nenhum dado disponível</string>
     <string name="legend_label">Legenda:</string>
 
+    <!-- PieChartComponent.kt -->
+    <string name="activity_distribution_title">Distribuição de Atividades (%1$s)</string>
+    <string name="no_activities_found">Nenhuma atividade encontrada</string>
+    <string name="others_label">Outros</string>
+
+    <!-- ChartScreen.kt -->
+    <string name="scheduling_statistics">Estatísticas dos Agendamentos</string>
+    <string name="back_button">Voltar</string>
+    <string name="scheduling_analysis">Análise de Agendamentos</string>
+    <string name="scheduling_analysis_description">Aqui você encontrará estatísticas detalhadas sobre seus agendamentos, incluindo gráficos de produtividade, distribuição de atividades e muito mais.</string>
+
+    <!-- TrashScreen.kt -->
+    <string name="note_label">Nota</string>
+    <string name="date_format_full_with_time">dd/MM/yyyy \'às\' HH:mm</string>
+
+    <!-- CompletedTasksScreen.kt -->
+    <string name="completed_tasks_title">Tarefas Concluídas</string>
+    <string name="search_completed_tasks">Buscar tarefas concluídas</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="google_account">Conta Google</string>
+    <string name="disconnect">Desconectar</string>
+    <string name="connect">Conectar</string>
+
+    <!-- MoonPhasesComponent.kt -->
+    <string name="moon_phase_new">Nova</string>
+    <string name="moon_phase_waxing_crescent">Crescente</string>
+    <string name="moon_phase_first_quarter">Crescente</string>
+    <string name="moon_phase_waxing_gibbous">Crescente Gibosa</string>
+    <string name="moon_phase_full">Cheia</string>
+    <string name="moon_phase_waning_gibbous">Minguante Gibosa</string>
+    <string name="moon_phase_last_quarter">Minguante</string>
+    <string name="moon_phase_waning_crescent">Minguante</string>
+
+    <!-- TasksForSelectedDaySection.kt -->
+    <string name="add_task_or_event">Adicionar tarefa ou evento</string>
+
+    <!-- NotesForSelectedDaySection.kt -->
+    <string name="add_note">Adicionar nota</string>
+    <string name="ok_button">OK</string>
+    <string name="del_button">DEL</string>
+
+    <!-- BirthdaysForSelectedDaySection.kt -->
+    <string name="add_birthday">Adicionar aniversário</string>
+
+    <!-- YearlyCalendarView.kt -->
+    <string name="previous_year_desc">Ano Anterior</string>
+    <string name="next_year_desc">Próximo Ano</string>
+
+    <!-- GreetingService.kt -->
+    <string name="good_morning">Bom dia</string>
+    <string name="good_afternoon">Boa tarde</string>
+    <string name="good_evening">Boa noite</string>
+    <string name="good_dawn">Boa madrugada</string>
+    <string name="greeting_with_name">%1$s, %2$s!</string>
+    <string name="greeting_without_name">%1$s!</string>
+
 </resources>

@@ -8,6 +8,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Quote
 import com.mss.thebigcalendar.service.QuoteService
 import kotlinx.coroutines.launch
@@ -21,27 +23,29 @@ object GreetingService {
     /**
      * Obtém a mensagem de boas-vindas apropriada baseada no horário atual
      */
+    @Composable
     fun getGreetingMessage(): String {
         val currentTime = LocalTime.now()
         val hour = currentTime.hour
         
         return when (hour) {
-            in 5..11 -> "Bom dia"
-            in 12..17 -> "Boa tarde"
-            in 18..23 -> "Boa noite"
-            else -> "Boa madrugada" // 0-4
+            in 5..11 -> stringResource(id = R.string.good_morning)
+            in 12..17 -> stringResource(id = R.string.good_afternoon)
+            in 18..23 -> stringResource(id = R.string.good_evening)
+            else -> stringResource(id = R.string.good_dawn) // 0-4
         }
     }
     
     /**
      * Obtém a mensagem de boas-vindas com nome do usuário (se disponível)
      */
+    @Composable
     fun getGreetingMessage(userName: String? = null): String {
         val greeting = getGreetingMessage()
         return if (userName != null && userName.isNotBlank()) {
-            "$greeting, $userName!"
+            stringResource(id = R.string.greeting_with_name, greeting, userName)
         } else {
-            "$greeting!"
+            stringResource(id = R.string.greeting_without_name, greeting)
         }
     }
     
@@ -63,6 +67,7 @@ object GreetingService {
     /**
      * Obtém uma mensagem completa com emoji e saudação
      */
+    @Composable
     fun getFullGreetingMessage(welcomeName: String? = null): String {
         val emoji = getGreetingEmoji()
         val greeting = getGreetingMessage(welcomeName)
