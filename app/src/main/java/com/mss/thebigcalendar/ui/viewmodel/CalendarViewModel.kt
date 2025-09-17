@@ -893,6 +893,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(calendarDays = updatedCalendarDays) }
     }
 
+    // ===== CALENDAR NAVIGATION FUNCTIONS =====
+    
     fun onPreviousMonth() {
         val newMonth = _uiState.value.displayedYearMonth.minusMonths(1)
         _uiState.update { it.copy(displayedYearMonth = newMonth) }
@@ -936,6 +938,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             updateSelectedDateInCalendar()
         }
     }
+    
+    // ===== END CALENDAR NAVIGATION FUNCTIONS =====
 
     fun onDateSelected(date: LocalDate) {
         val state = _uiState.value

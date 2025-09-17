@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -94,6 +96,9 @@ fun CreateActivityScreen(
     
     var showAlarmScreen by remember { mutableStateOf(false) }
     var isRepetitionMenuExpanded by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var selectedDate by remember(currentActivity.id) { mutableStateOf(LocalDate.parse(currentActivity.date)) }
+    var datePickerKey by remember { mutableStateOf(0) }
 
     val repetitionOptions = listOf(
         stringResource(id = R.string.repetition_dont_repeat),
@@ -124,9 +129,13 @@ fun CreateActivityScreen(
         )
     }
 
-    val date = LocalDate.parse(currentActivity.date)
     val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_day_month), java.util.Locale("pt", "BR"))
-    val formattedDate = date.format(formatter)
+    val formattedDate = selectedDate.format(formatter)
+    
+    // Debug: Log para verificar a data formatada
+    LaunchedEffect(selectedDate) {
+        println("Data atualizada: $selectedDate -> $formattedDate")
+    }
 
     LaunchedEffect(currentActivity.id) {
         if (currentActivity.id == "new" || currentActivity.id.isBlank()) {
@@ -165,7 +174,17 @@ fun CreateActivityScreen(
                             }
                         }
                     }
-                    Text(text = "$titleText $formattedDate")
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(text = titleText)
+                        Text(
+                            text = selectedDate.format(formatter), // Usar selectedDate diretamente
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable { showDatePicker = true }
+                        )
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onDismissRequest) {
@@ -178,6 +197,7 @@ fun CreateActivityScreen(
                             val updatedActivity = currentActivity.copy(
                                 title = title.trim(),
                                 description = description.trim().takeIf { it.isNotEmpty() },
+                                date = selectedDate.toString(),
                                 categoryColor = selectedPriority,
                                 activityType = selectedActivityType,
                                 startTime = if (hasScheduledTime) startTime else null,
@@ -448,6 +468,48 @@ fun CreateActivityScreen(
                 }
             )
         }
+    }
+    
+    // DatePicker Dialog
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = selectedDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+        )
+        AlertDialog(
+            onDismissRequest = { showDatePicker = false },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+            title = { Text(stringResource(id = R.string.select_date)) },
+            text = { DatePicker(state = datePickerState) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            // Converter milissegundos para LocalDate usando UTC
+                            val instant = java.time.Instant.ofEpochMilli(millis)
+                            val utcDateTime = instant.atZone(java.time.ZoneOffset.UTC)
+                            val newDate = utcDateTime.toLocalDate()
+                            
+                            selectedDate = newDate
+                            datePickerKey++ // Força recomposição
+                            
+                            // Debug: Log para verificar se a data está sendo atualizada
+                            println("Data selecionada: $newDate")
+                            println("Milissegundos: $millis")
+                            println("Instant UTC: $instant")
+                            println("UTC DateTime: $utcDateTime")
+                        }
+                        showDatePicker = false
+                    }
+                ) {
+                    Text(stringResource(id = R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text(stringResource(id = R.string.create_activity_modal_cancel))
+                }
+            }
+        )
     }
     
     // Tela de Despertador
