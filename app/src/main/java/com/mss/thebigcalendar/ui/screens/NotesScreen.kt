@@ -16,6 +16,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Note
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,7 +29,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,7 +48,6 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
@@ -56,6 +65,10 @@ fun NotesScreen(
     onBackPressedDispatcher: OnBackPressedDispatcher? = null,
     modifier: Modifier = Modifier
 ) {
+    // Estado para controlar o tipo selecionado
+    var selectedType by remember { mutableStateOf(ActivityType.NOTE) }
+    var showDropdown by remember { mutableStateOf(false) }
+    
     // Tratar o botão de voltar do sistema
     onBackPressedDispatcher?.let { dispatcher ->
         DisposableEffect(dispatcher) {
@@ -81,19 +94,20 @@ fun NotesScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Note,
+                            imageVector = getIconForType(selectedType),
                             contentDescription = null,
                             modifier = Modifier.size(24.dp)
                         )
                         Column {
                             Text(
-                                text = "Notas",
+                                text = getTitleForType(selectedType),
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold
                             )
-                            if (activities.filter { it.activityType == ActivityType.NOTE }.isNotEmpty()) {
+                            val filteredActivities = activities.filter { it.activityType == selectedType }
+                            if (filteredActivities.isNotEmpty()) {
                                 Text(
-                                    text = "${activities.filter { it.activityType == ActivityType.NOTE }.size} nota(s)",
+                                    text = "${filteredActivities.size} ${getCountTextForType(selectedType)}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -109,6 +123,46 @@ fun NotesScreen(
                         )
                     }
                 },
+                actions = {
+                    // Seletor de tipo
+                    Box {
+                        TextButton(
+                            onClick = { showDropdown = true }
+                        ) {
+                            Text(
+                                text = "Filtrar",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                        
+                        DropdownMenu(
+                            expanded = showDropdown,
+                            onDismissRequest = { showDropdown = false }
+                        ) {
+                            ActivityType.values().forEach { type ->
+                                DropdownMenuItem(
+                                    text = { 
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = getIconForType(type),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                            Text(getTitleForType(type))
+                                        }
+                                    },
+                                    onClick = {
+                                        selectedType = type
+                                        showDropdown = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -120,58 +174,59 @@ fun NotesScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            val notes = activities.filter { it.activityType == ActivityType.NOTE }
+            val filteredActivities = activities.filter { it.activityType == selectedType }
             
-            if (notes.isEmpty()) {
-                // Tela vazia quando não há notas
+            if (filteredActivities.isEmpty()) {
+                // Tela vazia quando não há atividades do tipo selecionado
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Note,
+                        imageVector = getIconForType(selectedType),
                         contentDescription = null,
                         modifier = Modifier.size(64.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Nenhuma nota encontrada",
+                        text = "Nenhum ${getTitleForType(selectedType).lowercase()} encontrado",
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Crie sua primeira nota no calendário",
+                        text = "Crie seu primeiro ${getTitleForType(selectedType).lowercase()} no calendário",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center
                     )
                 }
             } else {
-                // Lista de notas
+                // Lista de atividades filtradas
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Agrupar notas por data e ordenar
-                    val notesByDate = notes.groupBy { 
+                    // Agrupar atividades por data e ordenar
+                    val activitiesByDate = filteredActivities.groupBy { 
                         LocalDate.parse(it.date)
                     }.toSortedMap(compareByDescending { it })
-                        .mapValues { (_, notesForDate) ->
-                            // Ordenar notas dentro de cada data por horário (se tiver) ou por título
-                            notesForDate.sortedWith(compareBy<Activity> { 
+                        .mapValues { (_, activitiesForDate) ->
+                            // Ordenar atividades dentro de cada data por horário (se tiver) ou por título
+                            activitiesForDate.sortedWith(compareBy<Activity> { 
                                 it.startTime ?: LocalTime.MIN
                             }.thenBy { it.title })
                         }
                     
-                    items(notesByDate.toList()) { (date, notesForDate) ->
-                        NoteDateSection(
+                    items(activitiesByDate.toList()) { (date, activitiesForDate) ->
+                        ActivityDateSection(
                             date = date,
-                            notes = notesForDate
+                            activities = activitiesForDate,
+                            activityType = selectedType
                         )
                     }
                 }
@@ -181,9 +236,10 @@ fun NotesScreen(
 }
 
 @Composable
-private fun NoteDateSection(
+private fun ActivityDateSection(
     date: LocalDate,
-    notes: List<Activity>
+    activities: List<Activity>,
+    activityType: ActivityType
 ) {
     val formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", Locale("pt", "BR"))
     val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("pt", "BR"))
@@ -198,18 +254,19 @@ private fun NoteDateSection(
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
-        // Notas do dia
+        // Atividades do dia
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            notes.forEach { note ->
-                NoteCard(note = note)
+            activities.forEach { activity ->
+                ActivityCard(activity = activity, activityType = activityType)
             }
         }
     }
 }
 
 @Composable
-private fun NoteCard(
-    note: Activity
+private fun ActivityCard(
+    activity: Activity,
+    activityType: ActivityType
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -221,16 +278,16 @@ private fun NoteCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* TODO: Implementar edição da nota */ }
+                .clickable { /* TODO: Implementar edição da atividade */ }
                 .padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
-            // Ícone da nota
+            // Ícone da atividade baseado no tipo
             Icon(
-                imageVector = Icons.Default.Note,
+                imageVector = getIconForType(activityType),
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.primary
+                tint = getColorForType(activityType)
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -238,16 +295,16 @@ private fun NoteCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                // Título da nota
+                // Título da atividade
                 Text(
-                    text = note.title,
+                    text = activity.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                // Descrição da nota
-                note.description?.let { description ->
+                // Descrição da atividade
+                activity.description?.let { description ->
                     if (description.isNotBlank()) {
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
@@ -267,19 +324,19 @@ private fun NoteCard(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Horário se não for dia inteiro
-                    if (!note.isAllDay && note.startTime != null) {
+                    if (!activity.isAllDay && activity.startTime != null) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Note,
+                                imageVector = getIconForType(activityType),
                                 contentDescription = null,
                                 modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = note.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                                text = activity.startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                             )
@@ -287,13 +344,13 @@ private fun NoteCard(
                     }
 
                     // Localização se tiver
-                    note.location?.let { location ->
+                    activity.location?.let { location ->
                         if (location.isNotBlank()) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Note,
+                                    imageVector = getIconForType(activityType),
                                     contentDescription = null,
                                     modifier = Modifier.size(14.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
@@ -313,4 +370,33 @@ private fun NoteCard(
             }
         }
     }
+}
+
+// Funções auxiliares para mapear tipos de atividade
+private fun getIconForType(type: ActivityType) = when (type) {
+    ActivityType.EVENT -> Icons.Default.Event
+    ActivityType.TASK -> Icons.Default.Assignment
+    ActivityType.NOTE -> Icons.Default.Note
+    ActivityType.BIRTHDAY -> Icons.Default.Cake
+}
+
+private fun getTitleForType(type: ActivityType) = when (type) {
+    ActivityType.EVENT -> "Eventos"
+    ActivityType.TASK -> "Tarefas"
+    ActivityType.NOTE -> "Notas"
+    ActivityType.BIRTHDAY -> "Aniversários"
+}
+
+private fun getCountTextForType(type: ActivityType) = when (type) {
+    ActivityType.EVENT -> "evento(s)"
+    ActivityType.TASK -> "tarefa(s)"
+    ActivityType.NOTE -> "nota(s)"
+    ActivityType.BIRTHDAY -> "aniversário(s)"
+}
+
+private fun getColorForType(type: ActivityType) = when (type) {
+    ActivityType.EVENT -> androidx.compose.ui.graphics.Color(0xFF2196F3) // Azul
+    ActivityType.TASK -> androidx.compose.ui.graphics.Color(0xFF4CAF50) // Verde
+    ActivityType.NOTE -> androidx.compose.ui.graphics.Color(0xFF9C27B0) // Roxo
+    ActivityType.BIRTHDAY -> androidx.compose.ui.graphics.Color(0xFFFF9800) // Laranja
 }
