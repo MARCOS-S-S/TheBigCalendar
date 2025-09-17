@@ -59,7 +59,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotesScreen(
+fun SchedulesScreen(
     onBackClick: () -> Unit,
     activities: List<Activity> = emptyList(),
     onBackPressedDispatcher: OnBackPressedDispatcher? = null,
@@ -100,7 +100,7 @@ fun NotesScreen(
                         )
                         Column {
                             Text(
-                                text = getTitleForType(selectedType),
+                                text = "Agendamentos",
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold
                             )

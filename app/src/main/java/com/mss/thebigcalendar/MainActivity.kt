@@ -31,7 +31,7 @@ import com.mss.thebigcalendar.ui.screens.CalendarScreen
 import com.mss.thebigcalendar.ui.screens.SearchScreen
 import com.mss.thebigcalendar.ui.screens.TrashScreen
 import com.mss.thebigcalendar.ui.screens.ChartScreen
-import com.mss.thebigcalendar.ui.screens.NotesScreen
+import com.mss.thebigcalendar.ui.screens.SchedulesScreen
 import com.mss.thebigcalendar.ui.screens.GeneralSettingsScreen
 import com.mss.thebigcalendar.ui.screens.CompletedTasksScreen
 import com.mss.thebigcalendar.ui.screens.BackupScreen
@@ -223,7 +223,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         uiState.isNotesScreenOpen -> {
-                            NotesScreen(
+                            SchedulesScreen(
                                 onBackClick = { viewModel.closeNotesScreen() },
                                 activities = uiState.activities,
                                 onBackPressedDispatcher = onBackPressedDispatcher
