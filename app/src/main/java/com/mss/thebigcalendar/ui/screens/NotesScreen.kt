@@ -212,16 +212,17 @@ private fun NoteCard(
     note: Activity
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { /* TODO: Implementar edição da nota */ },
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { /* TODO: Implementar edição da nota */ }
+                .padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
             // Ícone da nota
@@ -231,9 +232,9 @@ private fun NoteCard(
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
+
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -244,7 +245,7 @@ private fun NoteCard(
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 // Descrição da nota
                 note.description?.let { description ->
                     if (description.isNotBlank()) {
@@ -258,7 +259,7 @@ private fun NoteCard(
                         )
                     }
                 }
-                
+
                 // Informações adicionais
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -284,7 +285,7 @@ private fun NoteCard(
                             )
                         }
                     }
-                    
+
                     // Localização se tiver
                     note.location?.let { location ->
                         if (location.isNotBlank()) {

@@ -30,21 +30,30 @@ class NotificationReceiver : BroadcastReceiver() {
         Log.d(TAG, "🔔 Intent data: ${intent.dataString}")
         Log.d(TAG, "🔔 Intent flags: ${intent.flags}")
         
-        when (intent.action) {
-            NotificationService.ACTION_VIEW_ACTIVITY -> {
-                // ✅ Exibir a notificação visual quando o alarme for acionado
-                Log.d(TAG, "🔔 Processando ACTION_VIEW_ACTIVITY")
-                handleViewActivity(context, intent)
+        try {
+            when (intent.action) {
+                NotificationService.ACTION_VIEW_ACTIVITY -> {
+                    // ✅ Exibir a notificação visual quando o alarme for acionado
+                    Log.d(TAG, "🔔 Processando ACTION_VIEW_ACTIVITY")
+                    handleViewActivity(context, intent)
+                }
+                NotificationService.ACTION_SNOOZE -> {
+                    Log.d(TAG, "🔔 Processando ACTION_SNOOZE")
+                    handleSnooze(context, intent)
+                }
+                NotificationService.ACTION_DISMISS -> {
+                    Log.d(TAG, "🔔 Processando ACTION_DISMISS")
+                    Log.d(TAG, "🔔 CLICOU NO BOTÃO FINALIZADO!")
+                    handleDismiss(context, intent)
+                }
+                Intent.ACTION_BOOT_COMPLETED -> {
+                    Log.d(TAG, "🔔 Sistema reiniciado - reagendando notificações")
+                    // Reagendar todas as notificações após reinicialização
+                    scheduleAllNotificationsAfterBoot(context)
+                }
             }
-            NotificationService.ACTION_SNOOZE -> {
-                Log.d(TAG, "🔔 Processando ACTION_SNOOZE")
-                handleSnooze(context, intent)
-            }
-            NotificationService.ACTION_DISMISS -> {
-                Log.d(TAG, "🔔 Processando ACTION_DISMISS")
-                Log.d(TAG, "🔔 CLICOU NO BOTÃO FINALIZADO!")
-                handleDismiss(context, intent)
-            }
+        } catch (e: Exception) {
+            Log.e(TAG, "🔔 Erro no NotificationReceiver", e)
         }
     }
 
@@ -448,6 +457,34 @@ class NotificationReceiver : BroadcastReceiver() {
                         notificationService.cancelNotification(activityId)
                     }
                 }
+            }
+        }
+    }
+    
+    /**
+     * Reagenda todas as notificações após reinicialização do sistema
+     */
+    private fun scheduleAllNotificationsAfterBoot(context: Context) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val activityRepository = ActivityRepository(context)
+                val notificationService = NotificationService(context)
+                
+                val activities = activityRepository.activities.first()
+                
+                activities.forEach { activity ->
+                    if (activity.notificationSettings.isEnabled && 
+                        activity.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
+                        
+                        // Reagendar notificação
+                        notificationService.scheduleNotification(activity)
+                        Log.d(TAG, "🔔 Notificação reagendada para: ${activity.title}")
+                    }
+                }
+                
+                Log.d(TAG, "🔔 Todas as notificações foram reagendadas após reinicialização")
+            } catch (e: Exception) {
+                Log.e(TAG, "🔔 Erro ao reagendar notificações após reinicialização", e)
             }
         }
     }

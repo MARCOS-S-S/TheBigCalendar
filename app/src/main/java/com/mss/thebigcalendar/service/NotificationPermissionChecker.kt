@@ -51,6 +51,16 @@ class NotificationPermissionChecker(private val context: Context) {
         
         Log.d(TAG, "🔔 Permissão USE_EXACT_ALARM: $hasUseExactAlarmPermission")
 
+        // Verificar se o app está ignorando otimizações de bateria
+        val isIgnoringBatteryOptimizations = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+            powerManager.isIgnoringBatteryOptimizations(context.packageName)
+        } else {
+            true
+        }
+        
+        Log.d(TAG, "🔔 Ignorando otimizações de bateria: $isIgnoringBatteryOptimizations")
+        
         val allPermissionsGranted = hasPostNotificationPermission && 
                                    (hasScheduleExactAlarmPermission || hasUseExactAlarmPermission)
         

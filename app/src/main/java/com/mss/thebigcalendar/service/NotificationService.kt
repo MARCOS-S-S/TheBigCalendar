@@ -82,6 +82,10 @@ class NotificationService(
             return
         }
         
+        Log.d(TAG, "🔔 Agendando notificação para: ${activity.title}")
+        
+        // Não iniciar serviço foreground automaticamente - será iniciado apenas quando necessário
+        
         // Se não há horário específico, usar início do dia (00:00)
         if (activity.startTime == null) {
         }
@@ -89,7 +93,8 @@ class NotificationService(
         val notificationTime = calculateNotificationTime(activity)
         val triggerTime = getTriggerTime(activity.date, notificationTime)
         
-
+        Log.d(TAG, "🔔 Tempo de notificação: $notificationTime")
+        Log.d(TAG, "🔔 Trigger time: $triggerTime")
         
         // Cancelar notificação anterior se existir
         cancelNotification(activity.id)
@@ -126,12 +131,69 @@ class NotificationService(
             return
         }
         
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            triggerTime,
-            pendingIntent
-        )
+        // Usar método mais confiável baseado na versão do Android
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Android 6.0+: setExactAndAllowWhileIdle - funciona mesmo com otimizações de bateria
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                pendingIntent
+            )
+            Log.d(TAG, "🔔 AlarmManager.setExactAndAllowWhileIdle usado")
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // Android 4.4+: setExact - mais preciso que set()
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                pendingIntent
+            )
+            Log.d(TAG, "🔔 AlarmManager.setExact usado")
+        } else {
+            // Android < 4.4: set - método básico
+            alarmManager.set(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                pendingIntent
+            )
+            Log.d(TAG, "🔔 AlarmManager.set usado")
+        }
+        
+        // Agendar WorkManager como backup
+        scheduleWorkManagerBackup(activity, triggerTime)
+        
+        Log.d(TAG, "🔔 Notificação agendada com sucesso para: ${activity.title}")
 
+    }
+    
+    /**
+     * Agenda um WorkManager como backup para a notificação
+     */
+    private fun scheduleWorkManagerBackup(activity: Activity, triggerTime: Long) {
+        try {
+            val delay = triggerTime - System.currentTimeMillis()
+            if (delay > 0) {
+                val workRequest = androidx.work.OneTimeWorkRequestBuilder<com.mss.thebigcalendar.worker.NotificationWorker>()
+                    .setInitialDelay(delay, java.util.concurrent.TimeUnit.MILLISECONDS)
+                    .addTag("notification_backup_${activity.id}")
+                    .setConstraints(
+                        androidx.work.Constraints.Builder()
+                            .setRequiredNetworkType(androidx.work.NetworkType.NOT_REQUIRED)
+                            .setRequiresBatteryNotLow(false)
+                            .setRequiresStorageNotLow(false)
+                            .build()
+                    )
+                    .build()
+                
+                androidx.work.WorkManager.getInstance(context).enqueueUniqueWork(
+                    "notification_${activity.id}",
+                    androidx.work.ExistingWorkPolicy.REPLACE,
+                    workRequest
+                )
+                Log.d(TAG, "🔔 WorkManager backup agendado para: ${activity.title}")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "🔔 Erro ao agendar WorkManager backup", e)
+        }
     }
 
     /**

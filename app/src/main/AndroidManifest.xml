@@ -13,6 +13,10 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.TURN_SCREEN_ON" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.QUICKBOOT_POWERON" />
     
 
     
@@ -68,11 +72,18 @@
         <!-- Notification Receiver para notificações do calendário -->
         <receiver
             android:name=".service.NotificationReceiver"
-            android:exported="false">
-            <intent-filter>
+            android:exported="true"
+            android:enabled="true"
+            android:directBootAware="true">
+            <intent-filter android:priority="1000">
                 <action android:name="com.mss.thebigcalendar.VIEW_ACTIVITY" />
                 <action android:name="com.mss.thebigcalendar.SNOOZE" />
                 <action android:name="com.mss.thebigcalendar.DISMISS" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
         
