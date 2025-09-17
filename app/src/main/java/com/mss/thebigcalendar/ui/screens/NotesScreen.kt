@@ -199,8 +199,10 @@ private fun NoteDateSection(
         )
         
         // Notas do dia
-        notes.forEach { note ->
-            NoteCard(note = note)
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            notes.forEach { note ->
+                NoteCard(note = note)
+            }
         }
     }
 }
