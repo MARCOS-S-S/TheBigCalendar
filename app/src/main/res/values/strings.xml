@@ -105,6 +105,9 @@
     <string name="synchronization">Sincronização</string>
     <string name="sync_progress">%1$d/%2$d eventos</string>
     <string name="welcome_name_setting_title">Nome de Boas-Vindas</string>
+    <string name="notes_menu">Agendamentos</string>
+    <string name="completed_tasks_filter">Tarefas finalizadas</string>
+    <string name="moon_phases_filter">Fases da Lua</string>
 
     <!-- TasksForSelectedDaySection.kt -->
     <string name="date_format_day_month">dd/MM</string>

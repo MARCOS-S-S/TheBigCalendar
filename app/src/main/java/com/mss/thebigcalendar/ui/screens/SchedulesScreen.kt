@@ -101,7 +101,7 @@ fun SchedulesScreen(
                         Column {
                             Text(
                                 text = stringResource(id = R.string.schedules_title),
-                                style = MaterialTheme.typography.headlineSmall,
+                                style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             val filteredActivities = activities.filter { it.activityType == selectedType }

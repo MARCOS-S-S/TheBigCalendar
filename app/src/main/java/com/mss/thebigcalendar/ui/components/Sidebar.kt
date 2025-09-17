@@ -141,7 +141,7 @@ fun Sidebar(
                 onClick = { onViewModeChange(ViewMode.YEARLY) }
             )
             NavigationDrawerItem(
-                label = { Text("Notas") },
+                label = { Text(stringResource(id = R.string.notes_menu)) },
                 icon = { Icon(Icons.Filled.Note, contentDescription = null) },
                 selected = false,
                 onClick = { onNotesClick() }
@@ -181,14 +181,14 @@ fun Sidebar(
             
             // Opção para mostrar tarefas finalizadas
             FilterCheckboxItem(
-                label = "Tarefas finalizadas",
+                label = stringResource(id = R.string.completed_tasks_filter),
                 checked = uiState.showCompletedActivities,
                 onCheckedChange = { onFilterChange("showCompletedActivities", it) }
             )
             
             // Opção para mostrar fases da lua
             FilterCheckboxItem(
-                label = "Fases da Lua",
+                label = stringResource(id = R.string.moon_phases_filter),
                 checked = uiState.showMoonPhases,
                 onCheckedChange = { onFilterChange("showMoonPhases", it) }
             )
