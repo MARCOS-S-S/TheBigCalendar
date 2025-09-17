@@ -100,7 +100,7 @@ fun SchedulesScreen(
                         )
                         Column {
                             Text(
-                                text = "Agendamentos",
+                                text = stringResource(id = R.string.schedules_title),
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold
                             )
@@ -130,7 +130,7 @@ fun SchedulesScreen(
                             onClick = { showDropdown = true }
                         ) {
                             Text(
-                                text = "Filtrar",
+                                text = stringResource(id = R.string.filter_button),
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
@@ -191,14 +191,14 @@ fun SchedulesScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Nenhum ${getTitleForType(selectedType).lowercase()} encontrado",
+                        text = stringResource(id = R.string.no_items_found, getTitleForType(selectedType).lowercase()),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Crie seu primeiro ${getTitleForType(selectedType).lowercase()} no calendário",
+                        text = stringResource(id = R.string.create_first_item, getTitleForType(selectedType).lowercase()),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center
@@ -241,7 +241,7 @@ private fun ActivityDateSection(
     activities: List<Activity>,
     activityType: ActivityType
 ) {
-    val formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", Locale("pt", "BR"))
+    val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_full), Locale("pt", "BR"))
     val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("pt", "BR"))
     
     Column {
@@ -380,18 +380,20 @@ private fun getIconForType(type: ActivityType) = when (type) {
     ActivityType.BIRTHDAY -> Icons.Default.Cake
 }
 
+@Composable
 private fun getTitleForType(type: ActivityType) = when (type) {
-    ActivityType.EVENT -> "Eventos"
-    ActivityType.TASK -> "Tarefas"
-    ActivityType.NOTE -> "Notas"
-    ActivityType.BIRTHDAY -> "Aniversários"
+    ActivityType.EVENT -> stringResource(id = R.string.events_title)
+    ActivityType.TASK -> stringResource(id = R.string.tasks_title)
+    ActivityType.NOTE -> stringResource(id = R.string.notes_title)
+    ActivityType.BIRTHDAY -> stringResource(id = R.string.birthdays_title)
 }
 
+@Composable
 private fun getCountTextForType(type: ActivityType) = when (type) {
-    ActivityType.EVENT -> "evento(s)"
-    ActivityType.TASK -> "tarefa(s)"
-    ActivityType.NOTE -> "nota(s)"
-    ActivityType.BIRTHDAY -> "aniversário(s)"
+    ActivityType.EVENT -> stringResource(id = R.string.events_count)
+    ActivityType.TASK -> stringResource(id = R.string.tasks_count)
+    ActivityType.NOTE -> stringResource(id = R.string.notes_count)
+    ActivityType.BIRTHDAY -> stringResource(id = R.string.birthdays_count)
 }
 
 private fun getColorForType(type: ActivityType) = when (type) {

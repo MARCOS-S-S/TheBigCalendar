@@ -196,4 +196,23 @@
     <string name="oldest_first">Mais antigas primeiro</string>
     <string name="newest_first">Mais recentes primeiro</string>
 
+    <!-- SchedulesScreen.kt -->
+    <string name="schedules_title">Agendamentos</string>
+    <string name="filter_button">Filtrar</string>
+    <string name="no_items_found">Nenhum %1$s encontrado</string>
+    <string name="create_first_item">Crie seu primeiro %1$s no calendário</string>
+    <string name="date_format_full">dd \'de\' MMMM \'de\' yyyy</string>
+    
+    <!-- Activity types -->
+    <string name="events_title">Eventos</string>
+    <string name="tasks_title">Tarefas</string>
+    <string name="notes_title">Notas</string>
+    <string name="birthdays_title">Aniversários</string>
+    
+    <!-- Activity count -->
+    <string name="events_count">evento(s)</string>
+    <string name="tasks_count">tarefa(s)</string>
+    <string name="notes_count">nota(s)</string>
+    <string name="birthdays_count">aniversário(s)</string>
+
 </resources>
