@@ -61,33 +61,33 @@ import kotlinx.coroutines.Job
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
+    // Repositories
     val settingsRepository = SettingsRepository(application)
     private val activityRepository = ActivityRepository(application)
     private val holidayRepository = HolidayRepository(application)
+    private val deletedActivityRepository = DeletedActivityRepository(application)
+    private val completedActivityRepository = CompletedActivityRepository(application)
+    
+    // Services
     private val googleAuthService = GoogleAuthService(application)
     private val googleCalendarService = GoogleCalendarService(application)
     private val progressiveSyncService = ProgressiveSyncService(application, googleCalendarService)
     private val searchService = SearchService()
     private val recurrenceService = RecurrenceService()
-    private val deletedActivityRepository = DeletedActivityRepository(application)
-    private val completedActivityRepository = CompletedActivityRepository(application)
     private val backupService = BackupService(application, activityRepository, deletedActivityRepository, completedActivityRepository)
     private val visibilityService = VisibilityService(application)
 
-    // Debounce para otimizar atualizações do calendário
-    private var updateJob: Job? = null
+    // State Management
+    private val _uiState = MutableStateFlow(CalendarUiState())
+    val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
     
-    // Cache para evitar recálculos desnecessários do calendário
+    // Cache System
+    private var updateJob: Job? = null
     private var cachedCalendarDays: List<CalendarDay>? = null
     private var lastUpdateParams: String? = null
-    
-    // Cache para aniversários por data
     private var cachedBirthdays: Map<LocalDate, List<Activity>> = emptyMap()
     private var cachedNotes: Map<LocalDate, List<Activity>> = emptyMap()
     private var cachedTasks: Map<LocalDate, List<Activity>> = emptyMap()
-
-    private val _uiState = MutableStateFlow(CalendarUiState())
-    val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
     init {
         loadSettings()
