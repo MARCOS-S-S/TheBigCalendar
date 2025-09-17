@@ -215,4 +215,9 @@
     <string name="notes_count">nota(s)</string>
     <string name="birthdays_count">aniversário(s)</string>
 
+    <!-- BarChartComponent.kt -->
+    <string name="bar_chart_default_title">Gráfico de Barras</string>
+    <string name="no_data_available">Nenhum dado disponível</string>
+    <string name="legend_label">Legenda:</string>
+
 </resources>

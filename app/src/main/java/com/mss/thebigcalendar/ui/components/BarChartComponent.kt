@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.mss.thebigcalendar.R
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -29,7 +31,7 @@ data class BarChartData(
 @Composable
 fun BarChartComponent(
     data: List<BarChartData>,
-    title: String = "Gráfico de Barras",
+    title: String = stringResource(id = R.string.bar_chart_default_title),
     modifier: Modifier = Modifier
 ) {
     if (data.isEmpty()) {
@@ -46,7 +48,7 @@ fun BarChartComponent(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Nenhum dado disponível",
+                    text = stringResource(id = R.string.no_data_available),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -218,7 +220,7 @@ fun BarChartLegend(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
-            text = "Legenda:",
+            text = stringResource(id = R.string.legend_label),
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
