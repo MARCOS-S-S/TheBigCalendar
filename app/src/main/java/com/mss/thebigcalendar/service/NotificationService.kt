@@ -23,6 +23,12 @@ class NotificationService(
 
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    
+    // SharedPreferences para controle de deduplicação
+    private val prefs = context.getSharedPreferences("notification_tracking", Context.MODE_PRIVATE)
+    
+    // Objeto para sincronização de threads
+    private val notificationLock = Any()
 
     companion object {
         private const val TAG = "NotificationService"
@@ -41,10 +47,15 @@ class NotificationService(
         const val EXTRA_ACTIVITY_DATE = "activity_date"
         const val EXTRA_ACTIVITY_TIME = "activity_time"
         const val EXTRA_VISIBILITY = "activity_visibility"
+        
+        // Chaves para controle de deduplicação
+        private const val KEY_NOTIFICATION_SENT = "notification_sent_"
+        private const val NOTIFICATION_WINDOW_MS = 60000L // 1 minuto (janela mais curta para evitar bloqueios)
     }
 
     init {
         createNotificationChannel()
+        cleanOldNotifications() // Limpar notificações antigas
     }
 
     /**
@@ -300,6 +311,27 @@ class NotificationService(
     fun showNotification(activity: Activity) {
         Log.d(TAG, "🔔 showNotification chamado para: ${activity.title}")
         
+        // ✅ Verificar se a notificação já foi enviada recentemente (deduplicação)
+        val activityIdForNotification = if (activity.id.contains("_")) {
+            activity.id
+        } else {
+            "${activity.id}_${activity.date}"
+        }
+        
+        // ✅ Sincronização para evitar condição de corrida
+        synchronized(notificationLock) {
+            Log.d(TAG, "🔔 Verificando deduplicação para ID: $activityIdForNotification")
+            
+            if (hasNotificationBeenSentRecently(activityIdForNotification)) {
+                Log.d(TAG, "🔔 Notificação duplicada bloqueada para: ${activity.title}")
+                return
+            }
+            
+            // ✅ Marcar como enviada ANTES de processar (evita duplicatas)
+            markNotificationAsSent(activityIdForNotification)
+            Log.d(TAG, "🔔 Notificação marcada como enviada ANTES do processamento para: ${activity.title}")
+        }
+        
         // Verificar permissões primeiro
         val permissionChecker = NotificationPermissionChecker(context)
         if (!permissionChecker.canShowNotifications()) {
@@ -364,6 +396,7 @@ class NotificationService(
 
         Log.d(TAG, "🔔 Enviando notificação com ID: ${activity.id.hashCode()}")
         notificationManager.notify(activity.id.hashCode(), notification)
+        
         Log.d(TAG, "🔔 Notificação enviada com sucesso!")
     }
 
@@ -471,6 +504,78 @@ class NotificationService(
             
         } catch (e: Exception) {
             // Erro ao agendar notificação adiada
+        }
+    }
+    
+    /**
+     * Verifica se uma notificação já foi enviada recentemente para evitar duplicatas
+     */
+    private fun hasNotificationBeenSentRecently(activityId: String): Boolean {
+        val key = KEY_NOTIFICATION_SENT + activityId
+        val lastSentTime = prefs.getLong(key, 0)
+        val currentTime = System.currentTimeMillis()
+        
+        val timeDiff = currentTime - lastSentTime
+        val wasSentRecently = timeDiff < NOTIFICATION_WINDOW_MS
+        
+        Log.d(TAG, "🔔 Verificação de deduplicação - ID: $activityId, Última vez: $lastSentTime, Agora: $currentTime, Diferença: ${timeDiff/1000}s, Janela: ${NOTIFICATION_WINDOW_MS/1000}s")
+        
+        if (wasSentRecently) {
+            Log.d(TAG, "🔔 Notificação já enviada recentemente para $activityId (${timeDiff/1000}s atrás)")
+        } else {
+            Log.d(TAG, "🔔 Notificação não foi enviada recentemente para $activityId (${timeDiff/1000}s atrás)")
+        }
+        
+        return wasSentRecently
+    }
+    
+    /**
+     * Marca uma notificação como enviada para controle de deduplicação
+     */
+    private fun markNotificationAsSent(activityId: String) {
+        val key = KEY_NOTIFICATION_SENT + activityId
+        val currentTime = System.currentTimeMillis()
+        
+        prefs.edit()
+            .putLong(key, currentTime)
+            .apply()
+            
+        Log.d(TAG, "🔔 Notificação marcada como enviada para $activityId")
+    }
+    
+    /**
+     * Limpa o histórico de notificações enviadas (útil para testes)
+     */
+    fun clearNotificationHistory() {
+        prefs.edit().clear().apply()
+        Log.d(TAG, "🔔 Histórico de notificações limpo")
+    }
+    
+    /**
+     * Limpa notificações antigas do histórico (mais de 1 hora)
+     */
+    private fun cleanOldNotifications() {
+        val currentTime = System.currentTimeMillis()
+        val oneHourAgo = currentTime - 3600000L // 1 hora
+        
+        val allKeys = prefs.all.keys
+        val editor = prefs.edit()
+        var cleanedCount = 0
+        
+        for (key in allKeys) {
+            if (key.startsWith(KEY_NOTIFICATION_SENT)) {
+                val lastSentTime = prefs.getLong(key, 0)
+                if (lastSentTime < oneHourAgo) {
+                    editor.remove(key)
+                    cleanedCount++
+                }
+            }
+        }
+        
+        editor.apply()
+        
+        if (cleanedCount > 0) {
+            Log.d(TAG, "🔔 Limpeza automática: $cleanedCount notificações antigas removidas")
         }
     }
 }

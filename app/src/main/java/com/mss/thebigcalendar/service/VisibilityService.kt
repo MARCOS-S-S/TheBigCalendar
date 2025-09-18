@@ -135,6 +135,9 @@ class VisibilityService(private val context: Context) {
                 return
             }
             
+            // 🔊 Tocar som de notificação padrão do dispositivo
+            playNotificationSound()
+            
             // Criar layout para o banner
             val layoutInflater = LayoutInflater.from(context)
             val bannerView = layoutInflater.inflate(R.layout.visibility_banner_medium, null)
@@ -193,6 +196,9 @@ class VisibilityService(private val context: Context) {
                 }
                 return
             }
+            
+            // 🔊 Tocar som de notificação padrão do dispositivo
+            playNotificationSound()
             
             // Criar layout para o alerta de tela inteira
             val layoutInflater = LayoutInflater.from(context)
@@ -313,6 +319,152 @@ class VisibilityService(private val context: Context) {
             "Às ${activity.startTime.format(formatter)}"
         } else {
             "Sem horário definido"
+        }
+    }
+
+    /**
+     * Toca o som de notificação padrão do dispositivo
+     * Funciona mesmo com a tela desligada e força audibilidade
+     */
+    private fun playNotificationSound() {
+        try {
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+            
+            // Verificar se o som está habilitado
+            if (audioManager.ringerMode == android.media.AudioManager.RINGER_MODE_SILENT) {
+                Log.d(TAG, "🔇 Som silenciado - não tocando notificação")
+                return
+            }
+            
+            Log.d(TAG, "🔊 Iniciando som de notificação...")
+            
+            // Primeiro, tentar usar AudioManager.playSoundEffect() - mais confiável
+            try {
+                // Tocar som de notificação via AudioManager (mais confiável)
+                audioManager.playSoundEffect(android.media.AudioManager.FX_KEY_CLICK)
+                Log.d(TAG, "✅ Som de notificação tocado via AudioManager")
+                
+                // Adicionar vibração para garantir que o usuário perceba
+                playVibration()
+                return
+                
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ AudioManager falhou, tentando NotificationManager...", e)
+            }
+            
+            // Segunda tentativa: usar NotificationManager para tocar som
+            try {
+                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                
+                // Criar uma notificação temporária apenas para tocar o som
+                val tempNotification = NotificationCompat.Builder(context, VISIBILITY_CHANNEL_ID)
+                    .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                    .setContentTitle("Alerta")
+                    .setContentText("Notificação de alta visibilidade")
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
+                    .setVibrate(longArrayOf(0, 500, 200, 500, 200, 500))
+                    .setAutoCancel(true)
+                    .build()
+                
+                // Enviar notificação temporária (será cancelada imediatamente)
+                notificationManager.notify(99999, tempNotification)
+                
+                // Cancelar imediatamente após enviar
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    notificationManager.cancel(99999)
+                }, 100)
+                
+                Log.d(TAG, "✅ Som de notificação tocado via NotificationManager")
+                return
+                
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ NotificationManager falhou, tentando MediaPlayer...", e)
+            }
+            
+            // Fallback: usar MediaPlayer com configuração mais robusta
+            val notificationUri = android.provider.Settings.System.DEFAULT_NOTIFICATION_URI
+            Log.d(TAG, "🔊 Usando MediaPlayer com URI: $notificationUri")
+            
+            // Configurar atributos de áudio para notificação
+            val audioAttributes = android.media.AudioAttributes.Builder()
+                .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION)
+                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setFlags(android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                .build()
+            
+            // Criar MediaPlayer com configuração assíncrona
+            val mediaPlayer = android.media.MediaPlayer().apply {
+                setAudioAttributes(audioAttributes)
+                setDataSource(context, notificationUri)
+                setVolume(1.0f, 1.0f) // Volume máximo
+                
+                // Configurar listeners antes de preparar
+                setOnPreparedListener { mp ->
+                    Log.d(TAG, "🎵 Som preparado, tocando...")
+                    try {
+                        mp.start()
+                    } catch (e: Exception) {
+                        Log.e(TAG, "❌ Erro ao iniciar MediaPlayer", e)
+                        mp.release()
+                    }
+                }
+                
+                setOnCompletionListener { mp ->
+                    Log.d(TAG, "✅ Som de notificação finalizado")
+                    mp.release()
+                }
+                
+                setOnErrorListener { mp, what, extra ->
+                    Log.e(TAG, "❌ Erro no MediaPlayer: what=$what, extra=$extra")
+                    mp.release()
+                    true
+                }
+                
+                setOnInfoListener { mp, what, extra ->
+                    Log.d(TAG, "ℹ️ MediaPlayer info: what=$what, extra=$extra")
+                    false
+                }
+                
+                // Preparar de forma assíncrona
+                prepareAsync()
+            }
+            
+            // Adicionar vibração para garantir que o usuário perceba
+            playVibration()
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao configurar som de notificação", e)
+            // Pelo menos tentar vibrar
+            playVibration()
+        }
+    }
+    
+    /**
+     * Toca vibração para alertas de alta visibilidade
+     */
+    private fun playVibration() {
+        try {
+            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as android.os.Vibrator
+            
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                // Padrão de vibração para notificações importantes
+                val vibrationPattern = longArrayOf(0, 500, 200, 500, 200, 500)
+                val vibrationEffect = android.os.VibrationEffect.createWaveform(
+                    vibrationPattern, 
+                    -1 // Não repetir
+                )
+                vibrator.vibrate(vibrationEffect)
+            } else {
+                // Para versões anteriores ao Android 8.0
+                vibrator.vibrate(longArrayOf(0, 500, 200, 500, 200, 500), -1)
+            }
+            
+            Log.d(TAG, "📳 Vibração de alerta ativada")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao ativar vibração", e)
         }
     }
 

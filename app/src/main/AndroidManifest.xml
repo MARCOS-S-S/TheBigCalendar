@@ -18,6 +18,11 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.QUICKBOOT_POWERON" />
     
+    <!-- Permissões para áudio e notificações sonoras -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    
 
     
     <!-- Permissões para backup e restauração -->

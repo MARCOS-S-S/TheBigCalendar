@@ -20,6 +20,9 @@ class NotificationWorker(
     companion object {
         private const val TAG = "NotificationWorker"
         const val WORK_NAME = "notification_worker"
+        
+        // Objeto para sincronização de threads (compartilhado entre instâncias)
+        private val notificationLock = Any()
     }
 
     override suspend fun doWork(): Result {
@@ -39,15 +42,36 @@ class NotificationWorker(
                 if (activity.notificationSettings.isEnabled && 
                     activity.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
                     
-                    // Calcular quando a notificação deveria ser enviada
+                    // Calcular quando a notificação deveria ter sido enviada
                     val triggerTime = getTriggerTimeWithNotificationType(activity)
                     
-                    // Se a notificação deveria ter sido enviada nos últimos 5 minutos
+                    // Calcular tolerância dinâmica baseada no tipo de notificação
+                    val tolerance = calculateToleranceForNotification(activity)
                     val timeDiff = currentTime - triggerTime
-                    if (timeDiff >= 0 && timeDiff <= 300000) { // 5 minutos
-                        Log.d(TAG, "🔔 Enviando notificação tardia para: ${activity.title}")
-                        notificationService.showNotification(activity)
-                        notificationsSent++
+                    
+                    if (timeDiff >= 0 && timeDiff <= tolerance) {
+                        Log.d(TAG, "🔔 Enviando notificação tardia para: ${activity.title} (${timeDiff/1000}s de atraso, tolerância: ${tolerance/1000}s)")
+                        
+                        // ✅ Verificar se já foi enviada recentemente (deduplicação)
+                        // Usar o mesmo ID que o NotificationService usa
+                        val activityIdForNotification = if (activity.id.contains("_")) {
+                            activity.id
+                        } else {
+                            "${activity.id}_${activity.date}"
+                        }
+                        
+                        // ✅ Sincronização para evitar condição de corrida
+                        synchronized(notificationLock) {
+                            Log.d(TAG, "🔔 Worker - Verificando deduplicação para ID: $activityIdForNotification")
+                            
+                            if (hasNotificationBeenSentRecently(activityIdForNotification)) {
+                                Log.d(TAG, "🔔 Worker - Notificação tardia bloqueada (duplicata) para: ${activity.title}")
+                            } else {
+                                Log.d(TAG, "🔔 Worker - Notificação tardia permitida para: ${activity.title}")
+                                notificationService.showNotification(activity)
+                                notificationsSent++
+                            }
+                        }
                     }
                 }
             }
@@ -101,5 +125,54 @@ class NotificationWorker(
         }
         
         return notificationDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+    }
+    
+    /**
+     * Calcula a tolerância dinâmica para verificação de notificações tardias
+     * baseada no tipo de notificação e na importância da atividade
+     */
+    private fun calculateToleranceForNotification(activity: com.mss.thebigcalendar.data.model.Activity): Long {
+        val notificationType = activity.notificationSettings.notificationType
+        val minutesBefore = notificationType.minutesBefore ?: 0
+        
+        return when {
+            // Notificações de muito longo prazo (1 dia+): tolerância de 1 hora
+            minutesBefore >= 1440 -> 3600000L // 1 hora
+            
+            // Notificações de longo prazo (2-12 horas): tolerância de 30 minutos
+            minutesBefore >= 120 -> 1800000L // 30 minutos
+            
+            // Notificações de médio prazo (30min-2h): tolerância de 15 minutos
+            minutesBefore >= 30 -> 900000L // 15 minutos
+            
+            // Notificações de curto prazo (5-15min): tolerância de 10 minutos
+            minutesBefore >= 5 -> 600000L // 10 minutos
+            
+            // Notificações imediatas (0-5min): tolerância de 5 minutos
+            else -> 300000L // 5 minutos
+        }
+    }
+    
+    /**
+     * Verifica se uma notificação já foi enviada recentemente para evitar duplicatas
+     */
+    private fun hasNotificationBeenSentRecently(activityId: String): Boolean {
+        val prefs = applicationContext.getSharedPreferences("notification_tracking", Context.MODE_PRIVATE)
+        val key = "notification_sent_$activityId"
+        val lastSentTime = prefs.getLong(key, 0)
+        val currentTime = System.currentTimeMillis()
+        
+        val timeDiff = currentTime - lastSentTime
+        val wasSentRecently = timeDiff < 60000L // 1 minuto (janela mais curta)
+        
+        Log.d(TAG, "🔔 Worker - Verificação de deduplicação - ID: $activityId, Última vez: $lastSentTime, Agora: $currentTime, Diferença: ${timeDiff/1000}s, Janela: 60s")
+        
+        if (wasSentRecently) {
+            Log.d(TAG, "🔔 Worker - Notificação já enviada recentemente para $activityId (${timeDiff/1000}s atrás)")
+        } else {
+            Log.d(TAG, "🔔 Worker - Notificação não foi enviada recentemente para $activityId (${timeDiff/1000}s atrás)")
+        }
+        
+        return wasSentRecently
     }
 }
