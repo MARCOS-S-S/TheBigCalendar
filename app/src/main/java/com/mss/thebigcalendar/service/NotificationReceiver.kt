@@ -123,9 +123,27 @@ class NotificationReceiver : BroadcastReceiver() {
                 if (realActivity != null) {
                     Log.d(TAG, "🔔 Atividade encontrada, exibindo notificação: ${realActivity.title}")
                     Log.d(TAG, "🔔 Visibilidade da atividade: ${realActivity.visibility}")
-                    // ✅ Mudar para Main thread para exibir overlay
-                    withContext(Dispatchers.Main) {
-                        notificationService.showNotification(realActivity)
+                    
+                    // ✅ Verificar se é notificação de alta visibilidade
+                    if (realActivity.visibility == com.mss.thebigcalendar.data.model.VisibilityLevel.HIGH) {
+                        Log.d(TAG, "🔔 Atividade de alta visibilidade - iniciando serviço especializado")
+                        
+                        // Iniciar serviço de alta visibilidade
+                        val highVisibilityIntent = Intent(context, com.mss.thebigcalendar.service.HighVisibilityNotificationService::class.java).apply {
+                            action = com.mss.thebigcalendar.service.HighVisibilityNotificationService.ACTION_SHOW_NOTIFICATION
+                            putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_ID, realActivity.id)
+                            putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_TITLE, realActivity.title)
+                            putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_DESCRIPTION, realActivity.description)
+                            putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_DATE, realActivity.date)
+                            putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_TIME, realActivity.startTime?.toString())
+                        }
+                        
+                        context.startService(highVisibilityIntent)
+                    } else {
+                        // ✅ Mudar para Main thread para exibir overlay normal
+                        withContext(Dispatchers.Main) {
+                            notificationService.showNotification(realActivity)
+                        }
                     }
 
                     // ✅ Agendar a próxima ocorrência se for uma atividade recorrente
@@ -174,9 +192,26 @@ class NotificationReceiver : BroadcastReceiver() {
                         showInCalendar = true
                     )
                     
-                    // ✅ Mudar para Main thread para exibir overlay
-                    withContext(Dispatchers.Main) {
-                        notificationService.showNotification(tempActivity)
+                    // ✅ Verificar se é notificação de alta visibilidade
+                    if (tempActivity.visibility == com.mss.thebigcalendar.data.model.VisibilityLevel.HIGH) {
+                        Log.d(TAG, "🔔 Atividade de alta visibilidade (fallback) - iniciando serviço especializado")
+                        
+                        // Iniciar serviço de alta visibilidade
+                        val highVisibilityIntent = Intent(context, com.mss.thebigcalendar.service.HighVisibilityNotificationService::class.java).apply {
+                            action = com.mss.thebigcalendar.service.HighVisibilityNotificationService.ACTION_SHOW_NOTIFICATION
+                            putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_ID, tempActivity.id)
+                            putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_TITLE, tempActivity.title)
+                            putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_DESCRIPTION, tempActivity.description)
+                            putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_DATE, tempActivity.date)
+                            putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_TIME, tempActivity.startTime?.toString())
+                        }
+                        
+                        context.startService(highVisibilityIntent)
+                    } else {
+                        // ✅ Mudar para Main thread para exibir overlay normal
+                        withContext(Dispatchers.Main) {
+                            notificationService.showNotification(tempActivity)
+                        }
                     }
                     
                 }
@@ -205,9 +240,26 @@ class NotificationReceiver : BroadcastReceiver() {
                     showInCalendar = true
                 )
                 
-                // ✅ Mudar para Main thread para exibir overlay
-                withContext(Dispatchers.Main) {
-                    notificationService.showNotification(tempActivity)
+                // ✅ Verificar se é notificação de alta visibilidade
+                if (tempActivity.visibility == com.mss.thebigcalendar.data.model.VisibilityLevel.HIGH) {
+                    Log.d(TAG, "🔔 Atividade de alta visibilidade (fallback 2) - iniciando serviço especializado")
+                    
+                    // Iniciar serviço de alta visibilidade
+                    val highVisibilityIntent = Intent(context, com.mss.thebigcalendar.service.HighVisibilityNotificationService::class.java).apply {
+                        action = com.mss.thebigcalendar.service.HighVisibilityNotificationService.ACTION_SHOW_NOTIFICATION
+                        putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_ID, tempActivity.id)
+                        putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_TITLE, tempActivity.title)
+                        putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_DESCRIPTION, tempActivity.description)
+                        putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_DATE, tempActivity.date)
+                        putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_TIME, tempActivity.startTime?.toString())
+                    }
+                    
+                    context.startService(highVisibilityIntent)
+                } else {
+                    // ✅ Mudar para Main thread para exibir overlay normal
+                    withContext(Dispatchers.Main) {
+                        notificationService.showNotification(tempActivity)
+                    }
                 }
                 
             }

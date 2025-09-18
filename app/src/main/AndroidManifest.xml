@@ -73,6 +73,26 @@
             android:finishOnTaskLaunch="false"
             android:clearTaskOnLaunch="false"
             android:theme="@style/Theme.TheBigCalendar" />
+            
+        <!-- Activity para notificações de alta visibilidade -->
+        <activity
+            android:name=".ui.screens.HighVisibilityNotificationActivity"
+            android:exported="false"
+            android:excludeFromRecents="false"
+            android:launchMode="singleInstance"
+            android:showWhenLocked="true"
+            android:taskAffinity=""
+            android:allowTaskReparenting="false"
+            android:finishOnTaskLaunch="false"
+            android:clearTaskOnLaunch="false"
+            android:theme="@style/Theme.TheBigCalendar" />
+            
+        <!-- Serviço para notificações de alta visibilidade -->
+        <service
+            android:name=".service.HighVisibilityNotificationService"
+            android:exported="false"
+            android:enabled="true"
+            android:process=":high_visibility_service" />
 
         <!-- Notification Receiver para notificações do calendário -->
         <receiver

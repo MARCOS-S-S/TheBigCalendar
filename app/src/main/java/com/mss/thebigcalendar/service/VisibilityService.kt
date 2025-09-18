@@ -94,6 +94,8 @@ class VisibilityService(private val context: Context) {
 
     /**
      * Exibe o alerta baseado no nível de visibilidade da atividade
+     * NOTA: Para notificações de alta visibilidade, agora usamos o HighVisibilityNotificationService
+     * que mantém o app ativo mesmo com a tela desligada
      */
     fun showVisibilityAlert(activity: Activity) {
         val hasPermission = hasOverlayPermission()
@@ -111,12 +113,21 @@ class VisibilityService(private val context: Context) {
                 }
             }
             VisibilityLevel.HIGH -> {
-                if (hasPermission) {
-                    showHighVisibilityAlert(activity)
-                } else {
-                    // Fallback para notificação se não tiver permissão
-                    showFallbackNotification(activity, "Alerta Alto")
+                // ✅ NOVA ESTRATÉGIA: Usar HighVisibilityNotificationService
+                // que mantém o app ativo mesmo com a tela desligada
+                Log.d(TAG, "🔔 Atividade de alta visibilidade - usando nova estratégia com WakeLock")
+                
+                // Iniciar serviço de alta visibilidade
+                val highVisibilityIntent = Intent(context, com.mss.thebigcalendar.service.HighVisibilityNotificationService::class.java).apply {
+                    action = com.mss.thebigcalendar.service.HighVisibilityNotificationService.ACTION_SHOW_NOTIFICATION
+                    putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_ID, activity.id)
+                    putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_TITLE, activity.title)
+                    putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_DESCRIPTION, activity.description)
+                    putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_DATE, activity.date)
+                    putExtra(com.mss.thebigcalendar.service.HighVisibilityNotificationService.EXTRA_ACTIVITY_TIME, activity.startTime?.toString())
                 }
+                
+                context.startService(highVisibilityIntent)
             }
         }
     }
@@ -547,19 +558,20 @@ class VisibilityService(private val context: Context) {
     }
     
     /**
-     * Função de teste para verificar se o alerta de tela cheia está funcionando
+     * Função de teste para verificar se o alerta de alta visibilidade está funcionando
+     * NOVA ESTRATÉGIA: Usa o HighVisibilityNotificationService que mantém o app ativo
      */
     fun testHighVisibilityAlert() {
         val testActivity = Activity(
-            id = "test",
-            title = "TESTE - Alerta de Visibilidade Alta",
-            description = "Este é um teste para verificar se o alerta de tela cheia está funcionando",
-            date = "2024-01-01",
+            id = "test_high_visibility_${System.currentTimeMillis()}",
+            title = "TESTE - Notificação de Alta Visibilidade",
+            description = "Este é um teste da nova estratégia que mantém o app ativo mesmo com a tela desligada",
+            date = java.time.LocalDate.now().toString(),
             startTime = LocalTime.now(),
             endTime = null,
             isAllDay = false,
             location = null,
-            categoryColor = "1",
+            categoryColor = "#FF0000",
             activityType = ActivityType.TASK,
             recurrenceRule = null,
             notificationSettings = NotificationSettings(),
@@ -569,6 +581,7 @@ class VisibilityService(private val context: Context) {
             isFromGoogle = false
         )
         
+        Log.d(TAG, "🧪 Iniciando teste de notificação de alta visibilidade")
         showVisibilityAlert(testActivity)
     }
 }
