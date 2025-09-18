@@ -168,4 +168,21 @@ class QuoteService(private val context: Context) {
         prefs.edit().clear().apply()
         Log.d(TAG, "🔄 Contador de frases resetado")
     }
+    
+    /**
+     * Limpa o cache de frases e força o recarregamento
+     */
+    fun clearCacheAndReload() {
+        quotes = null // Limpa o cache em memória
+        prefs.edit().clear().apply() // Limpa o cache persistente
+        Log.d(TAG, "🔄 Cache de frases limpo e forçando recarregamento")
+    }
+    
+    /**
+     * Força o recarregamento das frases (ignora cache)
+     */
+    suspend fun forceReloadQuotes(): List<Quote> = withContext(Dispatchers.IO) {
+        quotes = null // Limpa cache em memória
+        loadQuotes() // Recarrega do arquivo
+    }
 }
