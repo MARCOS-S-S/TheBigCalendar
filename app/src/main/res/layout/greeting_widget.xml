@@ -21,18 +21,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/widget_background"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="8dp"
-        android:gravity="center_vertical"
         android:layout_marginRight="40dp"
         android:layout_marginBottom="0dp">
 
-        <!-- Seção da Saudação -->
+        <!-- Seção da Saudação e Data no topo -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
             <!-- Saudação -->
             <TextView
@@ -43,6 +43,14 @@
                 android:textColor="@color/widget_text_color_fixed"
                 android:textSize="22sp"
                 android:textStyle="bold" />
+
+            <!-- Divisor -->
+            <View
+                android:layout_width="1dp"
+                android:layout_height="20dp"
+                android:background="#FFFFFF"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp" />
 
             <!-- Data -->
             <TextView
@@ -56,19 +64,18 @@
 
         </LinearLayout>
 
-        <!-- Divisor vertical -->
+        <!-- Divisor horizontal -->
         <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
             android:background="#FFFFFF"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp" />
+            android:layout_marginBottom="8dp" />
 
         <!-- Tarefas do dia -->
         <TextView
             android:id="@+id/widget_tasks"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:text="Carregando tarefas..."
             android:textColor="#FFFFFF"
