@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageButton
+        android:id="@+id/widget_refresh_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="bottom|right"
+        android:src="@android:drawable/ic_popup_sync"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Refresh Widget"
+        android:padding="8dp"
+        android:scaleType="fitCenter"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <LinearLayout
+        android:id="@+id/widget_main_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/widget_background"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:layout_marginRight="40dp"
+        android:layout_marginBottom="0dp">
+
+        <!-- Seção da Saudação -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- Saudação -->
+            <TextView
+                android:id="@+id/widget_greeting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bom dia"
+                android:textColor="@color/widget_text_color_fixed"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <!-- Data -->
+            <TextView
+                android:id="@+id/widget_day_of_week"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Seg - 26/08"
+                android:textColor="@color/widget_text_color_fixed"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <!-- Divisor vertical -->
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp" />
+
+        <!-- Tarefas do dia -->
+        <TextView
+            android:id="@+id/widget_tasks"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Carregando tarefas..."
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:lineSpacingMultiplier="1.0"
+            android:gravity="start|top"
+            android:singleLine="false" />
+
+    </LinearLayout>
+
+</FrameLayout>
