@@ -71,6 +71,7 @@ class AlarmService(
         try {
             Log.d(TAG, "❌ Cancelando alarme: $alarmId")
             
+            // 1. Cancelar via AlarmManager com múltiplas estratégias
             val intent = createAlarmIntent(alarmId)
             
             // Tentar cancelar com diferentes flags para garantir que funcione
@@ -98,9 +99,9 @@ class AlarmService(
                 }
             }
             
-            // Para alarmes recorrentes, cancelar também as instâncias futuras
+            // 2. Cancelar alarmes recorrentes (próximos 7 dias)
             val today = LocalDate.now()
-            for (dayOffset in 1..7) {
+            for (dayOffset in 0..6) {
                 val futureDate = today.plusDays(dayOffset.toLong())
                 val futureAlarmId = "${alarmId}_${futureDate}"
                 
@@ -121,18 +122,77 @@ class AlarmService(
                 }
             }
             
+            // 3. Cancelar via NotificationService
+            try {
+                notificationService.cancelNotification(alarmId)
+                Log.d(TAG, "❌ Notificação cancelada via NotificationService")
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ Erro ao cancelar notificação: ${e.message}")
+            }
+            
+            // 4. Cancelar todas as notificações relacionadas
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            notificationManager.cancel(alarmId.hashCode())
+            notificationManager.cancel(alarmId.hashCode() + 1000)
+            notificationManager.cancel(alarmId.hashCode() - 1000)
+            
+            // Cancelar notificações de alarmes recorrentes
+            for (dayOffset in 0..6) {
+                val futureDate = today.plusDays(dayOffset.toLong())
+                val recurringAlarmId = "${alarmId}_${futureDate}"
+                notificationManager.cancel(recurringAlarmId.hashCode())
+            }
+            
+            Log.d(TAG, "❌ Todas as notificações relacionadas canceladas")
+            
+            // 5. Cancelar backup do WorkManager
+            cancelWorkManagerBackup(alarmId)
+            
+            // 6. Limpeza exaustiva de todos os alarmes pendentes
+            try {
+                val allReceiverClasses = listOf(
+                    com.mss.thebigcalendar.service.AlarmReceiver::class.java,
+                    com.mss.thebigcalendar.service.NotificationReceiver::class.java
+                )
+                
+                val allActions = listOf(
+                    "com.mss.thebigcalendar.ALARM_TRIGGERED",
+                    "com.mss.thebigcalendar.VIEW_ACTIVITY",
+                    "com.mss.thebigcalendar.SNOOZE",
+                    "com.mss.thebigcalendar.DISMISS"
+                )
+                
+                allReceiverClasses.forEach { receiverClass ->
+                    allActions.forEach { action ->
+                        val cleanupIntent = Intent(context, receiverClass).apply {
+                            this.action = action
+                            putExtra("alarm_id", alarmId)
+                        }
+                        
+                        val cleanupPendingIntent = PendingIntent.getBroadcast(
+                            context,
+                            alarmId.hashCode(),
+                            cleanupIntent,
+                            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                        )
+                        alarmManager.cancel(cleanupPendingIntent)
+                    }
+                }
+                
+                Log.d(TAG, "❌ Limpeza exaustiva de alarmes pendentes concluída")
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ Erro na limpeza exaustiva: ${e.message}")
+            }
+            
+            // 7. Verificar se ainda há alarmes ativos
+            checkAndUpdateAlarmStatus()
+            
+            // 8. Forçar atualização do sistema de alarmes para remover do QS
+            forceAlarmSystemUpdate()
+            
             if (!cancelled) {
                 Log.w(TAG, "⚠️ Não foi possível cancelar o alarme com nenhuma flag")
             }
-            
-            // Cancelar backup do WorkManager
-            cancelWorkManagerBackup(alarmId)
-            
-            // Verificar se ainda há alarmes ativos
-            checkAndUpdateAlarmStatus()
-            
-            // Forçar atualização do sistema de alarmes para remover do QS
-            forceAlarmSystemUpdate()
             
             Log.d(TAG, "❌ Alarme cancelado com sucesso")
         } catch (e: Exception) {
