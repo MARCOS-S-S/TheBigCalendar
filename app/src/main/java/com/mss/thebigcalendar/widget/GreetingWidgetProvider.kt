@@ -201,7 +201,7 @@ class GreetingWidgetProvider : AppWidgetProvider() {
             "Nenhuma tarefa para hoje"
         } else {
             val tasksToShow = todayTasks.take(maxTasksPerDay)
-            tasksToShow.joinToString("<br>") { task ->
+            tasksToShow.joinToString("\n") { task ->
                 val prefix = if (task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
                     "🎂 " // Ícone de aniversário
                 } else if (task.startTime != null) {
@@ -210,7 +210,7 @@ class GreetingWidgetProvider : AppWidgetProvider() {
                     ""
                 }
                 "$prefix${task.title}"
-            } + if (todayTasks.size > maxTasksPerDay) "<br>..." else ""
+            } + if (todayTasks.size > maxTasksPerDay) "\n..." else ""
         }
         
         // Se não for noite ou não há tarefas de amanhã, retornar apenas as de hoje
@@ -223,8 +223,8 @@ class GreetingWidgetProvider : AppWidgetProvider() {
             ""
         } else {
             val tasksToShow = tomorrowTasks.take(maxTasksPerDay)
-            val tomorrowHeader = "<br><br><b>Amanhã:</b><br>"
-            val tasksList = tasksToShow.joinToString("<br>") { task ->
+            val tomorrowHeader = "\n\nAmanhã:\n"
+            val tasksList = tasksToShow.joinToString("\n") { task ->
                 val prefix = if (task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
                     "🎂 " // Ícone de aniversário
                 } else if (task.startTime != null) {
@@ -234,7 +234,7 @@ class GreetingWidgetProvider : AppWidgetProvider() {
                 }
                 "$prefix${task.title}"
             }
-            tomorrowHeader + tasksList + if (tomorrowTasks.size > maxTasksPerDay) "<br>..." else ""
+            tomorrowHeader + tasksList + if (tomorrowTasks.size > maxTasksPerDay) "\n..." else ""
         }
         
         return todayText + tomorrowText

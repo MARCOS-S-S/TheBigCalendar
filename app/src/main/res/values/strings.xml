@@ -123,7 +123,7 @@
     <string name="settings_permission_message">Por favor, conceda permissão de \"Gerenciar todos os arquivos\" nas configurações do aplicativo.</string>
     <string name="grant_permission">Conceder Permissão</string>
     <string name="open_settings">Abrir Configurações</string>
-    <string name="cancel">Cancelar</string>
+    <string name="cancel">Ok</string>
 
     <!-- YearlyCalendarView.kt -->
     <string name="previous_year">Ano Anterior</string>
