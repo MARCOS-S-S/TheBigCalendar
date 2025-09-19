@@ -93,6 +93,12 @@
             android:exported="false"
             android:enabled="true"
             android:process=":high_visibility_service" />
+            
+        <!-- Serviço para verificação de alarmes -->
+        <service
+            android:name=".service.AlarmVerificationService"
+            android:exported="false"
+            android:enabled="true" />
 
         <!-- Notification Receiver para notificações do calendário -->
         <receiver
@@ -115,9 +121,18 @@
         <!-- Alarm Receiver para alarmes do despertador -->
         <receiver
             android:name=".service.AlarmReceiver"
-            android:exported="false">
+            android:exported="false"
+            android:enabled="true"
+            android:directBootAware="true">
             <intent-filter>
                 <action android:name="com.mss.thebigcalendar.ALARM_TRIGGERED" />
+                <action android:name="DISMISS_ALARM" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
         

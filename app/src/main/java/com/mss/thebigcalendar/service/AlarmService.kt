@@ -81,12 +81,28 @@ class AlarmService(
             
             alarmManager.cancel(pendingIntent)
             
+            // Cancelar backup do WorkManager
+            cancelWorkManagerBackup(alarmId)
+            
             // Verificar se ainda há alarmes ativos
             checkAndUpdateAlarmStatus()
             
             Log.d(TAG, "❌ Alarme cancelado com sucesso")
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao cancelar alarme", e)
+        }
+    }
+    
+    /**
+     * Cancela backup do WorkManager para um alarme
+     */
+    private fun cancelWorkManagerBackup(alarmId: String) {
+        try {
+            androidx.work.WorkManager.getInstance(context)
+                .cancelUniqueWork("alarm_backup_$alarmId")
+            Log.d(TAG, "❌ Backup WorkManager cancelado para alarme: $alarmId")
+        } catch (e: Exception) {
+            Log.w(TAG, "⚠️ Erro ao cancelar backup WorkManager: ${e.message}")
         }
     }
     
@@ -133,7 +149,7 @@ class AlarmService(
     }
     
     /**
-     * Agenda um alarme em um horário específico
+     * Agenda um alarme em um horário específico com múltiplas estratégias de backup
      */
     private fun scheduleAlarmAtTime(alarmId: String, triggerTime: Long) {
         val intent = createAlarmIntent(alarmId)
@@ -144,24 +160,100 @@ class AlarmService(
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
         
+        var primaryMethodSuccess = false
+        
         try {
-            // Usar setAlarmClock para que o sistema Android reconheça como alarme real
-            // Isso fará o ícone de alarme aparecer na barra de status
+            // ESTRATÉGIA 1: setAlarmClock (mais confiável, reconhecido pelo sistema)
             val alarmClockInfo = AlarmManager.AlarmClockInfo(
                 triggerTime,
                 pendingIntent
             )
             alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+            primaryMethodSuccess = true
             Log.d(TAG, "⏰ Alarme configurado com setAlarmClock para: ${java.util.Date(triggerTime)}")
         } catch (e: Exception) {
-            Log.w(TAG, "⚠️ Não foi possível usar setAlarmClock, usando fallback: ${e.message}")
-            // Fallback para setExactAndAllowWhileIdle
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                triggerTime,
-                pendingIntent
-            )
-            Log.d(TAG, "⏰ Alarme agendado com fallback para: ${java.util.Date(triggerTime)}")
+            Log.w(TAG, "⚠️ setAlarmClock falhou: ${e.message}")
+        }
+        
+        if (!primaryMethodSuccess) {
+            try {
+                // ESTRATÉGIA 2: setExactAndAllowWhileIdle (funciona com otimizações de bateria)
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    pendingIntent
+                )
+                primaryMethodSuccess = true
+                Log.d(TAG, "⏰ Alarme agendado com setExactAndAllowWhileIdle para: ${java.util.Date(triggerTime)}")
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ setExactAndAllowWhileIdle falhou: ${e.message}")
+            }
+        }
+        
+        if (!primaryMethodSuccess) {
+            try {
+                // ESTRATÉGIA 3: setExact (fallback básico)
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    pendingIntent
+                )
+                primaryMethodSuccess = true
+                Log.d(TAG, "⏰ Alarme agendado com setExact para: ${java.util.Date(triggerTime)}")
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ setExact falhou: ${e.message}")
+            }
+        }
+        
+        if (!primaryMethodSuccess) {
+            try {
+                // ESTRATÉGIA 4: set (último recurso)
+                alarmManager.set(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    pendingIntent
+                )
+                Log.d(TAG, "⏰ Alarme agendado com set (último recurso) para: ${java.util.Date(triggerTime)}")
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Todas as estratégias de agendamento falharam", e)
+            }
+        }
+        
+        // BACKUP: Agendar WorkManager como segurança adicional
+        scheduleWorkManagerBackup(alarmId, triggerTime)
+    }
+    
+    /**
+     * Agenda backup com WorkManager para garantir que o alarme toque
+     */
+    private fun scheduleWorkManagerBackup(alarmId: String, triggerTime: Long) {
+        try {
+            // Usar WorkManager como backup para garantir confiabilidade
+            val workRequest = androidx.work.OneTimeWorkRequestBuilder<AlarmBackupWorker>()
+                .setInitialDelay(java.time.Duration.ofMillis(triggerTime - System.currentTimeMillis()))
+                .setInputData(androidx.work.Data.Builder()
+                    .putString("alarm_id", alarmId)
+                    .putLong("trigger_time", triggerTime)
+                    .build())
+                .setConstraints(androidx.work.Constraints.Builder()
+                    .setRequiredNetworkType(androidx.work.NetworkType.NOT_REQUIRED)
+                    .setRequiresBatteryNotLow(false)
+                    .setRequiresCharging(false)
+                    .setRequiresDeviceIdle(false)
+                    .setRequiresStorageNotLow(false)
+                    .build())
+                .build()
+            
+            androidx.work.WorkManager.getInstance(context)
+                .enqueueUniqueWork(
+                    "alarm_backup_$alarmId",
+                    androidx.work.ExistingWorkPolicy.REPLACE,
+                    workRequest
+                )
+            
+            Log.d(TAG, "⏰ Backup WorkManager agendado para alarme: $alarmId")
+        } catch (e: Exception) {
+            Log.w(TAG, "⚠️ Falha ao agendar backup WorkManager: ${e.message}")
         }
     }
     

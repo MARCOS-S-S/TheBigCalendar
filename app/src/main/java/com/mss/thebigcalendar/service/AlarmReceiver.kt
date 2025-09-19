@@ -45,6 +45,14 @@ class AlarmReceiver : BroadcastReceiver() {
                     Log.w(TAG, "🔔 ID do alarme não encontrado para dismiss")
                 }
             }
+            Intent.ACTION_BOOT_COMPLETED -> {
+                Log.d(TAG, "🔔 Sistema reiniciado - reagendando alarmes")
+                rescheduleAllAlarms(context)
+            }
+            Intent.ACTION_MY_PACKAGE_REPLACED -> {
+                Log.d(TAG, "🔔 App atualizado - reagendando alarmes")
+                rescheduleAllAlarms(context)
+            }
             else -> {
                 Log.w(TAG, "🔔 Ação desconhecida: ${intent.action}")
             }
@@ -92,6 +100,40 @@ class AlarmReceiver : BroadcastReceiver() {
                 Log.d(TAG, "🔔 Alarme desligado com sucesso: $alarmId")
             } catch (e: Exception) {
                 Log.e(TAG, "🔔 Erro ao desligar alarme", e)
+            }
+        }
+    }
+    
+    /**
+     * Reagenda todos os alarmes após reinicialização do sistema
+     */
+    private fun rescheduleAllAlarms(context: Context) {
+        coroutineScope.launch {
+            try {
+                Log.d(TAG, "🔔 Iniciando reagendamento de todos os alarmes")
+                
+                // Criar instâncias dos serviços
+                val alarmRepository = AlarmRepository(context)
+                val notificationService = NotificationService(context)
+                val alarmService = AlarmService(context, alarmRepository, notificationService)
+                
+                // Obter todos os alarmes ativos
+                val activeAlarms = alarmRepository.getActiveAlarms()
+                Log.d(TAG, "🔔 Encontrados ${activeAlarms.size} alarmes ativos para reagendar")
+                
+                // Reagendar cada alarme
+                activeAlarms.forEach { alarmSettings ->
+                    try {
+                        alarmService.scheduleAlarm(alarmSettings)
+                        Log.d(TAG, "🔔 Alarme reagendado: ${alarmSettings.label} às ${alarmSettings.time}")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "🔔 Erro ao reagendar alarme ${alarmSettings.label}", e)
+                    }
+                }
+                
+                Log.d(TAG, "🔔 Reagendamento de alarmes concluído")
+            } catch (e: Exception) {
+                Log.e(TAG, "🔔 Erro ao reagendar alarmes", e)
             }
         }
     }
