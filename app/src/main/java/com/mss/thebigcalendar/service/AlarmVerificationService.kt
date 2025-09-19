@@ -86,9 +86,20 @@ class AlarmVerificationService : Service() {
             activeAlarms.forEach { alarmSettings ->
                 try {
                     // Verificar se o alarme está agendado no sistema
-                    if (!isAlarmScheduled(alarmSettings.id)) {
-                        Log.w(TAG, "⚠️ Alarme ${alarmSettings.label} não está agendado, reagendando...")
+                    val isScheduled = isAlarmScheduled(alarmSettings.id)
+                    val isScheduledForToday = isAlarmScheduledForToday(alarmSettings)
+                    
+                    if (!isScheduled || !isScheduledForToday) {
+                        Log.w(TAG, "⚠️ Alarme ${alarmSettings.label} não está agendado corretamente, reagendando...")
                         alarmService.scheduleAlarm(alarmSettings)
+                        
+                        // Garantir que as configurações sejam persistidas
+                        val saveResult = alarmRepository.saveAlarm(alarmSettings)
+                        if (saveResult.isSuccess) {
+                            Log.d(TAG, "✅ Alarme ${alarmSettings.label} reagendado e persistido com sucesso")
+                        } else {
+                            Log.w(TAG, "⚠️ Alarme ${alarmSettings.label} reagendado mas falha ao persistir")
+                        }
                     } else {
                         Log.d(TAG, "✅ Alarme ${alarmSettings.label} está agendado corretamente")
                     }
@@ -124,6 +135,35 @@ class AlarmVerificationService : Service() {
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao verificar se alarme está agendado", e)
             false
+        }
+    }
+    
+    /**
+     * Verifica se um alarme está agendado para hoje (considerando alarmes recorrentes)
+     */
+    private fun isAlarmScheduledForToday(alarmSettings: com.mss.thebigcalendar.data.model.AlarmSettings): Boolean {
+        return try {
+            val today = LocalDate.now()
+            val todayDayOfWeek = when (today.dayOfWeek) {
+                java.time.DayOfWeek.SUNDAY -> "Dom"
+                java.time.DayOfWeek.MONDAY -> "Seg"
+                java.time.DayOfWeek.TUESDAY -> "Ter"
+                java.time.DayOfWeek.WEDNESDAY -> "Qua"
+                java.time.DayOfWeek.THURSDAY -> "Qui"
+                java.time.DayOfWeek.FRIDAY -> "Sex"
+                java.time.DayOfWeek.SATURDAY -> "Sáb"
+            }
+            
+            // Para alarmes recorrentes, verificar se hoje está nos dias de repetição
+            if (alarmSettings.repeatDays.isNotEmpty()) {
+                return alarmSettings.repeatDays.contains(todayDayOfWeek)
+            }
+            
+            // Para alarmes únicos, sempre considerar que devem estar agendados
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao verificar se alarme está agendado para hoje", e)
+            true // Em caso de erro, assumir que está agendado
         }
     }
 

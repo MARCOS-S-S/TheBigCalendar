@@ -156,6 +156,7 @@ fun CalendarScreen(
                         onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
                         onBackup = { viewModel.onBackupIconClick() },
                         onNotesClick = { viewModel.onNotesClick() },
+                        onAlarmsClick = { viewModel.onAlarmsClick() },
                         onRequestClose = {
                             scope.launch { drawerState.close() }
                             viewModel.closeSidebar()

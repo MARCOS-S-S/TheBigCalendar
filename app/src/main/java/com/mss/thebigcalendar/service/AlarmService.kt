@@ -72,14 +72,58 @@ class AlarmService(
             Log.d(TAG, "❌ Cancelando alarme: $alarmId")
             
             val intent = createAlarmIntent(alarmId)
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                alarmId.hashCode(),
-                intent,
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            
+            // Tentar cancelar com diferentes flags para garantir que funcione
+            val flags = listOf(
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
             )
             
-            alarmManager.cancel(pendingIntent)
+            var cancelled = false
+            for (flag in flags) {
+                try {
+                    val pendingIntent = PendingIntent.getBroadcast(
+                        context,
+                        alarmId.hashCode(),
+                        intent,
+                        flag
+                    )
+                    alarmManager.cancel(pendingIntent)
+                    cancelled = true
+                    Log.d(TAG, "❌ Alarme cancelado com flag: $flag")
+                    break
+                } catch (e: Exception) {
+                    Log.w(TAG, "⚠️ Falha ao cancelar com flag $flag: ${e.message}")
+                }
+            }
+            
+            // Para alarmes recorrentes, cancelar também as instâncias futuras
+            val today = LocalDate.now()
+            for (dayOffset in 1..7) {
+                val futureDate = today.plusDays(dayOffset.toLong())
+                val futureAlarmId = "${alarmId}_${futureDate}"
+                
+                for (flag in flags) {
+                    try {
+                        val futureIntent = createAlarmIntent(futureAlarmId)
+                        val futurePendingIntent = PendingIntent.getBroadcast(
+                            context,
+                            futureAlarmId.hashCode(),
+                            futureIntent,
+                            flag
+                        )
+                        alarmManager.cancel(futurePendingIntent)
+                        Log.d(TAG, "❌ Alarme futuro cancelado: $futureAlarmId")
+                    } catch (e: Exception) {
+                        // Ignorar erros para alarmes futuros que podem não existir
+                    }
+                }
+            }
+            
+            if (!cancelled) {
+                Log.w(TAG, "⚠️ Não foi possível cancelar o alarme com nenhuma flag")
+            }
             
             // Cancelar backup do WorkManager
             cancelWorkManagerBackup(alarmId)
@@ -87,9 +131,59 @@ class AlarmService(
             // Verificar se ainda há alarmes ativos
             checkAndUpdateAlarmStatus()
             
+            // Forçar atualização do sistema de alarmes para remover do QS
+            forceAlarmSystemUpdate()
+            
             Log.d(TAG, "❌ Alarme cancelado com sucesso")
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao cancelar alarme", e)
+        }
+    }
+    
+    /**
+     * Força atualização do sistema de alarmes para remover do QS
+     */
+    private fun forceAlarmSystemUpdate() {
+        try {
+            Log.d(TAG, "🔄 Forçando atualização do sistema de alarmes")
+            
+            // Método 1: Cancelar um alarme fictício para forçar refresh
+            val dummyIntent = Intent(context, com.mss.thebigcalendar.service.AlarmReceiver::class.java).apply {
+                action = "DUMMY_ALARM_UPDATE"
+            }
+            val dummyPendingIntent = PendingIntent.getBroadcast(
+                context,
+                System.currentTimeMillis().toInt(),
+                dummyIntent,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            )
+            alarmManager.cancel(dummyPendingIntent)
+            
+            // Método 2: Agendar e cancelar um alarme temporário para forçar refresh
+            val tempIntent = Intent(context, com.mss.thebigcalendar.service.AlarmReceiver::class.java).apply {
+                action = "TEMP_ALARM_REFRESH"
+            }
+            val tempPendingIntent = PendingIntent.getBroadcast(
+                context,
+                (System.currentTimeMillis() + 1000).toInt(),
+                tempIntent,
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            )
+            
+            // Agendar para 1 segundo no futuro
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis() + 1000,
+                tempPendingIntent
+            )
+            
+            // Cancelar imediatamente
+            alarmManager.cancel(tempPendingIntent)
+            
+            Log.d(TAG, "🔄 Atualização do sistema de alarmes forçada")
+            
+        } catch (e: Exception) {
+            Log.w(TAG, "⚠️ Erro ao forçar atualização do sistema: ${e.message}")
         }
     }
     
@@ -302,9 +396,20 @@ class AlarmService(
                 // Forçar abertura da tela do alarme
                 forceOpenAlarmScreen(alarmSettings)
                 
-                // Se for recorrente, reagendar para o próximo dia
+                // Reagendar o alarme baseado no tipo:
                 if (alarmSettings.repeatDays.isNotEmpty()) {
+                    // Alarme recorrente - reagendar para os próximos dias
+                    Log.d(TAG, "🔔 Reagendando alarme recorrente: ${alarmSettings.label}")
                     scheduleRepeatingAlarm(alarmSettings)
+                } else {
+                    // Alarme único - desativar após tocar
+                    Log.d(TAG, "🔔 Desativando alarme único após tocar: ${alarmSettings.label}")
+                    val updatedAlarm = alarmSettings.copy(
+                        isEnabled = false,
+                        lastModified = System.currentTimeMillis()
+                    )
+                    alarmRepository.saveAlarm(updatedAlarm)
+                    Log.d(TAG, "🔔 Alarme único desativado: ${alarmSettings.label}")
                 }
             } else {
                 Log.w(TAG, "🔔 Configurações de alarme não encontradas: $alarmId")

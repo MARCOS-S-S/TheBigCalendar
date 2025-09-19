@@ -32,6 +32,7 @@ import com.mss.thebigcalendar.ui.screens.SearchScreen
 import com.mss.thebigcalendar.ui.screens.TrashScreen
 import com.mss.thebigcalendar.ui.screens.ChartScreen
 import com.mss.thebigcalendar.ui.screens.SchedulesScreen
+import com.mss.thebigcalendar.ui.screens.AlarmsScreen
 import com.mss.thebigcalendar.ui.screens.GeneralSettingsScreen
 import com.mss.thebigcalendar.ui.screens.CompletedTasksScreen
 import com.mss.thebigcalendar.ui.screens.BackupScreen
@@ -110,6 +111,7 @@ class MainActivity : ComponentActivity() {
                     state.isSearchScreenOpen -> viewModel.closeSearchScreen()
                     state.isChartScreenOpen -> viewModel.closeChartScreen()
                     state.isNotesScreenOpen -> viewModel.closeNotesScreen()
+                    state.isAlarmsScreenOpen -> viewModel.closeAlarmsScreen()
                     state.isTrashScreenOpen -> viewModel.closeTrashScreen()
                     state.isBackupScreenOpen -> viewModel.closeBackupScreen()
                     state.isCompletedTasksScreenOpen -> viewModel.closeCompletedTasksScreen()
@@ -227,6 +229,12 @@ class MainActivity : ComponentActivity() {
                                 onBackClick = { viewModel.closeNotesScreen() },
                                 activities = uiState.activities,
                                 onBackPressedDispatcher = onBackPressedDispatcher
+                            )
+                        }
+                        uiState.isAlarmsScreenOpen -> {
+                            AlarmsScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = { viewModel.closeAlarmsScreen() }
                             )
                         }
                         uiState.isSettingsScreenOpen -> {

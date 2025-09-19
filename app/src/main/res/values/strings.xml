@@ -287,7 +287,7 @@
     <string name="alarm_saved_success">Despertador salvo com sucesso!</string>
     <string name="error_saving_alarm">Erro ao salvar despertador: %1$s</string>
     <string name="unexpected_error">Erro inesperado: %1$s</string>
-    <string name="edit_alarm">Editar Despertador</string>
+    <!--<string name="edit_alarm">Editar Despertador</string> -->
     <string name="configure_alarm">Configurar Despertador</string>
     <string name="alarm_enabled">Ativado</string>
     <string name="alarm_disabled">Desativado</string>
@@ -331,5 +331,11 @@
     <string name="plus_button">+</string>
     <string name="thank_you_message">✅ Obrigado!</string>
     <string name="permission_granted_message">Permissão concedida com sucesso!</string>
+
+    <!-- AlarmsScreen.kt -->
+    <string name="alarms">Alarmes</string>
+    <string name="no_alarms_configured">Nenhum alarme configurado</string>
+    <string name="no_alarms_description">Configure alarmes nos seus agendamentos para vê-los aqui</string>
+    <string name="edit_alarm">Editar Alarme</string>
 
 </resources>

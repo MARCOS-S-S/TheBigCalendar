@@ -28,6 +28,7 @@ import com.mss.thebigcalendar.service.SearchService
 import com.mss.thebigcalendar.service.RecurrenceService
 import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
 import com.mss.thebigcalendar.data.repository.CompletedActivityRepository
+import com.mss.thebigcalendar.data.repository.AlarmRepository
 import com.mss.thebigcalendar.data.service.BackupService
 import com.mss.thebigcalendar.data.service.BackupInfo
 import com.mss.thebigcalendar.service.VisibilityService
@@ -67,6 +68,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val holidayRepository = HolidayRepository(application)
     private val deletedActivityRepository = DeletedActivityRepository(application)
     private val completedActivityRepository = CompletedActivityRepository(application)
+    private val alarmRepository = AlarmRepository(application)
     
     // Services
     private val googleAuthService = GoogleAuthService(application)
@@ -1540,6 +1542,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         // Deletar da lista principal
                         activityRepository.deleteActivity(activityId)
                         
+                        // ✅ Desativar despertadores órfãos para atividades não repetitivas
+                        disableOrphanedAlarms(activityId, activityToDelete.title)
+                        
                         // Sincronizar com Google Calendar se for evento do Google
                         if (activityToDelete.isFromGoogle) {
                             deleteFromGoogleCalendar(activityToDelete)
@@ -1761,6 +1766,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         // Remover da lista principal
                         activityRepository.deleteActivity(activityId)
                         
+                        // ✅ Desativar despertadores órfãos para atividades não repetitivas finalizadas
+                        disableOrphanedAlarms(activityId, activityToComplete.title)
+                        
                         // Sincronizar com Google Calendar se for evento do Google
                         if (activityToComplete.isFromGoogle) {
                             deleteFromGoogleCalendar(activityToComplete)
@@ -1780,6 +1788,110 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun cancelDeleteActivity() = _uiState.update { it.copy(activityIdToDelete = null) }
+
+    /**
+     * Desativa despertadores órfãos quando uma atividade não repetitiva é apagada ou finalizada
+     */
+    private suspend fun disableOrphanedAlarms(activityId: String, activityTitle: String) {
+        try {
+            Log.d("CalendarViewModel", "🔍 Verificando despertadores órfãos para atividade: $activityTitle (ID: $activityId)")
+            
+            // Buscar todos os alarmes ativos
+            val activeAlarms = alarmRepository.getActiveAlarms()
+            
+            // Filtrar alarmes que podem estar associados a esta atividade
+            val orphanedAlarms = activeAlarms.filter { alarm ->
+                // Verificar se o alarme pode estar associado à atividade
+                alarm.label.contains(activityTitle, ignoreCase = true) ||
+                alarm.id == activityId ||
+                alarm.id.contains(activityId)
+            }
+            
+            if (orphanedAlarms.isNotEmpty()) {
+                Log.d("CalendarViewModel", "🔔 Encontrados ${orphanedAlarms.size} despertadores órfãos para desativar")
+                
+                // Desativar cada despertador órfão
+                orphanedAlarms.forEach { alarm ->
+                    val updatedAlarm = alarm.copy(
+                        isEnabled = false,
+                        lastModified = System.currentTimeMillis()
+                    )
+                    
+                    val result = alarmRepository.saveAlarm(updatedAlarm)
+                    if (result.isSuccess) {
+                        Log.d("CalendarViewModel", "✅ Despertador órfão desativado: ${alarm.label}")
+                        
+                        // Cancelar o alarme no sistema
+                        val notificationService = NotificationService(getApplication())
+                        notificationService.cancelNotification(alarm.id)
+                    } else {
+                        Log.w("CalendarViewModel", "⚠️ Falha ao desativar despertador órfão: ${alarm.label}")
+                    }
+                }
+            } else {
+                Log.d("CalendarViewModel", "✅ Nenhum despertador órfão encontrado para: $activityTitle")
+            }
+        } catch (e: Exception) {
+            Log.e("CalendarViewModel", "❌ Erro ao desativar despertadores órfãos", e)
+        }
+    }
+
+    /**
+     * Limpa todos os despertadores órfãos (despertadores sem atividade correspondente)
+     * Esta função pode ser chamada periodicamente para manter o sistema limpo
+     */
+    suspend fun cleanupOrphanedAlarms() {
+        try {
+            Log.d("CalendarViewModel", "🧹 Iniciando limpeza de despertadores órfãos")
+            
+            // Buscar todos os alarmes ativos
+            val activeAlarms = alarmRepository.getActiveAlarms()
+            
+            // Buscar todas as atividades ativas
+            val allActivities = activityRepository.activities.first()
+            
+            // Identificar alarmes órfãos
+            val orphanedAlarms = activeAlarms.filter { alarm ->
+                // Verificar se existe uma atividade correspondente
+                val hasCorrespondingActivity = allActivities.any { activity ->
+                    alarm.label.contains(activity.title, ignoreCase = true) ||
+                    alarm.id == activity.id ||
+                    alarm.id.contains(activity.id)
+                }
+                
+                !hasCorrespondingActivity
+            }
+            
+            if (orphanedAlarms.isNotEmpty()) {
+                Log.d("CalendarViewModel", "🧹 Encontrados ${orphanedAlarms.size} despertadores órfãos para limpeza")
+                
+                // Desativar cada despertador órfão
+                orphanedAlarms.forEach { alarm ->
+                    val updatedAlarm = alarm.copy(
+                        isEnabled = false,
+                        lastModified = System.currentTimeMillis()
+                    )
+                    
+                    val result = alarmRepository.saveAlarm(updatedAlarm)
+                    if (result.isSuccess) {
+                        Log.d("CalendarViewModel", "✅ Despertador órfão limpo: ${alarm.label}")
+                        
+                        // Cancelar o alarme no sistema
+                        val notificationService = NotificationService(getApplication())
+                        notificationService.cancelNotification(alarm.id)
+                    } else {
+                        Log.w("CalendarViewModel", "⚠️ Falha ao limpar despertador órfão: ${alarm.label}")
+                    }
+                }
+                
+                Log.d("CalendarViewModel", "🧹 Limpeza de despertadores órfãos concluída")
+            } else {
+                Log.d("CalendarViewModel", "✅ Nenhum despertador órfão encontrado")
+            }
+        } catch (e: Exception) {
+            Log.e("CalendarViewModel", "❌ Erro durante limpeza de despertadores órfãos", e)
+        }
+    }
 
     fun onSaintDayClick(saint: Holiday) {
         _uiState.update { it.copy(saintInfoToShow = saint) }
@@ -1893,6 +2005,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun closeNotesScreen() {
         println("🚪 Fechando tela de notas")
         _uiState.update { it.copy(isNotesScreenOpen = false) }
+    }
+
+    // --- Alarmes ---
+    fun onAlarmsClick() {
+        println("⏰ Abrindo tela de alarmes")
+        _uiState.update { it.copy(isAlarmsScreenOpen = true, isSidebarOpen = false) }
+    }
+
+    fun closeAlarmsScreen() {
+        println("🚪 Fechando tela de alarmes")
+        _uiState.update { it.copy(isAlarmsScreenOpen = false) }
     }
 
     // --- Tarefas Concluídas ---

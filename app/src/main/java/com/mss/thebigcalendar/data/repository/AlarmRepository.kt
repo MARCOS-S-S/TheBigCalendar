@@ -119,6 +119,13 @@ class AlarmRepository(
     }
     
     /**
+     * Busca todos os alarmes (ativos e inativos)
+     */
+    suspend fun getAllAlarms(): List<AlarmSettings> {
+        return _alarms.value
+    }
+    
+    /**
      * Ativa/desativa um alarme
      */
     suspend fun toggleAlarm(alarmId: String): Result<AlarmSettings> {

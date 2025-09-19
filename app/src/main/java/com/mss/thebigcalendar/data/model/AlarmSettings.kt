@@ -29,7 +29,7 @@ data class AlarmSettings(
                 id = "alarm_${System.currentTimeMillis()}",
                 label = label,
                 time = time,
-                isEnabled = false,
+                isEnabled = true,
                 repeatDays = emptySet()
             )
         }

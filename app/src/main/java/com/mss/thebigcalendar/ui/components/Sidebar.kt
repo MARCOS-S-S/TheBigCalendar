@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Note
+import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.outlined.Backup
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Checkbox
@@ -62,6 +63,7 @@ fun Sidebar(
     onNavigateToSettings: (String) -> Unit,
     onBackup: () -> Unit,
     onNotesClick: () -> Unit,
+    onAlarmsClick: () -> Unit,
     onRequestClose: () -> Unit
 ) {
     val context = LocalContext.current
@@ -145,6 +147,12 @@ fun Sidebar(
                 icon = { Icon(Icons.Filled.Note, contentDescription = null) },
                 selected = false,
                 onClick = { onNotesClick() }
+            )
+            NavigationDrawerItem(
+                label = { Text(stringResource(id = R.string.alarms)) },
+                icon = { Icon(Icons.Filled.Alarm, contentDescription = null) },
+                selected = false,
+                onClick = { onAlarmsClick() }
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))

@@ -105,6 +105,7 @@ data class CalendarUiState(
     val isSearchScreenOpen: Boolean = false,
     val isChartScreenOpen: Boolean = false,
     val isNotesScreenOpen: Boolean = false,
+    val isAlarmsScreenOpen: Boolean = false,
     val isSettingsScreenOpen: Boolean = false,
     val isCompletedTasksScreenOpen: Boolean = false,
     val deletedActivities: List<DeletedActivity> = emptyList(),

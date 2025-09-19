@@ -64,10 +64,10 @@ class AlarmBackupWorker(
             val notificationService = NotificationService(applicationContext)
             val alarmService = AlarmService(applicationContext, alarmRepository, notificationService)
             
-            // Processar o alarme
+            // Processar o alarme (isso também reagenda automaticamente)
             alarmService.handleAlarmTriggered(alarmId)
             
-            Log.d(TAG, "✅ Alarme de backup processado com sucesso: $alarmId")
+            Log.d(TAG, "✅ Alarme de backup processado e reagendado com sucesso: $alarmId")
             Result.success()
             
         } catch (e: Exception) {

@@ -45,6 +45,7 @@ fun AlarmScreen(
     onBackClick: () -> Unit,
     onBackPressedDispatcher: OnBackPressedDispatcher? = null,
     activityToEdit: Activity? = null,
+    alarmToEdit: AlarmSettings? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -105,9 +106,9 @@ fun AlarmScreen(
     val thankYouMessage = stringResource(id = R.string.thank_you_message)
     val permissionGrantedMessage = stringResource(id = R.string.permission_granted_message)
     
-    // ID do alarme baseado na atividade ou gerado
-    val alarmId = remember(activityToEdit?.id) { 
-        activityToEdit?.id ?: "alarm_${System.currentTimeMillis()}"
+    // ID do alarme baseado no alarme a editar, atividade ou gerado
+    val alarmId = remember(alarmToEdit?.id, activityToEdit?.id) { 
+        alarmToEdit?.id ?: activityToEdit?.id ?: "alarm_${System.currentTimeMillis()}"
     }
     
     // Repositórios e serviços
@@ -116,29 +117,41 @@ fun AlarmScreen(
     val alarmService = remember { AlarmService(context, alarmRepository, notificationService) }
     
     // Carregar configurações existentes
-    LaunchedEffect(alarmId) {
+    LaunchedEffect(alarmId, alarmToEdit) {
         try {
-            val savedAlarm = alarmRepository.getAlarmById(alarmId)
-            if (savedAlarm != null) {
-                // Carregar configurações salvas
-                selectedTime = savedAlarm.time
-                isAlarmEnabled = savedAlarm.isEnabled
-                alarmLabel = savedAlarm.label
-                repeatDays = savedAlarm.repeatDays
-                soundEnabled = savedAlarm.soundEnabled
-                vibrationEnabled = savedAlarm.vibrationEnabled
-                snoozeMinutes = savedAlarm.snoozeMinutes
-                Log.d("AlarmScreen", "✅ Configurações de alarme carregadas: $savedAlarm")
-            } else if (activityToEdit != null) {
-                // Se não há alarme salvo, usar dados da atividade
-                selectedTime = activityToEdit.startTime ?: LocalTime.of(8, 0)
-                isAlarmEnabled = true
-                alarmLabel = activityToEdit.title
-                repeatDays = setOf()
-                soundEnabled = true
-                vibrationEnabled = true
-                snoozeMinutes = 5
-                Log.d("AlarmScreen", "📝 Usando dados da atividade: ${activityToEdit.title}")
+            if (alarmToEdit != null) {
+                // Priorizar configurações do alarme a editar
+                selectedTime = alarmToEdit.time
+                isAlarmEnabled = alarmToEdit.isEnabled
+                alarmLabel = alarmToEdit.label
+                repeatDays = alarmToEdit.repeatDays
+                soundEnabled = alarmToEdit.soundEnabled
+                vibrationEnabled = alarmToEdit.vibrationEnabled
+                snoozeMinutes = alarmToEdit.snoozeMinutes
+                Log.d("AlarmScreen", "✅ Configurações do alarme a editar carregadas: $alarmToEdit")
+            } else {
+                val savedAlarm = alarmRepository.getAlarmById(alarmId)
+                if (savedAlarm != null) {
+                    // Carregar configurações salvas
+                    selectedTime = savedAlarm.time
+                    isAlarmEnabled = savedAlarm.isEnabled
+                    alarmLabel = savedAlarm.label
+                    repeatDays = savedAlarm.repeatDays
+                    soundEnabled = savedAlarm.soundEnabled
+                    vibrationEnabled = savedAlarm.vibrationEnabled
+                    snoozeMinutes = savedAlarm.snoozeMinutes
+                    Log.d("AlarmScreen", "✅ Configurações de alarme carregadas: $savedAlarm")
+                } else if (activityToEdit != null) {
+                    // Se não há alarme salvo, usar dados da atividade
+                    selectedTime = activityToEdit.startTime ?: LocalTime.of(8, 0)
+                    isAlarmEnabled = true
+                    alarmLabel = activityToEdit.title
+                    repeatDays = setOf()
+                    soundEnabled = true
+                    vibrationEnabled = true
+                    snoozeMinutes = 5
+                    Log.d("AlarmScreen", "📝 Usando dados da atividade: ${activityToEdit.title}")
+                }
             }
         } catch (e: Exception) {
             Log.e("AlarmScreen", "❌ Erro ao carregar configurações", e)
@@ -193,8 +206,14 @@ fun AlarmScreen(
             // Salvar no repositório
             val result = alarmRepository.saveAlarm(alarmSettings)
             if (result.isSuccess) {
-                // Agendar alarme
-                alarmService.scheduleAlarm(alarmSettings)
+                // Agendar ou cancelar alarme baseado no status
+                if (isAlarmEnabled) {
+                    Log.d("AlarmScreen", "🔔 Alarme habilitado - agendando no sistema")
+                    alarmService.scheduleAlarm(alarmSettings)
+                } else {
+                    Log.d("AlarmScreen", "🔕 Alarme desabilitado - cancelando no sistema")
+                    alarmService.cancelAlarm(alarmSettings.id)
+                }
                 successMessage = alarmSavedSuccess
                 Log.d("AlarmScreen", "✅ Despertador salvo: $alarmSettings")
             } else {
@@ -228,7 +247,11 @@ fun AlarmScreen(
             TopAppBar(
                 title = { 
                     Text(
-                        if (activityToEdit != null) stringResource(id = R.string.edit_alarm) else stringResource(id = R.string.configure_alarm)
+                        when {
+                            alarmToEdit != null -> stringResource(id = R.string.edit_alarm)
+                            activityToEdit != null -> stringResource(id = R.string.edit_alarm)
+                            else -> stringResource(id = R.string.configure_alarm)
+                        }
                     ) 
                 },
                 navigationIcon = {
