@@ -86,7 +86,7 @@ fun BarChartComponent(
             // Eixo Y com valores
             Column(
                 modifier = Modifier
-                    .width(15.dp)
+                    .width(30.dp)
                     .height(150.dp)
                     .padding(end = 8.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
