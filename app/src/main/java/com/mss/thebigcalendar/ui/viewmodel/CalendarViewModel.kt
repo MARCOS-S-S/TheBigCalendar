@@ -1601,6 +1601,18 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun clearBackupMessage() {
         _uiState.update { it.copy(backupMessage = null, needsStoragePermission = false) }
     }
+    
+    fun checkStoragePermission() {
+        viewModelScope.launch {
+            val hasPermission = backupService.hasStoragePermission()
+            if (hasPermission && _uiState.value.needsStoragePermission) {
+                // Se a permissão foi concedida e ainda está marcado como necessário, limpar o estado
+                _uiState.update { it.copy(needsStoragePermission = false, backupMessage = null) }
+                // Recarregar a lista de backups para mostrar os backups existentes
+                loadBackupFiles()
+            }
+        }
+    }
     fun onRestoreRequest() { println("ViewModel: Pedido de restauração recebido.") }
 
     fun openSidebar() = _uiState.update { it.copy(isSidebarOpen = true) }
@@ -2445,6 +2457,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             
             // Limpar lixeira
             deletedActivityRepository.clearAllDeletedActivities()
+            
+            // Limpar atividades concluídas
+            completedActivityRepository.clearAllCompletedActivities()
             
             println("🗑️ Dados atuais limpos para restauração")
         } catch (e: Exception) {

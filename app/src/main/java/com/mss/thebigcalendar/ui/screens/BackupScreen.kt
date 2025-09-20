@@ -33,12 +33,16 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.service.BackupInfo
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
+import com.mss.thebigcalendar.ui.components.StoragePermissionDialog
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -64,6 +69,21 @@ fun BackupScreen(
     // Carregar lista de backups ao abrir a tela
     LaunchedEffect(Unit) {
         viewModel.loadBackupFiles()
+    }
+    
+    // Verificar permissões quando a tela voltar ao foco
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.checkStoragePermission()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     Scaffold(
@@ -238,6 +258,18 @@ fun BackupScreen(
                     showDeleteConfirmation = null
                 },
                 onDismiss = { showDeleteConfirmation = null }
+            )
+        }
+        
+        // Diálogo de permissão de armazenamento
+        if (uiState.needsStoragePermission) {
+            StoragePermissionDialog(
+                onDismiss = { viewModel.clearBackupMessage() },
+                onPermissionGranted = {
+                    viewModel.clearBackupMessage()
+                    viewModel.onBackupRequest()
+                    viewModel.loadBackupFiles()
+                }
             )
         }
     }
