@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
@@ -475,41 +477,81 @@ fun CreateActivityScreen(
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = selectedDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
         )
-        AlertDialog(
+        
+        Dialog(
             onDismissRequest = { showDatePicker = false },
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-            title = { Text(stringResource(id = R.string.select_date)) },
-            text = { DatePicker(state = datePickerState) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            // Converter milissegundos para LocalDate usando UTC
-                            val instant = java.time.Instant.ofEpochMilli(millis)
-                            val utcDateTime = instant.atZone(java.time.ZoneOffset.UTC)
-                            val newDate = utcDateTime.toLocalDate()
-                            
-                            selectedDate = newDate
-                            datePickerKey++ // Força recomposição
-                            
-                            // Debug: Log para verificar se a data está sendo atualizada
-                            println("Data selecionada: $newDate")
-                            println("Milissegundos: $millis")
-                            println("Instant UTC: $instant")
-                            println("UTC DateTime: $utcDateTime")
-                        }
-                        showDatePicker = false
-                    }
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+                usePlatformDefaultWidth = false
+            )
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.98f)
+                    .wrapContentHeight(),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp)
                 ) {
-                    Text(stringResource(id = R.string.ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text(stringResource(id = R.string.create_activity_modal_cancel))
+                    Text(
+                        text = stringResource(id = R.string.select_date),
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    
+                    DatePicker(
+                        state = datePickerState,
+                        modifier = Modifier.wrapContentSize()
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(
+                            onClick = { showDatePicker = false }
+                        ) {
+                            Text(stringResource(id = R.string.create_activity_modal_cancel))
+                        }
+                        
+                        Spacer(modifier = Modifier.width(8.dp))
+                        
+                        TextButton(
+                            onClick = {
+                                datePickerState.selectedDateMillis?.let { millis ->
+                                    // Converter milissegundos para LocalDate usando UTC
+                                    val instant = java.time.Instant.ofEpochMilli(millis)
+                                    val utcDateTime = instant.atZone(java.time.ZoneOffset.UTC)
+                                    val newDate = utcDateTime.toLocalDate()
+                                    
+                                    selectedDate = newDate
+                                    datePickerKey++ // Força recomposição
+                                    
+                                    // Debug: Log para verificar se a data está sendo atualizada
+                                    println("Data selecionada: $newDate")
+                                    println("Milissegundos: $millis")
+                                    println("Instant UTC: $instant")
+                                    println("UTC DateTime: $utcDateTime")
+                                }
+                                showDatePicker = false
+                            }
+                        ) {
+                            Text(stringResource(id = R.string.ok))
+                        }
+                    }
                 }
             }
-        )
+        }
     }
     
     // Tela de Despertador

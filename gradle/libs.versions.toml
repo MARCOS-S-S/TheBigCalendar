@@ -17,6 +17,7 @@ googleApiClient = "2.2.0"
 googleApiCalendar = "v3-rev20220715-2.0.0"
 toolsCore = "1.0.0-alpha13"
 foundation = "1.9.1"
+ui = "1.9.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +44,7 @@ google-api-client-android = { group = "com.google.api-client", name = "google-ap
 google-api-services-calendar = { group = "com.google.apis", name = "google-api-services-calendar", version.ref = "googleApiCalendar" }
 androidx-tools-core = { group = "androidx.privacysandbox.tools", name = "tools-core", version.ref = "toolsCore" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
