@@ -94,6 +94,7 @@
     <string name="local_backup_description">Salvar dados no armazenamento do dispositivo</string>
     <string name="cloud_backup">Backup na Nuvem</string>
     <string name="cloud_backup_description">Salvar dados na nuvem (em breve)</string>
+    <string name="backup_limitations_info">⚠️ Limitações atuais:\n• Alarmes independentes não são incluídos no backup\n• Notificações de atividades recorrentes precisam ser reagendadas manualmente após a restauração.</string>
     <string name="local_backups_list">Backups Locais</string>
     <string name="no_backups_yet">Nenhum backup encontrado</string>
     <string name="no_backups_description">Realize um backup para ver os arquivos aqui</string>

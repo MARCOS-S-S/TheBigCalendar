@@ -146,6 +146,27 @@ fun BackupScreen(
             }
             
             item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            
+            // Texto informativo sobre limitações
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.backup_limitations_info),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            
+            item {
                 Spacer(modifier = Modifier.height(24.dp))
             }
             
