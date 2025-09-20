@@ -488,30 +488,26 @@ fun CreateActivityScreen(
         ) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(0.98f)
+                    .fillMaxWidth(0.91f)
                     .wrapContentHeight(),
                 shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.background
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp)
+                    modifier = Modifier.padding(8.dp)
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.select_date),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    
                     DatePicker(
                         state = datePickerState,
-                        modifier = Modifier.wrapContentSize()
+                        modifier = Modifier.wrapContentSize(),
+                        colors = DatePickerDefaults.colors(
+                            containerColor = MaterialTheme.colorScheme.background
+                        )
                     )
                     
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     
                     Row(
                         modifier = Modifier.fillMaxWidth(),
