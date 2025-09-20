@@ -87,6 +87,12 @@
             android:clearTaskOnLaunch="false"
             android:theme="@style/Theme.TheBigCalendar" />
             
+        <!-- Activity para configuração de widgets -->
+        <activity
+            android:name=".ui.screens.WidgetConfigurationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TheBigCalendar" />
+            
         <!-- Serviço para notificações de alta visibilidade -->
         <service
             android:name=".service.HighVisibilityNotificationService"

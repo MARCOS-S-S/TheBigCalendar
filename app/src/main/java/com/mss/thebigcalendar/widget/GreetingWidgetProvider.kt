@@ -33,6 +33,7 @@ class GreetingWidgetProvider : AppWidgetProvider() {
         }
     }
 
+
     @SuppressLint("RemoteViewLayout")
     private fun updateAppWidget(
         context: Context,

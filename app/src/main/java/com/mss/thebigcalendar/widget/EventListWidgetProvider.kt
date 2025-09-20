@@ -22,6 +22,7 @@ class EventListWidgetProvider : AppWidgetProvider() {
         }
     }
 
+
     private fun updateAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,

@@ -46,6 +46,14 @@
     <string name="show_in_calendar_description">A tarefa não aparecerá abaixo do dia no calendário</string>
     <string name="sync_with_google">Sincronizar com Google Calendar</string>
     <string name="select_date">Selecionar Data</string>
+    
+    <!-- Widget Configuration -->
+    <string name="widget_configuration_title">Configurar Widget</string>
+    <string name="widget_configuration_welcome">Bem-vindo à Configuração de Widget</string>
+    <string name="widget_configuration_description">Personalize seu widget do calendário conforme suas preferências.</string>
+    <string name="widget_id_label">ID do Widget</string>
+    <string name="widget_configuration_coming_soon">Configurações em Breve</string>
+    <string name="widget_configuration_placeholder_text">Em breve você poderá personalizar cores, tamanhos e outras opções do seu widget.</string>
 
     <!-- DeleteConfirmationDialog.kt -->
     <string name="delete_confirmation_title">Confirmar Exclusão</string>
@@ -467,5 +475,6 @@
     <string name="complete_tasks_hint">Complete algumas tarefas para vê-las aqui</string>
     <string name="adjust_search_hint">Tente ajustar sua busca</string>
     <string name="completed_content_description">Concluída</string>
+    <string name="save">Salvar</string>
 
 </resources>
