@@ -368,13 +368,13 @@ fun CreateActivityScreen(
                         )
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Despertador",
+                                text = stringResource(id = R.string.alarm_card_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                text = "Configure um despertador para esta tarefa",
+                                text = stringResource(id = R.string.alarm_card_description),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -727,7 +727,7 @@ fun VisibilitySelector(
             if (isCustomized) {
                 Icon(
                     imageVector = Icons.Default.Star,
-                    contentDescription = "Configuração personalizada",
+                    contentDescription = stringResource(id = R.string.visibility_custom_configuration_content_description),
                     modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )

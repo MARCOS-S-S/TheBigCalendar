@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.AlarmSettings
 import com.mss.thebigcalendar.data.repository.AlarmRepository
 import java.time.LocalDate
@@ -493,10 +494,10 @@ class AlarmService(
             val channelId = "alarm_fullscreen_channel"
             val channel = android.app.NotificationChannel(
                 channelId,
-                "Alarmes Tela Cheia",
+                context.getString(R.string.alarm_channel_name),
                 android.app.NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Notificações de alarme em tela cheia"
+                description = context.getString(R.string.alarm_channel_description)
                 enableLights(true)
                 enableVibration(true)
                 setShowBadge(true)
@@ -531,7 +532,7 @@ class AlarmService(
             
             // Notificação com full screen intent
             val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
-                .setContentTitle("⏰ Despertador")
+                .setContentTitle(context.getString(R.string.alarm_notification_title))
                 .setContentText("${alarmSettings.label} - ${alarmSettings.time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}")
                 .setSmallIcon(android.R.drawable.ic_dialog_alert)
                 .setContentIntent(pendingIntent)
@@ -575,10 +576,10 @@ class AlarmService(
             val channelId = "alarm_notification_channel"
             val channel = android.app.NotificationChannel(
                 channelId,
-                "Alarmes",
+                context.getString(R.string.alarm_notification_channel_name),
                 android.app.NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Notificações de alarme"
+                description = context.getString(R.string.alarm_notification_channel_description)
                 enableLights(true)
                 enableVibration(true)
                 setShowBadge(true)
@@ -619,7 +620,7 @@ class AlarmService(
             
             // Notificação de alarme com ações
             val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
-                .setContentTitle("⏰ Despertador")
+                .setContentTitle(context.getString(R.string.alarm_notification_title))
                 .setContentText("${alarmSettings.label} - ${alarmSettings.time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}")
                 .setSmallIcon(android.R.drawable.ic_dialog_alert)
                 .setContentIntent(pendingIntent)
@@ -632,7 +633,7 @@ class AlarmService(
                 .setFullScreenIntent(pendingIntent, true) // Tela cheia se possível
                 .addAction(
                     android.R.drawable.ic_menu_close_clear_cancel,
-                    "Desligar",
+                    context.getString(R.string.alarm_dismiss_action),
                     dismissPendingIntent
                 )
                 .setVibrate(longArrayOf(0, 1000, 500, 1000, 500, 1000)) // Padrão de vibração de alarme
@@ -743,10 +744,10 @@ class AlarmService(
             val channelId = "alarm_status_channel"
             val channel = android.app.NotificationChannel(
                 channelId,
-                "Status do Alarme",
+                context.getString(R.string.alarm_status_channel_name),
                 android.app.NotificationManager.IMPORTANCE_HIGH // Prioridade alta para aparecer na barra
             ).apply {
-                description = "Mostra quando há alarmes ativos"
+                description = context.getString(R.string.alarm_status_channel_description)
                 setShowBadge(true) // Mostrar badge
                 enableLights(true) // Habilitar luz do LED
                 enableVibration(false)
@@ -766,7 +767,7 @@ class AlarmService(
             )
             
             val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
-                .setContentTitle("⏰ Alarme ativo")
+                .setContentTitle(context.getString(R.string.alarm_status_notification_title))
                 .setContentText("${alarmSettings.label} às ${alarmSettings.time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}")
                 .setSmallIcon(android.R.drawable.ic_dialog_alert) // Ícone de alerta mais visível
                 .setContentIntent(pendingIntent)
@@ -841,7 +842,7 @@ class AlarmService(
         return com.mss.thebigcalendar.data.model.Activity(
             id = alarmSettings.id,
             title = alarmSettings.label,
-            description = "Despertador agendado",
+            description = context.getString(R.string.alarm_description_default),
             date = LocalDate.now().toString(),
             startTime = alarmSettings.time,
             endTime = alarmSettings.time.plusMinutes(1),

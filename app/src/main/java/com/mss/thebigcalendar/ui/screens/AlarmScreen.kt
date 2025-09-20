@@ -338,14 +338,14 @@ fun AlarmScreen(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = "Permissão Necessária",
+                            text = stringResource(id = R.string.permission_required_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Para o despertador funcionar corretamente, é necessário permitir que o app exiba sobre outros apps.",
+                            text = stringResource(id = R.string.permission_required_message),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
@@ -359,7 +359,7 @@ fun AlarmScreen(
                                     showPermissionDialog = true
                                 }
                             ) {
-                                Text("Configurar")
+                                Text(stringResource(id = R.string.configure_button_text))
                             }
                             TextButton(
                                 onClick = { 
@@ -367,7 +367,7 @@ fun AlarmScreen(
                                     showThankYouMessage = true
                                 }
                             ) {
-                                Text("Pronto")
+                                Text(stringResource(id = R.string.done_button_text))
                             }
                         }
                     }
@@ -385,13 +385,13 @@ fun AlarmScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "✅ Obrigado!",
+                            text = stringResource(id = R.string.thank_you_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = "Permissão concedida com sucesso!",
+                            text = stringResource(id = R.string.permission_granted_title),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -479,7 +479,12 @@ fun AlarmScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        val firstRowDays = listOf("Dom", "Seg", "Ter", "Qua")
+                        val firstRowDays = listOf(
+                            stringResource(id = R.string.day_sun),
+                            stringResource(id = R.string.day_mon),
+                            stringResource(id = R.string.day_tue),
+                            stringResource(id = R.string.day_wed)
+                        )
                         firstRowDays.forEach { day ->
                             FilterChip(
                                 onClick = {
@@ -503,7 +508,11 @@ fun AlarmScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        val secondRowDays = listOf("Qui", "Sex", "Sáb")
+                        val secondRowDays = listOf(
+                            stringResource(id = R.string.day_thu),
+                            stringResource(id = R.string.day_fri),
+                            stringResource(id = R.string.day_sat)
+                        )
                         secondRowDays.forEach { day ->
                             FilterChip(
                                 onClick = {
@@ -622,10 +631,10 @@ fun AlarmScreen(
         AlertDialog(
             onDismissRequest = { showPermissionDialog = false },
             title = {
-                Text("Permissão Necessária")
+                Text(stringResource(id = R.string.permission_dialog_title))
             },
             text = {
-                Text("Para o despertador funcionar corretamente, é necessário permitir que o app exiba sobre outros apps. Isso permite que o alarme apareça mesmo quando o dispositivo estiver bloqueado.")
+                Text(stringResource(id = R.string.permission_dialog_message))
             },
             confirmButton = {
                 TextButton(
@@ -644,14 +653,14 @@ fun AlarmScreen(
                         }
                     }
                 ) {
-                    Text("Dar Permissão")
+                    Text(stringResource(id = R.string.grant_permission_button_text))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { showPermissionDialog = false }
                 ) {
-                    Text("Cancelar")
+                    Text(stringResource(id = R.string.cancel_button_text))
                 }
             }
         )

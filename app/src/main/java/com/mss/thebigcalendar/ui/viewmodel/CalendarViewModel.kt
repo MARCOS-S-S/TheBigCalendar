@@ -206,7 +206,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         val loginSuccess = account != null
         _uiState.update { it.copy(
             googleSignInAccount = account,
-            loginMessage = if(loginSuccess) "Login bem-sucedido!" else "Falha no login. Verifique os logs para detalhes."
+            loginMessage = if(loginSuccess) getApplication<Application>().getString(com.mss.thebigcalendar.R.string.login_success_message) else getApplication<Application>().getString(com.mss.thebigcalendar.R.string.login_failure_message)
         ) }
         if (loginSuccess) {
             fetchGoogleCalendarEvents(account!!)
@@ -416,7 +416,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     
                     Activity(
                         id = event.id ?: UUID.randomUUID().toString(),
-                        title = event.summary ?: "Sem título",
+                        title = event.summary ?: getApplication<Application>().getString(com.mss.thebigcalendar.R.string.event_no_title),
                         description = event.description,
                         date = startDate.toString(),
                         startTime = startTime,
@@ -465,7 +465,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
             } catch (e: Exception) {
                 Log.e("CalendarViewModel", "Error fetching Google Calendar events", e)
-                _uiState.update { it.copy(syncErrorMessage = "Falha ao sincronizar eventos.") }
+                _uiState.update { it.copy(syncErrorMessage = getApplication<Application>().getString(com.mss.thebigcalendar.R.string.sync_failure_message)) }
             } finally {
                 _uiState.update { it.copy(isSyncing = false) }
             }
@@ -500,7 +500,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 val googleAccount = uiState.googleSignInAccount
                 val currentWelcomeName = uiState.welcomeName
 
-                if (googleAccount != null && currentWelcomeName == "Usuário") {
+                if (googleAccount != null && currentWelcomeName == getApplication<Application>().getString(com.mss.thebigcalendar.R.string.default_user_name)) {
                     val firstName = googleAccount.displayName?.split(" ")?.firstOrNull()
                     if (!firstName.isNullOrBlank()) {
                         settingsRepository.saveWelcomeName(firstName)

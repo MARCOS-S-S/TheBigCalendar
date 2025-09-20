@@ -338,4 +338,113 @@
     <string name="no_alarms_description">Configure alarmes nos seus agendamentos para vê-los aqui</string>
     <string name="edit_alarm">Editar Alarme</string>
 
+    <!-- NotificationSelector.kt -->
+    <string name="notifications_content_description">Notificações</string>
+    <string name="custom_configuration_content_description">Configuração personalizada</string>
+    <string name="notification_type_content_description">Tipo de notificação</string>
+    <string name="minutes_before_label">Minutos antes</string>
+    <string name="custom_time_dialog_title">Tempo personalizado</string>
+    <string name="custom_time_dialog_message">Digite quantos minutos antes da atividade você quer ser notificado:</string>
+    <string name="minutes_label">Minutos</string>
+
+    <!-- CreateActivityScreen.kt -->
+    <string name="alarm_card_title">Despertador</string>
+    <string name="alarm_card_description">Configure um despertador para esta tarefa</string>
+    <string name="visibility_custom_configuration_content_description">Configuração personalizada</string>
+
+    <!-- AlarmScreen.kt -->
+    <string name="permission_required_title">Permissão Necessária</string>
+    <string name="permission_required_message">Para o despertador funcionar corretamente, é necessário permitir que o app exiba sobre outros apps.</string>
+    <string name="configure_button_text">Configurar</string>
+    <string name="done_button_text">Pronto</string>
+    <string name="thank_you_title">✅ Obrigado!</string>
+    <string name="permission_granted_title">Permissão concedida com sucesso!</string>
+    <string name="permission_dialog_title">Permissão Necessária</string>
+    <string name="permission_dialog_message">Para o despertador funcionar corretamente, é necessário permitir que o app exiba sobre outros apps. Isso permite que o alarme apareça mesmo quando o dispositivo estiver bloqueado.</string>
+    <string name="grant_permission_button_text">Dar Permissão</string>
+    <string name="cancel_button_text">Cancelar</string>
+    <string name="day_sun">Dom</string>
+    <string name="day_mon">Seg</string>
+    <string name="day_tue">Ter</string>
+    <string name="day_wed">Qua</string>
+    <string name="day_thu">Qui</string>
+    <string name="day_fri">Sex</string>
+    <string name="day_sat">Sáb</string>
+
+    <!-- GreetingWidgetProvider.kt -->
+    <string name="widget_greeting_morning">Bom dia</string>
+    <string name="widget_greeting_afternoon">Boa tarde</string>
+    <string name="widget_greeting_evening">Boa noite</string>
+    <string name="widget_greeting_dawn">Boa madrugada</string>
+    <string name="widget_no_tasks_today">Nenhuma tarefa para hoje</string>
+    <string name="widget_tomorrow_header">Amanhã:</string>
+    <string name="widget_error_loading_tasks">Erro ao carregar tarefas</string>
+    <string name="widget_birthday_icon">🎂</string>
+
+    <!-- AlarmService.kt -->
+    <string name="alarm_channel_name">Alarmes Tela Cheia</string>
+    <string name="alarm_channel_description">Notificações de alarme em tela cheia</string>
+    <string name="alarm_notification_channel_name">Alarmes</string>
+    <string name="alarm_notification_channel_description">Notificações de alarme</string>
+    <string name="alarm_status_channel_name">Status do Alarme</string>
+    <string name="alarm_status_channel_description">Mostra quando há alarmes ativos</string>
+    <string name="alarm_notification_title">⏰ Despertador</string>
+    <string name="alarm_status_notification_title">⏰ Alarme ativo</string>
+    <string name="alarm_dismiss_action">Desligar</string>
+    <string name="alarm_description_default">Despertador agendado</string>
+    <string name="day_of_week_sunday">Dom</string>
+    <string name="day_of_week_monday">Seg</string>
+    <string name="day_of_week_tuesday">Ter</string>
+    <string name="day_of_week_wednesday">Qua</string>
+    <string name="day_of_week_thursday">Qui</string>
+    <string name="day_of_week_friday">Sex</string>
+    <string name="day_of_week_saturday">Sáb</string>
+
+    <!-- AlarmsScreen.kt -->
+    <string name="alarm_status_active">Ativo</string>
+    <string name="alarm_status_disabled">Desativado</string>
+    <string name="alarm_repeats_label">Repete:</string>
+    <string name="alarm_snooze_label">Soneca: %1$dmin</string>
+    <string name="alarm_delete_content_description">Excluir alarme</string>
+    <string name="alarm_clear_orphaned_content_description">Limpar alarmes órfãos</string>
+    <string name="delete_alarm_dialog_title">Excluir Alarme</string>
+    <string name="delete_alarm_dialog_message">Tem certeza que deseja excluir o alarme "%1$s"? Esta ação não pode ser desfeita.</string>
+    <string name="delete_alarm_button">Excluir</string>
+    <string name="cancel_alarm_button">Cancelar</string>
+    <string name="today_label">Hoje</string>
+    <string name="tomorrow_label">Amanhã</string>
+    <string name="past_label">Passado - %1$s</string>
+    <string name="activity_type_task">Tarefa</string>
+    <string name="activity_type_event">Evento</string>
+    <string name="activity_type_birthday">Aniversário</string>
+    <string name="activity_type_note">Nota</string>
+    <string name="notification_type_on_time">No horário</string>
+    <string name="notification_type_5min_before">5 min antes</string>
+    <string name="notification_type_10min_before">10 min antes</string>
+    <string name="notification_type_15min_before">15 min antes</string>
+    <string name="notification_type_30min_before">30 min antes</string>
+    <string name="notification_type_1hour_before">1 hora antes</string>
+    <string name="notification_type_2hours_before">2 horas antes</string>
+    <string name="notification_type_1day_before">1 dia antes</string>
+    <string name="notification_type_custom">Personalizado</string>
+    <string name="notification_type_disabled">Desabilitado</string>
+    <string name="reminder_label">Lembrete: %1$s</string>
+
+    <!-- AlarmRepository.kt -->
+    <string name="alarm_not_found_error">Alarme não encontrado</string>
+
+    <!-- AlarmSettings.kt -->
+    <string name="alarm_default_label">Despertador</string>
+    <string name="alarm_validation_label_empty">Rótulo não pode estar vazio</string>
+    <string name="alarm_validation_label_too_long">Rótulo muito longo (máximo 50 caracteres)</string>
+    <string name="alarm_validation_invalid_days">Dias da semana inválidos</string>
+    <string name="alarm_validation_snooze_range">Snooze deve estar entre 1 e 60 minutos</string>
+
+    <!-- CalendarViewModel.kt -->
+    <string name="login_success_message">Login bem-sucedido!</string>
+    <string name="login_failure_message">Falha no login. Verifique os logs para detalhes.</string>
+    <string name="event_no_title">Sem título</string>
+    <string name="default_user_name">Usuário</string>
+    <string name="sync_failure_message">Falha ao sincronizar eventos.</string>
+
 </resources>

@@ -85,7 +85,7 @@ private fun IndependentAlarmCard(
                     Spacer(modifier = Modifier.height(4.dp))
                     
                     Text(
-                        text = "${alarm.time} - ${if (isEnabled) "Ativo" else "Desativado"}",
+                        text = "${alarm.time} - ${if (isEnabled) stringResource(id = R.string.alarm_status_active) else stringResource(id = R.string.alarm_status_disabled)}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (isEnabled)
                             MaterialTheme.colorScheme.onPrimaryContainer
@@ -112,7 +112,7 @@ private fun IndependentAlarmCard(
             if (alarm.repeatDays.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Repete: ${alarm.repeatDays.joinToString(", ")}",
+                    text = "${stringResource(id = R.string.alarm_repeats_label)} ${alarm.repeatDays.joinToString(", ")}",
                     style = MaterialTheme.typography.bodySmall,
                     color = if (isEnabled)
                         MaterialTheme.colorScheme.onPrimaryContainer
@@ -139,7 +139,7 @@ private fun IndependentAlarmCard(
                     )
                 }
                 Text(
-                    text = "Soneca: ${alarm.snoozeMinutes}min",
+                    text = stringResource(id = R.string.alarm_snooze_label, alarm.snoozeMinutes),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (isEnabled)
                         MaterialTheme.colorScheme.onPrimaryContainer
@@ -163,7 +163,7 @@ private fun IndependentAlarmCard(
                 IconButton(onClick = onDeleteClick) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Excluir alarme",
+                        contentDescription = stringResource(id = R.string.alarm_delete_content_description),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
@@ -549,7 +549,7 @@ fun AlarmsScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Limpar alarmes órfãos",
+                            contentDescription = stringResource(id = R.string.alarm_clear_orphaned_content_description),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
@@ -646,10 +646,10 @@ fun AlarmsScreen(
                 alarmToDelete = null
             },
             title = {
-                Text("Excluir Alarme")
+                Text(stringResource(id = R.string.delete_alarm_dialog_title))
             },
             text = {
-                Text("Tem certeza que deseja excluir o alarme \"${alarmToDelete?.label}\"? Esta ação não pode ser desfeita.")
+                Text(stringResource(id = R.string.delete_alarm_dialog_message, alarmToDelete?.label ?: ""))
             },
             confirmButton = {
                 TextButton(
@@ -661,7 +661,7 @@ fun AlarmsScreen(
                         alarmToDelete = null
                     }
                 ) {
-                    Text("Excluir")
+                    Text(stringResource(id = R.string.delete_alarm_button))
                 }
             },
             dismissButton = {
@@ -671,7 +671,7 @@ fun AlarmsScreen(
                         alarmToDelete = null
                     }
                 ) {
-                    Text("Cancelar")
+                    Text(stringResource(id = R.string.cancel_alarm_button))
                 }
             }
         )
@@ -842,7 +842,7 @@ private fun AlarmCard(
                                 onClick = { },
                                 label = {
                                     Text(
-                                        text = "Lembrete: $notificationTime",
+                                        text = stringResource(id = R.string.reminder_label, notificationTime),
                                         style = MaterialTheme.typography.labelSmall
                                     )
                                 },
@@ -857,6 +857,7 @@ private fun AlarmCard(
     }
 }
 
+@Composable
 private fun formatDate(
     date: LocalDate,
     isToday: Boolean,
@@ -864,9 +865,9 @@ private fun formatDate(
     isPast: Boolean
 ): String {
     return when {
-        isToday -> "Hoje"
-        isTomorrow -> "Amanhã"
-        isPast -> "Passado - ${formatDateWithDay(date)}"
+        isToday -> stringResource(id = R.string.today_label)
+        isTomorrow -> stringResource(id = R.string.tomorrow_label)
+        isPast -> stringResource(id = R.string.past_label, formatDateWithDay(date))
         else -> formatDateWithDay(date)
     }
 }
@@ -880,27 +881,29 @@ private fun formatDateWithDay(date: LocalDate): String {
     return "$dayOfWeek, $dayOfMonth de $month de $year"
 }
 
+@Composable
 private fun getActivityTypeDisplayName(activityType: ActivityType): String {
     return when (activityType) {
-        ActivityType.TASK -> "Tarefa"
-        ActivityType.EVENT -> "Evento"
-        ActivityType.BIRTHDAY -> "Aniversário"
-        ActivityType.NOTE -> "Nota"
+        ActivityType.TASK -> stringResource(id = R.string.activity_type_task)
+        ActivityType.EVENT -> stringResource(id = R.string.activity_type_event)
+        ActivityType.BIRTHDAY -> stringResource(id = R.string.activity_type_birthday)
+        ActivityType.NOTE -> stringResource(id = R.string.activity_type_note)
     }
 }
 
+@Composable
 private fun getNotificationTypeDisplayName(notificationType: NotificationType): String {
     return when (notificationType) {
-        NotificationType.BEFORE_ACTIVITY -> "No horário"
-        NotificationType.FIVE_MINUTES_BEFORE -> "5 min antes"
-        NotificationType.TEN_MINUTES_BEFORE -> "10 min antes"
-        NotificationType.FIFTEEN_MINUTES_BEFORE -> "15 min antes"
-        NotificationType.THIRTY_MINUTES_BEFORE -> "30 min antes"
-        NotificationType.ONE_HOUR_BEFORE -> "1 hora antes"
-        NotificationType.TWO_HOURS_BEFORE -> "2 horas antes"
-        NotificationType.ONE_DAY_BEFORE -> "1 dia antes"
-        NotificationType.CUSTOM -> "Personalizado"
-        NotificationType.NONE -> "Desabilitado"
+        NotificationType.BEFORE_ACTIVITY -> stringResource(id = R.string.notification_type_on_time)
+        NotificationType.FIVE_MINUTES_BEFORE -> stringResource(id = R.string.notification_type_5min_before)
+        NotificationType.TEN_MINUTES_BEFORE -> stringResource(id = R.string.notification_type_10min_before)
+        NotificationType.FIFTEEN_MINUTES_BEFORE -> stringResource(id = R.string.notification_type_15min_before)
+        NotificationType.THIRTY_MINUTES_BEFORE -> stringResource(id = R.string.notification_type_30min_before)
+        NotificationType.ONE_HOUR_BEFORE -> stringResource(id = R.string.notification_type_1hour_before)
+        NotificationType.TWO_HOURS_BEFORE -> stringResource(id = R.string.notification_type_2hours_before)
+        NotificationType.ONE_DAY_BEFORE -> stringResource(id = R.string.notification_type_1day_before)
+        NotificationType.CUSTOM -> stringResource(id = R.string.notification_type_custom)
+        NotificationType.NONE -> stringResource(id = R.string.notification_type_disabled)
     }
 }
 

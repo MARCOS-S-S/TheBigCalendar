@@ -10,7 +10,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
 
-// Enum para os diferentes tipos de atividade (já deve existir)
+
 enum class ActivityType {
     EVENT,
     TASK,
@@ -18,14 +18,13 @@ enum class ActivityType {
     BIRTHDAY
 }
 
-// Enum para os níveis de visibilidade
 enum class VisibilityLevel {
     LOW,    // Baixa
     MEDIUM, // Média
     HIGH    // Alta
 }
 
-// Classe de modelo para Atividades (já deve existir)
+
 data class Activity(
     val id: String,
     val title: String,

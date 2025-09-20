@@ -42,7 +42,7 @@ class GreetingWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.greeting_widget)
 
         // Atualiza a saudação baseada no horário
-        val greeting = getGreetingBasedOnTime()
+        val greeting = getGreetingBasedOnTime(context)
         views.setTextViewText(R.id.widget_greeting, greeting)
 
         // Atualiza a data
@@ -152,13 +152,13 @@ class GreetingWidgetProvider : AppWidgetProvider() {
                         }
                     }
                     
-                    val tasksText = buildTasksText(todayTasks, tomorrowTasks, isNightTime)
+                    val tasksText = buildTasksText(context, todayTasks, tomorrowTasks, isNightTime)
                     views.setTextViewText(R.id.widget_tasks, tasksText)
                     appWidgetManager.updateAppWidget(appWidgetId, views)
                 }
             } catch (e: Exception) {
                 Log.e("GreetingWidget", "Erro ao carregar tarefas", e)
-                views.setTextViewText(R.id.widget_tasks, "Erro ao carregar tarefas")
+                views.setTextViewText(R.id.widget_tasks, context.getString(R.string.widget_error_loading_tasks))
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }
         }
@@ -174,15 +174,15 @@ class GreetingWidgetProvider : AppWidgetProvider() {
     /**
      * Obtém a saudação baseada no horário atual
      */
-    private fun getGreetingBasedOnTime(): String {
+    private fun getGreetingBasedOnTime(context: Context): String {
         val currentTime = LocalTime.now()
         val hour = currentTime.hour
         
         return when (hour) {
-            in 5..11 -> "Bom dia"
-            in 12..17 -> "Boa tarde"
-            in 18..23 -> "Boa noite"
-            else -> "Boa madrugada" // 0-4
+            in 5..11 -> context.getString(R.string.widget_greeting_morning)
+            in 12..17 -> context.getString(R.string.widget_greeting_afternoon)
+            in 18..23 -> context.getString(R.string.widget_greeting_evening)
+            else -> context.getString(R.string.widget_greeting_dawn) // 0-4
         }
     }
 
@@ -190,6 +190,7 @@ class GreetingWidgetProvider : AppWidgetProvider() {
      * Constrói o texto das tarefas para exibição no widget
      */
     private fun buildTasksText(
+        context: Context,
         todayTasks: List<com.mss.thebigcalendar.data.model.Activity>,
         tomorrowTasks: List<com.mss.thebigcalendar.data.model.Activity>,
         isNightTime: Boolean
@@ -198,12 +199,12 @@ class GreetingWidgetProvider : AppWidgetProvider() {
         
         // Construir texto das tarefas de hoje
         val todayText = if (todayTasks.isEmpty()) {
-            "Nenhuma tarefa para hoje"
+            context.getString(R.string.widget_no_tasks_today)
         } else {
             val tasksToShow = todayTasks.take(maxTasksPerDay)
             tasksToShow.joinToString("\n") { task ->
                 val prefix = if (task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
-                    "🎂 " // Ícone de aniversário
+                    "${context.getString(R.string.widget_birthday_icon)} " // Ícone de aniversário
                 } else if (task.startTime != null) {
                     "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} "
                 } else {
@@ -223,10 +224,10 @@ class GreetingWidgetProvider : AppWidgetProvider() {
             ""
         } else {
             val tasksToShow = tomorrowTasks.take(maxTasksPerDay)
-            val tomorrowHeader = "\n\nAmanhã:\n"
+            val tomorrowHeader = "\n\n${context.getString(R.string.widget_tomorrow_header)}\n"
             val tasksList = tasksToShow.joinToString("\n") { task ->
                 val prefix = if (task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
-                    "🎂 " // Ícone de aniversário
+                    "${context.getString(R.string.widget_birthday_icon)} " // Ícone de aniversário
                 } else if (task.startTime != null) {
                     "${task.startTime!!.format(DateTimeFormatter.ofPattern("HH:mm"))} "
                 } else {

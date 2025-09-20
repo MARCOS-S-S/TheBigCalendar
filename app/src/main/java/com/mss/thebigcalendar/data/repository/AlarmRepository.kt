@@ -85,7 +85,7 @@ class AlarmRepository(
                 Result.success(Unit)
             } else {
                 Log.w(TAG, "🗑️ Alarme não encontrado: $alarmId")
-                Result.failure(Exception("Alarme não encontrado"))
+                Result.failure(Exception(context.getString(com.mss.thebigcalendar.R.string.alarm_not_found_error)))
             }
         } catch (e: Exception) {
             Log.e(TAG, "🗑️ Erro ao remover alarme", e)
@@ -138,7 +138,7 @@ class AlarmRepository(
                 )
                 saveAlarm(updatedAlarm)
             } else {
-                Result.failure(Exception("Alarme não encontrado"))
+                Result.failure(Exception(context.getString(com.mss.thebigcalendar.R.string.alarm_not_found_error)))
             }
         } catch (e: Exception) {
             Log.e(TAG, "🔄 Erro ao alternar alarme", e)
@@ -237,13 +237,13 @@ class AlarmRepository(
     private fun isTodayInRepeatDays(repeatDays: Set<String>): Boolean {
         val today = java.time.LocalDate.now()
         val dayOfWeek = when (today.dayOfWeek) {
-            java.time.DayOfWeek.SUNDAY -> "Dom"
-            java.time.DayOfWeek.MONDAY -> "Seg"
-            java.time.DayOfWeek.TUESDAY -> "Ter"
-            java.time.DayOfWeek.WEDNESDAY -> "Qua"
-            java.time.DayOfWeek.THURSDAY -> "Qui"
-            java.time.DayOfWeek.FRIDAY -> "Sex"
-            java.time.DayOfWeek.SATURDAY -> "Sáb"
+            java.time.DayOfWeek.SUNDAY -> context.getString(com.mss.thebigcalendar.R.string.day_of_week_sunday)
+            java.time.DayOfWeek.MONDAY -> context.getString(com.mss.thebigcalendar.R.string.day_of_week_monday)
+            java.time.DayOfWeek.TUESDAY -> context.getString(com.mss.thebigcalendar.R.string.day_of_week_tuesday)
+            java.time.DayOfWeek.WEDNESDAY -> context.getString(com.mss.thebigcalendar.R.string.day_of_week_wednesday)
+            java.time.DayOfWeek.THURSDAY -> context.getString(com.mss.thebigcalendar.R.string.day_of_week_thursday)
+            java.time.DayOfWeek.FRIDAY -> context.getString(com.mss.thebigcalendar.R.string.day_of_week_friday)
+            java.time.DayOfWeek.SATURDAY -> context.getString(com.mss.thebigcalendar.R.string.day_of_week_saturday)
         }
         return repeatDays.contains(dayOfWeek)
     }

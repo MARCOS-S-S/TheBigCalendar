@@ -11,6 +11,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.NotificationSettings
 import com.mss.thebigcalendar.data.model.NotificationType
 import com.mss.thebigcalendar.data.model.getDescription
@@ -44,7 +46,7 @@ fun NotificationSelector(
                     } else {
                         Icons.Default.NotificationsOff
                     },
-                    contentDescription = "Notificações",
+                    contentDescription = LocalContext.current.getString(R.string.notifications_content_description),
                     tint = if (notificationSettings.isEnabled) {
                         MaterialTheme.colorScheme.primary
                     } else {
@@ -58,7 +60,7 @@ fun NotificationSelector(
                 if (isCustomized) {
                     Icon(
                         imageVector = Icons.Default.Star,
-                        contentDescription = "Configuração personalizada",
+                        contentDescription = LocalContext.current.getString(R.string.custom_configuration_content_description),
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -93,7 +95,7 @@ fun NotificationSelector(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Notifications,
-                        contentDescription = "Tipo de notificação",
+                        contentDescription = LocalContext.current.getString(R.string.notification_type_content_description),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
@@ -156,7 +158,7 @@ fun NotificationSelector(
                             )
                         )
                     },
-                    label = { Text("Minutos antes") },
+                    label = { Text(LocalContext.current.getString(R.string.minutes_before_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
@@ -171,15 +173,15 @@ fun NotificationSelector(
     if (showCustomTimeDialog) {
         AlertDialog(
             onDismissRequest = { showCustomTimeDialog = false },
-            title = { Text("Tempo personalizado") },
+            title = { Text(LocalContext.current.getString(R.string.custom_time_dialog_title)) },
             text = { 
                 Column {
-                    Text("Digite quantos minutos antes da atividade você quer ser notificado:")
+                    Text(LocalContext.current.getString(R.string.custom_time_dialog_message))
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = customMinutes,
                         onValueChange = { customMinutes = it },
-                        label = { Text("Minutos") },
+                        label = { Text(LocalContext.current.getString(R.string.minutes_label)) },
                         singleLine = true,
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                             keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
@@ -199,12 +201,12 @@ fun NotificationSelector(
                         showCustomTimeDialog = false
                     }
                 ) {
-                    Text("OK")
+                    Text(LocalContext.current.getString(R.string.ok))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showCustomTimeDialog = false }) {
-                    Text("Cancelar")
+                    Text(LocalContext.current.getString(R.string.cancel))
                 }
             }
         )

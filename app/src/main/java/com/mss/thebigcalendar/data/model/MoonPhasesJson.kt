@@ -13,8 +13,8 @@ data class MoonPhasesJson(
 
 data class MoonPhaseJson(
     @SerializedName("fase") val phase: String,
-    @SerializedName("dia") val day: Int? = null, // Campo antigo (opcional)
-    @SerializedName("data_utc") val utcDate: String? = null, // Campo UTC (opcional)
+    @SerializedName("dia") val day: Int? = null,
+    @SerializedName("data_utc") val utcDate: String? = null,
     @SerializedName("data_hora") val localDateTime: String? = null // Campo para horário local do Brasil
 )
 
