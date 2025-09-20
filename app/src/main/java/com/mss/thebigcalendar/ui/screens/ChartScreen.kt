@@ -153,7 +153,7 @@ fun ChartScreen(
                 // Gráfico de barras dos últimos 7 dias
                 BarChartComponent(
                     data = last7DaysData,
-                    title = "Tarefas Concluídas - Últimos 7 Dias",
+                    title = stringResource(id = R.string.chart_tasks_last_7_days),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -162,7 +162,7 @@ fun ChartScreen(
                 // Gráfico de barras do último ano
                 BarChartComponent(
                     data = lastYearData,
-                    title = "Tarefas Concluídas - Último Ano",
+                    title = stringResource(id = R.string.chart_tasks_last_year),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -188,7 +188,7 @@ fun ChartScreen(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = "Estatísticas Básicas",
+                            text = stringResource(id = R.string.chart_basic_statistics),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -216,7 +216,7 @@ fun ChartScreen(
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = "Total de Atividades",
+                                    text = stringResource(id = R.string.chart_total_activities),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -233,7 +233,7 @@ fun ChartScreen(
                                     color = MaterialTheme.colorScheme.secondary
                                 )
                                 Text(
-                                    text = "Tarefas Concluídas",
+                                    text = stringResource(id = R.string.chart_completed_tasks),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -249,7 +249,7 @@ fun ChartScreen(
                                     color = MaterialTheme.colorScheme.tertiary
                                 )
                                 Text(
-                                    text = "Eventos Agendados",
+                                    text = stringResource(id = R.string.chart_scheduled_events),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

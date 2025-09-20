@@ -142,7 +142,7 @@ fun CompletedTasksScreen(
                 leadingIcon = {
                     Icon(
                         Icons.Filled.Search,
-                        contentDescription = "Buscar"
+                        contentDescription = stringResource(id = R.string.search_content_description)
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -164,7 +164,7 @@ fun CompletedTasksScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Total de tarefas concluídas:",
+                        text = stringResource(id = R.string.total_completed_tasks),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
@@ -192,18 +192,18 @@ fun CompletedTasksScreen(
                         )
                         Text(
                             text = if (searchQuery.isEmpty()) {
-                                "Nenhuma tarefa concluída ainda"
+                                stringResource(id = R.string.no_completed_tasks)
                             } else {
-                                "Nenhuma tarefa encontrada"
+                                stringResource(id = R.string.no_tasks_found)
                             },
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = if (searchQuery.isEmpty()) {
-                                "Complete algumas tarefas para vê-las aqui"
+                                stringResource(id = R.string.complete_tasks_hint)
                             } else {
-                                "Tente ajustar sua busca"
+                                stringResource(id = R.string.adjust_search_hint)
                             },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -309,7 +309,7 @@ private fun CompletedTaskItem(
             // Ícone de concluído
             Icon(
                 Icons.Filled.CheckCircle,
-                contentDescription = "Concluída",
+                contentDescription = stringResource(id = R.string.completed_content_description),
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.secondary
             )

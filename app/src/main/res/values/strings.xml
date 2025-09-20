@@ -447,4 +447,25 @@
     <string name="default_user_name">Usuário</string>
     <string name="sync_failure_message">Falha ao sincronizar eventos.</string>
 
+    <!-- ChartScreen.kt -->
+    <string name="chart_tasks_last_7_days">Tarefas Concluídas - Últimos 7 Dias</string>
+    <string name="chart_tasks_last_year">Tarefas Concluídas - Último Ano</string>
+    <string name="chart_basic_statistics">Estatísticas Básicas</string>
+    <string name="chart_total_activities">Total de Atividades</string>
+    <string name="chart_completed_tasks">Tarefas Concluídas</string>
+    <string name="chart_scheduled_events">Eventos Agendados</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="sync_content_description">Sincronizar</string>
+    <string name="sync_progress_format">%1$d/%2$d eventos</string>
+
+    <!-- CompletedTasksScreen.kt -->
+    <string name="search_content_description">Buscar</string>
+    <string name="total_completed_tasks">Total de tarefas concluídas:</string>
+    <string name="no_completed_tasks">Nenhuma tarefa concluída ainda</string>
+    <string name="no_tasks_found">Nenhuma tarefa encontrada</string>
+    <string name="complete_tasks_hint">Complete algumas tarefas para vê-las aqui</string>
+    <string name="adjust_search_hint">Tente ajustar sua busca</string>
+    <string name="completed_content_description">Concluída</string>
+
 </resources>

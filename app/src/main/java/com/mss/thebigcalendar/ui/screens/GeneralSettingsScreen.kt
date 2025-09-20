@@ -191,7 +191,7 @@ fun GeneralSettingsScreen(
                         } else {
                             Icon(
                                 imageVector = Icons.Default.Sync,
-                                contentDescription = "Sincronizar",
+                                contentDescription = stringResource(id = R.string.sync_content_description),
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -219,7 +219,7 @@ fun GeneralSettingsScreen(
                             if (syncProgress.totalEvents > 0) {
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "${syncProgress.processedEvents}/${syncProgress.totalEvents} eventos",
+                                    text = stringResource(id = R.string.sync_progress_format, syncProgress.processedEvents, syncProgress.totalEvents),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
