@@ -79,6 +79,7 @@ import com.mss.thebigcalendar.ui.components.MoonPhasesComponent
 import com.mss.thebigcalendar.ui.components.SaintDaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.SaintInfoDialog
 import com.mss.thebigcalendar.ui.components.Sidebar
+import com.mss.thebigcalendar.ui.components.CustomDrawer
 import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.NotesForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.StoragePermissionDialog
@@ -131,6 +132,7 @@ fun CalendarScreen(
     }
 
     val blurRadius = if (drawerState.targetValue == DrawerValue.Open || drawerState.isOpen) 8f else 0f
+    
 
 
     if (uiState.activityToEdit != null) {
@@ -143,26 +145,25 @@ fun CalendarScreen(
             isGoogleLoggedIn = uiState.googleSignInAccount != null
         )
     } else {
-        ModalNavigationDrawer(
+        CustomDrawer(
             drawerState = drawerState,
             gesturesEnabled = true,
             scrimColor = Color.Black.copy(alpha = 0.7f),
+            animationDuration = 350, // Animação de abertura mais rápida
             drawerContent = {
-                if (drawerState.targetValue == DrawerValue.Open || drawerState.isOpen) {
-                    Sidebar(
-                        uiState = uiState,
-                        onViewModeChange = { viewModel.onViewModeChange(it) },
-                        onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
-                        onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
-                        onBackup = { viewModel.onBackupIconClick() },
-                        onNotesClick = { viewModel.onNotesClick() },
-                        onAlarmsClick = { viewModel.onAlarmsClick() },
-                        onRequestClose = {
-                            scope.launch { drawerState.close() }
-                            viewModel.closeSidebar()
-                        }
-                    )
-                }
+                Sidebar(
+                    uiState = uiState,
+                    onViewModeChange = { viewModel.onViewModeChange(it) },
+                    onFilterChange = { key, value -> viewModel.onFilterChange(key, value) },
+                    onNavigateToSettings = { viewModel.onNavigateToSettings(it) },
+                    onBackup = { viewModel.onBackupIconClick() },
+                    onNotesClick = { viewModel.onNotesClick() },
+                    onAlarmsClick = { viewModel.onAlarmsClick() },
+                    onRequestClose = {
+                        scope.launch { drawerState.close() }
+                        viewModel.closeSidebar()
+                    }
+                )
             }
         ) {
             val scaffoldModifier = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
