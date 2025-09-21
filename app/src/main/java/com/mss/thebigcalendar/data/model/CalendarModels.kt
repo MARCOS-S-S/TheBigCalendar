@@ -118,6 +118,9 @@ data class CalendarUiState(
     val trashSortOrder: String = "newest_first",
     val lastGoogleSyncTime: Long = 0L,
     val showMoonPhases: Boolean = false,
+    val isJsonConfigScreenOpen: Boolean = false,
+    val selectedJsonFileName: String? = null,
+    val selectedJsonUri: android.net.Uri? = null
 
 )
 

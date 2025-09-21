@@ -60,7 +60,8 @@ fun GeneralSettingsScreen(
     isSyncing: Boolean = false,
     onManualSync: () -> Unit = {},
     syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null,
-    onBackClick: () -> Unit // New parameter for back button
+    onBackClick: () -> Unit, // New parameter for back button
+    onImportJsonClick: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     var welcomeNameInput by remember { mutableStateOf(welcomeName) }
@@ -227,6 +228,16 @@ fun GeneralSettingsScreen(
                         }
                     }
                 }
+            }
+
+            // Botão de importar JSON
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Button(
+                onClick = onImportJsonClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Importar Arquivo JSON")
             }
         }
     }

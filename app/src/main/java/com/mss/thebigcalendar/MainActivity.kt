@@ -36,6 +36,7 @@ import com.mss.thebigcalendar.ui.screens.AlarmsScreen
 import com.mss.thebigcalendar.ui.screens.GeneralSettingsScreen
 import com.mss.thebigcalendar.ui.screens.CompletedTasksScreen
 import com.mss.thebigcalendar.ui.screens.BackupScreen
+import com.mss.thebigcalendar.ui.screens.JsonConfigScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import com.mss.thebigcalendar.ui.onboarding.OnboardingFlow
@@ -80,6 +81,39 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val jsonFilePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            // Obter o nome do arquivo
+            val fileName = getFileName(uri)
+            
+            // Abrir tela de configuração
+            viewModel.openJsonConfigScreen(fileName, it)
+        }
+    }
+    
+    private fun getFileName(uri: Uri): String {
+        return try {
+            val cursor = contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val nameIndex = it.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                    if (nameIndex >= 0) {
+                        it.getString(nameIndex) ?: "arquivo.json"
+                    } else {
+                        "arquivo.json"
+                    }
+                } else {
+                    "arquivo.json"
+                }
+            } ?: "arquivo.json"
+        } catch (e: Exception) {
+            "arquivo.json"
+        }
+    }
+
+
     private fun requestIgnoreBatteryOptimizations() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -91,6 +125,11 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun openJsonFilePicker() {
+        jsonFilePickerLauncher.launch("application/json")
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,6 +154,7 @@ class MainActivity : ComponentActivity() {
                     state.isTrashScreenOpen -> viewModel.closeTrashScreen()
                     state.isBackupScreenOpen -> viewModel.closeBackupScreen()
                     state.isCompletedTasksScreenOpen -> viewModel.closeCompletedTasksScreen()
+                    state.isJsonConfigScreenOpen -> viewModel.closeJsonConfigScreen()
                     else -> finish()
                 }
             }
@@ -191,6 +231,13 @@ class MainActivity : ComponentActivity() {
                         )
                     } else {
                         when {
+                        uiState.isJsonConfigScreenOpen -> {
+                            JsonConfigScreen(
+                                fileName = uiState.selectedJsonFileName ?: "arquivo.json",
+                                onBackClick = { viewModel.closeJsonConfigScreen() },
+                                onSaveClick = { title, color -> viewModel.saveJsonConfig(title, color) }
+                            )
+                        }
                         uiState.isCompletedTasksScreenOpen -> {
                             CompletedTasksScreen(
                                 onBackClick = { viewModel.closeCompletedTasksScreen() },
@@ -251,7 +298,8 @@ class MainActivity : ComponentActivity() {
                                 isSyncing = uiState.isSyncing,
                                 onManualSync = { viewModel.onManualSync() },
                                 syncProgress = uiState.syncProgress,
-                                onBackClick = { viewModel.closeSettingsScreen() }
+                                onBackClick = { viewModel.closeSettingsScreen() },
+                                onImportJsonClick = { openJsonFilePicker() }
                             )
                         }
                         uiState.isBackupScreenOpen -> {

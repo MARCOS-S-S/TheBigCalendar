@@ -17,6 +17,9 @@ import com.mss.thebigcalendar.data.model.Holiday
 import com.mss.thebigcalendar.data.model.SearchResult
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
+import com.mss.thebigcalendar.data.model.JsonScheduleData
+import com.mss.thebigcalendar.data.model.JsonSchedule
+import com.mss.thebigcalendar.data.model.toActivity
 
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
@@ -52,6 +55,7 @@ import androidx.work.WorkManager
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import com.mss.thebigcalendar.service.ProgressiveSyncService
@@ -59,6 +63,10 @@ import com.mss.thebigcalendar.worker.GoogleCalendarSyncWorker
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
+import org.json.JSONObject
+import org.json.JSONArray
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -2467,5 +2475,146 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
     
+    fun openJsonConfigScreen(fileName: String, uri: android.net.Uri) {
+        _uiState.update {
+            it.copy(
+                isJsonConfigScreenOpen = true,
+                selectedJsonFileName = fileName,
+                selectedJsonUri = uri
+            )
+        }
+    }
+    
+    fun closeJsonConfigScreen() {
+        _uiState.update { 
+            it.copy(
+                isJsonConfigScreenOpen = false,
+                selectedJsonFileName = null,
+                selectedJsonUri = null
+            ) 
+        }
+    }
+    
+    fun saveJsonConfig(title: String, color: androidx.compose.ui.graphics.Color) {
+        viewModelScope.launch {
+            try {
+                Log.d(TAG, "Salvando configuração JSON: título=$title, cor=$color")
+                
+                // Obter dados do estado antes de processar
+                val currentState = _uiState.value
+                val fileName = currentState.selectedJsonFileName
+                val uri = currentState.selectedJsonUri
+                
+                if (fileName != null && uri != null) {
+                    processJsonFile(fileName, uri, title, color)
+                } else {
+                    Log.e(TAG, "Dados do arquivo JSON não encontrados: fileName=$fileName, uri=$uri")
+                }
+                
+                // Fechar a tela de configuração
+                closeJsonConfigScreen()
+                
+                // Recarregar dados
+                loadData()
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Erro ao salvar configuração JSON", e)
+            }
+        }
+    }
+    
+    private suspend fun processJsonFile(fileName: String, uri: android.net.Uri, calendarTitle: String, calendarColor: androidx.compose.ui.graphics.Color) {
+        try {
+            Log.d(TAG, "Processando arquivo JSON: $fileName")
+            
+            // Ler o arquivo JSON
+            val jsonString = readJsonFile(uri)
+            if (jsonString == null) {
+                Log.e(TAG, "Erro ao ler arquivo JSON")
+                return
+            }
+            
+            // Fazer parse do JSON
+            Log.d(TAG, "JSON string length: ${jsonString.length}")
+            val jsonArray = JSONArray(jsonString)
+            Log.d(TAG, "JSON array length: ${jsonArray.length()}")
+            val schedules = mutableListOf<JsonSchedule>()
+            
+            for (i in 0 until jsonArray.length()) {
+                try {
+                    Log.d(TAG, "Processando item $i do JSON")
+                    val jsonObject = jsonArray.getJSONObject(i)
+                    
+                    val name = jsonObject.getString("name")
+                    val date = jsonObject.getString("date")
+                    val summary = try {
+                        jsonObject.optString("summary", null).takeIf { it.isNotEmpty() }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Erro ao obter summary do item $i: ${e.message}")
+                        null
+                    }
+                    val wikipediaLink = try {
+                        jsonObject.optString("wikipediaLink", null).takeIf { it.isNotEmpty() }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Erro ao obter wikipediaLink do item $i: ${e.message}")
+                        null
+                    }
+                    
+                    val schedule = JsonSchedule(
+                        name = name,
+                        date = date,
+                        summary = summary,
+                        wikipediaLink = wikipediaLink
+                    )
+                    schedules.add(schedule)
+                    Log.d(TAG, "Item $i processado: $name")
+                    
+                } catch (e: Exception) {
+                    Log.e(TAG, "Erro ao processar item $i do JSON: ${e.message}")
+                    e.printStackTrace()
+                }
+            }
+            
+            Log.d(TAG, "Encontrados ${schedules.size} agendamentos no arquivo JSON")
+            
+            // Converter para Activities
+            val activities = schedules.map { jsonSchedule ->
+                jsonSchedule.toActivity(2025, calendarTitle, calendarColor)
+            }
+            
+            // Salvar no banco de dados
+            activities.forEach { activity ->
+                activityRepository.saveActivity(activity)
+            }
+            
+            Log.d(TAG, "Processados e salvos ${activities.size} agendamentos do arquivo JSON")
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Erro ao processar arquivo JSON", e)
+        }
+    }
+    
+    private suspend fun readJsonFile(uri: android.net.Uri): String? {
+        return try {
+            Log.d(TAG, "Tentando ler arquivo JSON: $uri")
+            val inputStream = getApplication<Application>().contentResolver.openInputStream(uri)
+            if (inputStream == null) {
+                Log.e(TAG, "InputStream é null para URI: $uri")
+                return null
+            }
+            
+            inputStream.use { stream ->
+                val reader = BufferedReader(InputStreamReader(stream))
+                val content = reader.readText()
+                Log.d(TAG, "Arquivo lido com sucesso, tamanho: ${content.length} caracteres")
+                Log.d(TAG, "Primeiros 200 caracteres: ${content.take(200)}")
+                content
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Erro ao ler arquivo JSON", e)
+            e.printStackTrace()
+            null
+        }
+    }
 
 }
