@@ -185,10 +185,7 @@ class AlarmService(
                 Log.w(TAG, "⚠️ Erro na limpeza exaustiva: ${e.message}")
             }
             
-            // 7. Verificar se ainda há alarmes ativos
-            checkAndUpdateAlarmStatus()
-            
-            // 8. Forçar atualização do sistema de alarmes para remover do QS
+            // 7. Forçar atualização do sistema de alarmes para remover do QS
             forceAlarmSystemUpdate()
             
             if (!cancelled) {
