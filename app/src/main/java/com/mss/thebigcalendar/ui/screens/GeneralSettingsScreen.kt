@@ -1,6 +1,7 @@
 package com.mss.thebigcalendar.ui.screens
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,24 +10,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.mss.thebigcalendar.R
@@ -238,6 +243,68 @@ fun GeneralSettingsScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Importar Arquivo JSON")
+            }
+
+            // Seção de exemplo JSON
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = stringResource(R.string.json_example_text),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            Text(
+                text = stringResource(R.string.json_format_instructions),
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(bottom = 2.dp)
+            )
+            
+            Text(
+                text = stringResource(R.string.json_structure_title),
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(bottom = 2.dp)
+            )
+            
+            SelectionContainer {
+                Text(
+                    text = stringResource(R.string.json_example),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(2.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                val clipboardManager = LocalClipboardManager.current
+                val jsonFormatInstructions = stringResource(R.string.json_format_instructions)
+                val jsonStructureTitle = stringResource(R.string.json_structure_title)
+                val jsonExample = stringResource(R.string.json_example)
+                
+                OutlinedButton(
+                    onClick = {
+                        clipboardManager.setText(AnnotatedString("""$jsonFormatInstructions
+
+$jsonStructureTitle
+$jsonExample"""))
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = stringResource(R.string.copy_json_content_description),
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(stringResource(R.string.copy_json_format))
+                }
             }
         }
     }

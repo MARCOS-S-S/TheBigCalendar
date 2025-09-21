@@ -491,6 +491,17 @@
     <!-- GeneralSettingsScreen.kt -->
     <string name="sync_content_description">Sincronizar</string>
     <string name="sync_progress_format">%1$d/%2$d eventos</string>
+    <string name="json_format_instructions">Crie um arquivo JSON com (Ex: Feriados Militares no Brasil) no ano de (Ex: 2025) seguindo EXATAMENTE este formato:</string>
+    <string name="json_structure_title">ESTRUTURA OBRIGATÓRIA:</string>
+    <string name="json_example">{
+  "name": "Nome",
+  "date": "MM-dd",
+  "summary": "Descrição resumida",
+  "wikipediaLink": "https://link-para-mais-informações (opcional)"
+}</string>
+    <string name="copy_json_format">Copiar</string>
+    <string name="copy_json_content_description">Copiar formato JSON</string>
+    <string name="json_example_text">Basta você substituir os exemplos abaixo pelas datas que você deseja e copiar para alguma IA da sua escolha.</string>
 
     <!-- CompletedTasksScreen.kt -->
     <string name="search_content_description">Buscar</string>
