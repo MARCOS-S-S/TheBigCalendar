@@ -646,6 +646,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 
                 state.activities.forEach { activity ->
                     try {
+                        // EXCLUIR atividades JSON importadas das tasks para evitar duplicação
+                        val isJsonImported = activity.location?.startsWith("JSON_IMPORTED_") == true
+                        if (isJsonImported) {
+                            return@forEach // Pular atividades JSON importadas
+                        }
+                        
                         val activityDate = LocalDate.parse(activity.date)
                         val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
                                 (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
@@ -2688,7 +2694,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             jsonCalendarRepository.getAllJsonCalendars().collect { calendars ->
                 _uiState.update { it.copy(jsonCalendars = calendars) }
                 // Processar agendamentos JSON como holidays
-                processJsonHolidays(calendars)
+                viewModelScope.launch {
+                    processJsonHolidays(calendars)
+                }
                 // Atualizar agendamentos JSON para a data selecionada
                 updateJsonCalendarActivitiesForSelectedDate()
             }
@@ -2698,22 +2706,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     /**
      * Processa os calendários JSON e cria holidays para exibição no calendário
      */
-    private fun processJsonHolidays(calendars: List<JsonCalendar>) {
+    private suspend fun processJsonHolidays(calendars: List<JsonCalendar>) {
         val jsonHolidaysMap = mutableMapOf<String, MutableList<JsonHoliday>>()
         
         Log.d("CalendarViewModel", "Processando ${calendars.size} calendários JSON")
         calendars.forEach { calendar ->
             Log.d("CalendarViewModel", "Calendário ${calendar.title}: visível=${calendar.isVisible}")
             if (calendar.isVisible) {
-                // Buscar atividades deste calendário
-                val calendarActivities = _uiState.value.activities.filter { activity ->
-                    try {
-                        val activityColor = androidx.compose.ui.graphics.Color(android.graphics.Color.parseColor(activity.categoryColor))
-                        activityColor == calendar.color
-                    } catch (e: Exception) {
-                        false
-                    }
-                }
+                // Buscar TODAS as atividades deste calendário (não apenas do mês atual)
+                val calendarActivities = getAllJsonActivitiesForCalendar(calendar)
                 
                 // Converter atividades para JsonHoliday
                 calendarActivities.forEach { activity ->
@@ -2742,6 +2743,39 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         
         Log.d("CalendarViewModel", "Atualizando jsonHolidays com ${jsonHolidaysMap.size} entradas")
         _uiState.update { it.copy(jsonHolidays = jsonHolidaysMap) }
+    }
+    
+    /**
+     * Busca todas as atividades JSON de um calendário específico
+     * Esta função busca em TODAS as atividades, não apenas do mês atual
+     */
+    private suspend fun getAllJsonActivitiesForCalendar(calendar: JsonCalendar): List<Activity> {
+        return try {
+            // Buscar todas as atividades do repositório (não apenas do mês atual)
+            val allActivities = activityRepository.activities.first()
+            
+            // Filtrar apenas as atividades deste calendário JSON
+            allActivities.filter { activity ->
+                try {
+                    // Verificar se é uma atividade JSON importada
+                    val isJsonActivity = activity.location?.startsWith("JSON_IMPORTED_") == true
+                    
+                    if (!isJsonActivity) {
+                        return@filter false
+                    }
+                    
+                    // Comparar cores usando strings para evitar problemas de precisão
+                    val activityColorString = activity.categoryColor
+                    val calendarColorString = String.format("#%08X", calendar.color.toArgb())
+                    activityColorString == calendarColorString
+                } catch (e: Exception) {
+                    false
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("CalendarViewModel", "Erro ao buscar atividades JSON para calendário ${calendar.title}", e)
+            emptyList()
+        }
     }
     
     /**
@@ -2799,7 +2833,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             _uiState.update { it.copy(jsonCalendars = currentCalendars) }
             // Limpar holidays existentes e reprocessar apenas os visíveis
             _uiState.update { it.copy(jsonHolidays = emptyMap()) }
-            processJsonHolidays(currentCalendars)
+            viewModelScope.launch { processJsonHolidays(currentCalendars) }
             updateJsonCalendarActivitiesForSelectedDate()
             // Atualizar o calendário mensal para refletir as mudanças
             updateAllDateDependentUI()
@@ -2817,7 +2851,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             _uiState.update { it.copy(jsonCalendars = currentCalendars) }
             // Limpar holidays existentes e reprocessar apenas os visíveis
             _uiState.update { it.copy(jsonHolidays = emptyMap()) }
-            processJsonHolidays(currentCalendars)
+            viewModelScope.launch { processJsonHolidays(currentCalendars) }
             updateJsonCalendarActivitiesForSelectedDate()
             // Atualizar o calendário mensal para refletir as mudanças
             updateAllDateDependentUI()
