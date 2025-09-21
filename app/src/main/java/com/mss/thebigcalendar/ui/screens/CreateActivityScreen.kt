@@ -107,8 +107,7 @@ fun CreateActivityScreen(
         stringResource(id = R.string.repetition_every_day),
         stringResource(id = R.string.repetition_every_week),
         stringResource(id = R.string.repetition_every_month),
-        stringResource(id = R.string.repetition_every_year),
-        stringResource(id = R.string.repetition_custom)
+        stringResource(id = R.string.repetition_every_year)
     )
 
     val repetitionMapping = mapOf(
@@ -116,8 +115,7 @@ fun CreateActivityScreen(
         repetitionOptions[1] to "DAILY",
         repetitionOptions[2] to "WEEKLY",
         repetitionOptions[3] to "MONTHLY",
-        repetitionOptions[4] to "YEARLY",
-        repetitionOptions[5] to "CUSTOM"
+        repetitionOptions[4] to "YEARLY"
     )
 
     var selectedRepetition by remember(currentActivity.id) {
