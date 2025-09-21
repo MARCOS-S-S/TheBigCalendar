@@ -49,7 +49,6 @@ fun JsonSchedule.toActivity(
         startTime = scheduleTime,
         endTime = scheduleTime.plusHours(1), // Duração padrão de 1 hora
         isAllDay = false,
-        location = null,
         categoryColor = String.format("#%08X", calendarColor.toArgb()),
         activityType = ActivityType.EVENT, // Todos são eventos por padrão
         recurrenceRule = null,
@@ -58,6 +57,9 @@ fun JsonSchedule.toActivity(
         visibility = VisibilityLevel.MEDIUM, // Visibilidade média por padrão
         showInCalendar = true,
         isFromGoogle = false,
-        excludedDates = emptyList()
+        excludedDates = emptyList(),
+        // Marcar como atividade JSON importada usando o campo location
+        // (que não é usado para atividades JSON)
+        location = "JSON_IMPORTED_${calendarTitle}"
     )
 }

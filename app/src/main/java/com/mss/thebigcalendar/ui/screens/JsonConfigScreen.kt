@@ -55,18 +55,18 @@ fun JsonConfigScreen(
     var showColorPicker by remember { mutableStateOf(false) }
     
     val colors = listOf(
-        Color.Red to "Vermelho",
-        Color.Blue to "Azul", 
-        Color.Green to "Verde",
-        Color.Magenta to "Magenta",
-        Color.Cyan to "Ciano",
-        Color.Yellow to "Amarelo"
+        Color.Red to stringResource(R.string.color_red),
+        Color.Blue to stringResource(R.string.color_blue), 
+        Color.Green to stringResource(R.string.color_green),
+        Color.Magenta to stringResource(R.string.color_magenta),
+        Color.Cyan to stringResource(R.string.color_cyan),
+        Color.Yellow to stringResource(R.string.color_yellow)
     )
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Configurar Calendário") },
+                title = { Text(stringResource(R.string.configure_calendar)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -98,7 +98,7 @@ fun JsonConfigScreen(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "Arquivo Selecionado:",
+                        text = stringResource(R.string.selected_file),
                         style = MaterialTheme.typography.labelMedium
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -114,14 +114,14 @@ fun JsonConfigScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Título do Calendário") },
-                placeholder = { Text("Ex: Meu Calendário Personalizado") },
+                label = { Text(stringResource(R.string.calendar_title)) },
+                placeholder = { Text(stringResource(R.string.calendar_title_placeholder)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
             // Seleção de cor
             Text(
-                text = "Cor dos Dias:",
+                text = stringResource(R.string.day_color),
                 style = MaterialTheme.typography.labelLarge
             )
             
@@ -149,13 +149,13 @@ fun JsonConfigScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Escolher Cor")
+                    Text(stringResource(R.string.choose_color))
                 }
             }
             
             // Cores predefinidas como alternativa
             Text(
-                text = "Cores Sugeridas:",
+                text = stringResource(R.string.suggested_colors),
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(top = 8.dp)
             )
@@ -187,7 +187,7 @@ fun JsonConfigScreen(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = title.isNotBlank()
             ) {
-                Text("Salvar Configuração")
+                Text(stringResource(R.string.save_configuration))
             }
         }
     }
@@ -227,7 +227,7 @@ fun ColorPickerDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Escolher Cor",
+                    text = stringResource(R.string.choose_color_dialog),
                     style = MaterialTheme.typography.headlineSmall
                 )
                 
@@ -248,14 +248,14 @@ fun ColorPickerDialog(
                     ) {}
                     
                     Text(
-                        text = "Cor selecionada",
+                        text = stringResource(R.string.selected_color),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
                 
                 // Paleta de cores
                 Text(
-                    text = "Cores Disponíveis:",
+                    text = stringResource(R.string.available_colors),
                     style = MaterialTheme.typography.labelLarge
                 )
                 
@@ -300,14 +300,14 @@ fun ColorPickerDialog(
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Cancelar")
+                        Text(stringResource(R.string.cancel))
                     }
                     
                     Button(
                         onClick = { onColorSelected(tempColor) },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Confirmar")
+                        Text(stringResource(R.string.confirm))
                     }
                 }
             }

@@ -53,6 +53,7 @@ fun Holiday.toSearchResult(): SearchResult {
         HolidayType.NATIONAL -> "Feriado Nacional"
         HolidayType.COMMEMORATIVE -> "Data Comemorativa"
         HolidayType.SAINT -> "Dia de Santo"
+        HolidayType.JSON_IMPORT -> "Agendamento Importado"
     }
     
     return SearchResult(

@@ -117,6 +117,29 @@
     <string name="notes_menu">Agendamentos</string>
     <string name="completed_tasks_filter">Tarefas finalizadas</string>
     <string name="moon_phases_filter">Fases da Lua</string>
+    <string name="imported_calendars">Calendários Importados</string>
+    
+    <!-- JsonConfigScreen.kt -->
+    <string name="configure_calendar">Configurar Calendário</string>
+    <string name="selected_file">Arquivo Selecionado:</string>
+    <string name="calendar_title">Título do Calendário</string>
+    <string name="calendar_title_placeholder">Ex: Meu Calendário Personalizado</string>
+    <string name="day_color">Cor dos Dias:</string>
+    <string name="choose_color">Escolher Cor</string>
+    <string name="suggested_colors">Cores Sugeridas:</string>
+    <string name="save_configuration">Salvar Configuração</string>
+    <string name="choose_color_dialog">Escolher Cor</string>
+    <string name="selected_color">Cor selecionada</string>
+    <string name="available_colors">Cores Disponíveis:</string>
+    <string name="confirm">Confirmar</string>
+    
+    <!-- Color names -->
+    <string name="color_red">Vermelho</string>
+    <string name="color_blue">Azul</string>
+    <string name="color_green">Verde</string>
+    <string name="color_magenta">Magenta</string>
+    <string name="color_cyan">Ciano</string>
+    <string name="color_yellow">Amarelo</string>
 
     <!-- TasksForSelectedDaySection.kt -->
     <string name="date_format_day_month">dd/MM</string>

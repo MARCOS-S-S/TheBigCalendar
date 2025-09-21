@@ -160,6 +160,21 @@ private fun DayCell(
                 fontWeight = if (isSaintDay) FontWeight.Bold else FontWeight.Normal
             )
         }
+        
+        // Exibir agendamentos JSON importados
+        if (day.jsonHolidays.isNotEmpty()) {
+            day.jsonHolidays.forEach { jsonHoliday ->
+                Text(
+                    text = jsonHoliday.name,
+                    color = jsonHoliday.calendarColor,
+                    fontSize = 7.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 1.dp),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
 
         // Filtrar apenas tarefas que devem aparecer no calendário (memoizado por lista de tarefas)
         val visibleTasks = remember(day.tasks) { day.tasks.filter { it.showInCalendar } }

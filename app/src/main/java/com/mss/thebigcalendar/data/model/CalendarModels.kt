@@ -54,9 +54,11 @@ data class CalendarDay(
     val isToday: Boolean = false,
     val tasks: List<Activity> = emptyList(), // NOVO: Lista de tarefas para este dia
     val holiday: Holiday? = null,
+    val jsonHolidays: List<JsonHoliday> = emptyList(), // Agendamentos JSON importados
     val isWeekend: Boolean = false,
     val isNationalHoliday: Boolean = false,
-    val isSaintDay: Boolean = false
+    val isSaintDay: Boolean = false,
+    val isJsonHolidayDay: Boolean = false
 )
 
 // Definição da classe de filtros
@@ -121,12 +123,15 @@ data class CalendarUiState(
     val isJsonConfigScreenOpen: Boolean = false,
     val selectedJsonFileName: String? = null,
     val selectedJsonUri: android.net.Uri? = null,
-    val jsonCalendars: List<com.mss.thebigcalendar.data.model.JsonCalendar> = emptyList()
+    val jsonCalendars: List<com.mss.thebigcalendar.data.model.JsonCalendar> = emptyList(),
+    val jsonCalendarActivitiesForSelectedDate: Map<String, List<Activity>> = emptyMap(),
+    val jsonHolidays: Map<String, List<JsonHoliday>> = emptyMap(), // MM-dd -> List<JsonHoliday>
+    val jsonHolidayInfoToShow: JsonHoliday? = null
 
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }
 enum class ViewMode { MONTHLY, YEARLY }
-enum class HolidayType { NATIONAL, COMMEMORATIVE, SAINT }
+enum class HolidayType { NATIONAL, COMMEMORATIVE, SAINT, JSON_IMPORT }
 @Immutable
 data class Holiday(val name: String, val date: String, val type: HolidayType, val summary: String? = null, val wikipediaLink: String? = null)

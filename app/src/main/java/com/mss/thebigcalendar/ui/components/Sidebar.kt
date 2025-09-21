@@ -206,7 +206,7 @@ fun Sidebar(
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 
                 Text(
-                    text = "Calendários Importados",
+                    text = stringResource(id = R.string.imported_calendars),
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant

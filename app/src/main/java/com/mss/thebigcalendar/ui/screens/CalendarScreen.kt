@@ -82,6 +82,8 @@ import com.mss.thebigcalendar.ui.components.Sidebar
 import com.mss.thebigcalendar.ui.components.CustomDrawer
 import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.NotesForSelectedDaySection
+import com.mss.thebigcalendar.ui.components.JsonCalendarForSelectedDaySection
+import com.mss.thebigcalendar.ui.components.JsonHolidayInfoDialog
 import com.mss.thebigcalendar.ui.components.StoragePermissionDialog
 import com.mss.thebigcalendar.ui.components.YearlyCalendarView
 import com.mss.thebigcalendar.ui.screens.ChartScreen
@@ -529,6 +531,38 @@ fun MainCalendarView(
                             onAddTaskClick = { viewModel.openCreateActivityModal(activityType = ActivityType.TASK) }
                         )
                     }
+                    
+                    // Seções dos calendários JSON importados
+                    uiState.jsonCalendarActivitiesForSelectedDate.forEach { (calendarId, activities) ->
+                        val jsonCalendar = uiState.jsonCalendars.find { it.id == calendarId }
+                        if (jsonCalendar != null && activities.isNotEmpty()) {
+                            item(
+                                key = "json-calendar-${calendarId}-${uiState.selectedDate}",
+                                contentType = "json-calendar"
+                            ) {
+                                JsonCalendarForSelectedDaySection(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                                    jsonCalendar = jsonCalendar,
+                                    activities = activities,
+                                    onActivityClick = { activity ->
+                                        // Para atividades JSON, mostrar informações do agendamento
+                                        // Converter Activity para JsonHoliday para mostrar no diálogo
+                                        val jsonHoliday = com.mss.thebigcalendar.data.model.JsonHoliday(
+                                            id = activity.id,
+                                            name = activity.title,
+                                            date = activity.date.substring(5, 10), // MM-dd
+                                            summary = activity.description,
+                                            wikipediaLink = null, // Não temos essa informação na Activity
+                                            calendarId = jsonCalendar.id,
+                                            calendarTitle = jsonCalendar.title,
+                                            calendarColor = jsonCalendar.color
+                                        )
+                                        viewModel.showJsonHolidayInfo(jsonHoliday)
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
             ViewMode.YEARLY -> {
@@ -541,6 +575,22 @@ fun MainCalendarView(
                     }
                 )
             }
+        }
+        
+        // Dialog de informações do santo
+        uiState.saintInfoToShow?.let { saint ->
+            SaintInfoDialog(
+                saint = saint,
+                onDismiss = { viewModel.onSaintInfoDialogDismiss() }
+            )
+        }
+        
+        // Dialog de informações do agendamento JSON
+        uiState.jsonHolidayInfoToShow?.let { jsonHoliday ->
+            JsonHolidayInfoDialog(
+                jsonHoliday = jsonHoliday,
+                onDismiss = { viewModel.hideJsonHolidayInfo() }
+            )
         }
     }
 }
