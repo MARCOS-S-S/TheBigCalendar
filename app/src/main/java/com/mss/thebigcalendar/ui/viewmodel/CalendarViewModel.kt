@@ -171,7 +171,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             append("${state.activities.size}_")
             append("${state.completedActivities.size}_")
             append("${state.nationalHolidays.size}_")
-            append("${state.saintDays.size}")
+            append("${state.saintDays.size}_")
+            append("${state.jsonHolidays.size}_")
+            append("${state.jsonCalendars.size}")
         }
     }
 
@@ -616,12 +618,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun updateCalendarDays() {
         val state = _uiState.value
         
+        Log.d("CalendarViewModel", "updateCalendarDays() executando")
+        
         // Verificar se podemos usar o cache
         val currentCacheKey = generateCalendarCacheKey()
         if (cachedCalendarDays != null && lastUpdateParams == currentCacheKey) {
             // Usar cache - não recalculamos
+            Log.d("CalendarViewModel", "Usando cache do calendário")
             return
         }
+        
+        Log.d("CalendarViewModel", "Recalculando calendário - cache inválido")
         
         // Cache miss - precisamos recalcular
 
@@ -907,12 +914,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun updateAllDateDependentUI() {
+        Log.d("CalendarViewModel", "updateAllDateDependentUI() chamado")
         // Cancelar atualização anterior se ainda estiver pendente
         updateJob?.cancel()
         
         // Agendar nova atualização com debounce de 100ms
         updateJob = viewModelScope.launch {
             delay(100) // Debounce de 100ms
+            Log.d("CalendarViewModel", "Executando updateCalendarDays()")
             updateCalendarDays()
             updateTasksForSelectedDate()
             updateHolidaysForSelectedDate()
@@ -2692,7 +2701,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun processJsonHolidays(calendars: List<JsonCalendar>) {
         val jsonHolidaysMap = mutableMapOf<String, MutableList<JsonHoliday>>()
         
+        Log.d("CalendarViewModel", "Processando ${calendars.size} calendários JSON")
         calendars.forEach { calendar ->
+            Log.d("CalendarViewModel", "Calendário ${calendar.title}: visível=${calendar.isVisible}")
             if (calendar.isVisible) {
                 // Buscar atividades deste calendário
                 val calendarActivities = _uiState.value.activities.filter { activity ->
@@ -2729,6 +2740,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
         }
         
+        Log.d("CalendarViewModel", "Atualizando jsonHolidays com ${jsonHolidaysMap.size} entradas")
         _uiState.update { it.copy(jsonHolidays = jsonHolidaysMap) }
     }
     
@@ -2780,6 +2792,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun toggleJsonCalendarVisibility(calendarId: String, isVisible: Boolean) {
         viewModelScope.launch {
             jsonCalendarRepository.updateJsonCalendarVisibility(calendarId, isVisible)
+            // Atualizar diretamente o estado local e reprocessar holidays
+            val currentCalendars = _uiState.value.jsonCalendars.map { calendar ->
+                if (calendar.id == calendarId) calendar.copy(isVisible = isVisible) else calendar
+            }
+            _uiState.update { it.copy(jsonCalendars = currentCalendars) }
+            // Limpar holidays existentes e reprocessar apenas os visíveis
+            _uiState.update { it.copy(jsonHolidays = emptyMap()) }
+            processJsonHolidays(currentCalendars)
+            updateJsonCalendarActivitiesForSelectedDate()
+            // Atualizar o calendário mensal para refletir as mudanças
+            updateAllDateDependentUI()
         }
     }
     
@@ -2789,6 +2812,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun removeJsonCalendar(calendarId: String) {
         viewModelScope.launch {
             jsonCalendarRepository.removeJsonCalendar(calendarId)
+            // Atualizar diretamente o estado local e reprocessar holidays
+            val currentCalendars = _uiState.value.jsonCalendars.filter { it.id != calendarId }
+            _uiState.update { it.copy(jsonCalendars = currentCalendars) }
+            // Limpar holidays existentes e reprocessar apenas os visíveis
+            _uiState.update { it.copy(jsonHolidays = emptyMap()) }
+            processJsonHolidays(currentCalendars)
+            updateJsonCalendarActivitiesForSelectedDate()
+            // Atualizar o calendário mensal para refletir as mudanças
+            updateAllDateDependentUI()
         }
     }
     
