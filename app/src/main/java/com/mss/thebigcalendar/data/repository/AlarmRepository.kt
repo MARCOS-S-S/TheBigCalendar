@@ -147,6 +147,13 @@ class AlarmRepository(
     }
     
     /**
+     * Recarrega alarmes do armazenamento persistente (método público)
+     */
+    fun reloadAlarms() {
+        loadAlarms()
+    }
+    
+    /**
      * Carrega alarmes do armazenamento persistente
      */
     private fun loadAlarms() {

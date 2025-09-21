@@ -164,10 +164,6 @@ fun AlarmScreen(
                 if (scheduleResult.isSuccess) {
                     successMessage = alarmSavedSuccess
                     Log.d("AlarmScreen", "✅ Alarme salvo e agendado com sucesso: ${alarmSettings.label}")
-                    
-                    // Fechar a tela após um breve delay
-                    kotlinx.coroutines.delay(1000)
-                    onBackClick()
                 } else {
                     errorMessage = scheduleResult.exceptionOrNull()?.message ?: unexpectedError
                     Log.e("AlarmScreen", "❌ Erro ao agendar alarme: ${scheduleResult.exceptionOrNull()?.message}")
