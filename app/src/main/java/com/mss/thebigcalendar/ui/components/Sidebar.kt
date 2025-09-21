@@ -200,6 +200,28 @@ fun Sidebar(
                 checked = uiState.showMoonPhases,
                 onCheckedChange = { onFilterChange("showMoonPhases", it) }
             )
+            
+            // Calendários JSON importados
+            if (uiState.jsonCalendars.isNotEmpty()) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                
+                Text(
+                    text = "Calendários Importados",
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                uiState.jsonCalendars.forEach { jsonCalendar ->
+                    FilterCheckboxItem(
+                        label = jsonCalendar.title,
+                        checked = jsonCalendar.isVisible,
+                        onCheckedChange = { isVisible ->
+                            onFilterChange("jsonCalendar_${jsonCalendar.id}", isVisible)
+                        }
+                    )
+                }
+            }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
 

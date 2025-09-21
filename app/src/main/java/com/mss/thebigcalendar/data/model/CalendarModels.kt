@@ -120,7 +120,8 @@ data class CalendarUiState(
     val showMoonPhases: Boolean = false,
     val isJsonConfigScreenOpen: Boolean = false,
     val selectedJsonFileName: String? = null,
-    val selectedJsonUri: android.net.Uri? = null
+    val selectedJsonUri: android.net.Uri? = null,
+    val jsonCalendars: List<com.mss.thebigcalendar.data.model.JsonCalendar> = emptyList()
 
 )
 

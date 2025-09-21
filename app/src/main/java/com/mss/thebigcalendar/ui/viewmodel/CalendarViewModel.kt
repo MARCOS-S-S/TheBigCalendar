@@ -20,6 +20,8 @@ import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.data.model.JsonScheduleData
 import com.mss.thebigcalendar.data.model.JsonSchedule
 import com.mss.thebigcalendar.data.model.toActivity
+import com.mss.thebigcalendar.data.model.JsonCalendar
+import com.mss.thebigcalendar.data.repository.JsonCalendarRepository
 
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
@@ -77,6 +79,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val deletedActivityRepository = DeletedActivityRepository(application)
     private val completedActivityRepository = CompletedActivityRepository(application)
     private val alarmRepository = AlarmRepository(application)
+    private val jsonCalendarRepository = JsonCalendarRepository(application)
     
     // Services
     private val googleAuthService = GoogleAuthService(application)
@@ -523,6 +526,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun loadData() {
         // Carregar apenas as atividades do mês atual
         loadActivitiesForCurrentMonth()
+        
+        // Carregar calendários JSON
+        loadJsonCalendars()
         
         viewModelScope.launch {
             deletedActivityRepository.deletedActivities.collect { deletedActivities ->
@@ -1027,25 +1033,32 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 }
             }
             else -> {
-                val currentFilters = _uiState.value.filterOptions
-                val newFilters = when (key) {
-                    "showHolidays" -> currentFilters.copy(showHolidays = value)
-                    "showSaintDays" -> currentFilters.copy(showSaintDays = value)
-                    "showEvents" -> currentFilters.copy(showEvents = value)
-                    "showTasks" -> currentFilters.copy(showTasks = value)
-                    "showNotes" -> currentFilters.copy(showNotes = value)
-                    "showBirthdays" -> currentFilters.copy(showBirthdays = value)
-                    else -> currentFilters
-                }
-                
-                // Atualizar o estado imediatamente
-                _uiState.update { it.copy(filterOptions = newFilters) }
-                
-                // Atualizar a UI
-                updateAllDateDependentUI()
-                
-                viewModelScope.launch {
-                    settingsRepository.saveFilterOptions(newFilters)
+                // Verificar se é um filtro de calendário JSON
+                if (key.startsWith("jsonCalendar_")) {
+                    val calendarId = key.removePrefix("jsonCalendar_")
+                    toggleJsonCalendarVisibility(calendarId, value)
+                } else {
+                    // Filtros normais
+                    val currentFilters = _uiState.value.filterOptions
+                    val newFilters = when (key) {
+                        "showHolidays" -> currentFilters.copy(showHolidays = value)
+                        "showSaintDays" -> currentFilters.copy(showSaintDays = value)
+                        "showEvents" -> currentFilters.copy(showEvents = value)
+                        "showTasks" -> currentFilters.copy(showTasks = value)
+                        "showNotes" -> currentFilters.copy(showNotes = value)
+                        "showBirthdays" -> currentFilters.copy(showBirthdays = value)
+                        else -> currentFilters
+                    }
+                    
+                    _uiState.update { it.copy(filterOptions = newFilters) }
+                    
+                    // Salvar configurações
+                    viewModelScope.launch {
+                        settingsRepository.saveFilterOptions(newFilters)
+                    }
+                    
+                    // Atualizar a UI
+                    updateAllDateDependentUI()
                 }
             }
         }
@@ -2506,6 +2519,20 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 val uri = currentState.selectedJsonUri
                 
                 if (fileName != null && uri != null) {
+                    // Criar e salvar o calendário JSON
+                    val jsonCalendar = JsonCalendar(
+                        id = UUID.randomUUID().toString(),
+                        title = title,
+                        color = color,
+                        fileName = fileName,
+                        importDate = System.currentTimeMillis(),
+                        isVisible = true
+                    )
+                    
+                    // Salvar o calendário JSON
+                    jsonCalendarRepository.saveJsonCalendar(jsonCalendar)
+                    
+                    // Processar o arquivo JSON
                     processJsonFile(fileName, uri, title, color)
                 } else {
                     Log.e(TAG, "Dados do arquivo JSON não encontrados: fileName=$fileName, uri=$uri")
@@ -2614,6 +2641,35 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             Log.e(TAG, "Erro ao ler arquivo JSON", e)
             e.printStackTrace()
             null
+        }
+    }
+    
+    /**
+     * Carrega os calendários JSON importados
+     */
+    private fun loadJsonCalendars() {
+        viewModelScope.launch {
+            jsonCalendarRepository.getAllJsonCalendars().collect { calendars ->
+                _uiState.update { it.copy(jsonCalendars = calendars) }
+            }
+        }
+    }
+    
+    /**
+     * Atualiza a visibilidade de um calendário JSON
+     */
+    fun toggleJsonCalendarVisibility(calendarId: String, isVisible: Boolean) {
+        viewModelScope.launch {
+            jsonCalendarRepository.updateJsonCalendarVisibility(calendarId, isVisible)
+        }
+    }
+    
+    /**
+     * Remove um calendário JSON
+     */
+    fun removeJsonCalendar(calendarId: String) {
+        viewModelScope.launch {
+            jsonCalendarRepository.removeJsonCalendar(calendarId)
         }
     }
 
