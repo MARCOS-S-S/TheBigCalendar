@@ -52,6 +52,12 @@ fun AlarmScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
     
+    // Repositórios e serviços
+    val alarmRepository = remember { AlarmRepository(context) }
+    val alarmService = remember { 
+        AlarmService(context, alarmRepository, NotificationService(context))
+    }
+    
     // Estado para controlar o diálogo de permissão
     var showPermissionDialog by remember { mutableStateOf(false) }
     var hasOverlayPermission by remember { 
@@ -111,10 +117,76 @@ fun AlarmScreen(
         alarmToEdit?.id ?: activityToEdit?.id ?: "alarm_${System.currentTimeMillis()}"
     }
     
-    // Repositórios e serviços
-    val alarmRepository = remember { AlarmRepository(context) }
+    // Função para salvar o alarme usando o repositório existente
+    suspend fun saveAlarmSettings() {
+        try {
+            isLoading = true
+            errorMessage = ""
+            successMessage = ""
+            
+            // Criar ou atualizar configurações do alarme
+            val alarmSettings = if (alarmToEdit != null) {
+                // Modo de edição - usar função do repositório existente
+                alarmToEdit.copy(
+                    label = if (alarmLabel.isBlank()) defaultAlarmLabel else alarmLabel,
+                    time = selectedTime,
+                    isEnabled = isAlarmEnabled,
+                    repeatDays = repeatDays,
+                    soundEnabled = soundEnabled,
+                    vibrationEnabled = vibrationEnabled,
+                    snoozeMinutes = snoozeMinutes,
+                    lastModified = System.currentTimeMillis()
+                )
+            } else {
+                // Modo de criação - usar função createDefault do AlarmSettings
+                AlarmSettings.createDefault(
+                    context = context,
+                    label = if (alarmLabel.isBlank()) defaultAlarmLabel else alarmLabel,
+                    time = selectedTime
+                ).copy(
+                    isEnabled = isAlarmEnabled,
+                    repeatDays = repeatDays,
+                    soundEnabled = soundEnabled,
+                    vibrationEnabled = vibrationEnabled,
+                    snoozeMinutes = snoozeMinutes
+                )
+            }
+            
+            Log.d("AlarmScreen", "💾 Salvando alarme: ${alarmSettings.label} às ${alarmSettings.time}")
+            
+            // Usar a função saveAlarm do repositório existente
+            val saveResult = alarmRepository.saveAlarm(alarmSettings)
+            
+            if (saveResult.isSuccess) {
+                // Agendar no sistema usando o AlarmService existente
+                val scheduleResult = alarmService.scheduleAlarm(alarmSettings)
+                
+                if (scheduleResult.isSuccess) {
+                    successMessage = alarmSavedSuccess
+                    Log.d("AlarmScreen", "✅ Alarme salvo e agendado com sucesso: ${alarmSettings.label}")
+                    
+                    // Fechar a tela após um breve delay
+                    kotlinx.coroutines.delay(1000)
+                    onBackClick()
+                } else {
+                    errorMessage = scheduleResult.exceptionOrNull()?.message ?: unexpectedError
+                    Log.e("AlarmScreen", "❌ Erro ao agendar alarme: ${scheduleResult.exceptionOrNull()?.message}")
+                }
+            } else {
+                errorMessage = saveResult.exceptionOrNull()?.message ?: errorSavingAlarm
+                Log.e("AlarmScreen", "❌ Erro ao salvar alarme: ${saveResult.exceptionOrNull()?.message}")
+            }
+            
+        } catch (e: Exception) {
+            errorMessage = e.message ?: unexpectedError
+            Log.e("AlarmScreen", "❌ Erro inesperado ao salvar alarme", e)
+        } finally {
+            isLoading = false
+        }
+    }
+    
+    // Serviços adicionais
     val notificationService = remember { NotificationService(context) }
-    val alarmService = remember { AlarmService(context, alarmRepository, notificationService) }
     
     // Carregar configurações existentes
     LaunchedEffect(alarmId, alarmToEdit) {
@@ -608,7 +680,7 @@ fun AlarmScreen(
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        saveAlarm()
+                        saveAlarmSettings()
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

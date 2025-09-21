@@ -343,6 +343,7 @@
 
     <!-- AlarmsScreen.kt -->
     <string name="alarms">Alarmes</string>
+    <string name="create_alarm">Criar Alarme</string>
     <string name="no_alarms_configured">Nenhum alarme configurado</string>
     <string name="no_alarms_description">Configure alarmes nos seus agendamentos para vê-los aqui</string>
     <string name="edit_alarm">Editar Alarme</string>

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.AlarmOn
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Schedule
@@ -197,10 +198,12 @@ fun AlarmsScreen(
     var showEditAlarmScreen by remember { mutableStateOf(false) }
     var alarmToEdit by remember { mutableStateOf<AlarmSettings?>(null) }
     
-    // Carregar despertadores independentes
+    // Estados para criação de alarme
+    var showCreateAlarmScreen by remember { mutableStateOf(false) }
+    
+    // Observar mudanças no repositório de alarmes
     LaunchedEffect(Unit) {
-        try {
-            val alarms = alarmRepository.getAllAlarms()
+        alarmRepository.alarms.collect { alarms ->
             independentAlarms = alarms.sortedWith(
                 compareBy<AlarmSettings> { alarm ->
                     // Primeiro por horário
@@ -211,9 +214,7 @@ fun AlarmsScreen(
                 }
             )
             isLoading = false
-        } catch (e: Exception) {
-            Log.e("AlarmsScreen", "Erro ao carregar despertadores", e)
-            isLoading = false
+            Log.d("AlarmsScreen", "📱 Lista de alarmes atualizada: ${alarms.size} alarmes")
         }
     }
     
@@ -455,13 +456,7 @@ fun AlarmsScreen(
                 val result = alarmRepository.deleteAlarm(alarm.id)
                 if (result.isSuccess) {
                     Log.d("AlarmsScreen", "✅ Alarme deletado do repositório: ${alarm.label}")
-                    
-                    // Recarregar lista de alarmes
-                    independentAlarms = alarmRepository.getActiveAlarms().sortedWith(
-                        compareBy<AlarmSettings> { it.time }.thenBy { it.label }
-                    )
-                    
-                    Log.d("AlarmsScreen", "✅ Exclusão completa do alarme: ${alarm.label}")
+                    Log.d("AlarmsScreen", "✅ Exclusão completa do alarme: ${alarm.label} - lista será atualizada automaticamente pelo Flow")
                     
                 // 7. Forçar atualização do sistema de alarmes para remover do QS
                 forceAlarmSystemUpdate()
@@ -519,12 +514,7 @@ fun AlarmsScreen(
                         .cancelUniqueWork("alarm_backup_${alarm.id}")
                 }
                 
-                Log.d("AlarmsScreen", "🧹 Limpeza de alarmes órfãos concluída")
-                
-                // Recarregar lista
-                independentAlarms = alarmRepository.getActiveAlarms().sortedWith(
-                    compareBy<AlarmSettings> { it.time }.thenBy { it.label }
-                )
+                Log.d("AlarmsScreen", "🧹 Limpeza de alarmes órfãos concluída - lista será atualizada automaticamente pelo Flow")
                 
             } catch (e: Exception) {
                 Log.e("AlarmsScreen", "❌ Erro durante limpeza de alarmes órfãos", e)
@@ -534,41 +524,56 @@ fun AlarmsScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { 
-                    Text(
-                        text = stringResource(id = R.string.alarms),
-                        style = MaterialTheme.typography.headlineSmall
-                    ) 
-                },
-                actions = {
-                    // Botão para limpar alarmes órfãos
-                    IconButton(
-                        onClick = { clearOrphanedAlarms() }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = stringResource(id = R.string.alarm_clear_orphaned_content_description),
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(id = R.string.back)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            topBar = {
+                TopAppBar(
+                    title = { 
+                        Text(
+                            text = stringResource(id = R.string.alarms),
+                            style = MaterialTheme.typography.headlineSmall
+                        ) 
+                    },
+                    actions = {
+                        // Botão para limpar alarmes órfãos
+                        IconButton(
+                            onClick = { clearOrphanedAlarms() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = stringResource(id = R.string.alarm_clear_orphaned_content_description),
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(id = R.string.back)
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 )
-            )
-        }
-    ) { paddingValues ->
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        Log.d("AlarmsScreen", "➕ Botão de criar alarme clicado")
+                        showCreateAlarmScreen = true
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(id = R.string.create_alarm)
+                    )
+                }
+            }
+        ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -687,21 +692,26 @@ fun AlarmsScreen(
             onBackClick = {
                 showEditAlarmScreen = false
                 alarmToEdit = null
-                // Recarregar lista de alarmes após edição
-                coroutineScope.launch {
-                    try {
-                        val alarms = alarmRepository.getAllAlarms()
-                        independentAlarms = alarms.sortedWith(
-                            compareBy<AlarmSettings> { it.time }.thenBy { it.label }
-                        )
-                    } catch (e: Exception) {
-                        Log.e("AlarmsScreen", "Erro ao recarregar alarmes após edição", e)
-                    }
-                }
+                Log.d("AlarmsScreen", "📱 Voltando da edição - lista será atualizada automaticamente pelo Flow")
             },
             onBackPressedDispatcher = null,
             activityToEdit = null,
             alarmToEdit = alarmToEdit
+        )
+    }
+    
+    // Tela de criação de alarme sobreposta
+    Log.d("AlarmsScreen", "🔍 Verificando condições - showCreateAlarmScreen: $showCreateAlarmScreen")
+    if (showCreateAlarmScreen) {
+        Log.d("AlarmsScreen", "✅ Abrindo tela de criação de alarme")
+        AlarmScreen(
+            onBackClick = {
+                showCreateAlarmScreen = false
+                Log.d("AlarmsScreen", "📱 Voltando da criação - lista será atualizada automaticamente pelo Flow")
+            },
+            onBackPressedDispatcher = null,
+            activityToEdit = null,
+            alarmToEdit = null // null para indicar que é uma criação, não edição
         )
     }
 }
