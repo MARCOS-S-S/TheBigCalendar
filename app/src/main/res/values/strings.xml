@@ -125,6 +125,8 @@
     <string name="configure_calendar">Configurar Calendário</string>
     <string name="selected_file">Arquivo Selecionado:</string>
     <string name="select_file">Selecionar Arquivo</string>
+    <string name="json_content">Conteúdo JSON</string>
+    <string name="json_content_placeholder">Cole ou digite o conteúdo JSON aqui...</string>
     <string name="calendar_title">Título do Calendário</string>
     <string name="calendar_title_placeholder">Ex: Meu Calendário Personalizado</string>
     <string name="day_color">Cor dos Dias:</string>

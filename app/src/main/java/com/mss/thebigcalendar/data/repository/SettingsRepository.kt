@@ -44,7 +44,7 @@ class SettingsRepository(private val context: Context) {
 
     val showMoonPhases: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
-            preferences[PreferencesKeys.SHOW_MOON_PHASES] ?: true
+            preferences[PreferencesKeys.SHOW_MOON_PHASES] ?: false
         }
 
 

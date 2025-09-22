@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -37,8 +40,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.mss.thebigcalendar.R
@@ -48,12 +54,13 @@ import com.mss.thebigcalendar.R
 fun JsonConfigScreen(
     fileName: String?,
     onBackClick: () -> Unit,
-    onSaveClick: (String, Color) -> Unit,
+    onSaveClick: (String, Color, String) -> Unit,
     onSelectFileClick: () -> Unit = {}
 ) {
     var title by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf(Color.Blue) }
     var showColorPicker by remember { mutableStateOf(false) }
+    var jsonContent by remember { mutableStateOf("") }
     
     val colors = listOf(
         Color.Red to stringResource(R.string.color_red),
@@ -120,6 +127,17 @@ fun JsonConfigScreen(
                 ) {
                     Text(stringResource(R.string.select_file))
                 }
+                
+                // Campo de digitação para conteúdo JSON
+                OutlinedTextField(
+                    value = jsonContent,
+                    onValueChange = { jsonContent = it },
+                    label = { Text(stringResource(R.string.json_content)) },
+                    placeholder = { Text(stringResource(R.string.json_content_placeholder)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 8,
+                    minLines = 4
+                )
             }
 
             // Campo de título
@@ -193,11 +211,79 @@ fun JsonConfigScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Instruções de formato JSON
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.json_format_instructions),
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(bottom = 2.dp)
+                    )
+                    
+                    Text(
+                        text = stringResource(R.string.json_structure_title),
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(bottom = 2.dp)
+                    )
+                    
+                    SelectionContainer {
+                        Text(
+                            text = stringResource(R.string.json_example),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp)
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(2.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        val clipboardManager = LocalClipboardManager.current
+                        val jsonFormatInstructions = stringResource(R.string.json_format_instructions)
+                        val jsonStructureTitle = stringResource(R.string.json_structure_title)
+                        val jsonExample = stringResource(R.string.json_example)
+                        
+                        OutlinedButton(
+                            onClick = {
+                                clipboardManager.setText(AnnotatedString("""$jsonFormatInstructions
+
+$jsonStructureTitle
+$jsonExample"""))
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ContentCopy,
+                                contentDescription = stringResource(R.string.copy_json_content_description),
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(stringResource(R.string.copy_json_format))
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Botão de salvar
             Button(
-                onClick = { onSaveClick(title, selectedColor) },
+                onClick = { onSaveClick(title, selectedColor, jsonContent) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = title.isNotBlank() && fileName != null
+                enabled = title.isNotBlank() && (fileName != null || jsonContent.isNotBlank())
             ) {
                 Text(stringResource(R.string.save_configuration))
             }

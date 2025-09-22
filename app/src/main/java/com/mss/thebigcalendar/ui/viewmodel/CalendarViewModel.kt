@@ -2550,16 +2550,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { 
             it.copy(
                 isJsonConfigScreenOpen = false,
+                isSettingsScreenOpen = true, // Garantir que a tela de configurações permaneça aberta
                 selectedJsonFileName = null,
                 selectedJsonUri = null
             ) 
         }
     }
     
-    fun saveJsonConfig(title: String, color: androidx.compose.ui.graphics.Color) {
+    fun saveJsonConfig(title: String, color: androidx.compose.ui.graphics.Color, jsonContent: String = "") {
         viewModelScope.launch {
             try {
-                Log.d(TAG, "Salvando configuração JSON: título=$title, cor=$color")
+                Log.d(TAG, "Salvando configuração JSON: título=$title, cor=$color, hasContent=${jsonContent.isNotBlank()}")
                 
                 // Obter dados do estado antes de processar
                 val currentState = _uiState.value
@@ -2582,8 +2583,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     
                     // Processar o arquivo JSON
                     processJsonFile(fileName, uri, title, color)
+                } else if (jsonContent.isNotBlank()) {
+                    // Processar conteúdo JSON digitado diretamente
+                    processJsonContent(jsonContent, title, color)
                 } else {
-                    Log.e(TAG, "Dados do arquivo JSON não encontrados: fileName=$fileName, uri=$uri")
+                    Log.e(TAG, "Nem arquivo nem conteúdo JSON fornecidos")
                 }
                 
                 // Fechar a tela de configuração
@@ -2675,6 +2679,89 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
     
+    private suspend fun processJsonContent(jsonContent: String, calendarTitle: String, calendarColor: androidx.compose.ui.graphics.Color) {
+        try {
+            Log.d(TAG, "Processando conteúdo JSON digitado")
+            
+            // Criar e salvar o calendário JSON
+            val jsonCalendar = JsonCalendar(
+                id = UUID.randomUUID().toString(),
+                title = calendarTitle,
+                color = calendarColor,
+                fileName = "conteudo_digitado.json",
+                importDate = System.currentTimeMillis(),
+                isVisible = true
+            )
+            
+            // Salvar o calendário JSON
+            jsonCalendarRepository.saveJsonCalendar(jsonCalendar)
+            
+            // Fazer parse do JSON
+            Log.d(TAG, "JSON string length: ${jsonContent.length}")
+            val jsonArray = JSONArray(jsonContent)
+            Log.d(TAG, "JSON array length: ${jsonArray.length()}")
+            val schedules = mutableListOf<JsonSchedule>()
+            
+            for (i in 0 until jsonArray.length()) {
+                try {
+                    Log.d(TAG, "Processando item $i do JSON")
+                    val jsonObject = jsonArray.getJSONObject(i)
+                    
+                    val name = jsonObject.getString("name")
+                    val date = jsonObject.getString("date")
+                    val summary = try {
+                        jsonObject.optString("summary", null).takeIf { it.isNotEmpty() }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Erro ao obter summary do item $i: ${e.message}")
+                        null
+                    }
+                    val wikipediaLink = try {
+                        jsonObject.optString("wikipediaLink", null).takeIf { it.isNotEmpty() }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Erro ao obter wikipediaLink do item $i: ${e.message}")
+                        null
+                    }
+                    
+                    val schedule = JsonSchedule(
+                        name = name,
+                        date = date,
+                        summary = summary,
+                        wikipediaLink = wikipediaLink
+                    )
+                    schedules.add(schedule)
+                    Log.d(TAG, "Item $i processado: $name")
+                    
+                } catch (e: Exception) {
+                    Log.e(TAG, "Erro ao processar item $i do JSON: ${e.message}")
+                    e.printStackTrace()
+                }
+            }
+            
+            Log.d(TAG, "Encontrados ${schedules.size} agendamentos no conteúdo JSON")
+            
+            // Converter para Activities
+            val activities = schedules.map { jsonSchedule ->
+                jsonSchedule.toActivity(2025, calendarTitle, calendarColor)
+            }
+            
+            // Salvar no banco de dados
+            activities.forEach { activity ->
+                activityRepository.saveActivity(activity)
+            }
+            
+            Log.d(TAG, "Processados e salvos ${activities.size} agendamentos do conteúdo JSON")
+            
+            // Recarregar atividades para atualizar a UI
+            loadActivitiesForCurrentMonth()
+            
+            // Atualizar agendamentos JSON para a data selecionada
+            updateJsonCalendarActivitiesForSelectedDate()
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Erro ao processar conteúdo JSON", e)
+        }
+    }
+
     private suspend fun readJsonFile(uri: android.net.Uri): String? {
         return try {
             Log.d(TAG, "Tentando ler arquivo JSON: $uri")

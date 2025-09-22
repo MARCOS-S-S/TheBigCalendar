@@ -38,17 +38,14 @@ fun JsonSchedule.toActivity(
         date.split("-")[1].toInt()
     )
     
-    // Hora padrão 09:00 para todos os agendamentos
-    val scheduleTime = LocalTime.of(9, 0)
-    
     return Activity(
         id = UUID.randomUUID().toString(),
         title = name,
         description = summary ?: "",
         date = scheduleDate.toString(),
-        startTime = scheduleTime,
-        endTime = scheduleTime.plusHours(1), // Duração padrão de 1 hora
-        isAllDay = false,
+        startTime = null, // Sem hora específica
+        endTime = null, // Sem hora específica
+        isAllDay = true, // Evento de dia inteiro
         categoryColor = String.format("#%08X", calendarColor.toArgb()),
         activityType = ActivityType.EVENT, // Todos são eventos por padrão
         recurrenceRule = null,

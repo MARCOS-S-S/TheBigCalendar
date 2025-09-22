@@ -235,7 +235,7 @@ class MainActivity : ComponentActivity() {
                             JsonConfigScreen(
                                 fileName = uiState.selectedJsonFileName,
                                 onBackClick = { viewModel.closeJsonConfigScreen() },
-                                onSaveClick = { title, color -> viewModel.saveJsonConfig(title, color) },
+                                onSaveClick = { title, color, jsonContent -> viewModel.saveJsonConfig(title, color, jsonContent) },
                                 onSelectFileClick = { openJsonFilePicker() }
                             )
                         }
