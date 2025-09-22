@@ -37,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
@@ -45,6 +44,7 @@ import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.ui.components.GreetingService
 import com.mss.thebigcalendar.ui.components.rememberQuoteOfTheDay
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 
 
 private val filterItems = listOf(
