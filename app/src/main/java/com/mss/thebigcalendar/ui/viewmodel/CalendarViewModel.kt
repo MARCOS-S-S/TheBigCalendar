@@ -74,6 +74,13 @@ import java.io.InputStreamReader
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
+    // ViewModels especializados como helpers internos
+    private val navigationHelper = CalendarNavigationViewModel(application)
+    private val activityHelper = ActivityManagementViewModel(application)
+    private val syncHelper = GoogleSyncViewModel(application)
+    private val backupHelper = BackupViewModel(application)
+    private val uiHelper = CalendarUIManagementViewModel(application)
+
     // Repositories
     val settingsRepository = SettingsRepository(application)
     private val activityRepository = ActivityRepository(application)
@@ -113,6 +120,60 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         
         // Registrar broadcast receiver para atualizações de notificações
         registerNotificationBroadcastReceiver()
+        
+        // Sincronizar estados dos helpers com o estado principal
+        syncHelperStates()
+    }
+    
+    /**
+     * Sincroniza o estado dos helpers com o estado principal
+     */
+    private fun syncHelperStates() {
+        // Observar mudanças nos helpers e atualizar o estado principal
+        viewModelScope.launch {
+            navigationHelper.uiState.collect { helperState ->
+                _uiState.value = _uiState.value.copy(
+                    displayedYearMonth = helperState.displayedYearMonth,
+                    selectedDate = helperState.selectedDate
+                )
+            }
+        }
+        
+        viewModelScope.launch {
+            activityHelper.uiState.collect { helperState ->
+                _uiState.value = _uiState.value.copy(
+                    activities = helperState.activities,
+                    searchQuery = helperState.searchQuery,
+                    searchResults = helperState.searchResults
+                )
+            }
+        }
+        
+        viewModelScope.launch {
+            syncHelper.uiState.collect { helperState ->
+                _uiState.value = _uiState.value.copy(
+                    syncProgress = helperState.syncProgress
+                )
+            }
+        }
+        
+        viewModelScope.launch {
+            backupHelper.uiState.collect { helperState ->
+                _uiState.value = _uiState.value.copy(
+                    backupFiles = helperState.backupFiles,
+                    deletedActivities = helperState.deletedActivities
+                )
+            }
+        }
+        
+        viewModelScope.launch {
+            uiHelper.uiState.collect { helperState ->
+                _uiState.value = _uiState.value.copy(
+                    jsonCalendars = helperState.jsonCalendars,
+                    jsonHolidayInfoToShow = helperState.jsonHolidayInfoToShow
+                )
+            }
+        }
     }
 
     override fun onCleared() {
