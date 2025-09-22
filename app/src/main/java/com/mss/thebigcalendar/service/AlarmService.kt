@@ -27,9 +27,55 @@ class AlarmService(
         private const val TAG = "AlarmService"
         const val ACTION_ALARM_TRIGGERED = "com.mss.thebigcalendar.ALARM_TRIGGERED"
         const val EXTRA_ALARM_ID = "alarm_id"
+        
+        // Controle de alarmes processados recentemente (singleton)
+        private val recentlyProcessedAlarms = mutableMapOf<String, Long>()
+        private const val PROCESSED_TIMEOUT = 30000L // 30 segundos
+        
+        /**
+         * Marca um alarme como processado recentemente
+         */
+        fun markAlarmAsProcessed(alarmId: String) {
+            recentlyProcessedAlarms[alarmId] = System.currentTimeMillis()
+            Log.d(TAG, "🔔 Alarme $alarmId marcado como processado")
+        }
+        
+        /**
+         * Verifica se um alarme foi processado recentemente
+         */
+        fun isAlarmRecentlyProcessed(alarmId: String): Boolean {
+            val processedTime = recentlyProcessedAlarms[alarmId] ?: return false
+            val currentTime = System.currentTimeMillis()
+            val timeSinceProcessed = currentTime - processedTime
+            
+            if (timeSinceProcessed > PROCESSED_TIMEOUT) {
+                // Remover entrada expirada
+                recentlyProcessedAlarms.remove(alarmId)
+                return false
+            }
+            
+            Log.d(TAG, "🔔 Alarme $alarmId foi processado há ${timeSinceProcessed}ms")
+            return true
+        }
+        
+        /**
+         * Limpa alarmes processados expirados
+         */
+        fun cleanupExpiredProcessedAlarms() {
+            val currentTime = System.currentTimeMillis()
+            val expiredKeys = recentlyProcessedAlarms.filter { (_, processedTime) ->
+                currentTime - processedTime > PROCESSED_TIMEOUT
+            }.keys
+            
+            expiredKeys.forEach { alarmId ->
+                recentlyProcessedAlarms.remove(alarmId)
+                Log.d(TAG, "🔔 Removendo alarme expirado da lista de processados: $alarmId")
+            }
+        }
     }
     
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    private var alarmMediaPlayer: android.media.MediaPlayer? = null
     
     /**
      * Agenda um alarme no sistema
@@ -190,6 +236,18 @@ class AlarmService(
             
             if (!cancelled) {
                 Log.w(TAG, "⚠️ Não foi possível cancelar o alarme com nenhuma flag")
+            }
+            
+            // Parar o som do alarme se estiver tocando
+            stopAlarmSound()
+            
+            // Cancelar especificamente a notificação de full screen que pode estar tocando
+            try {
+                val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                notificationManager.cancel(alarmId.hashCode())
+                Log.d(TAG, "🔇 Notificação de full screen cancelada: $alarmId")
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ Erro ao cancelar notificação de full screen: ${e.message}")
             }
             
             Log.d(TAG, "❌ Alarme cancelado com sucesso")
@@ -449,6 +507,9 @@ class AlarmService(
         try {
             Log.d(TAG, "🔔 Alarme disparado: $alarmId")
             
+            // Marcar alarme como processado para evitar processamento duplicado
+            markAlarmAsProcessed(alarmId)
+            
             val alarmSettings = alarmRepository.getAlarmById(alarmId)
             if (alarmSettings != null) {
                 // Forçar abertura da tela do alarme
@@ -500,14 +561,8 @@ class AlarmService(
                 setShowBadge(true)
                 lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
                 setBypassDnd(true)
-                setSound(
-                    android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM),
-                    android.media.AudioAttributes.Builder()
-                        .setUsage(android.media.AudioAttributes.USAGE_ALARM)
-                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .setFlags(android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
-                        .build()
-                )
+                // REMOVIDO: setSound() - o AlarmActivity já tem seu próprio MediaPlayer
+                setSound(null, null) // Sem som - apenas visual
             }
             notificationManager.createNotificationChannel(channel)
             
@@ -539,7 +594,7 @@ class AlarmService(
                 .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
                 .setAutoCancel(false)
                 .setOngoing(true)
-                .setDefaults(androidx.core.app.NotificationCompat.DEFAULT_ALL)
+                // REMOVIDO: .setDefaults(DEFAULT_ALL) - pode causar som adicional
                 .setVibrate(longArrayOf(0, 1000, 500, 1000, 500, 1000))
                 .build()
             
@@ -554,8 +609,8 @@ class AlarmService(
                 Log.w(TAG, "⚠️ Falha ao abrir AlarmActivity diretamente: ${e.message}")
             }
             
-            // Tocar som de alarme
-            playAlarmSound(alarmSettings)
+            // REMOVIDO: playAlarmSound() - o AlarmActivity já tem seu próprio MediaPlayer
+            // O som será tocado pela AlarmActivity, não pelo serviço
             
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao forçar abertura da tela do alarme", e)
@@ -582,15 +637,8 @@ class AlarmService(
                 setShowBadge(true)
                 lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
                 setBypassDnd(true) // Contornar "Não perturbe"
-                // Configurar som de alarme
-                setSound(
-                    android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM),
-                    android.media.AudioAttributes.Builder()
-                        .setUsage(android.media.AudioAttributes.USAGE_ALARM)
-                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .setFlags(android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
-                        .build()
-                )
+                // REMOVIDO: setSound() - o AlarmActivity já tem seu próprio MediaPlayer
+                setSound(null, null) // Sem som - apenas visual
             }
             notificationManager.createNotificationChannel(channel)
             
@@ -626,7 +674,7 @@ class AlarmService(
                 .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
                 .setAutoCancel(false) // Não remove automaticamente
                 .setOngoing(true) // Persistente
-                .setDefaults(androidx.core.app.NotificationCompat.DEFAULT_ALL) // Som e vibração
+                // REMOVIDO: .setDefaults(DEFAULT_ALL) - pode causar som adicional
                 .setFullScreenIntent(pendingIntent, true) // Tela cheia se possível
                 .addAction(
                     android.R.drawable.ic_menu_close_clear_cancel,
@@ -639,8 +687,8 @@ class AlarmService(
             notificationManager.notify(alarmSettings.id.hashCode(), notification)
             Log.d(TAG, "🔔 Notificação de alarme exibida: ${alarmSettings.label}")
             
-            // Tocar som de alarme adicional
-            playAlarmSound(alarmSettings)
+            // REMOVIDO: playAlarmSound() - o AlarmActivity já tem seu próprio MediaPlayer
+            // O som será tocado pela AlarmActivity, não pelo serviço
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao mostrar notificação de alarme", e)
         }
@@ -651,7 +699,10 @@ class AlarmService(
      */
     private fun playAlarmSound(alarmSettings: AlarmSettings) {
         try {
-            val mediaPlayer = android.media.MediaPlayer()
+            // Parar qualquer som anterior
+            stopAlarmSound()
+            
+            alarmMediaPlayer = android.media.MediaPlayer()
             val alarmUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM)
             
             if (alarmUri != null) {
@@ -663,37 +714,60 @@ class AlarmService(
                 
                 Log.d(TAG, "🔔 Volume do alarme (Service): $currentVolume/$maxVolume (${(volumeLevel * 100).toInt()}%)")
                 
-                mediaPlayer.setDataSource(context, alarmUri)
-                mediaPlayer.setAudioAttributes(
+                alarmMediaPlayer?.setDataSource(context, alarmUri)
+                alarmMediaPlayer?.setAudioAttributes(
                     android.media.AudioAttributes.Builder()
                         .setUsage(android.media.AudioAttributes.USAGE_ALARM)
                         .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
                         .setFlags(android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
                         .build()
                 )
-                mediaPlayer.isLooping = true
-                mediaPlayer.setVolume(volumeLevel, volumeLevel)
-                mediaPlayer.prepare()
-                mediaPlayer.start()
+                alarmMediaPlayer?.isLooping = true
+                alarmMediaPlayer?.setVolume(volumeLevel, volumeLevel)
+                alarmMediaPlayer?.prepare()
+                alarmMediaPlayer?.start()
                 
                 // Parar após 30 segundos se não for interrompido
                 android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                    if (mediaPlayer.isPlaying) {
-                        mediaPlayer.stop()
-                        mediaPlayer.release()
+                    if (alarmMediaPlayer?.isPlaying == true) {
+                        alarmMediaPlayer?.stop()
+                        alarmMediaPlayer?.release()
+                        alarmMediaPlayer = null
                     }
                 }, 30000)
                 
                 Log.d(TAG, "🔊 Som de alarme tocando: ${alarmSettings.label}")
             } else {
                 Log.w(TAG, "⚠️ URI de alarme não encontrado, usando som padrão")
-                // Fallback para som padrão
-                val ringtone = android.media.RingtoneManager.getRingtone(context, android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_RINGTONE))
-                ringtone?.play()
+                // REMOVIDO: Fallback para som padrão - pode causar som adicional
+                Log.w(TAG, "⚠️ URI de alarme não encontrado, sem fallback de som")
             }
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao tocar som de alarme", e)
         }
+    }
+    
+    /**
+     * Para o som do alarme
+     */
+    fun stopAlarmSound() {
+        Log.d(TAG, "🔇 AlarmService.stopAlarmSound() chamado")
+        alarmMediaPlayer?.let { player ->
+            try {
+                if (player.isPlaying) {
+                    player.stop()
+                    Log.d(TAG, "🔇 Som do alarme parado no AlarmService")
+                }
+                player.reset()
+                Log.d(TAG, "🔇 MediaPlayer resetado no AlarmService")
+                player.release()
+                Log.d(TAG, "🔇 MediaPlayer liberado no AlarmService")
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ Erro ao parar som do alarme no AlarmService: ${e.message}")
+            }
+        }
+        alarmMediaPlayer = null
+        Log.d(TAG, "🔇 AlarmService.stopAlarmSound() concluído")
     }
     
     /**
@@ -775,7 +849,7 @@ class AlarmService(
                 .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
                 .setShowWhen(false) // Não mostrar timestamp
                 .setLocalOnly(true) // Apenas local
-                .setDefaults(androidx.core.app.NotificationCompat.DEFAULT_ALL) // Usar padrões do sistema
+                // REMOVIDO: .setDefaults(DEFAULT_ALL) - pode causar som adicional
                 .build()
             
             Log.d(TAG, "🔔 Enviando notificação com ID: 9999")

@@ -1,8 +1,10 @@
 package com.mss.thebigcalendar.ui.screens
 
 import android.app.KeyguardManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -46,6 +48,15 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
     private var mediaPlayer: MediaPlayer? = null
     private var isActivityActive = true
     
+    private val stopSoundsReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == "com.mss.thebigcalendar.STOP_ALL_SOUNDS") {
+                Log.d(TAG, "🔇 Recebido broadcast para parar sons")
+                stopNotificationSound()
+            }
+        }
+    }
+    
     companion object {
         private const val TAG = "HighVisibilityNotificationActivity"
     }
@@ -54,6 +65,10 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         
         Log.d(TAG, "🔔 HighVisibilityNotificationActivity criada")
+        
+        // Registrar BroadcastReceiver para parar sons
+        val filter = IntentFilter("com.mss.thebigcalendar.STOP_ALL_SOUNDS")
+        registerReceiver(stopSoundsReceiver, filter)
         
         // Configurar para acender a tela e forçar abertura
         setupWakeLock()
@@ -240,10 +255,18 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
      */
     private fun stopNotificationSound() {
         mediaPlayer?.let { player ->
-            if (player.isPlaying) {
-                player.stop()
+            try {
+                if (player.isPlaying) {
+                    player.stop()
+                    Log.d(TAG, "🔇 MediaPlayer parado")
+                }
+                player.reset()
+                Log.d(TAG, "🔇 MediaPlayer resetado")
+                player.release()
+                Log.d(TAG, "🔇 MediaPlayer liberado")
+            } catch (e: Exception) {
+                Log.w(TAG, "⚠️ Erro ao parar MediaPlayer: ${e.message}")
             }
-            player.release()
         }
         mediaPlayer = null
         Log.d(TAG, "🔇 Som de notificação parado")
@@ -341,6 +364,14 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "🔔 HighVisibilityNotificationActivity destruída")
+        
+        // Desregistrar BroadcastReceiver
+        try {
+            unregisterReceiver(stopSoundsReceiver)
+            Log.d(TAG, "🔇 BroadcastReceiver desregistrado")
+        } catch (e: Exception) {
+            Log.w(TAG, "⚠️ Erro ao desregistrar BroadcastReceiver: ${e.message}")
+        }
         
         stopNotificationSound()
         releaseWakeLock()

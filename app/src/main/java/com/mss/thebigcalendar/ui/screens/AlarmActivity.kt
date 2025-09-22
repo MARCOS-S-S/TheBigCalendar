@@ -2,6 +2,7 @@ package com.mss.thebigcalendar.ui.screens
 
 import android.app.KeyguardManager
 import android.content.Context
+import android.content.Intent
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.os.Bundle
@@ -43,6 +44,7 @@ import java.time.format.DateTimeFormatter
 class AlarmActivity : ComponentActivity() {
     
     private var wakeLock: PowerManager.WakeLock? = null
+    private var isWakeLockReleased = false
     private var mediaPlayer: MediaPlayer? = null
     private var alarmSettings: AlarmSettings? = null
     
@@ -107,6 +109,25 @@ class AlarmActivity : ComponentActivity() {
             "TheBigCalendar:AlarmWakeLock"
         )
         wakeLock?.acquire(10 * 60 * 1000L) // 10 minutos
+        isWakeLockReleased = false
+    }
+    
+    /**
+     * Libera o WakeLock de forma segura, evitando liberação múltipla
+     */
+    private fun releaseWakeLockSafely() {
+        if (!isWakeLockReleased && wakeLock != null) {
+            try {
+                wakeLock?.release()
+                isWakeLockReleased = true
+                Log.d("AlarmActivity", "✅ WakeLock liberado com sucesso")
+            } catch (e: Exception) {
+                Log.w("AlarmActivity", "⚠️ Erro ao liberar WakeLock: ${e.message}")
+                isWakeLockReleased = true // Marcar como liberado mesmo com erro
+            }
+        } else {
+            Log.d("AlarmActivity", "ℹ️ WakeLock já foi liberado ou é null")
+        }
     }
     
     /**
@@ -206,48 +227,150 @@ class AlarmActivity : ComponentActivity() {
      * Para o som do alarme
      */
     private fun stopAlarmSound() {
+        Log.d("AlarmActivity", "🔇 Iniciando parada completa do som do alarme")
+        
+        // 1. Parar MediaPlayer local
         mediaPlayer?.let { player ->
-            if (player.isPlaying) {
-                player.stop()
+            try {
+                if (player.isPlaying) {
+                    player.stop()
+                    Log.d("AlarmActivity", "🔇 MediaPlayer local parado")
+                }
+                player.reset()
+                Log.d("AlarmActivity", "🔇 MediaPlayer local resetado")
+                player.release()
+                Log.d("AlarmActivity", "🔇 MediaPlayer local liberado")
+            } catch (e: Exception) {
+                Log.w("AlarmActivity", "⚠️ Erro ao parar MediaPlayer local: ${e.message}")
             }
-            player.release()
         }
         mediaPlayer = null
+        
+        // 2. Parar todos os Ringtones do sistema
+        try {
+            val ringtoneManager = RingtoneManager(this)
+            val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            val ringtone = RingtoneManager.getRingtone(this, alarmUri)
+            ringtone?.stop()
+            Log.d("AlarmActivity", "🔇 Ringtone do sistema parado")
+        } catch (e: Exception) {
+            Log.w("AlarmActivity", "⚠️ Erro ao parar Ringtone: ${e.message}")
+        }
+        
+        // 3. REMOVIDO: Não zerar volume de alarme - apenas parar o MediaPlayer
+        // O código anterior estava zerando o volume de alarme temporariamente, causando problemas
+        
+        // 4. Enviar broadcast para parar TODOS os MediaPlayers de outras Activities
+        try {
+            val intent = Intent("com.mss.thebigcalendar.STOP_ALL_SOUNDS")
+            sendBroadcast(intent)
+            Log.d("AlarmActivity", "🔇 Broadcast enviado para parar todos os sons")
+        } catch (e: Exception) {
+            Log.w("AlarmActivity", "⚠️ Erro ao enviar broadcast: ${e.message}")
+        }
+
+        // 5. Cancelar todas as notificações com som para parar sons do sistema
+        try {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            notificationManager.cancelAll()
+            Log.d("AlarmActivity", "🔇 Todas as notificações canceladas")
+        } catch (e: Exception) {
+            Log.w("AlarmActivity", "⚠️ Erro ao cancelar notificações: ${e.message}")
+        }
+        
+        // 6. REMOVIDO: Não zerar volumes de outros streams - apenas parar o MediaPlayer do alarme
+        // O código anterior estava zerando TODOS os volumes do sistema, causando problemas
+        // Agora apenas paramos o MediaPlayer específico do alarme
+        
+        Log.d("AlarmActivity", "🔇 Parada completa do som concluída")
     }
     
     /**
      * Desativa o alarme
      */
     private fun dismissAlarm() {
-        stopAlarmSound()
-        wakeLock?.release()
+        Log.d("AlarmActivity", "🛑 Iniciando dismiss do alarme")
         
-        // Remover notificação de status do alarme
-        lifecycleScope.launch {
+        // 1. Parar som de forma síncrona
+        stopAlarmSound()
+        
+        // 2. Parar som do AlarmService IMEDIATAMENTE (fora da corrotina)
+        try {
+            Log.d("AlarmActivity", "🔇 Criando instâncias do AlarmService...")
             val alarmRepository = AlarmRepository(this@AlarmActivity)
             val notificationService = NotificationService(this@AlarmActivity)
             val alarmService = AlarmService(this@AlarmActivity, alarmRepository, notificationService)
             
-            alarmSettings?.let { settings ->
-                // Cancelar alarme no sistema
-                alarmService.cancelAlarm(settings.id)
-                
-                // Cancelar notificação de status do alarme
-                alarmService.cancelAlarmNotification(settings.id)
+            Log.d("AlarmActivity", "🔇 Chamando alarmService.stopAlarmSound()...")
+            // PARAR TODOS OS SONS DO ALARME PRIMEIRO (SÍNCRONO)
+            alarmService.stopAlarmSound()
+            Log.d("AlarmActivity", "🔇 Som do AlarmService parado IMEDIATAMENTE")
+        } catch (e: Exception) {
+            Log.e("AlarmActivity", "❌ Erro ao parar som do AlarmService: ${e.message}")
+            e.printStackTrace()
+        }
+        
+        // 3. Liberar WakeLock
+        releaseWakeLockSafely()
+        
+        // 4. Cancelar alarme no sistema (assíncrono)
+        alarmSettings?.let { settings ->
+            lifecycleScope.launch {
+                try {
+                    val alarmRepository = AlarmRepository(this@AlarmActivity)
+                    val notificationService = NotificationService(this@AlarmActivity)
+                    val alarmService = AlarmService(this@AlarmActivity, alarmRepository, notificationService)
+                    
+                    // Cancelar alarme no sistema
+                    alarmService.cancelAlarm(settings.id)
+                    Log.d("AlarmActivity", "✅ Alarme cancelado no sistema")
+                    
+                    // Cancelar notificação de status do alarme
+                    alarmService.cancelAlarmNotification(settings.id)
+                    Log.d("AlarmActivity", "✅ Notificação de alarme cancelada")
+                    
+                } catch (e: Exception) {
+                    Log.e("AlarmActivity", "❌ Erro ao cancelar alarme: ${e.message}")
+                }
             }
         }
         
-        finish()
+        // 5. Pequeno delay para garantir que tudo foi processado
+        lifecycleScope.launch {
+            kotlinx.coroutines.delay(100)
+            Log.d("AlarmActivity", "🏁 Finalizando AlarmActivity")
+            
+            // Remover da lista de aplicativos recentes (já chama finish() internamente)
+            removeFromRecentApps()
+        }
     }
     
     /**
      * Adia o alarme (snooze)
      */
     private fun snoozeAlarm() {
-        stopAlarmSound()
-        wakeLock?.release()
+        Log.d("AlarmActivity", "⏰ Iniciando snooze do alarme")
         
-        // Reagendar para snooze
+        // 1. Parar som de forma síncrona
+        stopAlarmSound()
+        
+        // 2. Parar som do AlarmService IMEDIATAMENTE (fora da corrotina)
+        try {
+            val alarmRepository = AlarmRepository(this@AlarmActivity)
+            val notificationService = NotificationService(this@AlarmActivity)
+            val alarmService = AlarmService(this@AlarmActivity, alarmRepository, notificationService)
+            
+            // PARAR TODOS OS SONS DO ALARME PRIMEIRO (SÍNCRONO)
+            alarmService.stopAlarmSound()
+            Log.d("AlarmActivity", "🔇 Som do AlarmService parado IMEDIATAMENTE")
+        } catch (e: Exception) {
+            Log.e("AlarmActivity", "❌ Erro ao parar som do AlarmService: ${e.message}")
+        }
+        
+        // 3. Liberar WakeLock
+        releaseWakeLockSafely()
+        
+        // 4. Reagendar para snooze (assíncrono)
         alarmSettings?.let { settings ->
             val snoozeTime = LocalTime.now().plusMinutes(settings.snoozeMinutes.toLong())
             val snoozeSettings = settings.copy(
@@ -257,22 +380,63 @@ class AlarmActivity : ComponentActivity() {
             )
             
             lifecycleScope.launch {
-                val alarmRepository = AlarmRepository(this@AlarmActivity)
-                val notificationService = NotificationService(this@AlarmActivity)
-                val alarmService = AlarmService(this@AlarmActivity, alarmRepository, notificationService)
-                
-                alarmRepository.saveAlarm(snoozeSettings)
-                alarmService.scheduleAlarm(snoozeSettings)
+                try {
+                    val alarmRepository = AlarmRepository(this@AlarmActivity)
+                    val notificationService = NotificationService(this@AlarmActivity)
+                    val alarmService = AlarmService(this@AlarmActivity, alarmRepository, notificationService)
+                    
+                    alarmRepository.saveAlarm(snoozeSettings)
+                    alarmService.scheduleAlarm(snoozeSettings)
+                    Log.d("AlarmActivity", "✅ Alarme reagendado para snooze: $snoozeTime")
+                    
+                } catch (e: Exception) {
+                    Log.e("AlarmActivity", "❌ Erro ao reagendar alarme: ${e.message}")
+                }
             }
         }
         
-        finish()
+        // 5. Pequeno delay para garantir que tudo foi processado
+        lifecycleScope.launch {
+            kotlinx.coroutines.delay(100)
+            Log.d("AlarmActivity", "🏁 Finalizando AlarmActivity após snooze")
+            
+            // Remover da lista de aplicativos recentes (já chama finish() internamente)
+            removeFromRecentApps()
+        }
+    }
+    
+    /**
+     * Remove a activity da lista de aplicativos recentes
+     */
+    private fun removeFromRecentApps() {
+        try {
+            Log.d("AlarmActivity", "🗑️ Removendo AlarmActivity dos aplicativos recentes")
+            
+            // Método principal: Usar finishAndRemoveTask() (API 21+)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                finishAndRemoveTask()
+                Log.d("AlarmActivity", "🗑️ finishAndRemoveTask() executado - activity removida dos aplicativos recentes")
+                return
+            }
+            
+            // Fallback para versões anteriores ao Android 5.0
+            Log.d("AlarmActivity", "🗑️ Usando fallback para versões anteriores ao Android 5.0")
+            
+            // Para versões mais antigas, apenas finalizar normalmente
+            // O sistema não suporta remoção programática dos aplicativos recentes
+            finish()
+            
+        } catch (e: Exception) {
+            Log.e("AlarmActivity", "❌ Erro ao remover dos aplicativos recentes", e)
+            // Em caso de erro, pelo menos finalizar a activity
+            finish()
+        }
     }
     
     override fun onDestroy() {
         super.onDestroy()
         stopAlarmSound()
-        wakeLock?.release()
+        releaseWakeLockSafely()
     }
 }
 

@@ -58,7 +58,13 @@ class AlarmBackupWorker(
                 return@withContext Result.success()
             }
             
-            // Disparar o alarme
+            // Verificar se o alarme já foi processado recentemente usando o AlarmService
+            if (AlarmService.isAlarmRecentlyProcessed(alarmId)) {
+                Log.d(TAG, "🔔 Alarme $alarmId já foi processado recentemente, pulando backup")
+                return@withContext Result.success()
+            }
+            
+            // Disparar o alarme apenas se não foi processado recentemente
             Log.d(TAG, "🔔 Disparando alarme de backup: $alarmId")
             
             val notificationService = NotificationService(applicationContext)

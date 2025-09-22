@@ -374,7 +374,7 @@ class VisibilityService(private val context: Context) {
                     .setContentText("Notificação de alta visibilidade")
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
-                    .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
+                    // REMOVIDO: .setSound() - pode causar som adicional
                     .setVibrate(longArrayOf(0, 500, 200, 500, 200, 500))
                     .setAutoCancel(true)
                     .build()
