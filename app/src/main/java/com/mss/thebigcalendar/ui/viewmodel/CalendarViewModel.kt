@@ -1014,16 +1014,18 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     // ===== CALENDAR NAVIGATION FUNCTIONS =====
     
     fun onPreviousMonth() {
+        // Delegar para o helper de navegação
+        navigationHelper.onPreviousMonth()
+        // Carregar atividades do novo mês (lógica específica do CalendarViewModel)
         val newMonth = _uiState.value.displayedYearMonth.minusMonths(1)
-        _uiState.update { it.copy(displayedYearMonth = newMonth) }
-        // Carregar atividades do novo mês
         updateActivitiesForNewMonth(newMonth)
     }
 
     fun onNextMonth() {
+        // Delegar para o helper de navegação
+        navigationHelper.onNextMonth()
+        // Carregar atividades do novo mês (lógica específica do CalendarViewModel)
         val newMonth = _uiState.value.displayedYearMonth.plusMonths(1)
-        _uiState.update { it.copy(displayedYearMonth = newMonth) }
-        // Carregar atividades do novo mês
         updateActivitiesForNewMonth(newMonth)
     }
 
@@ -1036,19 +1038,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onGoToToday() {
+        // Verificar se o mês vai mudar antes de delegar
         val currentState = _uiState.value
         val today = LocalDate.now()
         val currentMonth = YearMonth.now()
         val monthChanged = currentState.displayedYearMonth != currentMonth
         
-        _uiState.update {
-            it.copy(
-                displayedYearMonth = currentMonth,
-                selectedDate = today
-            )
-        }
+        // Delegar para o helper de navegação
+        navigationHelper.onGoToToday()
         
-        // Se o mês mudou, carregar atividades do novo mês
+        // A sincronização automática já atualiza o estado principal
+        // Apenas precisamos atualizar as atividades se necessário
         if (monthChanged) {
             updateActivitiesForNewMonth(currentMonth)
         } else {
