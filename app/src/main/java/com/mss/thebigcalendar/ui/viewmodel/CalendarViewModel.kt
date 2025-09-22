@@ -510,6 +510,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
         }
         viewModelScope.launch {
+            settingsRepository.animationType.collect { animationType ->
+                _uiState.update { it.copy(animationType = animationType) }
+            }
+        }
+        viewModelScope.launch {
             // Observar o estado de login do Google e o nome de boas-vindas
             _uiState.collect { uiState ->
                 val googleAccount = uiState.googleSignInAccount
@@ -1108,6 +1113,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun onThemeChange(newTheme: Theme) {
         viewModelScope.launch {
             settingsRepository.saveTheme(newTheme)
+        }
+    }
+
+    fun onAnimationTypeChange(newAnimationType: com.mss.thebigcalendar.data.model.AnimationType) {
+        viewModelScope.launch {
+            settingsRepository.saveAnimationType(newAnimationType)
         }
     }
 

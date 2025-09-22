@@ -327,7 +327,8 @@ fun CalendarScreen(
                                 uiState,
                                 scope,
                                 drawerState,
-                                snackbarHostState
+                                snackbarHostState,
+                                animationType = uiState.animationType
                             )
                     }
 
@@ -383,7 +384,8 @@ fun MainCalendarView(
     scope: kotlinx.coroutines.CoroutineScope,
     drawerState: androidx.compose.material3.DrawerState,
     snackbarHostState: SnackbarHostState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    animationType: com.mss.thebigcalendar.data.model.AnimationType = com.mss.thebigcalendar.data.model.AnimationType.REVEAL
 ) {
     var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
     
@@ -462,7 +464,8 @@ fun MainCalendarView(
                                 onPreviousMonth = { viewModel.onPreviousMonth() },
                                 onNextMonth = { viewModel.onNextMonth() },
                                 isAnimating = isAnimating,
-                                animationDirection = animationDirection
+                                animationDirection = animationDirection,
+                                animationType = animationType
                             )
                             
                             if (uiState.showMoonPhases) {
@@ -641,51 +644,35 @@ fun AnimatedMonthlyCalendar(
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     isAnimating: Boolean,
-    animationDirection: Float
+    animationDirection: Float,
+    animationType: com.mss.thebigcalendar.data.model.AnimationType = com.mss.thebigcalendar.data.model.AnimationType.REVEAL
 ) {
     var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
     
-    // Animação de reveal (revelação)
-    val scale by animateFloatAsState(
-        targetValue = if (isAnimating) 0.8f else 1f,
-        animationSpec = tween(
-            durationMillis = 400,
-            easing = FastOutSlowInEasing
-        ),
-        label = "scale"
-    )
-    
-    val alpha by animateFloatAsState(
-        targetValue = if (isAnimating) 0.0f else 1f,
-        animationSpec = tween(
-            durationMillis = 400,
-            easing = FastOutSlowInEasing
-        ),
-        label = "alpha"
-    )
-    
-    val rotationZ by animateFloatAsState(
-        targetValue = if (isAnimating) 5f else 0f,
-        animationSpec = tween(
-            durationMillis = 400,
-            easing = FastOutSlowInEasing
-        ),
-        label = "rotationZ"
+    // Usar o sistema de animações modular
+    val animationValues = com.mss.thebigcalendar.ui.animations.CalendarAnimationState(
+        isAnimating = isAnimating,
+        animationDirection = animationDirection,
+        animationType = animationType
     )
     
     
     Column(
         modifier = modifier
             .graphicsLayer {
-                this.scaleX = scale
-                this.scaleY = scale
-                this.alpha = alpha
-                this.rotationZ = rotationZ
-                this.shadowElevation = if (isAnimating) 12f else 2f
+                this.translationX = animationValues.translationX
+                this.translationY = animationValues.translationY
+                this.scaleX = animationValues.scaleX
+                this.scaleY = animationValues.scaleY
+                this.rotationX = animationValues.rotationX
+                this.rotationY = animationValues.rotationY
+                this.rotationZ = animationValues.rotationZ
+                this.alpha = animationValues.alpha
+                this.shadowElevation = animationValues.shadowElevation
                 
                 // Debug das transformações
                 if (isAnimating) {
-                    println("DEBUG: Aplicando transformações - scale: $scale, alpha: $alpha, rotationZ: $rotationZ")
+                    println("DEBUG: Aplicando animação ${animationType.name} - scale: ${animationValues.scaleX}, alpha: ${animationValues.alpha}")
                 }
             }
             .pointerInput(Unit) {

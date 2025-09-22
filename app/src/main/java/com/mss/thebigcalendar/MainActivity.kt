@@ -315,7 +315,9 @@ class MainActivity : ComponentActivity() {
                                 onManualSync = { viewModel.onManualSync() },
                                 syncProgress = uiState.syncProgress,
                                 onBackClick = { viewModel.closeSettingsScreen() },
-                                onImportJsonClick = { viewModel.openJsonConfigScreen() }
+                                onImportJsonClick = { viewModel.openJsonConfigScreen() },
+                                currentAnimation = uiState.animationType,
+                                onAnimationChange = { viewModel.onAnimationTypeChange(it) }
                             )
                         }
                         uiState.isBackupScreenOpen -> {
