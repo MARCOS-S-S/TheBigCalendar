@@ -2526,6 +2526,16 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
     
+    fun openJsonConfigScreen() {
+        _uiState.update {
+            it.copy(
+                isJsonConfigScreenOpen = true,
+                selectedJsonFileName = null,
+                selectedJsonUri = null
+            )
+        }
+    }
+    
     fun openJsonConfigScreen(fileName: String, uri: android.net.Uri) {
         _uiState.update {
             it.copy(

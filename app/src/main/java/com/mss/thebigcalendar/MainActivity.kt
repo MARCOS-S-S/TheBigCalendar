@@ -233,9 +233,10 @@ class MainActivity : ComponentActivity() {
                         when {
                         uiState.isJsonConfigScreenOpen -> {
                             JsonConfigScreen(
-                                fileName = uiState.selectedJsonFileName ?: "arquivo.json",
+                                fileName = uiState.selectedJsonFileName,
                                 onBackClick = { viewModel.closeJsonConfigScreen() },
-                                onSaveClick = { title, color -> viewModel.saveJsonConfig(title, color) }
+                                onSaveClick = { title, color -> viewModel.saveJsonConfig(title, color) },
+                                onSelectFileClick = { openJsonFilePicker() }
                             )
                         }
                         uiState.isCompletedTasksScreenOpen -> {
@@ -299,7 +300,7 @@ class MainActivity : ComponentActivity() {
                                 onManualSync = { viewModel.onManualSync() },
                                 syncProgress = uiState.syncProgress,
                                 onBackClick = { viewModel.closeSettingsScreen() },
-                                onImportJsonClick = { openJsonFilePicker() }
+                                onImportJsonClick = { viewModel.openJsonConfigScreen() }
                             )
                         }
                         uiState.isBackupScreenOpen -> {

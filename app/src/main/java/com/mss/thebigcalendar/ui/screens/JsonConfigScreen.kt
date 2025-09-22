@@ -46,9 +46,10 @@ import com.mss.thebigcalendar.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JsonConfigScreen(
-    fileName: String,
+    fileName: String?,
     onBackClick: () -> Unit,
-    onSaveClick: (String, Color) -> Unit
+    onSaveClick: (String, Color) -> Unit,
+    onSelectFileClick: () -> Unit = {}
 ) {
     var title by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf(Color.Blue) }
@@ -87,26 +88,37 @@ fun JsonConfigScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Informações do arquivo
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
+            // Seção de seleção de arquivo
+            if (fileName != null) {
+                // Informações do arquivo selecionado
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 ) {
-                    Text(
-                        text = stringResource(R.string.selected_file),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = fileName,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.selected_file),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = fileName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            } else {
+                // Botão para selecionar arquivo
+                Button(
+                    onClick = onSelectFileClick,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.select_file))
                 }
             }
 
@@ -185,7 +197,7 @@ fun JsonConfigScreen(
             Button(
                 onClick = { onSaveClick(title, selectedColor) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = title.isNotBlank()
+                enabled = title.isNotBlank() && fileName != null
             ) {
                 Text(stringResource(R.string.save_configuration))
             }

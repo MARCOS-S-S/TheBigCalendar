@@ -124,6 +124,7 @@
     <!-- JsonConfigScreen.kt -->
     <string name="configure_calendar">Configurar Calendário</string>
     <string name="selected_file">Arquivo Selecionado:</string>
+    <string name="select_file">Selecionar Arquivo</string>
     <string name="calendar_title">Título do Calendário</string>
     <string name="calendar_title_placeholder">Ex: Meu Calendário Personalizado</string>
     <string name="day_color">Cor dos Dias:</string>
