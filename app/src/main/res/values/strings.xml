@@ -78,6 +78,8 @@
     <string name="commemorative_dates">Datas comemorativas</string>
     <string name="events">Eventos</string>
     <string name="tasks">Tarefas</string>
+    <string name="birthday">Aniversários</string>
+    <string name="note">Notas</string>
     <string name="close_menu">Fechar menu</string>
     <string name="dark_mode">Modo escuro</string>
     <string name="light_mode">Modo claro</string>
@@ -220,11 +222,9 @@
     <string name="trash_empty_description">As atividades apagadas aparecerão aqui</string>
     <string name="event">Evento</string>
     <string name="task">Tarefa</string>
-    <string name="birthday">Aniversário</string>
     <string name="birthdays_for">Aniversários em %1$s</string>
     <string name="notes_for">Notas em %1$s</string>
     <string name="tasks_and_events_for">Tarefas e Eventos para %1$s</string>
-    <string name="note">Nota</string>
     <string name="restore_activity">Restaurar atividade</string>
     <string name="delete_permanently">Excluir permanentemente</string>
     <string name="deleted_at">Apagado em %1$s</string>
@@ -501,7 +501,7 @@
 }</string>
     <string name="copy_json_format">Copiar</string>
     <string name="copy_json_content_description">Copiar formato JSON</string>
-    <string name="json_example_text">Basta você substituir os exemplos abaixo pelas datas que você deseja e copiar para alguma IA da sua escolha.</string>
+    <string name="json_example_text">Substitua os exemplos abaixo pelas datas desejadas e copie o texto para uma IA de sua escolha.</string>
 
     <!-- CompletedTasksScreen.kt -->
     <string name="search_content_description">Buscar</string>

@@ -1,5 +1,6 @@
 package com.mss.thebigcalendar.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Sync
@@ -238,11 +240,21 @@ fun GeneralSettingsScreen(
             // Botão de importar JSON
             Spacer(modifier = Modifier.height(16.dp))
             
-            Button(
-                onClick = onImportJsonClick,
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End // Alinha para a direita
             ) {
-                Text("Importar Arquivo JSON")
+                Button(
+                    onClick = onImportJsonClick,
+                    modifier = Modifier
+                        .fillMaxWidth(0.65f) // Reduz para 80% da largura
+                        .height(40.dp) // Altura menor
+                ) {
+                    Text(
+                        text = "Importar Arquivo JSON",
+                        style = MaterialTheme.typography.bodyMedium // Texto menor
+                    )
+                }
             }
 
             // Seção de exemplo JSON
@@ -251,8 +263,14 @@ fun GeneralSettingsScreen(
             Text(
                 text = stringResource(R.string.json_example_text),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp)
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(12.dp)
             )
             
             Text(
@@ -299,7 +317,7 @@ $jsonExample"""))
                 ) {
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
-                        contentDescription = stringResource(R.string.copy_json_content_description),
+                                contentDescription = stringResource(R.string.copy_json_content_description),
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
