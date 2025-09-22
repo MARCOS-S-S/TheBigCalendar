@@ -4,6 +4,10 @@ import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.os.Build
  
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -59,6 +63,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
@@ -380,6 +386,48 @@ fun MainCalendarView(
     modifier: Modifier = Modifier
 ) {
     var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
+    
+    // Estados de animação para o calendário mensal
+    var isAnimating by remember { mutableStateOf(false) }
+    var animationDirection by remember { mutableStateOf(0f) } // -1 = previous, 1 = next
+    var previousYearMonth by remember { mutableStateOf<YearMonth?>(null) }
+    
+    // Detectar mudanças no yearMonth para iniciar animação
+    LaunchedEffect(uiState.displayedYearMonth) {
+        println("DEBUG: LaunchedEffect executado - yearMonth: ${uiState.displayedYearMonth}, previousYearMonth: $previousYearMonth")
+        
+        if (previousYearMonth != null && uiState.displayedYearMonth != previousYearMonth) {
+            println("DEBUG: Mudança detectada!")
+            
+            // Determinar direção da animação baseada na mudança do mês
+            val currentMonth = uiState.displayedYearMonth.monthValue
+            val previousMonth = previousYearMonth!!.monthValue
+            val currentYear = uiState.displayedYearMonth.year
+            val previousYear = previousYearMonth!!.year
+            
+            // Calcular se está indo para frente ou para trás
+            val isGoingForward = if (currentYear > previousYear) {
+                true
+            } else if (currentYear < previousYear) {
+                false
+            } else {
+                currentMonth > previousMonth
+            }
+            
+            animationDirection = if (isGoingForward) 1f else -1f
+            isAnimating = true
+            println("DEBUG: Animação iniciada - Direção: $animationDirection, Animando: $isAnimating")
+            
+            kotlinx.coroutines.delay(400) // Duração da animação
+            isAnimating = false
+            println("DEBUG: Animação finalizada - Animando: $isAnimating")
+        } else {
+            println("DEBUG: Nenhuma mudança detectada - Primeira vez ou mesmo mês")
+        }
+        
+        // Sempre atualizar o previousYearMonth
+        previousYearMonth = uiState.displayedYearMonth
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -406,27 +454,15 @@ fun MainCalendarView(
                                 )
                                 .padding(vertical = 8.dp)
                         ) {
-                            MonthlyCalendar(
-                                modifier = Modifier
-                                    .pointerInput(Unit) {
-                                        detectHorizontalDragGestures(
-                                            onHorizontalDrag = { _, dragAmount ->
-                                                horizontalDragOffset += dragAmount
-                                            },
-                                            onDragEnd = {
-                                                val swipeThreshold = 100f
-                                                if (horizontalDragOffset > swipeThreshold) {
-                                                    viewModel.onPreviousMonth()
-                                                } else if (horizontalDragOffset < -swipeThreshold) {
-                                                    viewModel.onNextMonth()
-                                                }
-                                                horizontalDragOffset = 0f
-                                            }
-                                        )
-                                    },
+                            AnimatedMonthlyCalendar(
                                 calendarDays = uiState.calendarDays,
                                 onDateSelected = { viewModel.onDateSelected(it) },
-                                theme = uiState.theme
+                                theme = uiState.theme,
+                                yearMonth = uiState.displayedYearMonth,
+                                onPreviousMonth = { viewModel.onPreviousMonth() },
+                                onNextMonth = { viewModel.onNextMonth() },
+                                isAnimating = isAnimating,
+                                animationDirection = animationDirection
                             )
                             
                             if (uiState.showMoonPhases) {
@@ -592,5 +628,90 @@ fun MainCalendarView(
                 onDismiss = { viewModel.hideJsonHolidayInfo() }
             )
         }
+    }
+}
+
+@Composable
+fun AnimatedMonthlyCalendar(
+    modifier: Modifier = Modifier,
+    calendarDays: List<com.mss.thebigcalendar.data.model.CalendarDay>,
+    onDateSelected: (java.time.LocalDate) -> Unit,
+    theme: com.mss.thebigcalendar.data.model.Theme,
+    yearMonth: java.time.YearMonth,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit,
+    isAnimating: Boolean,
+    animationDirection: Float
+) {
+    var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
+    
+    // Animação de reveal (revelação)
+    val scale by animateFloatAsState(
+        targetValue = if (isAnimating) 0.8f else 1f,
+        animationSpec = tween(
+            durationMillis = 400,
+            easing = FastOutSlowInEasing
+        ),
+        label = "scale"
+    )
+    
+    val alpha by animateFloatAsState(
+        targetValue = if (isAnimating) 0.0f else 1f,
+        animationSpec = tween(
+            durationMillis = 400,
+            easing = FastOutSlowInEasing
+        ),
+        label = "alpha"
+    )
+    
+    val rotationZ by animateFloatAsState(
+        targetValue = if (isAnimating) 5f else 0f,
+        animationSpec = tween(
+            durationMillis = 400,
+            easing = FastOutSlowInEasing
+        ),
+        label = "rotationZ"
+    )
+    
+    
+    Column(
+        modifier = modifier
+            .graphicsLayer {
+                this.scaleX = scale
+                this.scaleY = scale
+                this.alpha = alpha
+                this.rotationZ = rotationZ
+                this.shadowElevation = if (isAnimating) 12f else 2f
+                
+                // Debug das transformações
+                if (isAnimating) {
+                    println("DEBUG: Aplicando transformações - scale: $scale, alpha: $alpha, rotationZ: $rotationZ")
+                }
+            }
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onHorizontalDrag = { _, dragAmount ->
+                        horizontalDragOffset += dragAmount
+                    },
+                    onDragEnd = {
+                        // Usar a lógica de swipe baseada no offset acumulado
+                        val swipeThreshold = 100f
+                        if (horizontalDragOffset > swipeThreshold) {
+                            // Swipe para a direita = mês anterior
+                            onPreviousMonth()
+                        } else if (horizontalDragOffset < -swipeThreshold) {
+                            // Swipe para a esquerda = próximo mês
+                            onNextMonth()
+                        }
+                        horizontalDragOffset = 0f
+                    }
+                )
+            }
+    ) {
+        MonthlyCalendar(
+            calendarDays = calendarDays,
+            onDateSelected = onDateSelected,
+            theme = theme
+        )
     }
 }
