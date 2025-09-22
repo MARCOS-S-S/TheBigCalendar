@@ -466,27 +466,28 @@ fun OnboardingFlow(
         }
     }
 
-    // Tela de fundo com imagem
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Imagem de fundo
-        Image(
-            painter = painterResource(id = R.drawable.tbc_background),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-        
-        // Overlay escuro para melhorar legibilidade
+    // Tela de fundo com imagem - apenas quando há onboarding ativo
+    if (showWelcome || showStoragePermission || showNotificationPermission) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.3f))
-        )
-        
-        // Janela de boas-vindas
-        if (showWelcome) {
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Imagem de fundo
+            Image(
+                painter = painterResource(id = R.drawable.tbc_background),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+            
+            // Overlay escuro para melhorar legibilidade
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f))
+            )
+            
+            // Janela de boas-vindas
+            if (showWelcome) {
             WelcomeDialog(
                 onDismiss = {
                     showWelcome = false
@@ -523,10 +524,10 @@ fun OnboardingFlow(
                     }
                 }
             )
-        }
-        
-        // Janela de permissão de armazenamento
-        if (showStoragePermission) {
+            }
+            
+            // Janela de permissão de armazenamento
+            if (showStoragePermission) {
             StoragePermissionDialog(
                 onDismiss = {
                     showStoragePermission = false
@@ -556,11 +557,11 @@ fun OnboardingFlow(
                         onComplete()
                     }
                 }
-            )
-        }
+                )
+            }
 
-        // Janela de permissão de notificação
-        if (showNotificationPermission) {
+            // Janela de permissão de notificação
+            if (showNotificationPermission) {
             NotificationPermissionDialog(
                 onDismiss = {
                     showNotificationPermission = false
@@ -578,7 +579,8 @@ fun OnboardingFlow(
                     onboardingManager.markNotificationPermissionShown()
                     onComplete()
                 }
-            )
+                )
+            }
         }
     }
 }

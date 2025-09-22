@@ -932,6 +932,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             updateTasksForSelectedDate()
             updateHolidaysForSelectedDate()
             updateSaintDaysForSelectedDate()
+            
+            // Marcar calendário como carregado após primeira atualização
+            _uiState.update { it.copy(isCalendarLoaded = true) }
         }
     }
 

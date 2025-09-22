@@ -17,12 +17,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -230,7 +233,19 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     } else {
-                        when {
+                        // Mostrar loading até o calendário estar carregado
+                        if (!uiState.isCalendarLoaded) {
+                            // Tela de loading com ícone central
+                            androidx.compose.foundation.layout.Box(
+                                modifier = androidx.compose.ui.Modifier.fillMaxSize(),
+                                contentAlignment = androidx.compose.ui.Alignment.Center
+                            ) {
+                                androidx.compose.material3.CircularProgressIndicator(
+                                    modifier = androidx.compose.ui.Modifier.size(48.dp)
+                                )
+                            }
+                        } else {
+                            when {
                         uiState.isJsonConfigScreenOpen -> {
                             JsonConfigScreen(
                                 fileName = uiState.selectedJsonFileName,
@@ -311,6 +326,7 @@ class MainActivity : ComponentActivity() {
                         }
                         else -> {
                             CalendarScreen(viewModel)
+                        }
                         }
                         }
                     }
