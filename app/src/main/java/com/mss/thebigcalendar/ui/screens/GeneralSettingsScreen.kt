@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Animation
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -33,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Theme
+import com.mss.thebigcalendar.data.model.AnimationType
+import com.mss.thebigcalendar.ui.components.AnimationSelectionDialog
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -63,10 +66,13 @@ fun GeneralSettingsScreen(
     onManualSync: () -> Unit = {},
     syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null,
     onBackClick: () -> Unit, // New parameter for back button
-    onImportJsonClick: () -> Unit = {}
+    onImportJsonClick: () -> Unit = {},
+    currentAnimation: AnimationType = AnimationType.REVEAL,
+    onAnimationChange: (AnimationType) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     var welcomeNameInput by remember { mutableStateOf(welcomeName) }
+    var showAnimationDialog by remember { mutableStateOf(false) }
 
     // Sincronizar o estado local com o estado do ViewModel
     LaunchedEffect(welcomeName) {
@@ -252,6 +258,43 @@ fun GeneralSettingsScreen(
                 }
             }
 
+            // Configuração de animações
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+            ) {
+                Text(
+                    text = "Tipo de Animação",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    onClick = { showAnimationDialog = true },
+                    modifier = Modifier.height(40.dp)
+                ) {
+                    Text(
+                        text = currentAnimation.displayName,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
         }
+    }
+
+    // Dialog de seleção de animações
+    if (showAnimationDialog) {
+        AnimationSelectionDialog(
+            currentAnimation = currentAnimation,
+            onAnimationSelected = { animationType ->
+                onAnimationChange(animationType)
+                showAnimationDialog = false
+            },
+            onDismiss = { showAnimationDialog = false }
+        )
     }
 }

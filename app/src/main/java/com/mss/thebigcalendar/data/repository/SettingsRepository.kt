@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.mss.thebigcalendar.data.model.CalendarFilterOptions
 import com.mss.thebigcalendar.data.model.Theme
+import com.mss.thebigcalendar.data.model.AnimationType
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -28,6 +29,7 @@ class SettingsRepository(private val context: Context) {
         val SHOW_BIRTHDAYS = booleanPreferencesKey("show_birthdays")
         val SHOW_NOTES = booleanPreferencesKey("show_notes")
         val SHOW_MOON_PHASES = booleanPreferencesKey("show_moon_phases")
+        val ANIMATION_TYPE = stringPreferencesKey("animation_type")
 
     }
 
@@ -45,6 +47,12 @@ class SettingsRepository(private val context: Context) {
     val showMoonPhases: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
             preferences[PreferencesKeys.SHOW_MOON_PHASES] ?: false
+        }
+
+    val animationType: Flow<AnimationType> = context.dataStore.data
+        .map { preferences ->
+            val animationName = preferences[PreferencesKeys.ANIMATION_TYPE] ?: AnimationType.REVEAL.name
+            AnimationType.valueOf(animationName)
         }
 
 
@@ -87,6 +95,12 @@ class SettingsRepository(private val context: Context) {
     suspend fun saveShowMoonPhases(showMoonPhases: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.SHOW_MOON_PHASES] = showMoonPhases
+        }
+    }
+
+    suspend fun saveAnimationType(animationType: AnimationType) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.ANIMATION_TYPE] = animationType.name
         }
     }
 
