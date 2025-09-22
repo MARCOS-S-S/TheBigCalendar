@@ -22,6 +22,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
 import android.util.Log
 import android.content.Context
 import androidx.compose.foundation.background
@@ -559,13 +567,49 @@ fun AlarmsScreen(
                 )
             },
             floatingActionButton = {
+                val interactionSource = remember { MutableInteractionSource() }
+                val isPressed by interactionSource.collectIsPressedAsState()
+                var isClicked by remember { mutableStateOf(false) }
+                
+                // Animação de escala para efeito redondo
+                val scale by animateFloatAsState(
+                    targetValue = when {
+                        isClicked -> 0.9f  // Fica menor e mais redondo quando clicado
+                        isPressed -> 0.95f // Diminui ligeiramente quando pressionado
+                        else -> 1f         // Tamanho normal
+                    },
+                    animationSpec = tween(durationMillis = 200),
+                    label = "fab_scale"
+                )
+                
+                // Animação de bordas para efeito mais redondo
+                val cornerRadius by animateFloatAsState(
+                    targetValue = when {
+                        isClicked -> 32f   // Mais redondo quando clicado
+                        isPressed -> 20f   // Ligeiramente mais redondo quando pressionado
+                        else -> 8f        // Mais quadrado inicialmente
+                    },
+                    animationSpec = tween(durationMillis = 200),
+                    label = "fab_corners"
+                )
+                
                 FloatingActionButton(
                     onClick = {
                         Log.d("AlarmsScreen", "➕ Botão de criar alarme clicado")
-                        showCreateAlarmScreen = true
+                        isClicked = true
+                        coroutineScope.launch {
+                            // Delay maior para permitir ver a animação de escala
+                            kotlinx.coroutines.delay(300)
+                            isClicked = false
+                            showCreateAlarmScreen = true
+                        }
                     },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    interactionSource = interactionSource,
+                    modifier = Modifier
+                        .scale(scale)
+                        .clip(RoundedCornerShape(cornerRadius.dp))
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
