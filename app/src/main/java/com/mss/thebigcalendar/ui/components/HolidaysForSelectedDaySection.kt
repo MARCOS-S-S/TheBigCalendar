@@ -58,6 +58,10 @@ fun HolidayItem(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = holiday.name, style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = holiday.name, 
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (holiday.type == HolidayType.NATIONAL) Color.Red else MaterialTheme.colorScheme.onSurface
+        )
     }
 }

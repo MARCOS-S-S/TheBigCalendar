@@ -142,22 +142,25 @@ private fun DayCell(
 
         if (day.holiday != null) {
             val isSaintDay = day.isSaintDay
+            val isNationalHoliday = day.isNationalHoliday
             Text(
                 text = day.holiday.name,
-                color = if (isSaintDay) {
-                    when (theme) {
-                        com.mss.thebigcalendar.data.model.Theme.DARK -> Color.Yellow
-                        com.mss.thebigcalendar.data.model.Theme.LIGHT -> Color.Blue
-                        com.mss.thebigcalendar.data.model.Theme.SYSTEM -> if (isSystemInDarkTheme()) Color.Yellow else Color.Blue
+                color = when {
+                    isNationalHoliday -> Color.Red
+                    isSaintDay -> {
+                        when (theme) {
+                            com.mss.thebigcalendar.data.model.Theme.DARK -> Color.Yellow
+                            com.mss.thebigcalendar.data.model.Theme.LIGHT -> Color.Blue
+                            com.mss.thebigcalendar.data.model.Theme.SYSTEM -> if (isSystemInDarkTheme()) Color.Yellow else Color.Blue
+                        }
                     }
-                } else {
-                    MaterialTheme.colorScheme.secondary
+                    else -> MaterialTheme.colorScheme.secondary
                 },
                 fontSize = if (isSaintDay) 7.sp else 8.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(horizontal = 1.dp),
-                fontWeight = if (isSaintDay) FontWeight.Bold else FontWeight.Normal
+                fontWeight = if (isSaintDay || isNationalHoliday) FontWeight.Bold else FontWeight.Normal
             )
         }
         
