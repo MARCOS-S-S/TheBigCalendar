@@ -67,7 +67,7 @@ fun GeneralSettingsScreen(
     syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null,
     onBackClick: () -> Unit, // New parameter for back button
     onImportJsonClick: () -> Unit = {},
-    currentAnimation: AnimationType = AnimationType.REVEAL,
+    currentAnimation: AnimationType = AnimationType.NONE,
     onAnimationChange: (AnimationType) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()

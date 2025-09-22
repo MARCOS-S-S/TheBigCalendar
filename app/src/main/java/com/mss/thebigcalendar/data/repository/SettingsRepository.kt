@@ -51,7 +51,7 @@ class SettingsRepository(private val context: Context) {
 
     val animationType: Flow<AnimationType> = context.dataStore.data
         .map { preferences ->
-            val animationName = preferences[PreferencesKeys.ANIMATION_TYPE] ?: AnimationType.REVEAL.name
+            val animationName = preferences[PreferencesKeys.ANIMATION_TYPE] ?: AnimationType.NONE.name
             AnimationType.valueOf(animationName)
         }
 

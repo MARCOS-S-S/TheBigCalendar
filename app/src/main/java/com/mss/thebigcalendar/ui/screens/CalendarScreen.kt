@@ -385,7 +385,7 @@ fun MainCalendarView(
     drawerState: androidx.compose.material3.DrawerState,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
-    animationType: com.mss.thebigcalendar.data.model.AnimationType = com.mss.thebigcalendar.data.model.AnimationType.REVEAL
+    animationType: com.mss.thebigcalendar.data.model.AnimationType = com.mss.thebigcalendar.data.model.AnimationType.NONE
 ) {
     var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
     
@@ -645,7 +645,7 @@ fun AnimatedMonthlyCalendar(
     onNextMonth: () -> Unit,
     isAnimating: Boolean,
     animationDirection: Float,
-    animationType: com.mss.thebigcalendar.data.model.AnimationType = com.mss.thebigcalendar.data.model.AnimationType.REVEAL
+    animationType: com.mss.thebigcalendar.data.model.AnimationType = com.mss.thebigcalendar.data.model.AnimationType.NONE
 ) {
     var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
     

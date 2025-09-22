@@ -93,7 +93,7 @@ data class CalendarUiState(
     val tasksForSelectedDate: List<Activity> = emptyList(), // NOVO: Lista de tarefas para o dia selecionado
     val birthdaysForSelectedDate: List<Activity> = emptyList(), // Lista de aniversários para o dia selecionado
     val notesForSelectedDate: List<Activity> = emptyList(), // Lista de notas para o dia selecionado
-    val animationType: AnimationType = AnimationType.REVEAL, // Tipo de animação selecionado
+    val animationType: AnimationType = AnimationType.NONE, // Tipo de animação selecionado
     val holidaysForSelectedDate: List<Holiday> = emptyList(),
     val saintDaysForSelectedDate: List<Holiday> = emptyList(),
     val googleSignInAccount: GoogleSignInAccount? = null,
