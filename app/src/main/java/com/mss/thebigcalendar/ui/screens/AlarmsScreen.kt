@@ -692,7 +692,36 @@ fun AlarmsScreen(
             onBackClick = {
                 showEditAlarmScreen = false
                 alarmToEdit = null
-                Log.d("AlarmsScreen", "📱 Voltando da edição - lista será atualizada automaticamente pelo Flow")
+                Log.d("AlarmsScreen", "📱 Voltando da edição - forçando atualização da lista")
+                
+                // Forçar atualização da lista de alarmes após edição
+                coroutineScope.launch {
+                    try {
+                        // Pequeno delay para garantir que a persistência foi concluída
+                        kotlinx.coroutines.delay(100)
+                        
+                        // Recarregar alarmes do armazenamento persistente
+                        alarmRepository.reloadAlarms()
+                        
+                        // Recarregar TODOS os alarmes do repositório (não apenas os ativos)
+                        val currentAlarms = alarmRepository.getAllAlarms()
+                        independentAlarms = currentAlarms.sortedWith(
+                            compareBy<AlarmSettings> { alarm ->
+                                alarm.time
+                            }.thenBy { alarm ->
+                                alarm.label
+                            }
+                        )
+                        Log.d("AlarmsScreen", "📱 Lista de alarmes atualizada manualmente após edição: ${currentAlarms.size} alarmes")
+                        
+                        // Debug: verificar se o alarme está realmente no repositório
+                        currentAlarms.forEach { alarm ->
+                            Log.d("AlarmsScreen", "📱 Alarme encontrado: ${alarm.label} (ID: ${alarm.id}, Enabled: ${alarm.isEnabled})")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("AlarmsScreen", "❌ Erro ao atualizar lista manualmente após edição", e)
+                    }
+                }
             },
             onBackPressedDispatcher = null,
             activityToEdit = null,
