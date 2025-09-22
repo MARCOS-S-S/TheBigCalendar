@@ -72,8 +72,11 @@ class NotificationService(
                 enableVibration(true)
                 enableLights(true)
                 setShowBadge(true)
-                // REMOVIDO: setSound() - pode causar som adicional
-                setSound(null, null) // Sem som - apenas visual
+                setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI, 
+                    android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_NOTIFICATION)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build())
                 setBypassDnd(true) // Ignorar "Não perturbe"
             }
             notificationManager.createNotificationChannel(channel)
@@ -376,7 +379,7 @@ class NotificationService(
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
-            // REMOVIDO: .setSound(soundUri) - pode causar som adicional
+            .setSound(soundUri)
             .addAction(
                 android.R.drawable.ic_menu_close_clear_cancel,
                 "Finalizado",

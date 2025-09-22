@@ -1,7 +1,6 @@
-package com.mss.thebigcalendar.ui.viewmodel
+package com.mss.thebigcalendar.ui.viewmodel.util
 
 import android.app.Application
-import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,13 +33,19 @@ import androidx.work.WorkManager
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.Constraints
 import androidx.work.NetworkType
+import com.google.api.services.calendar.model.Event
+import com.mss.thebigcalendar.data.model.ActivityType
+import com.mss.thebigcalendar.data.model.CalendarDay
+import com.mss.thebigcalendar.data.model.NotificationSettings
+import com.mss.thebigcalendar.data.model.VisibilityLevel
 import com.mss.thebigcalendar.worker.GoogleCalendarSyncWorker
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import java.time.LocalDate
-import java.time.YearMonth
+import java.time.LocalTime
+import java.util.UUID
 
-class GoogleSyncViewModel(application: Application) : AndroidViewModel(application) {
+class NotUsedGoogleSyncViewModel(application: Application) : AndroidViewModel(application) {
 
     // Repositories
     val settingsRepository = SettingsRepository(application)
@@ -66,7 +71,7 @@ class GoogleSyncViewModel(application: Application) : AndroidViewModel(applicati
     
     // Cache System
     private var updateJob: Job? = null
-    private var cachedCalendarDays: List<com.mss.thebigcalendar.data.model.CalendarDay>? = null
+    private var cachedCalendarDays: List<CalendarDay>? = null
     private var lastUpdateParams: String? = null
     private var cachedBirthdays: Map<LocalDate, List<Activity>> = emptyMap()
     private var cachedNotes: Map<LocalDate, List<Activity>> = emptyMap()
@@ -178,7 +183,7 @@ class GoogleSyncViewModel(application: Application) : AndroidViewModel(applicati
                 
                 val calendarService = googleCalendarService.getCalendarService(account)
                 // Implementar busca de eventos usando calendarService
-                val events = emptyList<com.google.api.services.calendar.model.Event>() // Placeholder
+                val events = emptyList<Event>() // Placeholder
                 var processedCount = 0
                 val totalEvents = events.size
                 
@@ -190,20 +195,20 @@ class GoogleSyncViewModel(application: Application) : AndroidViewModel(applicati
                         }
                         
                         // Implementar conversão de evento para atividade
-                        val activity = com.mss.thebigcalendar.data.model.Activity(
-                            id = java.util.UUID.randomUUID().toString(),
+                        val activity = Activity(
+                            id = UUID.randomUUID().toString(),
                             title = event.summary ?: "Evento sem título",
                             description = event.description,
-                            date = java.time.LocalDate.now().toString(), // Implementar conversão de data
+                            date = LocalDate.now().toString(), // Implementar conversão de data
                             startTime = null,
                             endTime = null,
                             isAllDay = event.start?.date != null,
                             location = event.location,
                             categoryColor = "FF6B6B",
-                            activityType = com.mss.thebigcalendar.data.model.ActivityType.EVENT,
+                            activityType = ActivityType.EVENT,
                             recurrenceRule = null,
-                            notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings(),
-                            visibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW,
+                            notificationSettings = NotificationSettings(),
+                            visibility = VisibilityLevel.LOW,
                             showInCalendar = true,
                             isFromGoogle = true
                         )
@@ -340,7 +345,7 @@ class GoogleSyncViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     // Helper functions
-    private fun detectBirthdayEvent(event: com.google.api.services.calendar.model.Event): Boolean {
+    private fun detectBirthdayEvent(event: Event): Boolean {
         // Verificar se é um evento de aniversário baseado em padrões comuns
         val summary = event.summary?.lowercase() ?: ""
         val description = event.description?.lowercase() ?: ""
@@ -367,7 +372,7 @@ class GoogleSyncViewModel(application: Application) : AndroidViewModel(applicati
     private fun createSampleBirthdays() {
         viewModelScope.launch {
             val existingBirthdays = _uiState.value.activities.filter { 
-                it.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY 
+                it.activityType == ActivityType.BIRTHDAY
             }
             
             if (existingBirthdays.isEmpty()) {
@@ -377,16 +382,16 @@ class GoogleSyncViewModel(application: Application) : AndroidViewModel(applicati
                         title = "Aniversário da Maria",
                         description = "Aniversário da Maria Silva",
                         date = LocalDate.now().withDayOfMonth(15).toString(),
-                        startTime = java.time.LocalTime.of(0, 0),
-                        endTime = java.time.LocalTime.of(23, 59),
+                        startTime = LocalTime.of(0, 0),
+                        endTime = LocalTime.of(23, 59),
                         isAllDay = true,
-                        activityType = com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY,
+                        activityType = ActivityType.BIRTHDAY,
                         categoryColor = "FF6B6B",
                         recurrenceRule = "FREQ=YEARLY",
                         isFromGoogle = false,
                         location = "",
-                        notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings(),
-                        visibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW,
+                        notificationSettings = NotificationSettings(),
+                        visibility = VisibilityLevel.LOW,
                         showInCalendar = true
                     ),
                     Activity(
@@ -394,16 +399,16 @@ class GoogleSyncViewModel(application: Application) : AndroidViewModel(applicati
                         title = "Aniversário do João",
                         description = "Aniversário do João Santos",
                         date = LocalDate.now().withDayOfMonth(25).toString(),
-                        startTime = java.time.LocalTime.of(0, 0),
-                        endTime = java.time.LocalTime.of(23, 59),
+                        startTime = LocalTime.of(0, 0),
+                        endTime = LocalTime.of(23, 59),
                         isAllDay = true,
-                        activityType = com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY,
+                        activityType = ActivityType.BIRTHDAY,
                         categoryColor = "4ECDC4",
                         recurrenceRule = "FREQ=YEARLY",
                         isFromGoogle = false,
                         location = "",
-                        notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings(),
-                        visibility = com.mss.thebigcalendar.data.model.VisibilityLevel.LOW,
+                        notificationSettings = NotificationSettings(),
+                        visibility = VisibilityLevel.LOW,
                         showInCalendar = true
                     )
                 )

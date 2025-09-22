@@ -74,13 +74,6 @@ import java.io.InputStreamReader
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
-    // ViewModels especializados como helpers internos
-    private val navigationHelper = CalendarNavigationViewModel(application)
-    private val activityHelper = ActivityManagementViewModel(application)
-    private val syncHelper = GoogleSyncViewModel(application)
-    private val backupHelper = BackupViewModel(application)
-    private val uiHelper = CalendarUIManagementViewModel(application)
-
     // Repositories
     val settingsRepository = SettingsRepository(application)
     private val activityRepository = ActivityRepository(application)
@@ -120,60 +113,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         
         // Registrar broadcast receiver para atualizações de notificações
         registerNotificationBroadcastReceiver()
-        
-        // Sincronizar estados dos helpers com o estado principal
-        syncHelperStates()
-    }
-    
-    /**
-     * Sincroniza o estado dos helpers com o estado principal
-     */
-    private fun syncHelperStates() {
-        // Observar mudanças nos helpers e atualizar o estado principal
-        viewModelScope.launch {
-            navigationHelper.uiState.collect { helperState ->
-                _uiState.value = _uiState.value.copy(
-                    displayedYearMonth = helperState.displayedYearMonth,
-                    selectedDate = helperState.selectedDate
-                )
-            }
-        }
-        
-        viewModelScope.launch {
-            activityHelper.uiState.collect { helperState ->
-                _uiState.value = _uiState.value.copy(
-                    activities = helperState.activities,
-                    searchQuery = helperState.searchQuery,
-                    searchResults = helperState.searchResults
-                )
-            }
-        }
-        
-        viewModelScope.launch {
-            syncHelper.uiState.collect { helperState ->
-                _uiState.value = _uiState.value.copy(
-                    syncProgress = helperState.syncProgress
-                )
-            }
-        }
-        
-        viewModelScope.launch {
-            backupHelper.uiState.collect { helperState ->
-                _uiState.value = _uiState.value.copy(
-                    backupFiles = helperState.backupFiles,
-                    deletedActivities = helperState.deletedActivities
-                )
-            }
-        }
-        
-        viewModelScope.launch {
-            uiHelper.uiState.collect { helperState ->
-                _uiState.value = _uiState.value.copy(
-                    jsonCalendars = helperState.jsonCalendars,
-                    jsonHolidayInfoToShow = helperState.jsonHolidayInfoToShow
-                )
-            }
-        }
     }
 
     override fun onCleared() {
@@ -1014,18 +953,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     // ===== CALENDAR NAVIGATION FUNCTIONS =====
     
     fun onPreviousMonth() {
-        // Delegar para o helper de navegação
-        navigationHelper.onPreviousMonth()
-        // Carregar atividades do novo mês (lógica específica do CalendarViewModel)
         val newMonth = _uiState.value.displayedYearMonth.minusMonths(1)
+        _uiState.update { it.copy(displayedYearMonth = newMonth) }
         updateActivitiesForNewMonth(newMonth)
     }
 
     fun onNextMonth() {
-        // Delegar para o helper de navegação
-        navigationHelper.onNextMonth()
-        // Carregar atividades do novo mês (lógica específica do CalendarViewModel)
         val newMonth = _uiState.value.displayedYearMonth.plusMonths(1)
+        _uiState.update { it.copy(displayedYearMonth = newMonth) }
         updateActivitiesForNewMonth(newMonth)
     }
 
@@ -1038,21 +973,21 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onGoToToday() {
-        // Verificar se o mês vai mudar antes de delegar
         val currentState = _uiState.value
         val today = LocalDate.now()
         val currentMonth = YearMonth.now()
         val monthChanged = currentState.displayedYearMonth != currentMonth
         
-        // Delegar para o helper de navegação
-        navigationHelper.onGoToToday()
+        _uiState.update {
+            it.copy(
+                displayedYearMonth = currentMonth,
+                selectedDate = today
+            )
+        }
         
-        // A sincronização automática já atualiza o estado principal
-        // Apenas precisamos atualizar as atividades se necessário
         if (monthChanged) {
             updateActivitiesForNewMonth(currentMonth)
         } else {
-            // Se apenas o dia mudou, apenas atualizar a data selecionada
             updateSelectedDateInCalendar()
         }
     }
@@ -2719,6 +2654,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             
             Log.d(TAG, "Processados e salvos ${activities.size} agendamentos do arquivo JSON")
             
+            // Recarregar atividades para atualizar a UI
+            loadActivitiesForCurrentMonth()
+            
+            // Atualizar agendamentos JSON para a data selecionada
+            updateJsonCalendarActivitiesForSelectedDate()
+            
         } catch (e: Exception) {
             Log.e(TAG, "Erro ao processar arquivo JSON", e)
         }
@@ -2847,9 +2788,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         val selectedDate = currentState.selectedDate
         val visibleJsonCalendars = currentState.jsonCalendars.filter { it.isVisible }
         
+        Log.d("CalendarViewModel", "🔄 Atualizando agendamentos JSON para data: $selectedDate")
+        Log.d("CalendarViewModel", "📅 Calendários JSON visíveis: ${visibleJsonCalendars.size}")
+        
         val jsonCalendarActivities = mutableMapOf<String, List<Activity>>()
         
         visibleJsonCalendars.forEach { jsonCalendar ->
+            Log.d("CalendarViewModel", "🔍 Processando calendário: ${jsonCalendar.title}")
+            
             // Filtrar atividades que pertencem a este calendário JSON
             val calendarActivities = currentState.activities.filter { activity ->
                 // Verificar se a atividade pertence a este calendário JSON
@@ -2866,15 +2812,27 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     null
                 }
                 
-                activityDate?.isEqual(selectedDate) == true && 
-                activityColor == jsonCalendar.color &&
-                activity.showInCalendar
+                val isJsonImported = activity.location?.startsWith("JSON_IMPORTED_") == true
+                val dateMatches = activityDate?.isEqual(selectedDate) == true
+                val colorMatches = activityColor == jsonCalendar.color
+                
+                Log.d("CalendarViewModel", "  📋 Atividade: ${activity.title}")
+                Log.d("CalendarViewModel", "    📅 Data: ${activity.date} (matches: $dateMatches)")
+                Log.d("CalendarViewModel", "    🎨 Cor: ${activity.categoryColor} (matches: $colorMatches)")
+                Log.d("CalendarViewModel", "    📍 JSON Imported: $isJsonImported")
+                Log.d("CalendarViewModel", "    ✅ Show in Calendar: ${activity.showInCalendar}")
+                
+                dateMatches && colorMatches && activity.showInCalendar && isJsonImported
             }
+            
+            Log.d("CalendarViewModel", "  📊 Encontradas ${calendarActivities.size} atividades para ${jsonCalendar.title}")
             
             if (calendarActivities.isNotEmpty()) {
                 jsonCalendarActivities[jsonCalendar.id] = calendarActivities
             }
         }
+        
+        Log.d("CalendarViewModel", "✅ Total de atividades JSON encontradas para $selectedDate: ${jsonCalendarActivities.values.sumOf { it.size }}")
         
         _uiState.update { 
             it.copy(jsonCalendarActivitiesForSelectedDate = jsonCalendarActivities) 

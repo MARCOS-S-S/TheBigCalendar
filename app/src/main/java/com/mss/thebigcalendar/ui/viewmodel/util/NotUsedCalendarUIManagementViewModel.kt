@@ -1,12 +1,14 @@
-package com.mss.thebigcalendar.ui.viewmodel
+package com.mss.thebigcalendar.ui.viewmodel.util
 
 import android.app.Application
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mss.thebigcalendar.data.model.Activity
-import com.mss.thebigcalendar.data.model.ActivityType
+import com.mss.thebigcalendar.data.model.CalendarDay
 import com.mss.thebigcalendar.data.model.CalendarUiState
 import com.mss.thebigcalendar.data.model.Holiday
 import com.mss.thebigcalendar.data.model.JsonHoliday
@@ -32,9 +34,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import java.time.LocalDate
-import java.time.YearMonth
+import java.util.UUID
 
-class CalendarUIManagementViewModel(application: Application) : AndroidViewModel(application) {
+class NotUsedCalendarUIManagementViewModel(application: Application) : AndroidViewModel(application) {
 
     // Repositories
     val settingsRepository = SettingsRepository(application)
@@ -60,7 +62,7 @@ class CalendarUIManagementViewModel(application: Application) : AndroidViewModel
     
     // Cache System
     private var updateJob: Job? = null
-    private var cachedCalendarDays: List<com.mss.thebigcalendar.data.model.CalendarDay>? = null
+    private var cachedCalendarDays: List<CalendarDay>? = null
     private var lastUpdateParams: String? = null
     private var cachedBirthdays: Map<LocalDate, List<Activity>> = emptyMap()
     private var cachedNotes: Map<LocalDate, List<Activity>> = emptyMap()
@@ -149,7 +151,7 @@ class CalendarUIManagementViewModel(application: Application) : AndroidViewModel
     }
 
     // JSON Calendar Functions
-    fun openJsonConfigScreen(fileName: String, uri: android.net.Uri) {
+    fun openJsonConfigScreen(fileName: String, uri: Uri) {
         _uiState.update { 
             it.copy(
                 isJsonConfigScreenOpen = true,
@@ -169,7 +171,7 @@ class CalendarUIManagementViewModel(application: Application) : AndroidViewModel
         }
     }
 
-    fun saveJsonConfig(title: String, color: androidx.compose.ui.graphics.Color) {
+    fun saveJsonConfig(title: String, color: Color) {
         val uri = _uiState.value.selectedJsonUri
         val fileName = _uiState.value.selectedJsonFileName
         
@@ -184,7 +186,7 @@ class CalendarUIManagementViewModel(application: Application) : AndroidViewModel
                     if (jsonContent != null) {
                         // Criar novo calendário JSON
                         val jsonCalendar = JsonCalendar(
-                            id = java.util.UUID.randomUUID().toString(),
+                            id = UUID.randomUUID().toString(),
                             title = title,
                             color = color,
                             fileName = fileName,

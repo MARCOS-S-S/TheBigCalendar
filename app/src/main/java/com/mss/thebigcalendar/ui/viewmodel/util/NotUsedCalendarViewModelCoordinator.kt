@@ -1,4 +1,4 @@
-package com.mss.thebigcalendar.ui.viewmodel
+package com.mss.thebigcalendar.ui.viewmodel.util
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -18,7 +18,7 @@ import com.mss.thebigcalendar.service.RecurrenceService
 import com.mss.thebigcalendar.service.SearchService
 import com.mss.thebigcalendar.service.VisibilityService
 
-class CalendarViewModelCoordinator(application: Application) : AndroidViewModel(application) {
+class NotUsedCalendarViewModelCoordinator(application: Application) : AndroidViewModel(application) {
 
     // Repositories
     val settingsRepository = SettingsRepository(application)
@@ -40,11 +40,11 @@ class CalendarViewModelCoordinator(application: Application) : AndroidViewModel(
     private val notificationService = NotificationService(application) // Assuming this is needed for general notifications
 
     // Specialized ViewModels
-    val navigationViewModel = CalendarNavigationViewModel(application)
-    val activityManagementViewModel = ActivityManagementViewModel(application)
-    val googleSyncViewModel = GoogleSyncViewModel(application)
-    val backupViewModel = BackupViewModel(application)
-    val uiManagementViewModel = CalendarUIManagementViewModel(application)
+    val navigationViewModel = NotUsedCalendarNavigationViewModel(application)
+    val activityManagementViewModel = NotUsedActivityManagementViewModel(application)
+    val googleSyncViewModel = NotUsedGoogleSyncViewModel(application)
+    val backupViewModel = NotUsedBackupViewModel(application)
+    val uiManagementViewModel = NotUsedCalendarUIManagementViewModel(application)
 
     // The coordinator will expose a combined UI state or delegate state management
     // For now, we can observe individual ViewModel states and combine them if needed.

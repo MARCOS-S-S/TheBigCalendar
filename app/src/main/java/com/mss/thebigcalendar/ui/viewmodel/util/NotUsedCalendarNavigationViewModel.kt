@@ -1,13 +1,13 @@
-package com.mss.thebigcalendar.ui.viewmodel
+package com.mss.thebigcalendar.ui.viewmodel.util
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.CalendarDay
 import com.mss.thebigcalendar.data.model.CalendarUiState
 import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.data.model.Theme
-import com.mss.thebigcalendar.data.model.CalendarFilterOptions
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
 import com.mss.thebigcalendar.data.repository.SettingsRepository
@@ -28,10 +28,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.YearMonth
 
-class CalendarNavigationViewModel(application: Application) : AndroidViewModel(application) {
+class NotUsedCalendarNavigationViewModel(application: Application) : AndroidViewModel(application) {
 
     // Repositories
     val settingsRepository = SettingsRepository(application)
@@ -59,11 +60,33 @@ class CalendarNavigationViewModel(application: Application) : AndroidViewModel(a
     private var updateJob: Job? = null
     private var cachedCalendarDays: List<CalendarDay>? = null
     private var lastUpdateParams: String? = null
-    private var cachedBirthdays: Map<LocalDate, List<com.mss.thebigcalendar.data.model.Activity>> = emptyMap()
-    private var cachedNotes: Map<LocalDate, List<com.mss.thebigcalendar.data.model.Activity>> = emptyMap()
-    private var cachedTasks: Map<LocalDate, List<com.mss.thebigcalendar.data.model.Activity>> = emptyMap()
+    private var cachedBirthdays: Map<LocalDate, List<Activity>> = emptyMap()
+    private var cachedNotes: Map<LocalDate, List<Activity>> = emptyMap()
+    private var cachedTasks: Map<LocalDate, List<Activity>> = emptyMap()
 
     // Navigation Functions
+    
+    /**
+     * Atualiza a navegação do helper quando o estado principal muda
+     */
+    fun updateNavigation(yearMonth: YearMonth, selectedDate: LocalDate) {
+        val currentState = _uiState.value
+        val monthChanged = currentState.displayedYearMonth != yearMonth
+        
+        _uiState.update { 
+            it.copy(
+                displayedYearMonth = yearMonth,
+                selectedDate = selectedDate
+            ) 
+        }
+        
+        if (monthChanged) {
+            updateActivitiesForNewMonth(yearMonth)
+        } else {
+            updateSelectedDateInCalendar()
+        }
+    }
+    
     fun onPreviousMonth() {
         val newMonth = _uiState.value.displayedYearMonth.minusMonths(1)
         _uiState.update { it.copy(displayedYearMonth = newMonth) }
@@ -214,7 +237,7 @@ class CalendarNavigationViewModel(application: Application) : AndroidViewModel(a
         
         // Criar novo job com debounce
         updateJob = viewModelScope.launch {
-            kotlinx.coroutines.delay(100) // Debounce de 100ms
+            delay(100) // Debounce de 100ms
             
             updateCalendarDays()
             updateTasksForSelectedDate()

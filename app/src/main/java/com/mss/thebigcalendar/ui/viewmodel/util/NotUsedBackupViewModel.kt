@@ -1,13 +1,14 @@
-package com.mss.thebigcalendar.ui.viewmodel
+package com.mss.thebigcalendar.ui.viewmodel.util
 
 import android.app.Application
-import android.content.Intent
 import android.util.Log
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mss.thebigcalendar.data.model.Activity
+import com.mss.thebigcalendar.data.model.ActivityType
+import com.mss.thebigcalendar.data.model.CalendarDay
 import com.mss.thebigcalendar.data.model.CalendarUiState
-import com.mss.thebigcalendar.data.model.DeletedActivity
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
 import com.mss.thebigcalendar.data.repository.SettingsRepository
@@ -16,23 +17,24 @@ import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
 import com.mss.thebigcalendar.data.repository.CompletedActivityRepository
 import com.mss.thebigcalendar.data.repository.AlarmRepository
 import com.mss.thebigcalendar.data.service.BackupService
-import com.mss.thebigcalendar.data.service.BackupInfo
 import com.mss.thebigcalendar.service.GoogleAuthService
 import com.mss.thebigcalendar.service.GoogleCalendarService
 import com.mss.thebigcalendar.service.ProgressiveSyncService
 import com.mss.thebigcalendar.service.SearchService
 import com.mss.thebigcalendar.service.RecurrenceService
 import com.mss.thebigcalendar.service.VisibilityService
+import com.mss.thebigcalendar.ui.components.BarChartData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
+import java.io.File
+import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.YearMonth
 
-class BackupViewModel(application: Application) : AndroidViewModel(application) {
+class NotUsedBackupViewModel(application: Application) : AndroidViewModel(application) {
 
     // Repositories
     val settingsRepository = SettingsRepository(application)
@@ -58,7 +60,7 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
     
     // Cache System
     private var updateJob: Job? = null
-    private var cachedCalendarDays: List<com.mss.thebigcalendar.data.model.CalendarDay>? = null
+    private var cachedCalendarDays: List<CalendarDay>? = null
     private var lastUpdateParams: String? = null
     private var cachedBirthdays: Map<LocalDate, List<Activity>> = emptyMap()
     private var cachedNotes: Map<LocalDate, List<Activity>> = emptyMap()
@@ -143,7 +145,7 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
     fun deleteBackupFile(filePath: String) {
         viewModelScope.launch {
             try {
-                val file = java.io.File(filePath)
+                val file = File(filePath)
                 val success = file.delete()
                 if (success) {
                     _uiState.update { it.copy(
@@ -173,7 +175,7 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
                     isSyncing = true
                 ) }
                 
-                val file = java.io.File(filePath)
+                val file = File(filePath)
                 val result = backupService.restoreFromBackup(file)
                 result.fold(
                     onSuccess = { restoreInfo ->
@@ -282,29 +284,29 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
         return _uiState.value.completedActivities
     }
 
-    fun getLast7DaysCompletedTasksData(): List<com.mss.thebigcalendar.ui.components.BarChartData> {
+    fun getLast7DaysCompletedTasksData(): List<BarChartData> {
         val completedActivities = _uiState.value.completedActivities
-        val last7Days = mutableListOf<com.mss.thebigcalendar.ui.components.BarChartData>()
+        val last7Days = mutableListOf<BarChartData>()
         
         for (i in 6 downTo 0) {
             val date = LocalDate.now().minusDays(i.toLong())
             val dayTasks = completedActivities.filter { 
-                LocalDate.parse(it.date).isEqual(date) && it.activityType == com.mss.thebigcalendar.data.model.ActivityType.TASK 
+                LocalDate.parse(it.date).isEqual(date) && it.activityType == ActivityType.TASK
             }
             
             last7Days.add(
-                com.mss.thebigcalendar.ui.components.BarChartData(
+                BarChartData(
                     label = when (date.dayOfWeek) {
-                        java.time.DayOfWeek.MONDAY -> "Seg"
-                        java.time.DayOfWeek.TUESDAY -> "Ter"
-                        java.time.DayOfWeek.WEDNESDAY -> "Qua"
-                        java.time.DayOfWeek.THURSDAY -> "Qui"
-                        java.time.DayOfWeek.FRIDAY -> "Sex"
-                        java.time.DayOfWeek.SATURDAY -> "Sáb"
-                        java.time.DayOfWeek.SUNDAY -> "Dom"
+                        DayOfWeek.MONDAY -> "Seg"
+                        DayOfWeek.TUESDAY -> "Ter"
+                        DayOfWeek.WEDNESDAY -> "Qua"
+                        DayOfWeek.THURSDAY -> "Qui"
+                        DayOfWeek.FRIDAY -> "Sex"
+                        DayOfWeek.SATURDAY -> "Sáb"
+                        DayOfWeek.SUNDAY -> "Dom"
                     },
                     value = dayTasks.size,
-                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                    color = Color(0xFF4CAF50)
                 )
             )
         }
@@ -312,9 +314,9 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
         return last7Days
     }
 
-    fun getLastYearCompletedTasksData(): List<com.mss.thebigcalendar.ui.components.BarChartData> {
+    fun getLastYearCompletedTasksData(): List<BarChartData> {
         val completedActivities = _uiState.value.completedActivities
-        val lastYearData = mutableListOf<com.mss.thebigcalendar.ui.components.BarChartData>()
+        val lastYearData = mutableListOf<BarChartData>()
         
         val monthNames = listOf(
             "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
@@ -324,14 +326,14 @@ class BackupViewModel(application: Application) : AndroidViewModel(application) 
         for (month in 1..12) {
             val monthTasks = completedActivities.filter { 
                 LocalDate.parse(it.date).monthValue == month && 
-                it.activityType == com.mss.thebigcalendar.data.model.ActivityType.TASK 
+                it.activityType == ActivityType.TASK
             }
             
             lastYearData.add(
-                com.mss.thebigcalendar.ui.components.BarChartData(
+                BarChartData(
                     label = monthNames[month - 1],
                     value = monthTasks.size,
-                    color = androidx.compose.ui.graphics.Color(0xFF2196F3)
+                    color = Color(0xFF2196F3)
                 )
             )
         }

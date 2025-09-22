@@ -10,7 +10,6 @@ import android.util.Log
 import kotlinx.coroutines.*
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.*
 
 class WidgetUpdateService : Service() {
     

@@ -1,15 +1,15 @@
-package com.mss.thebigcalendar.ui.viewmodel
+package com.mss.thebigcalendar.ui.viewmodel.util
 
 import android.app.Application
-import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
+import com.mss.thebigcalendar.data.model.CalendarDay
 import com.mss.thebigcalendar.data.model.CalendarUiState
-import com.mss.thebigcalendar.data.model.Holiday
+import com.mss.thebigcalendar.data.model.NotificationType
 import com.mss.thebigcalendar.data.model.SearchResult
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.HolidayRepository
@@ -33,8 +33,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import java.time.LocalDate
 import java.time.YearMonth
+import java.util.UUID
 
-class ActivityManagementViewModel(application: Application) : AndroidViewModel(application) {
+class NotUsedActivityManagementViewModel(application: Application) : AndroidViewModel(application) {
 
     // Repositories
     val settingsRepository = SettingsRepository(application)
@@ -60,13 +61,21 @@ class ActivityManagementViewModel(application: Application) : AndroidViewModel(a
     
     // Cache System
     private var updateJob: Job? = null
-    private var cachedCalendarDays: List<com.mss.thebigcalendar.data.model.CalendarDay>? = null
+    private var cachedCalendarDays: List<CalendarDay>? = null
     private var lastUpdateParams: String? = null
     private var cachedBirthdays: Map<LocalDate, List<Activity>> = emptyMap()
     private var cachedNotes: Map<LocalDate, List<Activity>> = emptyMap()
     private var cachedTasks: Map<LocalDate, List<Activity>> = emptyMap()
 
     // Activity Management Functions
+    
+    /**
+     * Atualiza a lista de atividades do helper quando o estado principal muda
+     */
+    fun updateActivities(activities: List<Activity>) {
+        _uiState.update { it.copy(activities = activities) }
+    }
+    
     fun onSaveActivity(activityData: Activity, syncWithGoogle: Boolean = false) {
         viewModelScope.launch {
             // Verificar se é uma edição de instância recorrente
@@ -101,7 +110,7 @@ class ActivityManagementViewModel(application: Application) : AndroidViewModel(a
                     
                     // Agendar notificação se configurada - usar a instância específica com data correta
                     if (activityData.notificationSettings.isEnabled &&
-                        activityData.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
+                        activityData.notificationSettings.notificationType != NotificationType.NONE) {
                         
                         // Extrair a data da instância específica do ID
                         val instanceDate = activityData.id.split("_").getOrNull(1)
@@ -121,7 +130,7 @@ class ActivityManagementViewModel(application: Application) : AndroidViewModel(a
             } else {
                 // É uma nova atividade ou edição de atividade não recorrente
                 val activityToSave = if (activityData.id == "new") {
-                    activityData.copy(id = java.util.UUID.randomUUID().toString())
+                    activityData.copy(id = UUID.randomUUID().toString())
                 } else {
                     activityData
                 }
@@ -131,7 +140,7 @@ class ActivityManagementViewModel(application: Application) : AndroidViewModel(a
                 
                 // Agendar notificação se configurada
                 if (activityToSave.notificationSettings.isEnabled &&
-                    activityToSave.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
+                    activityToSave.notificationSettings.notificationType != NotificationType.NONE) {
                     val notificationService = NotificationService(getApplication())
                     notificationService.scheduleNotification(activityToSave)
                 }

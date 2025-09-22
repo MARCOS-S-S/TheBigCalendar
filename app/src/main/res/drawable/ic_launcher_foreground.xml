@@ -1,7 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/my_calendar_foreground"
-        android:width="72dp"
-        android:height="72dp"
-        android:gravity="center" />
-</layer-list>
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/tbc_icon" />
