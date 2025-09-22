@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
@@ -109,7 +110,9 @@ fun Sidebar(
                 ) {
                     Text(
                         text = "${quote.frase}",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontStyle = FontStyle.Italic
+                        ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
@@ -121,7 +124,8 @@ fun Sidebar(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            // Linha de separação entre frases e visualização
+            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
 
             // Seção de Visualização (Mensal/Anual)
             Text(
