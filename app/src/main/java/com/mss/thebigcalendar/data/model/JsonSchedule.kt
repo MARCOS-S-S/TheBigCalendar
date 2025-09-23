@@ -38,6 +38,12 @@ fun JsonSchedule.toActivity(
         date.split("-")[1].toInt()
     )
     
+    // Debug log
+    android.util.Log.d("JsonSchedule", "🔄 Convertendo JsonSchedule para Activity:")
+    android.util.Log.d("JsonSchedule", "  📋 Name: $name")
+    android.util.Log.d("JsonSchedule", "  🔗 Wikipedia Link: $wikipediaLink")
+    android.util.Log.d("JsonSchedule", "  📅 Date: $date")
+    
     return Activity(
         id = UUID.randomUUID().toString(),
         title = name,
@@ -57,6 +63,9 @@ fun JsonSchedule.toActivity(
         excludedDates = emptyList(),
         // Marcar como atividade JSON importada usando o campo location
         // (que não é usado para atividades JSON)
-        location = "JSON_IMPORTED_${calendarTitle}"
-    )
+        location = "JSON_IMPORTED_${calendarTitle}",
+        wikipediaLink = wikipediaLink // Preservar o link da Wikipedia
+    ).also { activity ->
+        android.util.Log.d("JsonSchedule", "  ✅ Activity criada com Wikipedia Link: ${activity.wikipediaLink}")
+    }
 }

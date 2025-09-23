@@ -470,7 +470,9 @@ class BackupService(
             isCompleted = activityJson.optBoolean("isCompleted", false),
             visibility = visibility,
             showInCalendar = activityJson.optBoolean("showInCalendar", true), // Por padrão, mostrar no calendário
-            isFromGoogle = activityJson.optBoolean("isFromGoogle", false)
+            isFromGoogle = activityJson.optBoolean("isFromGoogle", false),
+            excludedDates = emptyList(), // Backup não preserva excludedDates
+            wikipediaLink = activityJson.optString("wikipediaLink").takeIf { it.isNotEmpty() } // Preservar link da Wikipedia se existir
         )
     }
     

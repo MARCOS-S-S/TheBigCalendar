@@ -323,7 +323,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     activityType = ActivityType.BIRTHDAY,
                     recurrenceRule = "YEARLY",
                     showInCalendar = true,
-                    isFromGoogle = false
+                    isFromGoogle = false,
+                    excludedDates = emptyList(),
+                    wikipediaLink = null
                 ),
                 Activity(
                     id = "sample_birthday_2",
@@ -338,7 +340,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     activityType = ActivityType.BIRTHDAY,
                     recurrenceRule = "YEARLY",
                     showInCalendar = true,
-                    isFromGoogle = false
+                    isFromGoogle = false,
+                    excludedDates = emptyList(),
+                    wikipediaLink = null
                 )
             )
             
@@ -442,7 +446,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         activityType = if (isBirthday) ActivityType.BIRTHDAY else ActivityType.EVENT,
                         recurrenceRule = event.recurrence?.firstOrNull(),
                         showInCalendar = true, // Por padrão, mostrar no calendário
-                        isFromGoogle = true
+                        isFromGoogle = true,
+                        excludedDates = emptyList(),
+                        wikipediaLink = null // Eventos do Google Calendar não têm links da Wikipedia
                     )
                 }
                 
@@ -2653,6 +2659,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         null
                     }
                     
+                    Log.d(TAG, "🔍 Processando item $i: $name")
+                    Log.d(TAG, "  🔗 Wikipedia Link: $wikipediaLink")
+                    
                     val schedule = JsonSchedule(
                         name = name,
                         date = date,
@@ -2735,6 +2744,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         Log.w(TAG, "Erro ao obter wikipediaLink do item $i: ${e.message}")
                         null
                     }
+                    
+                    Log.d(TAG, "🔍 Processando item $i: $name")
+                    Log.d(TAG, "  🔗 Wikipedia Link: $wikipediaLink")
                     
                     val schedule = JsonSchedule(
                         name = name,

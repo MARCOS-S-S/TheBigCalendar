@@ -42,7 +42,8 @@ data class Activity(
     val visibility: VisibilityLevel = VisibilityLevel.LOW, // Nova opção de visibilidade
     val showInCalendar: Boolean = true, // Nova opção para mostrar no calendário
     val isFromGoogle: Boolean = false,
-    val excludedDates: List<String> = emptyList() // Datas de instâncias recorrentes excluídas
+    val excludedDates: List<String> = emptyList(), // Datas de instâncias recorrentes excluídas
+    val wikipediaLink: String? = null // Link para mais informações (usado em agendamentos JSON)
 )
 
 // Representa cada célula individual na grade do calendário

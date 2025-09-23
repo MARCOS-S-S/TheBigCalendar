@@ -25,6 +25,12 @@ fun JsonHolidayInfoDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    
+    // Debug log
+    android.util.Log.d("JsonHolidayInfoDialog", "🔍 Dialog Debug:")
+    android.util.Log.d("JsonHolidayInfoDialog", "  📋 Name: ${jsonHoliday.name}")
+    android.util.Log.d("JsonHolidayInfoDialog", "  🔗 Wikipedia Link: ${jsonHoliday.wikipediaLink}")
+    android.util.Log.d("JsonHolidayInfoDialog", "  📝 Summary: ${jsonHoliday.summary}")
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -36,12 +42,16 @@ fun JsonHolidayInfoDialog(
                 Text(text = jsonHoliday.summary ?: stringResource(id = R.string.no_information_available))
                 Spacer(modifier = Modifier.height(16.dp))
                 jsonHoliday.wikipediaLink?.let {
+                    android.util.Log.d("JsonHolidayInfoDialog", "  ✅ Wikipedia link encontrado: $it")
                     TextButton(onClick = { 
+                        android.util.Log.d("JsonHolidayInfoDialog", "  🚀 Abrindo Wikipedia: $it")
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
                         context.startActivity(intent)
                     }) {
                         Text(stringResource(id = R.string.open_in_wikipedia))
                     }
+                } ?: run {
+                    android.util.Log.d("JsonHolidayInfoDialog", "  ❌ Wikipedia link é null")
                 }
             }
         },

@@ -311,7 +311,9 @@ class ProgressiveSyncService(
                     activityType = if (isBirthday) ActivityType.BIRTHDAY else ActivityType.EVENT,
                     recurrenceRule = event.recurrence?.firstOrNull(),
                     showInCalendar = true,
-                    isFromGoogle = true
+                    isFromGoogle = true,
+                    excludedDates = emptyList(),
+                    wikipediaLink = null // Eventos do Google Calendar não têm links da Wikipedia
                 )
                 
             } catch (e: Exception) {
