@@ -68,7 +68,11 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
         
         // Registrar BroadcastReceiver para parar sons
         val filter = IntentFilter("com.mss.thebigcalendar.STOP_ALL_SOUNDS")
-        registerReceiver(stopSoundsReceiver, filter)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(stopSoundsReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(stopSoundsReceiver, filter)
+        }
         
         // Configurar para acender a tela e forçar abertura
         setupWakeLock()
