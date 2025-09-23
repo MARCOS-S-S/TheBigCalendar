@@ -9,3 +9,4 @@ enum class AnimationType(val displayName: String) {
     BOUNCE("Bounce"),
     NONE("Sem Animação")
 }
+
