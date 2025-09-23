@@ -242,6 +242,7 @@ class ActivityRepository(private val context: Context) {
             .setShowInCalendar(this.showInCalendar)
             .setNotificationSettings(this.notificationSettings.toProto())
             .addAllExcludedDates(this.excludedDates)
+            .setWikipediaLink(this.wikipediaLink ?: "")
             .build()
     }
 
@@ -267,7 +268,8 @@ class ActivityRepository(private val context: Context) {
                 com.mss.thebigcalendar.data.model.VisibilityLevel.LOW
             },
             showInCalendar = this.showInCalendar,
-            excludedDates = this.excludedDatesList.toList()
+            excludedDates = this.excludedDatesList.toList(),
+            wikipediaLink = this.wikipediaLink.takeIf { it.isNotEmpty() }
         )
     }
 

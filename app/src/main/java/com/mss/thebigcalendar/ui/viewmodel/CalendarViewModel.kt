@@ -2993,7 +2993,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             name = activity.title,
                             date = monthDay,
                             summary = activity.description,
-                            wikipediaLink = null,
+                            wikipediaLink = activity.wikipediaLink,
                             calendarId = calendar.id,
                             calendarTitle = calendar.title,
                             calendarColor = calendar.color

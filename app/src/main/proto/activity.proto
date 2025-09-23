@@ -21,6 +21,7 @@ message ActivityProto {
   bool show_in_calendar = 15; // Novo campo para controlar se a atividade aparece no calendário
   NotificationSettingsProto notification_settings = 16;
   repeated string excluded_dates = 17; // Datas de instâncias recorrentes excluídas
+  string wikipedia_link = 18; // Link para mais informações (usado em agendamentos JSON)
 }
 
 message NotificationSettingsProto {

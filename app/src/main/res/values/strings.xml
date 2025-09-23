@@ -69,7 +69,7 @@
 
     <!-- SaintInfoDialog.kt -->
     <string name="no_information_available">Nenhuma informação disponível.</string>
-    <string name="open_in_wikipedia">Abrir na Wikipedia</string>
+    <string name="open_in_wikipedia">Ver mais</string>
     <string name="close">Fechar</string>
 
     <!-- Sidebar.kt -->
