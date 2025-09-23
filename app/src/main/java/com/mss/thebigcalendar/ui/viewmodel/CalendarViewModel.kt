@@ -1164,8 +1164,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 try {
                     Log.d("CalendarViewModel", "🗑️ Removendo calendário JSON: ${calendarToDelete.title}")
                     
-                    // Remover do repositório
+                    // Converter cor para string para comparação
+                    val calendarColorString = String.format("#%08X", calendarToDelete.color.toArgb())
+                    Log.d("CalendarViewModel", "🎨 Cor do calendário: $calendarColorString")
+                    
+                    // Remover atividades JSON do repositório de atividades
+                    activityRepository.deleteJsonActivitiesByCalendar(calendarToDelete.title, calendarColorString)
+                    Log.d("CalendarViewModel", "🗑️ Atividades JSON removidas do repositório")
+                    
+                    // Remover do repositório de calendários JSON
                     jsonCalendarRepository.removeJsonCalendar(calendarToDelete.id)
+                    Log.d("CalendarViewModel", "🗑️ Calendário JSON removido do repositório")
                     
                     // Recarregar calendários JSON
                     loadJsonCalendars()
@@ -1181,7 +1190,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         ) 
                     }
                     
-                    Log.d("CalendarViewModel", "✅ Calendário JSON removido com sucesso")
+                    Log.d("CalendarViewModel", "✅ Calendário JSON e atividades removidos com sucesso")
                     
                 } catch (e: Exception) {
                     Log.e("CalendarViewModel", "❌ Erro ao remover calendário JSON", e)

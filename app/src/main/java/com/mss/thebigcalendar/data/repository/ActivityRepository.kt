@@ -202,6 +202,25 @@ class ActivityRepository(private val context: Context) {
         }
     }
 
+    /**
+     * Remove todas as atividades JSON importadas de um calendário específico
+     */
+    suspend fun deleteJsonActivitiesByCalendar(calendarTitle: String, calendarColor: String) {
+        context.activitiesDataStore.updateData { currentActivities ->
+            val newActivities = currentActivities.toBuilder()
+            val activitiesToKeep = currentActivities.activitiesList.filter { activity ->
+                val isJsonImported = activity.location?.startsWith("JSON_IMPORTED_") == true
+                val isFromThisCalendar = activity.categoryColor == calendarColor
+                
+                // Manter atividade se NÃO for JSON importada OU se for de outro calendário
+                !isJsonImported || !isFromThisCalendar
+            }
+            newActivities.clearActivities()
+            newActivities.addAllActivities(activitiesToKeep)
+            newActivities.build()
+        }
+    }
+
     // --- Mappers ---
 
     private fun Activity.toProto(): ActivityProto {
