@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -129,6 +130,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
+
     private fun openJsonFilePicker() {
         jsonFilePickerLauncher.launch("application/json")
     }
@@ -140,7 +143,7 @@ class MainActivity : ComponentActivity() {
 
         viewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
 
-        requestIgnoreBatteryOptimizations()
+        // Removido: requestIgnoreBatteryOptimizations() - agora será solicitado contextualmente
         
         // Configurar callback para o botão de voltar do sistema
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -329,6 +332,28 @@ class MainActivity : ComponentActivity() {
                         else -> {
                             CalendarScreen(viewModel)
                         }
+                        }
+                        
+                        // Dialog de permissão de segundo plano contextual
+                        if (uiState.showBackgroundPermissionDialog) {
+                            Log.d("MainActivity", "🔔 Mostrando dialog de permissão de segundo plano")
+                            com.mss.thebigcalendar.ui.components.BackgroundPermissionDialog(
+                                onDismissRequest = { 
+                                    Log.d("MainActivity", "🔔 Dialog dismissado")
+                                    viewModel.dismissBackgroundPermissionDialog() 
+                                },
+                                onAllowPermission = { 
+                                    Log.d("MainActivity", "🔔 Usuário permitiu permissão de segundo plano")
+                                    viewModel.requestBackgroundPermission()
+                                    requestIgnoreBatteryOptimizations()
+                                },
+                                onDenyPermission = { 
+                                    Log.d("MainActivity", "🔔 Usuário negou permissão de segundo plano")
+                                    viewModel.dismissBackgroundPermissionDialog() 
+                                }
+                            )
+                        } else {
+                            Log.d("MainActivity", "🔔 Dialog de permissão não deve ser mostrado: ${uiState.showBackgroundPermissionDialog}")
                         }
                         }
                     }

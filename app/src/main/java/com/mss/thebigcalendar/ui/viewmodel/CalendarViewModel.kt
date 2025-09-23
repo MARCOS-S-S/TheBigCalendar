@@ -2,7 +2,9 @@ package com.mss.thebigcalendar.ui.viewmodel
 
 import android.app.Application
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.Intent
+import android.os.PowerManager
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -1128,6 +1130,21 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * Fecha o dialog de permissão de segundo plano
+     */
+    fun dismissBackgroundPermissionDialog() {
+        _uiState.update { it.copy(showBackgroundPermissionDialog = false) }
+    }
+
+    /**
+     * Solicita permissão de segundo plano (chamado pelo dialog)
+     */
+    fun requestBackgroundPermission() {
+        // Esta função será chamada pela MainActivity
+        _uiState.update { it.copy(showBackgroundPermissionDialog = false) }
+    }
+
 
 
     fun onSaveActivity(activityData: Activity, syncWithGoogle: Boolean = false) {
@@ -1277,7 +1294,55 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             // Recarregar atividades do mês atual após salvar
             loadActivitiesForCurrentMonth()
             
+            // Verificar se é uma nova atividade criada e solicitar permissão contextualmente
+            val isNewActivityCreated = activityData.id == "new" || activityData.id.isBlank()
+            checkAndRequestBackgroundPermissionIfNeeded(activityToSave, isNewActivityCreated)
+            
             closeCreateActivityModal()
+        }
+    }
+
+    /**
+     * Verifica se deve solicitar permissão de segundo plano contextualmente
+     */
+    private fun checkAndRequestBackgroundPermissionIfNeeded(activity: Activity, isNewActivityCreated: Boolean) {
+        Log.d("CalendarViewModel", "🔔 Verificando permissão para atividade: ${activity.title}")
+        Log.d("CalendarViewModel", "🔔 ID da atividade: ${activity.id}")
+        Log.d("CalendarViewModel", "🔔 É nova atividade criada: $isNewActivityCreated")
+        Log.d("CalendarViewModel", "🔔 Notificação habilitada: ${activity.notificationSettings.isEnabled}")
+        Log.d("CalendarViewModel", "🔔 Tipo de notificação: ${activity.notificationSettings.notificationType}")
+        
+        // Verificar se tem notificação habilitada
+        val hasNotificationEnabled = activity.notificationSettings.isEnabled &&
+                                   activity.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE
+        
+        Log.d("CalendarViewModel", "🔔 Tem notificação habilitada: $hasNotificationEnabled")
+        
+        // Solicitar permissão sempre que criar nova atividade com notificação
+        if (isNewActivityCreated && hasNotificationEnabled) {
+            Log.d("CalendarViewModel", "🔔 Nova atividade com notificação criada - verificando permissão de segundo plano")
+            
+            // Verificar se a permissão já foi concedida
+            val context = getApplication<Application>()
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+            val hasPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                powerManager.isIgnoringBatteryOptimizations(context.packageName)
+            } else {
+                true // Para versões anteriores ao Android 6, não precisa da permissão
+            }
+            
+            Log.d("CalendarViewModel", "🔔 Permissão já concedida: $hasPermission")
+            
+            // Solicitar permissão apenas se não tiver sido concedida
+            if (!hasPermission) {
+                Log.d("CalendarViewModel", "🔔 Permissão de segundo plano não concedida - solicitando")
+                _uiState.update { it.copy(showBackgroundPermissionDialog = true) }
+                Log.d("CalendarViewModel", "🔔 Dialog de permissão ativado no estado")
+            } else {
+                Log.d("CalendarViewModel", "🔔 Permissão de segundo plano já concedida")
+            }
+        } else {
+            Log.d("CalendarViewModel", "🔔 Não solicitando permissão - isNewActivityCreated: $isNewActivityCreated, hasNotificationEnabled: $hasNotificationEnabled")
         }
     }
 

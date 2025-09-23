@@ -1,5 +1,6 @@
 package com.mss.thebigcalendar.ui.screens
 
+import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -61,6 +62,7 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
         private const val TAG = "HighVisibilityNotificationActivity"
     }
     
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
