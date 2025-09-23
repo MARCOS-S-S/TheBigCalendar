@@ -130,7 +130,9 @@ data class CalendarUiState(
     val jsonCalendarActivitiesForSelectedDate: Map<String, List<Activity>> = emptyMap(),
     val jsonHolidays: Map<String, List<JsonHoliday>> = emptyMap(), // MM-dd -> List<JsonHoliday>
     val jsonHolidayInfoToShow: JsonHoliday? = null,
-    val showBackgroundPermissionDialog: Boolean = false
+    val showBackgroundPermissionDialog: Boolean = false,
+    val showDeleteJsonCalendarDialog: Boolean = false,
+    val jsonCalendarToDelete: com.mss.thebigcalendar.data.model.JsonCalendar? = null
 
 )
 

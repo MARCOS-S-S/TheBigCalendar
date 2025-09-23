@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Backup
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Checkbox
@@ -65,7 +67,8 @@ fun Sidebar(
     onBackup: () -> Unit,
     onNotesClick: () -> Unit,
     onAlarmsClick: () -> Unit,
-    onRequestClose: () -> Unit
+    onRequestClose: () -> Unit,
+    onDeleteJsonCalendar: (com.mss.thebigcalendar.data.model.JsonCalendar) -> Unit
 ) {
     val context = LocalContext.current
     val quoteOfTheDay = rememberQuoteOfTheDay(context)
@@ -217,11 +220,14 @@ fun Sidebar(
                 )
                 
                 uiState.jsonCalendars.forEach { jsonCalendar ->
-                    FilterCheckboxItem(
-                        label = jsonCalendar.title,
+                    JsonCalendarItem(
+                        jsonCalendar = jsonCalendar,
                         checked = jsonCalendar.isVisible,
                         onCheckedChange = { isVisible ->
                             onFilterChange("jsonCalendar_${jsonCalendar.id}", isVisible)
+                        },
+                        onDeleteClick = {
+                            onDeleteJsonCalendar(jsonCalendar)
                         }
                     )
                 }
@@ -290,5 +296,48 @@ private fun FilterCheckboxItem(
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+/**
+ * Item para calendários JSON com botão de deletar
+ */
+@Composable
+private fun JsonCalendarItem(
+    jsonCalendar: com.mss.thebigcalendar.data.model.JsonCalendar,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = { onCheckedChange(it) },
+            enabled = true
+        )
+        Spacer(Modifier.width(16.dp))
+        Text(
+            text = jsonCalendar.title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        IconButton(
+            onClick = onDeleteClick,
+            modifier = Modifier.size(24.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Remover calendário",
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }

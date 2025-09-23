@@ -86,6 +86,7 @@ import com.mss.thebigcalendar.ui.components.SaintDaysForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.SaintInfoDialog
 import com.mss.thebigcalendar.ui.components.Sidebar
 import com.mss.thebigcalendar.ui.components.CustomDrawer
+import com.mss.thebigcalendar.ui.components.DeleteJsonCalendarDialog
 import com.mss.thebigcalendar.ui.components.TasksForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.NotesForSelectedDaySection
 import com.mss.thebigcalendar.ui.components.JsonCalendarForSelectedDaySection
@@ -170,6 +171,9 @@ fun CalendarScreen(
                     onRequestClose = {
                         scope.launch { drawerState.close() }
                         viewModel.closeSidebar()
+                    },
+                    onDeleteJsonCalendar = { jsonCalendar ->
+                        viewModel.requestDeleteJsonCalendar(jsonCalendar)
                     }
                 )
             }
@@ -369,6 +373,15 @@ fun CalendarScreen(
                                 viewModel.clearBackupMessage()
                                 viewModel.onBackupRequest()
                             }
+                        )
+                    }
+
+                    // Dialog de confirmação para deletar calendário JSON
+                    if (uiState.showDeleteJsonCalendarDialog) {
+                        DeleteJsonCalendarDialog(
+                            jsonCalendar = uiState.jsonCalendarToDelete,
+                            onDismissRequest = { viewModel.cancelDeleteJsonCalendar() },
+                            onConfirmDelete = { viewModel.confirmDeleteJsonCalendar() }
                         )
                     }
                 }

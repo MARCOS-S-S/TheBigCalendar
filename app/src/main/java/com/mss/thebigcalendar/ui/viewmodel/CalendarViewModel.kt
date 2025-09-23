@@ -1131,6 +1131,73 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
+     * Solicita confirmação para deletar um calendário JSON
+     */
+    fun requestDeleteJsonCalendar(jsonCalendar: com.mss.thebigcalendar.data.model.JsonCalendar) {
+        _uiState.update { 
+            it.copy(
+                showDeleteJsonCalendarDialog = true,
+                jsonCalendarToDelete = jsonCalendar
+            ) 
+        }
+    }
+
+    /**
+     * Cancela a solicitação de deletar calendário JSON
+     */
+    fun cancelDeleteJsonCalendar() {
+        _uiState.update { 
+            it.copy(
+                showDeleteJsonCalendarDialog = false,
+                jsonCalendarToDelete = null
+            ) 
+        }
+    }
+
+    /**
+     * Remove um calendário JSON importado (após confirmação)
+     */
+    fun confirmDeleteJsonCalendar() {
+        val calendarToDelete = _uiState.value.jsonCalendarToDelete
+        if (calendarToDelete != null) {
+            viewModelScope.launch {
+                try {
+                    Log.d("CalendarViewModel", "🗑️ Removendo calendário JSON: ${calendarToDelete.title}")
+                    
+                    // Remover do repositório
+                    jsonCalendarRepository.removeJsonCalendar(calendarToDelete.id)
+                    
+                    // Recarregar calendários JSON
+                    loadJsonCalendars()
+                    
+                    // Recarregar atividades do mês atual para atualizar a UI
+                    loadActivitiesForCurrentMonth()
+                    
+                    // Fechar dialog
+                    _uiState.update { 
+                        it.copy(
+                            showDeleteJsonCalendarDialog = false,
+                            jsonCalendarToDelete = null
+                        ) 
+                    }
+                    
+                    Log.d("CalendarViewModel", "✅ Calendário JSON removido com sucesso")
+                    
+                } catch (e: Exception) {
+                    Log.e("CalendarViewModel", "❌ Erro ao remover calendário JSON", e)
+                    // Fechar dialog mesmo em caso de erro
+                    _uiState.update { 
+                        it.copy(
+                            showDeleteJsonCalendarDialog = false,
+                            jsonCalendarToDelete = null
+                        ) 
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Fecha o dialog de permissão de segundo plano
      */
     fun dismissBackgroundPermissionDialog() {
