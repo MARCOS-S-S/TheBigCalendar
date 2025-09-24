@@ -599,10 +599,6 @@ fun MainCalendarView(
                                     onActivityClick = { activity ->
                                         // Para atividades JSON, mostrar informações do agendamento
                                         // Converter Activity para JsonHoliday para mostrar no diálogo
-                                        android.util.Log.d("CalendarScreen", "🔍 Debug Wikipedia Link:")
-                                        android.util.Log.d("CalendarScreen", "  📋 Activity: ${activity.title}")
-                                        android.util.Log.d("CalendarScreen", "  🔗 Wikipedia Link: ${activity.wikipediaLink}")
-                                        android.util.Log.d("CalendarScreen", "  📍 Location: ${activity.location}")
                                         
                                         val jsonHoliday = com.mss.thebigcalendar.data.model.JsonHoliday(
                                             id = activity.id,
@@ -615,7 +611,6 @@ fun MainCalendarView(
                                             calendarColor = jsonCalendar.color
                                         )
                                         
-                                        android.util.Log.d("CalendarScreen", "  🎯 JsonHoliday Wikipedia Link: ${jsonHoliday.wikipediaLink}")
                                         viewModel.showJsonHolidayInfo(jsonHoliday)
                                     }
                                 )

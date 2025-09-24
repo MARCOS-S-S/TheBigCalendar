@@ -37,7 +37,6 @@ class AlarmService(
          */
         fun markAlarmAsProcessed(alarmId: String) {
             recentlyProcessedAlarms[alarmId] = System.currentTimeMillis()
-            Log.d(TAG, "🔔 Alarme $alarmId marcado como processado")
         }
         
         /**
@@ -54,7 +53,6 @@ class AlarmService(
                 return false
             }
             
-            Log.d(TAG, "🔔 Alarme $alarmId foi processado há ${timeSinceProcessed}ms")
             return true
         }
         
@@ -69,7 +67,6 @@ class AlarmService(
             
             expiredKeys.forEach { alarmId ->
                 recentlyProcessedAlarms.remove(alarmId)
-                Log.d(TAG, "🔔 Removendo alarme expirado da lista de processados: $alarmId")
             }
         }
     }
@@ -82,10 +79,8 @@ class AlarmService(
      */
     suspend fun scheduleAlarm(alarmSettings: AlarmSettings): Result<Unit> {
         return try {
-            Log.d(TAG, "⏰ Agendando alarme: ${alarmSettings.label} às ${alarmSettings.time}")
             
             if (!alarmSettings.isEnabled) {
-                Log.d(TAG, "⏰ Alarme desabilitado, cancelando agendamento")
                 cancelAlarm(alarmSettings.id)
                 hideAlarmStatusNotification()
                 return Result.success(Unit)
@@ -101,9 +96,7 @@ class AlarmService(
             
             // O ícone de alarme será gerenciado automaticamente pelo sistema Android
             // quando usamos setAlarmClock()
-            Log.d(TAG, "⏰ Alarme configurado - sistema Android gerenciará o ícone na barra de status")
             
-            Log.d(TAG, "⏰ Alarme agendado com sucesso")
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "⏰ Erro ao agendar alarme", e)
@@ -116,7 +109,6 @@ class AlarmService(
      */
     suspend fun cancelAlarm(alarmId: String) {
         try {
-            Log.d(TAG, "❌ Cancelando alarme: $alarmId")
             
             // 1. Cancelar via AlarmManager com múltiplas estratégias
             val intent = createAlarmIntent(alarmId)

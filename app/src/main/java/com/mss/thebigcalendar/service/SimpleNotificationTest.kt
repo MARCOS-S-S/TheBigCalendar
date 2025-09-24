@@ -38,7 +38,6 @@ class SimpleNotificationTest(private val context: Context) {
      * Mostra uma notificação de teste simples
      */
     fun showSimpleTestNotification() {
-        Log.d(TAG, "Mostrando notificação de teste simples")
         
         val notification = NotificationCompat.Builder(context, TEST_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
@@ -49,6 +48,5 @@ class SimpleNotificationTest(private val context: Context) {
             .build()
 
         notificationManager.notify(888, notification)
-        Log.d(TAG, "Notificação de teste simples exibida")
     }
 }

@@ -44,12 +44,10 @@ class NotificationForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d(TAG, "🔔 NotificationForegroundService criado")
         createNotificationChannel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "🔔 NotificationForegroundService iniciado")
         
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
@@ -64,7 +62,6 @@ class NotificationForegroundService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(TAG, "🔔 NotificationForegroundService destruído")
     }
 
     private fun createNotificationChannel() {

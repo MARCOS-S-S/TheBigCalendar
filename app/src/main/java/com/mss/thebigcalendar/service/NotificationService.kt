@@ -80,7 +80,6 @@ class NotificationService(
                 setBypassDnd(true) // Ignorar "Não perturbe"
             }
             notificationManager.createNotificationChannel(channel)
-            Log.d(TAG, "🔔 Canal de notificação criado com som: ${android.provider.Settings.System.DEFAULT_NOTIFICATION_URI}")
         }
     }
 
@@ -93,7 +92,6 @@ class NotificationService(
             return
         }
         
-        Log.d(TAG, "🔔 Agendando notificação para: ${activity.title}")
         
         // Não iniciar serviço foreground automaticamente - será iniciado apenas quando necessário
         
@@ -104,8 +102,6 @@ class NotificationService(
         val notificationTime = calculateNotificationTime(activity)
         val triggerTime = getTriggerTime(activity.date, notificationTime)
         
-        Log.d(TAG, "🔔 Tempo de notificação: $notificationTime")
-        Log.d(TAG, "🔔 Trigger time: $triggerTime")
         
         // Cancelar notificação anterior se existir
         cancelNotification(activity.id)
@@ -150,7 +146,6 @@ class NotificationService(
                 triggerTime,
                 pendingIntent
             )
-            Log.d(TAG, "🔔 AlarmManager.setExactAndAllowWhileIdle usado")
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             // Android 4.4+: setExact - mais preciso que set()
             alarmManager.setExact(
@@ -158,7 +153,6 @@ class NotificationService(
                 triggerTime,
                 pendingIntent
             )
-            Log.d(TAG, "🔔 AlarmManager.setExact usado")
         } else {
             // Android < 4.4: set - método básico
             alarmManager.set(
@@ -166,13 +160,11 @@ class NotificationService(
                 triggerTime,
                 pendingIntent
             )
-            Log.d(TAG, "🔔 AlarmManager.set usado")
         }
         
         // Agendar WorkManager como backup
         scheduleWorkManagerBackup(activity, triggerTime)
         
-        Log.d(TAG, "🔔 Notificação agendada com sucesso para: ${activity.title}")
 
     }
     
@@ -200,7 +192,6 @@ class NotificationService(
                     androidx.work.ExistingWorkPolicy.REPLACE,
                     workRequest
                 )
-                Log.d(TAG, "🔔 WorkManager backup agendado para: ${activity.title}")
             }
         } catch (e: Exception) {
             Log.e(TAG, "🔔 Erro ao agendar WorkManager backup", e)

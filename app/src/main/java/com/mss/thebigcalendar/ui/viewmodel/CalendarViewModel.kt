@@ -631,17 +631,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun updateCalendarDays() {
         val state = _uiState.value
         
-        Log.d("CalendarViewModel", "updateCalendarDays() executando")
-        
         // Verificar se podemos usar o cache
         val currentCacheKey = generateCalendarCacheKey()
         if (cachedCalendarDays != null && lastUpdateParams == currentCacheKey) {
-            // Usar cache - não recalculamos
-            Log.d("CalendarViewModel", "Usando cache do calendário")
             return
         }
-        
-        Log.d("CalendarViewModel", "Recalculando calendário - cache inválido")
         
         // Cache miss - precisamos recalcular
 
@@ -889,7 +883,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 // Excluir atividades JSON importadas (marcadas com location começando com "JSON_IMPORTED_")
                 val isJsonImported = activity.location?.startsWith("JSON_IMPORTED_") == true
                 if (isJsonImported) {
-                    Log.d("CalendarViewModel", "Filtrando atividade JSON: ${activity.title} (location: ${activity.location})")
                 }
                 !isJsonImported
             }
@@ -940,7 +933,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         // Agendar nova atualização com debounce de 100ms
         updateJob = viewModelScope.launch {
             delay(100) // Debounce de 100ms
-            Log.d("CalendarViewModel", "Executando updateCalendarDays()")
             updateCalendarDays()
             updateTasksForSelectedDate()
             updateHolidaysForSelectedDate()
@@ -1162,19 +1154,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         if (calendarToDelete != null) {
             viewModelScope.launch {
                 try {
-                    Log.d("CalendarViewModel", "🗑️ Removendo calendário JSON: ${calendarToDelete.title}")
                     
                     // Converter cor para string para comparação
                     val calendarColorString = String.format("#%08X", calendarToDelete.color.toArgb())
-                    Log.d("CalendarViewModel", "🎨 Cor do calendário: $calendarColorString")
                     
                     // Remover atividades JSON do repositório de atividades
                     activityRepository.deleteJsonActivitiesByCalendar(calendarToDelete.title, calendarColorString)
-                    Log.d("CalendarViewModel", "🗑️ Atividades JSON removidas do repositório")
                     
                     // Remover do repositório de calendários JSON
                     jsonCalendarRepository.removeJsonCalendar(calendarToDelete.id)
-                    Log.d("CalendarViewModel", "🗑️ Calendário JSON removido do repositório")
                     
                     // Recarregar calendários JSON
                     loadJsonCalendars()
@@ -1190,7 +1178,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         ) 
                     }
                     
-                    Log.d("CalendarViewModel", "✅ Calendário JSON e atividades removidos com sucesso")
                     
                 } catch (e: Exception) {
                     Log.e("CalendarViewModel", "❌ Erro ao remover calendário JSON", e)
@@ -1328,14 +1315,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             activityRepository.saveActivity(activityToSave)
 
             // ✅ Agendar notificação se configurada
-            Log.d("CalendarViewModel", "🔔 Verificando configurações de notificação para: ${activityToSave.title}")
-            Log.d("CalendarViewModel", "🔔 Notificação habilitada: ${activityToSave.notificationSettings.isEnabled}")
-            Log.d("CalendarViewModel", "🔔 Tipo de notificação: ${activityToSave.notificationSettings.notificationType}")
             
             if (activityToSave.notificationSettings.isEnabled &&
                 activityToSave.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
 
-                Log.d("CalendarViewModel", "🔔 Agendando notificação para atividade: ${activityToSave.title}")
                 
                 // Para atividades repetitivas, agendar notificação para a data selecionada
                 val activityForNotification = if (activityToSave.recurrenceRule?.isNotEmpty() == true) {
@@ -1346,8 +1329,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     activityToSave
                 }
 
-                Log.d("CalendarViewModel", "🔔 Data da notificação: ${activityForNotification.date}")
-                Log.d("CalendarViewModel", "🔔 Horário da atividade: ${activityForNotification.startTime}")
                 
                 val notificationService = NotificationService(getApplication())
                 notificationService.scheduleNotification(activityForNotification)
@@ -1382,21 +1363,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
      * Verifica se deve solicitar permissão de segundo plano contextualmente
      */
     private fun checkAndRequestBackgroundPermissionIfNeeded(activity: Activity, isNewActivityCreated: Boolean) {
-        Log.d("CalendarViewModel", "🔔 Verificando permissão para atividade: ${activity.title}")
-        Log.d("CalendarViewModel", "🔔 ID da atividade: ${activity.id}")
-        Log.d("CalendarViewModel", "🔔 É nova atividade criada: $isNewActivityCreated")
-        Log.d("CalendarViewModel", "🔔 Notificação habilitada: ${activity.notificationSettings.isEnabled}")
-        Log.d("CalendarViewModel", "🔔 Tipo de notificação: ${activity.notificationSettings.notificationType}")
         
         // Verificar se tem notificação habilitada
         val hasNotificationEnabled = activity.notificationSettings.isEnabled &&
                                    activity.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE
         
-        Log.d("CalendarViewModel", "🔔 Tem notificação habilitada: $hasNotificationEnabled")
-        
         // Solicitar permissão sempre que criar nova atividade com notificação
         if (isNewActivityCreated && hasNotificationEnabled) {
-            Log.d("CalendarViewModel", "🔔 Nova atividade com notificação criada - verificando permissão de segundo plano")
             
             // Verificar se a permissão já foi concedida
             val context = getApplication<Application>()
@@ -1407,18 +1380,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 true // Para versões anteriores ao Android 6, não precisa da permissão
             }
             
-            Log.d("CalendarViewModel", "🔔 Permissão já concedida: $hasPermission")
-            
             // Solicitar permissão apenas se não tiver sido concedida
             if (!hasPermission) {
-                Log.d("CalendarViewModel", "🔔 Permissão de segundo plano não concedida - solicitando")
                 _uiState.update { it.copy(showBackgroundPermissionDialog = true) }
-                Log.d("CalendarViewModel", "🔔 Dialog de permissão ativado no estado")
-            } else {
-                Log.d("CalendarViewModel", "🔔 Permissão de segundo plano já concedida")
             }
-        } else {
-            Log.d("CalendarViewModel", "🔔 Não solicitando permissão - isNewActivityCreated: $isNewActivityCreated, hasNotificationEnabled: $hasNotificationEnabled")
         }
     }
 
@@ -2026,7 +1991,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
      */
     private suspend fun disableOrphanedAlarms(activityId: String, activityTitle: String) {
         try {
-            Log.d("CalendarViewModel", "🔍 Verificando despertadores órfãos para atividade: $activityTitle (ID: $activityId)")
             
             // Buscar todos os alarmes ativos
             val activeAlarms = alarmRepository.getActiveAlarms()
@@ -2040,7 +2004,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
             
             if (orphanedAlarms.isNotEmpty()) {
-                Log.d("CalendarViewModel", "🔔 Encontrados ${orphanedAlarms.size} despertadores órfãos para desativar")
                 
                 // Desativar cada despertador órfão
                 orphanedAlarms.forEach { alarm ->
@@ -2051,7 +2014,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     
                     val result = alarmRepository.saveAlarm(updatedAlarm)
                     if (result.isSuccess) {
-                        Log.d("CalendarViewModel", "✅ Despertador órfão desativado: ${alarm.label}")
                         
                         // Cancelar o alarme no sistema
                         val notificationService = NotificationService(getApplication())
@@ -2061,7 +2023,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     }
                 }
             } else {
-                Log.d("CalendarViewModel", "✅ Nenhum despertador órfão encontrado para: $activityTitle")
             }
         } catch (e: Exception) {
             Log.e("CalendarViewModel", "❌ Erro ao desativar despertadores órfãos", e)
@@ -2074,7 +2035,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
      */
     suspend fun cleanupOrphanedAlarms() {
         try {
-            Log.d("CalendarViewModel", "🧹 Iniciando limpeza de despertadores órfãos")
             
             // Buscar todos os alarmes ativos
             val activeAlarms = alarmRepository.getActiveAlarms()
@@ -2095,7 +2055,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
             
             if (orphanedAlarms.isNotEmpty()) {
-                Log.d("CalendarViewModel", "🧹 Encontrados ${orphanedAlarms.size} despertadores órfãos para limpeza")
                 
                 // Desativar cada despertador órfão
                 orphanedAlarms.forEach { alarm ->
@@ -2536,7 +2495,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
      * Testa o alerta de visibilidade alta
      */
     fun testHighVisibilityAlert() {
-        Log.d(TAG, "🧪 Testando alerta de visibilidade alta")
         visibilityService.testHighVisibilityAlert()
     }
     
@@ -2941,8 +2899,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             inputStream.use { stream ->
                 val reader = BufferedReader(InputStreamReader(stream))
                 val content = reader.readText()
-                Log.d(TAG, "Arquivo lido com sucesso, tamanho: ${content.length} caracteres")
-                Log.d(TAG, "Primeiros 200 caracteres: ${content.take(200)}")
                 content
             }
         } catch (e: Exception) {
@@ -2975,9 +2931,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private suspend fun processJsonHolidays(calendars: List<JsonCalendar>) {
         val jsonHolidaysMap = mutableMapOf<String, MutableList<JsonHoliday>>()
         
-        Log.d("CalendarViewModel", "Processando ${calendars.size} calendários JSON")
         calendars.forEach { calendar ->
-            Log.d("CalendarViewModel", "Calendário ${calendar.title}: visível=${calendar.isVisible}")
             if (calendar.isVisible) {
                 // Buscar TODAS as atividades deste calendário (não apenas do mês atual)
                 val calendarActivities = getAllJsonActivitiesForCalendar(calendar)

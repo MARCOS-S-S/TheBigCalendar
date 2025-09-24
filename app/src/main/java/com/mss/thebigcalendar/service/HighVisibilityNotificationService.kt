@@ -49,11 +49,9 @@ class HighVisibilityNotificationService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        Log.d(TAG, "🔔 HighVisibilityNotificationService criado")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "🔔 onStartCommand chamado com action: ${intent?.action}")
         
         when (intent?.action) {
             ACTION_SHOW_NOTIFICATION -> {
@@ -103,7 +101,6 @@ class HighVisibilityNotificationService : Service() {
      * Exibe notificação de alta visibilidade e mantém o app ativo
      */
     private fun showHighVisibilityNotification(activity: Activity) {
-        Log.d(TAG, "🔔 Exibindo notificação de alta visibilidade para: ${activity.title}")
         
         currentActivity = activity
         isNotificationActive = true
@@ -117,7 +114,6 @@ class HighVisibilityNotificationService : Service() {
         // Criar notificação persistente para manter o serviço ativo
         createPersistentNotification(activity)
         
-        Log.d(TAG, "🔔 Notificação de alta visibilidade ativada")
     }
 
     /**
@@ -136,7 +132,6 @@ class HighVisibilityNotificationService : Service() {
         }
         
         startActivity(intent)
-        Log.d(TAG, "🔔 Activity de alta visibilidade iniciada")
     }
 
     /**
@@ -189,7 +184,6 @@ class HighVisibilityNotificationService : Service() {
             .build()
         
         notificationManager.notify(NOTIFICATION_ID, notification)
-        Log.d(TAG, "🔔 Notificação persistente criada")
     }
 
     /**
@@ -205,7 +199,6 @@ class HighVisibilityNotificationService : Service() {
         )
         
         wakeLock?.acquire(10 * 60 * 1000L) // 10 minutos - tempo menor
-        Log.d(TAG, "🔔 WakeLock suave adquirido por 10 minutos")
     }
 
     /**
@@ -215,7 +208,6 @@ class HighVisibilityNotificationService : Service() {
         wakeLock?.let { lock ->
             if (lock.isHeld) {
                 lock.release()
-                Log.d(TAG, "🔔 WakeLock liberado")
             }
         }
         wakeLock = null
@@ -225,7 +217,6 @@ class HighVisibilityNotificationService : Service() {
      * Dismissa a notificação e para o serviço
      */
     private fun dismissNotification() {
-        Log.d(TAG, "🔔 Dismissando notificação de alta visibilidade")
         
         isNotificationActive = false
         currentActivity = null

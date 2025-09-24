@@ -23,31 +23,20 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d(TAG, "🔔 NotificationReceiver.onReceive chamado")
-        Log.d(TAG, "🔔 Action: ${intent.action}")
-        Log.d(TAG, "🔔 Timestamp atual: ${System.currentTimeMillis()}")
-        Log.d(TAG, "🔔 Intent extras: ${intent.extras?.keySet()?.joinToString()}")
-        Log.d(TAG, "🔔 Intent data: ${intent.dataString}")
-        Log.d(TAG, "🔔 Intent flags: ${intent.flags}")
         
         try {
             when (intent.action) {
                 NotificationService.ACTION_VIEW_ACTIVITY -> {
                     // ✅ Exibir a notificação visual quando o alarme for acionado
-                    Log.d(TAG, "🔔 Processando ACTION_VIEW_ACTIVITY")
                     handleViewActivity(context, intent)
                 }
                 NotificationService.ACTION_SNOOZE -> {
-                    Log.d(TAG, "🔔 Processando ACTION_SNOOZE")
                     handleSnooze(context, intent)
                 }
                 NotificationService.ACTION_DISMISS -> {
-                    Log.d(TAG, "🔔 Processando ACTION_DISMISS")
-                    Log.d(TAG, "🔔 CLICOU NO BOTÃO FINALIZADO!")
                     handleDismiss(context, intent)
                 }
                 Intent.ACTION_BOOT_COMPLETED -> {
-                    Log.d(TAG, "🔔 Sistema reiniciado - reagendando notificações")
                     // Reagendar todas as notificações após reinicialização
                     scheduleAllNotificationsAfterBoot(context)
                 }

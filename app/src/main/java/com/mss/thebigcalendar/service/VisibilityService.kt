@@ -115,7 +115,6 @@ class VisibilityService(private val context: Context) {
             VisibilityLevel.HIGH -> {
                 // ✅ NOVA ESTRATÉGIA: Usar HighVisibilityNotificationService
                 // que mantém o app ativo mesmo com a tela desligada
-                Log.d(TAG, "🔔 Atividade de alta visibilidade - usando nova estratégia com WakeLock")
                 
                 // Iniciar serviço de alta visibilidade
                 val highVisibilityIntent = Intent(context, com.mss.thebigcalendar.service.HighVisibilityNotificationService::class.java).apply {
@@ -343,17 +342,14 @@ class VisibilityService(private val context: Context) {
             
             // Verificar se o som está habilitado
             if (audioManager.ringerMode == android.media.AudioManager.RINGER_MODE_SILENT) {
-                Log.d(TAG, "🔇 Som silenciado - não tocando notificação")
                 return
             }
             
-            Log.d(TAG, "🔊 Iniciando som de notificação...")
             
             // Primeiro, tentar usar AudioManager.playSoundEffect() - mais confiável
             try {
                 // Tocar som de notificação via AudioManager (mais confiável)
                 audioManager.playSoundEffect(android.media.AudioManager.FX_KEY_CLICK)
-                Log.d(TAG, "✅ Som de notificação tocado via AudioManager")
                 
                 // Adicionar vibração para garantir que o usuário perceba
                 playVibration()
@@ -387,7 +383,6 @@ class VisibilityService(private val context: Context) {
                     notificationManager.cancel(99999)
                 }, 100)
                 
-                Log.d(TAG, "✅ Som de notificação tocado via NotificationManager")
                 return
                 
             } catch (e: Exception) {
@@ -396,7 +391,6 @@ class VisibilityService(private val context: Context) {
             
             // Fallback: usar MediaPlayer com configuração mais robusta
             val notificationUri = android.provider.Settings.System.DEFAULT_NOTIFICATION_URI
-            Log.d(TAG, "🔊 Usando MediaPlayer com URI: $notificationUri")
             
             // Configurar atributos de áudio para notificação
             val audioAttributes = android.media.AudioAttributes.Builder()

@@ -23,7 +23,6 @@ class NotificationTestService(private val context: Context) {
      * Testa notificação imediata
      */
     fun testImmediateNotification() {
-        Log.d(TAG, "🧪 Testando notificação imediata")
         
         val testActivity = Activity(
             id = "test_immediate",
@@ -51,14 +50,12 @@ class NotificationTestService(private val context: Context) {
         val notificationService = NotificationService(context)
         notificationService.showNotification(testActivity)
         
-        Log.d(TAG, "🧪 Notificação imediata exibida")
     }
 
     /**
      * Testa agendamento de notificação
      */
     fun testScheduleNotification() {
-        Log.d(TAG, "🧪 Testando agendamento de notificação")
         
         // Criar atividade para daqui a 1 minuto
         val tomorrow = LocalDate.now().plusDays(1)
@@ -90,31 +87,26 @@ class NotificationTestService(private val context: Context) {
         val notificationService = NotificationService(context)
         notificationService.scheduleNotification(testActivity)
         
-        Log.d(TAG, "🧪 Notificação agendada para amanhã às ${testTime}")
     }
 
     /**
      * Testa notificação simples
      */
     fun testSimpleNotification() {
-        Log.d(TAG, "🧪 Testando notificação simples")
         
         val simpleTest = SimpleNotificationTest(context)
         simpleTest.showSimpleTestNotification()
         
-        Log.d(TAG, "🧪 Notificação simples exibida")
     }
     
     /**
      * Verifica permissões de notificação
      */
     fun checkPermissions() {
-        Log.d(TAG, "🧪 Verificando permissões de notificação")
         
         val permissionChecker = NotificationPermissionChecker(context)
         val canShow = permissionChecker.canShowNotifications()
         
-        Log.d(TAG, "🧪 Pode mostrar notificações: $canShow")
         
         if (!canShow) {
             Log.w(TAG, "🧪 ATENÇÃO: Permissões de notificação não concedidas!")

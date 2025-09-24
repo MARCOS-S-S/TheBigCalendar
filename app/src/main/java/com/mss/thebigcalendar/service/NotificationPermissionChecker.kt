@@ -20,7 +20,6 @@ class NotificationPermissionChecker(private val context: Context) {
      * Verifica se as permissões de notificação estão concedidas
      */
     fun checkNotificationPermissions(): Boolean {
-        Log.d(TAG, "🔔 Verificando permissões de notificação")
         
         // Verificar permissão POST_NOTIFICATIONS (Android 13+)
         val hasPostNotificationPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -28,10 +27,8 @@ class NotificationPermissionChecker(private val context: Context) {
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
             )
-            Log.d(TAG, "🔔 Permissão POST_NOTIFICATIONS: ${permission == PackageManager.PERMISSION_GRANTED}")
             permission == PackageManager.PERMISSION_GRANTED
         } else {
-            Log.d(TAG, "🔔 Versão Android < 13, permissão POST_NOTIFICATIONS não necessária")
             true
         }
 
@@ -41,7 +38,6 @@ class NotificationPermissionChecker(private val context: Context) {
             Manifest.permission.SCHEDULE_EXACT_ALARM
         ) == PackageManager.PERMISSION_GRANTED
         
-        Log.d(TAG, "🔔 Permissão SCHEDULE_EXACT_ALARM: $hasScheduleExactAlarmPermission")
 
         // Verificar permissão USE_EXACT_ALARM
         val hasUseExactAlarmPermission = ContextCompat.checkSelfPermission(
@@ -49,7 +45,6 @@ class NotificationPermissionChecker(private val context: Context) {
             Manifest.permission.USE_EXACT_ALARM
         ) == PackageManager.PERMISSION_GRANTED
         
-        Log.d(TAG, "🔔 Permissão USE_EXACT_ALARM: $hasUseExactAlarmPermission")
 
         // Verificar se o app está ignorando otimizações de bateria
         val isIgnoringBatteryOptimizations = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -59,12 +54,10 @@ class NotificationPermissionChecker(private val context: Context) {
             true
         }
         
-        Log.d(TAG, "🔔 Ignorando otimizações de bateria: $isIgnoringBatteryOptimizations")
         
         val allPermissionsGranted = hasPostNotificationPermission && 
                                    (hasScheduleExactAlarmPermission || hasUseExactAlarmPermission)
         
-        Log.d(TAG, "🔔 Todas as permissões concedidas: $allPermissionsGranted")
         
         return allPermissionsGranted
     }
@@ -89,7 +82,6 @@ class NotificationPermissionChecker(private val context: Context) {
             true // Para versões anteriores, assumir que estão habilitadas
         }
         
-        Log.d(TAG, "🔔 Notificações habilitadas no sistema: $areNotificationsEnabled")
         
         return areNotificationsEnabled
     }

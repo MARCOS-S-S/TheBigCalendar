@@ -47,7 +47,6 @@ class QuoteService(private val context: Context) {
             }
             
             quotes = quotesList
-            Log.d(TAG, "✅ ${quotesList.size} frases carregadas com sucesso")
             quotesList
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao carregar frases", e)
@@ -77,7 +76,6 @@ class QuoteService(private val context: Context) {
                 .putInt(KEY_LAST_QUOTE_INDEX, nextIndex)
                 .apply()
             
-            Log.d(TAG, "📅 Nova frase do dia: ${quote.autor} - ${quote.frase}")
             quote
         } else {
             // Mesmo dia, usar frase salva
@@ -107,7 +105,6 @@ class QuoteService(private val context: Context) {
                 .putInt(KEY_LAST_QUOTE_INDEX, nextIndex)
                 .apply()
             
-            Log.d(TAG, "📅 Nova frase do dia (sync): ${quote.autor} - ${quote.frase}")
             quote
         } else {
             // Mesmo dia, usar frase salva
@@ -134,7 +131,6 @@ class QuoteService(private val context: Context) {
             }
             
             quotes = quotesList
-            Log.d(TAG, "✅ ${quotesList.size} frases carregadas com sucesso (sync)")
             quotesList
         } catch (e: Exception) {
             Log.e(TAG, "❌ Erro ao carregar frases (sync)", e)
@@ -166,7 +162,6 @@ class QuoteService(private val context: Context) {
      */
     fun resetQuoteCounter() {
         prefs.edit().clear().apply()
-        Log.d(TAG, "🔄 Contador de frases resetado")
     }
     
     /**
@@ -175,7 +170,6 @@ class QuoteService(private val context: Context) {
     fun clearCacheAndReload() {
         quotes = null // Limpa o cache em memória
         prefs.edit().clear().apply() // Limpa o cache persistente
-        Log.d(TAG, "🔄 Cache de frases limpo e forçando recarregamento")
     }
     
     /**

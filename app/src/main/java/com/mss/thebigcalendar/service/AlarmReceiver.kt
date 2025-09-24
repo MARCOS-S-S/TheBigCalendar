@@ -22,15 +22,11 @@ class AlarmReceiver : BroadcastReceiver() {
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d(TAG, "🔔 AlarmReceiver.onReceive chamado")
-        Log.d(TAG, "🔔 Action: ${intent.action}")
-        Log.d(TAG, "🔔 Extras: ${intent.extras?.keySet()?.joinToString()}")
         
         when (intent.action) {
             AlarmService.ACTION_ALARM_TRIGGERED -> {
                 val alarmId = intent.getStringExtra(AlarmService.EXTRA_ALARM_ID)
                 if (alarmId != null) {
-                    Log.d(TAG, "🔔 Processando alarme disparado: $alarmId")
                     handleAlarmTriggered(context, alarmId)
                 } else {
                     Log.w(TAG, "🔔 ID do alarme não encontrado no Intent")
@@ -39,18 +35,15 @@ class AlarmReceiver : BroadcastReceiver() {
             "DISMISS_ALARM" -> {
                 val alarmId = intent.getStringExtra(AlarmService.EXTRA_ALARM_ID)
                 if (alarmId != null) {
-                    Log.d(TAG, "🔔 Desligando alarme: $alarmId")
                     dismissAlarm(context, alarmId)
                 } else {
                     Log.w(TAG, "🔔 ID do alarme não encontrado para dismiss")
                 }
             }
             Intent.ACTION_BOOT_COMPLETED -> {
-                Log.d(TAG, "🔔 Sistema reiniciado - reagendando alarmes")
                 rescheduleAllAlarms(context)
             }
             Intent.ACTION_MY_PACKAGE_REPLACED -> {
-                Log.d(TAG, "🔔 App atualizado - reagendando alarmes")
                 rescheduleAllAlarms(context)
             }
             else -> {

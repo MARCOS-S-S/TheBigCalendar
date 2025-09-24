@@ -336,24 +336,19 @@ class MainActivity : ComponentActivity() {
                         
                         // Dialog de permissão de segundo plano contextual
                         if (uiState.showBackgroundPermissionDialog) {
-                            Log.d("MainActivity", "🔔 Mostrando dialog de permissão de segundo plano")
                             com.mss.thebigcalendar.ui.components.BackgroundPermissionDialog(
                                 onDismissRequest = { 
-                                    Log.d("MainActivity", "🔔 Dialog dismissado")
                                     viewModel.dismissBackgroundPermissionDialog() 
                                 },
                                 onAllowPermission = { 
-                                    Log.d("MainActivity", "🔔 Usuário permitiu permissão de segundo plano")
                                     viewModel.requestBackgroundPermission()
                                     requestIgnoreBatteryOptimizations()
                                 },
                                 onDenyPermission = { 
-                                    Log.d("MainActivity", "🔔 Usuário negou permissão de segundo plano")
                                     viewModel.dismissBackgroundPermissionDialog() 
                                 }
                             )
                         } else {
-                            Log.d("MainActivity", "🔔 Dialog de permissão não deve ser mostrado: ${uiState.showBackgroundPermissionDialog}")
                         }
                         }
                     }
