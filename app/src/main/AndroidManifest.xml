@@ -106,6 +106,13 @@
             android:exported="false"
             android:enabled="true" />
 
+        <!-- Serviço de notificação em foreground -->
+        <service
+            android:name=".service.NotificationForegroundService"
+            android:exported="false"
+            android:enabled="true"
+            android:foregroundServiceType="dataSync" />
+
         <!-- Notification Receiver para notificações do calendário -->
         <receiver
             android:name=".service.NotificationReceiver"
