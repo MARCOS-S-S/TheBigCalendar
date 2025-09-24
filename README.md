@@ -4,7 +4,7 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue.svg)](https://kotlinlang.org)
 [![Compose](https://img.shields.io/badge/Jetpack%20Compose-2024.09.00-orange.svg)](https://developer.android.com/jetpack/compose)
 
-Um aplicativo de calendário completo para Android com sincronização Google Calendar e sistema de alarmes inteligente.
+Um aplicativo de calendário completo para Android.
 
 ## ✨ Funcionalidades Principais
 
