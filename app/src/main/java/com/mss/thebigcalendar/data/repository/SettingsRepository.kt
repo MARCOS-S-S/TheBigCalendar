@@ -10,6 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.mss.thebigcalendar.data.model.CalendarFilterOptions
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.AnimationType
+import com.mss.thebigcalendar.data.model.SidebarFilterVisibility
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -30,6 +31,16 @@ class SettingsRepository(private val context: Context) {
         val SHOW_NOTES = booleanPreferencesKey("show_notes")
         val SHOW_MOON_PHASES = booleanPreferencesKey("show_moon_phases")
         val ANIMATION_TYPE = stringPreferencesKey("animation_type")
+        
+        // Sidebar filter visibility
+        val SIDEBAR_SHOW_HOLIDAYS = booleanPreferencesKey("sidebar_show_holidays")
+        val SIDEBAR_SHOW_SAINT_DAYS = booleanPreferencesKey("sidebar_show_saint_days")
+        val SIDEBAR_SHOW_EVENTS = booleanPreferencesKey("sidebar_show_events")
+        val SIDEBAR_SHOW_TASKS = booleanPreferencesKey("sidebar_show_tasks")
+        val SIDEBAR_SHOW_BIRTHDAYS = booleanPreferencesKey("sidebar_show_birthdays")
+        val SIDEBAR_SHOW_NOTES = booleanPreferencesKey("sidebar_show_notes")
+        val SIDEBAR_SHOW_COMPLETED_TASKS = booleanPreferencesKey("sidebar_show_completed_tasks")
+        val SIDEBAR_SHOW_MOON_PHASES = booleanPreferencesKey("sidebar_show_moon_phases")
 
     }
 
@@ -53,6 +64,20 @@ class SettingsRepository(private val context: Context) {
         .map { preferences ->
             val animationName = preferences[PreferencesKeys.ANIMATION_TYPE] ?: AnimationType.NONE.name
             AnimationType.valueOf(animationName)
+        }
+
+    val sidebarFilterVisibility: Flow<SidebarFilterVisibility> = context.dataStore.data
+        .map { preferences ->
+            SidebarFilterVisibility(
+                showHolidays = preferences[PreferencesKeys.SIDEBAR_SHOW_HOLIDAYS] ?: true,
+                showSaintDays = preferences[PreferencesKeys.SIDEBAR_SHOW_SAINT_DAYS] ?: true,
+                showEvents = preferences[PreferencesKeys.SIDEBAR_SHOW_EVENTS] ?: true,
+                showTasks = preferences[PreferencesKeys.SIDEBAR_SHOW_TASKS] ?: true,
+                showBirthdays = preferences[PreferencesKeys.SIDEBAR_SHOW_BIRTHDAYS] ?: true,
+                showNotes = preferences[PreferencesKeys.SIDEBAR_SHOW_NOTES] ?: true,
+                showCompletedTasks = preferences[PreferencesKeys.SIDEBAR_SHOW_COMPLETED_TASKS] ?: true,
+                showMoonPhases = preferences[PreferencesKeys.SIDEBAR_SHOW_MOON_PHASES] ?: true
+            )
         }
 
 
@@ -101,6 +126,19 @@ class SettingsRepository(private val context: Context) {
     suspend fun saveAnimationType(animationType: AnimationType) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.ANIMATION_TYPE] = animationType.name
+        }
+    }
+
+    suspend fun saveSidebarFilterVisibility(visibility: SidebarFilterVisibility) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SIDEBAR_SHOW_HOLIDAYS] = visibility.showHolidays
+            preferences[PreferencesKeys.SIDEBAR_SHOW_SAINT_DAYS] = visibility.showSaintDays
+            preferences[PreferencesKeys.SIDEBAR_SHOW_EVENTS] = visibility.showEvents
+            preferences[PreferencesKeys.SIDEBAR_SHOW_TASKS] = visibility.showTasks
+            preferences[PreferencesKeys.SIDEBAR_SHOW_BIRTHDAYS] = visibility.showBirthdays
+            preferences[PreferencesKeys.SIDEBAR_SHOW_NOTES] = visibility.showNotes
+            preferences[PreferencesKeys.SIDEBAR_SHOW_COMPLETED_TASKS] = visibility.showCompletedTasks
+            preferences[PreferencesKeys.SIDEBAR_SHOW_MOON_PHASES] = visibility.showMoonPhases
         }
     }
 

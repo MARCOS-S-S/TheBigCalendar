@@ -320,7 +320,11 @@ class MainActivity : ComponentActivity() {
                                 onBackClick = { viewModel.closeSettingsScreen() },
                                 onImportJsonClick = { viewModel.openJsonConfigScreen() },
                                 currentAnimation = uiState.animationType,
-                                onAnimationChange = { viewModel.onAnimationTypeChange(it) }
+                                onAnimationChange = { viewModel.onAnimationTypeChange(it) },
+                                sidebarFilterVisibility = uiState.sidebarFilterVisibility,
+                                onToggleSidebarFilterVisibility = { filterKey ->
+                                    viewModel.toggleSidebarFilterVisibility(filterKey)
+                                }
                             )
                         }
                         uiState.isBackupScreenOpen -> {

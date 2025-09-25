@@ -523,6 +523,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
         }
         viewModelScope.launch {
+            settingsRepository.sidebarFilterVisibility.collect { sidebarFilterVisibility ->
+                _uiState.update { it.copy(sidebarFilterVisibility = sidebarFilterVisibility) }
+            }
+        }
+        viewModelScope.launch {
             // Observar o estado de login do Google e o nome de boas-vindas
             _uiState.collect { uiState ->
                 val googleAccount = uiState.googleSignInAccount
@@ -1862,6 +1867,27 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     fun hideDeleteButton() {
         _uiState.update { it.copy(activityIdWithDeleteButtonVisible = null) }
+    }
+
+    fun toggleSidebarFilterVisibility(filterKey: String) {
+        val currentVisibility = _uiState.value.sidebarFilterVisibility
+        val newVisibility = when (filterKey) {
+            "showHolidays" -> currentVisibility.copy(showHolidays = !currentVisibility.showHolidays)
+            "showSaintDays" -> currentVisibility.copy(showSaintDays = !currentVisibility.showSaintDays)
+            "showEvents" -> currentVisibility.copy(showEvents = !currentVisibility.showEvents)
+            "showTasks" -> currentVisibility.copy(showTasks = !currentVisibility.showTasks)
+            "showBirthdays" -> currentVisibility.copy(showBirthdays = !currentVisibility.showBirthdays)
+            "showNotes" -> currentVisibility.copy(showNotes = !currentVisibility.showNotes)
+            "showCompletedActivities" -> currentVisibility.copy(showCompletedTasks = !currentVisibility.showCompletedTasks)
+            "showMoonPhases" -> currentVisibility.copy(showMoonPhases = !currentVisibility.showMoonPhases)
+            else -> currentVisibility
+        }
+        
+        _uiState.update { it.copy(sidebarFilterVisibility = newVisibility) }
+        
+        viewModelScope.launch {
+            settingsRepository.saveSidebarFilterVisibility(newVisibility)
+        }
     }
     
     fun markActivityAsCompleted(activityId: String) {

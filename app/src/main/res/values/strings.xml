@@ -87,6 +87,7 @@
     <string name="monthly">Mensal</string>
     <string name="yearly">Anual</string>
     <string name="show_on_calendar">Mostrar no Calendário</string>
+    <string name="show_in_menu">Mostrar no menu</string>
     <string name="settings">Configurações</string>
     <string name="general">Geral</string>
     <string name="backup">Backup</string>

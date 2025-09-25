@@ -132,7 +132,8 @@ data class CalendarUiState(
     val jsonHolidayInfoToShow: JsonHoliday? = null,
     val showBackgroundPermissionDialog: Boolean = false,
     val showDeleteJsonCalendarDialog: Boolean = false,
-    val jsonCalendarToDelete: com.mss.thebigcalendar.data.model.JsonCalendar? = null
+    val jsonCalendarToDelete: com.mss.thebigcalendar.data.model.JsonCalendar? = null,
+    val sidebarFilterVisibility: SidebarFilterVisibility = SidebarFilterVisibility()
 
 )
 

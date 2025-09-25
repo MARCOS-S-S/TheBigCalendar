@@ -174,6 +174,9 @@ fun CalendarScreen(
                     },
                     onDeleteJsonCalendar = { jsonCalendar ->
                         viewModel.requestDeleteJsonCalendar(jsonCalendar)
+                    },
+                    onToggleSidebarFilterVisibility = { filterKey ->
+                        viewModel.toggleSidebarFilterVisibility(filterKey)
                     }
                 )
             }

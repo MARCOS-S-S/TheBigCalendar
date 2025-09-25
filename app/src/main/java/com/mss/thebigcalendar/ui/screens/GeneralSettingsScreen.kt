@@ -1,6 +1,7 @@
 package com.mss.thebigcalendar.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -68,7 +69,9 @@ fun GeneralSettingsScreen(
     onBackClick: () -> Unit, // New parameter for back button
     onImportJsonClick: () -> Unit = {},
     currentAnimation: AnimationType = AnimationType.NONE,
-    onAnimationChange: (AnimationType) -> Unit = {}
+    onAnimationChange: (AnimationType) -> Unit = {},
+    sidebarFilterVisibility: com.mss.thebigcalendar.data.model.SidebarFilterVisibility = com.mss.thebigcalendar.data.model.SidebarFilterVisibility(),
+    onToggleSidebarFilterVisibility: (String) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     var welcomeNameInput by remember { mutableStateOf(welcomeName) }
@@ -280,6 +283,64 @@ fun GeneralSettingsScreen(
                         text = currentAnimation.displayName,
                         style = MaterialTheme.typography.bodyMedium
                     )
+                }
+            }
+
+            // Seção "Mostrar no menu"
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Text(
+                text = stringResource(id = R.string.show_in_menu),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
+            // Lista de filtros que podem ser adicionados ao menu
+            val hiddenFilters = listOf(
+                "showHolidays" to stringResource(id = R.string.national_holidays),
+                "showSaintDays" to stringResource(id = R.string.catholic_saint_days),
+                "showEvents" to stringResource(id = R.string.events),
+                "showTasks" to stringResource(id = R.string.tasks),
+                "showBirthdays" to stringResource(id = R.string.birthday),
+                "showNotes" to stringResource(id = R.string.note),
+                "showCompletedActivities" to stringResource(id = R.string.completed_tasks_filter),
+                "showMoonPhases" to stringResource(id = R.string.moon_phases_filter)
+            )
+            
+            hiddenFilters.forEach { (key, label) ->
+                val isHidden = when (key) {
+                    "showHolidays" -> !sidebarFilterVisibility.showHolidays
+                    "showSaintDays" -> !sidebarFilterVisibility.showSaintDays
+                    "showEvents" -> !sidebarFilterVisibility.showEvents
+                    "showTasks" -> !sidebarFilterVisibility.showTasks
+                    "showBirthdays" -> !sidebarFilterVisibility.showBirthdays
+                    "showNotes" -> !sidebarFilterVisibility.showNotes
+                    "showCompletedActivities" -> !sidebarFilterVisibility.showCompletedTasks
+                    "showMoonPhases" -> !sidebarFilterVisibility.showMoonPhases
+                    else -> false
+                }
+                
+                if (isHidden) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onToggleSidebarFilterVisibility(key) }
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = "Adicionar ao menu",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
 

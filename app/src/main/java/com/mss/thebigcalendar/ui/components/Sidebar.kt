@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
@@ -38,8 +39,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
 import com.mss.thebigcalendar.R
@@ -68,7 +74,8 @@ fun Sidebar(
     onNotesClick: () -> Unit,
     onAlarmsClick: () -> Unit,
     onRequestClose: () -> Unit,
-    onDeleteJsonCalendar: (com.mss.thebigcalendar.data.model.JsonCalendar) -> Unit
+    onDeleteJsonCalendar: (com.mss.thebigcalendar.data.model.JsonCalendar) -> Unit,
+    onToggleSidebarFilterVisibility: (String) -> Unit
 ) {
     val context = LocalContext.current
     val quoteOfTheDay = rememberQuoteOfTheDay(context)
@@ -178,35 +185,54 @@ fun Sidebar(
             }
             
             filterLabels.forEach { (key, labelResId) ->
-                val isChecked = when (key) {
-                    "showHolidays" -> uiState.filterOptions.showHolidays
-                    "showSaintDays" -> uiState.filterOptions.showSaintDays
-                    "showEvents" -> uiState.filterOptions.showEvents
-                    "showTasks" -> uiState.filterOptions.showTasks
-                    "showBirthdays" -> uiState.filterOptions.showBirthdays
-                    "showNotes" -> uiState.filterOptions.showNotes
-                    else -> false
+                val isVisible = when (key) {
+                    "showHolidays" -> uiState.sidebarFilterVisibility.showHolidays
+                    "showSaintDays" -> uiState.sidebarFilterVisibility.showSaintDays
+                    "showEvents" -> uiState.sidebarFilterVisibility.showEvents
+                    "showTasks" -> uiState.sidebarFilterVisibility.showTasks
+                    "showBirthdays" -> uiState.sidebarFilterVisibility.showBirthdays
+                    "showNotes" -> uiState.sidebarFilterVisibility.showNotes
+                    else -> true
                 }
-                FilterCheckboxItem(
-                    label = stringResource(id = labelResId),
-                    checked = isChecked,
-                    onCheckedChange = { onFilterChange(key, it) }
-                )
+                
+                if (isVisible) {
+                    val isChecked = when (key) {
+                        "showHolidays" -> uiState.filterOptions.showHolidays
+                        "showSaintDays" -> uiState.filterOptions.showSaintDays
+                        "showEvents" -> uiState.filterOptions.showEvents
+                        "showTasks" -> uiState.filterOptions.showTasks
+                        "showBirthdays" -> uiState.filterOptions.showBirthdays
+                        "showNotes" -> uiState.filterOptions.showNotes
+                        else -> false
+                    }
+                    FilterCheckboxItem(
+                        label = stringResource(id = labelResId),
+                        checked = isChecked,
+                        onCheckedChange = { onFilterChange(key, it) },
+                        onLongPress = { onToggleSidebarFilterVisibility(key) }
+                    )
+                }
             }
             
             // Opção para mostrar tarefas finalizadas
-            FilterCheckboxItem(
-                label = stringResource(id = R.string.completed_tasks_filter),
-                checked = uiState.showCompletedActivities,
-                onCheckedChange = { onFilterChange("showCompletedActivities", it) }
-            )
+            if (uiState.sidebarFilterVisibility.showCompletedTasks) {
+                FilterCheckboxItem(
+                    label = stringResource(id = R.string.completed_tasks_filter),
+                    checked = uiState.showCompletedActivities,
+                    onCheckedChange = { onFilterChange("showCompletedActivities", it) },
+                    onLongPress = { onToggleSidebarFilterVisibility("showCompletedActivities") }
+                )
+            }
             
             // Opção para mostrar fases da lua
-            FilterCheckboxItem(
-                label = stringResource(id = R.string.moon_phases_filter),
-                checked = uiState.showMoonPhases,
-                onCheckedChange = { onFilterChange("showMoonPhases", it) }
-            )
+            if (uiState.sidebarFilterVisibility.showMoonPhases) {
+                FilterCheckboxItem(
+                    label = stringResource(id = R.string.moon_phases_filter),
+                    checked = uiState.showMoonPhases,
+                    onCheckedChange = { onFilterChange("showMoonPhases", it) },
+                    onLongPress = { onToggleSidebarFilterVisibility("showMoonPhases") }
+                )
+            }
             
             // Calendários JSON importados
             if (uiState.jsonCalendars.isNotEmpty()) {
@@ -269,20 +295,38 @@ fun Sidebar(
 }
 
 /**
- * Versão 1: Linha toda clicável, Checkbox só reflete o estado.
- * (Se preferir só o clique no Checkbox, use a versão comentada abaixo)
+ * Componente de filtro com suporte a long press para mostrar ícone X
  */
 @Composable
 private fun FilterCheckboxItem(
     label: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    onLongPress: () -> Unit = {}
 ) {
+    var showRemoveIcon by remember { mutableStateOf(false) }
+    
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) }
+            .clickable { 
+                if (!showRemoveIcon) {
+                    onCheckedChange(!checked) 
+                }
+            }
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = {
+                        showRemoveIcon = true
+                    },
+                    onTap = {
+                        if (showRemoveIcon) {
+                            showRemoveIcon = false
+                        }
+                    }
+                )
+            }
             .padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
         Checkbox(
@@ -294,8 +338,27 @@ private fun FilterCheckboxItem(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
         )
+        
+        // Ícone X que aparece após long press
+        if (showRemoveIcon) {
+            IconButton(
+                onClick = { 
+                    showRemoveIcon = false
+                    onLongPress() // Remove do sidebar
+                },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Remover do menu",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
     }
 }
 

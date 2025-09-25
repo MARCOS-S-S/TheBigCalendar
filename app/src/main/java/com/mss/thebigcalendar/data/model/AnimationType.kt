@@ -10,3 +10,5 @@ enum class AnimationType(val displayName: String) {
     NONE("Sem Animação")
 }
 
+
+
