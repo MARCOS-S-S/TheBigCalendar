@@ -70,7 +70,7 @@ class SettingsRepository(private val context: Context) {
         .map { preferences ->
             SidebarFilterVisibility(
                 showHolidays = preferences[PreferencesKeys.SIDEBAR_SHOW_HOLIDAYS] ?: true,
-                showSaintDays = preferences[PreferencesKeys.SIDEBAR_SHOW_SAINT_DAYS] ?: true,
+                showSaintDays = preferences[PreferencesKeys.SIDEBAR_SHOW_SAINT_DAYS] ?: false, // Desativado por padrão
                 showEvents = preferences[PreferencesKeys.SIDEBAR_SHOW_EVENTS] ?: true,
                 showTasks = preferences[PreferencesKeys.SIDEBAR_SHOW_TASKS] ?: true,
                 showBirthdays = preferences[PreferencesKeys.SIDEBAR_SHOW_BIRTHDAYS] ?: true,

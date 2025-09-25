@@ -1883,7 +1883,25 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             else -> currentVisibility
         }
         
+        // Se a opção foi removida do sidebar (agora está false), também desativar o filtro
+        val shouldDisableFilter = when (filterKey) {
+            "showHolidays" -> !newVisibility.showHolidays && currentVisibility.showHolidays
+            "showSaintDays" -> !newVisibility.showSaintDays && currentVisibility.showSaintDays
+            "showEvents" -> !newVisibility.showEvents && currentVisibility.showEvents
+            "showTasks" -> !newVisibility.showTasks && currentVisibility.showTasks
+            "showBirthdays" -> !newVisibility.showBirthdays && currentVisibility.showBirthdays
+            "showNotes" -> !newVisibility.showNotes && currentVisibility.showNotes
+            "showCompletedActivities" -> !newVisibility.showCompletedTasks && currentVisibility.showCompletedTasks
+            "showMoonPhases" -> !newVisibility.showMoonPhases && currentVisibility.showMoonPhases
+            else -> false
+        }
+        
         _uiState.update { it.copy(sidebarFilterVisibility = newVisibility) }
+        
+        // Se a opção foi removida do sidebar, desativar o filtro correspondente
+        if (shouldDisableFilter) {
+            onFilterChange(filterKey, false)
+        }
         
         viewModelScope.launch {
             settingsRepository.saveSidebarFilterVisibility(newVisibility)
