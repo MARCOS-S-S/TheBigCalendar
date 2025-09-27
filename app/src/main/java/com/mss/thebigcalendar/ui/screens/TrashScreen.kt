@@ -20,6 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.RestoreFromTrash
 import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -81,6 +82,16 @@ fun TrashScreen(
                     }
                 },
                 actions = {
+                    // Botão para mostrar tarefas finalizadas
+                    IconButton(
+                        onClick = { viewModel.onCompletedTasksClick() }
+                    ) {
+                        Icon(
+                            Icons.Default.CheckCircle,
+                            contentDescription = stringResource(R.string.completed_tasks_title)
+                        )
+                    }
+                    
                     if (deletedActivities.isNotEmpty()) {
                         // Botão de ordenação
                         Box {
