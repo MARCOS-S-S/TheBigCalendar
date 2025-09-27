@@ -55,6 +55,7 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalAdjusters
 import java.util.UUID
 import androidx.work.WorkManager
 import androidx.work.PeriodicWorkRequestBuilder
@@ -683,7 +684,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                                 val shouldShowInCalendar = activity.showInCalendar
                                 
                                 // Para atividades recorrentes, verificar se esta data específica foi excluída
-                                val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
+                                val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true) {
                                     activity.excludedDates.contains(date.toString())
                                 } else {
                                     false
@@ -696,7 +697,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             
                             // Se a atividade é repetitiva, calcular se deve aparecer neste dia
                             if (activity.recurrenceRule?.isNotEmpty() == true && 
-                                activity.recurrenceRule != "CUSTOM" && 
                                 activity.showInCalendar) {
                                 
                                 val recurringInstances = calculateRecurringInstancesForDate(activity, date)
@@ -841,7 +841,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     val dateMatches = activityDate.isEqual(state.selectedDate)
                     if (dateMatches) {
                         // Para atividades recorrentes, verificar se esta data específica foi excluída
-                        val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
+                        val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true) {
                             activity.excludedDates.contains(state.selectedDate.toString())
                         } else {
                             false
@@ -853,8 +853,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     }
                     
                     // Se a atividade é repetitiva, calcular se deve aparecer neste dia
-                    if (activity.recurrenceRule?.isNotEmpty() == true && 
-                        activity.recurrenceRule != "CUSTOM") {
+                    if (activity.recurrenceRule?.isNotEmpty() == true) {
                         
                         val recurringInstances = calculateRecurringInstancesForDate(activity, state.selectedDate)
                         allTasksForSelectedDate.addAll(recurringInstances)
@@ -1412,6 +1411,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 return instances
             }
             
+            // Se a data alvo é igual à data base, não adicionar instância recorrente
+            // pois a atividade base já aparece no calendário
+            if (baseDate.isEqual(targetDate)) {
+                return instances
+            }
+            
             when (baseActivity.recurrenceRule) {
                 "DAILY" -> {
                     // Verificar se a data alvo é um múltiplo de dias a partir da data base
@@ -1461,6 +1466,27 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             date = targetDate.toString()
                         )
                         instances.add(instance)
+                    }
+                }
+                else -> {
+                    // Para regras personalizadas (CUSTOM), usar o RecurrenceService
+                    if (baseActivity.recurrenceRule?.startsWith("FREQ=") == true) {
+                        val recurrenceService = RecurrenceService()
+                        val startOfMonth = targetDate.withDayOfMonth(1)
+                        val endOfMonth = targetDate.with(TemporalAdjusters.lastDayOfMonth())
+                        
+                        val recurringInstances = recurrenceService.generateRecurringInstances(
+                            baseActivity, startOfMonth, endOfMonth
+                        )
+                        
+                        // Verificar se alguma instância corresponde à data alvo
+                        val matchingInstance = recurringInstances.find { instance ->
+                            LocalDate.parse(instance.date).isEqual(targetDate)
+                        }
+                        
+                        if (matchingInstance != null) {
+                            instances.add(matchingInstance)
+                        }
                     }
                 }
             }

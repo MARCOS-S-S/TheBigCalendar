@@ -97,6 +97,8 @@ fun CreateActivityScreen(
     }
     
     var showAlarmScreen by remember { mutableStateOf(false) }
+    var showCustomRepetitionScreen by remember { mutableStateOf(false) }
+    var customRepetitionRule by remember { mutableStateOf("") }
     var isRepetitionMenuExpanded by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var selectedDate by remember(currentActivity.id) { mutableStateOf(LocalDate.parse(currentActivity.date)) }
@@ -107,15 +109,19 @@ fun CreateActivityScreen(
         stringResource(id = R.string.repetition_every_day),
         stringResource(id = R.string.repetition_every_week),
         stringResource(id = R.string.repetition_every_month),
-        stringResource(id = R.string.repetition_every_year)
+        stringResource(id = R.string.repetition_every_year),
+        stringResource(id = R.string.repetition_custom)
     )
+    
+    val customRepetitionText = stringResource(id = R.string.repetition_custom)
 
     val repetitionMapping = mapOf(
         repetitionOptions[0] to "",
         repetitionOptions[1] to "DAILY",
         repetitionOptions[2] to "WEEKLY",
         repetitionOptions[3] to "MONTHLY",
-        repetitionOptions[4] to "YEARLY"
+        repetitionOptions[4] to "YEARLY",
+        repetitionOptions[5] to "CUSTOM"
     )
 
     var selectedRepetition by remember(currentActivity.id) {
@@ -127,6 +133,14 @@ fun CreateActivityScreen(
                 repetitionOptions.first()
             }
         )
+    }
+    
+    // Carregar regra personalizada se a atividade já tem uma
+    LaunchedEffect(currentActivity.id) {
+        if (currentActivity.recurrenceRule?.startsWith("FREQ=") == true) {
+            customRepetitionRule = currentActivity.recurrenceRule
+            selectedRepetition = customRepetitionText
+        }
     }
 
     val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_day_month), java.util.Locale("pt", "BR"))
@@ -187,7 +201,13 @@ fun CreateActivityScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onDismissRequest) {
+                    IconButton(onClick = {
+                        if (showCustomRepetitionScreen) {
+                            showCustomRepetitionScreen = false
+                        } else {
+                            onDismissRequest()
+                        }
+                    }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.back))
                     }
                 },
@@ -206,7 +226,11 @@ fun CreateActivityScreen(
                                 notificationSettings = notificationSettings,
                                 visibility = selectedVisibility,
                                 showInCalendar = showInCalendar,
-                                recurrenceRule = convertRepetitionOptionToRule(selectedRepetition, repetitionMapping)
+                                recurrenceRule = if (selectedRepetition == customRepetitionText) {
+                                    customRepetitionRule
+                                } else {
+                                    convertRepetitionOptionToRule(selectedRepetition, repetitionMapping)
+                                }
                             )
                             if (updatedActivity.title.isNotBlank()) {
                                 onSaveActivity(updatedActivity, syncWithGoogle)
@@ -426,7 +450,11 @@ fun CreateActivityScreen(
                                 )
                             },
                             onClick = {
-                                selectedRepetition = option
+                                if (option == customRepetitionText) {
+                                    showCustomRepetitionScreen = true
+                                } else {
+                                    selectedRepetition = option
+                                }
                                 isRepetitionMenuExpanded = false
                             }
                         )
@@ -555,6 +583,20 @@ fun CreateActivityScreen(
             onBackClick = { showAlarmScreen = false },
             onBackPressedDispatcher = backPressedDispatcher,
             activityToEdit = currentActivity
+        )
+    }
+    
+    // Tela de Repetição Personalizada
+    if (showCustomRepetitionScreen) {
+        CustomRepetitionScreen(
+            onBackClick = { 
+                showCustomRepetitionScreen = false
+            },
+            onSaveCustomRepetition = { customRule ->
+                customRepetitionRule = customRule
+                selectedRepetition = customRepetitionText
+            },
+            existingRule = if (selectedRepetition == customRepetitionText) customRepetitionRule else ""
         )
     }
 }

@@ -29,8 +29,7 @@ class RecurrenceService {
         val instances = mutableListOf<Activity>()
         val baseDate = LocalDate.parse(baseActivity.date)
         
-        // Adicionar a atividade base
-        instances.add(baseActivity)
+        // NÃO adicionar a atividade base aqui - ela já aparece no calendário como atividade original
         
         // Gerar instâncias recorrentes
         when (recurrenceRule) {
@@ -139,89 +138,167 @@ class RecurrenceService {
             val freq = parts.find { it.startsWith("FREQ=") }?.substringAfter("=")
             val interval = parts.find { it.startsWith("INTERVAL=") }?.substringAfter("=")?.toIntOrNull() ?: 1
             val until = parts.find { it.startsWith("UNTIL=") }?.substringAfter("=")?.let { LocalDate.parse(it) }
+            val count = parts.find { it.startsWith("COUNT=") }?.substringAfter("=")?.toIntOrNull()
+            val byDay = parts.find { it.startsWith("BYDAY=") }?.substringAfter("=")
             
-            val actualEndDate = if (until != null && until.isBefore(endDate)) until else endDate
+            // Determinar data de término baseada em COUNT ou UNTIL
+            val actualEndDate = when {
+                count != null -> {
+                    // Se COUNT está definido, calcular a data de término baseada no número de ocorrências
+                    // COUNT inclui a atividade base, então precisamos de (count-1) ocorrências adicionais
+                    when (freq) {
+                        "DAILY" -> baseDate.plusDays(count * interval.toLong())
+                        "WEEKLY" -> baseDate.plusWeeks(count * interval.toLong())
+                        "MONTHLY" -> baseDate.plusMonths(count * interval.toLong())
+                        "YEARLY" -> baseDate.plusYears(count * interval.toLong())
+                        else -> endDate
+                    }
+                }
+                until != null && until.isBefore(endDate) -> until
+                else -> endDate
+            }
             
             when (freq) {
-                "DAILY" -> generateCustomDailyInstances(baseActivity, baseDate, actualEndDate, interval, instances)
-                "WEEKLY" -> generateCustomWeeklyInstances(baseActivity, baseDate, actualEndDate, interval, instances)
-                "MONTHLY" -> generateCustomMonthlyInstances(baseActivity, baseDate, actualEndDate, interval, instances)
-                "YEARLY" -> generateCustomYearlyInstances(baseActivity, baseDate, actualEndDate, interval, instances)
+                "DAILY" -> generateCustomDailyInstancesWithCount(baseActivity, baseDate, actualEndDate, interval, count, instances)
+                "WEEKLY" -> generateCustomWeeklyInstancesWithCount(baseActivity, baseDate, actualEndDate, interval, count, byDay, instances)
+                "MONTHLY" -> generateCustomMonthlyInstancesWithCount(baseActivity, baseDate, actualEndDate, interval, count, instances)
+                "YEARLY" -> generateCustomYearlyInstancesWithCount(baseActivity, baseDate, actualEndDate, interval, count, instances)
             }
         } catch (e: Exception) {
         }
     }
 
     /**
-     * Gera instâncias diárias customizadas com intervalo
+     * Gera instâncias diárias customizadas com intervalo e contagem
      */
-    private fun generateCustomDailyInstances(
+    private fun generateCustomDailyInstancesWithCount(
         baseActivity: Activity,
         baseDate: LocalDate,
         endDate: LocalDate,
         interval: Int,
+        count: Int?,
         instances: MutableList<Activity>
     ) {
         var currentDate = baseDate.plusDays(interval.toLong())
-        while (!currentDate.isAfter(endDate)) {
+        var occurrenceCount = 0 // Contador de ocorrências (incluindo a base)
+        
+        while (!currentDate.isAfter(endDate) && (count == null || occurrenceCount < count)) {
             // Verificar se esta data não foi excluída
             if (!baseActivity.excludedDates.contains(currentDate.toString())) {
                 instances.add(createRecurringInstance(baseActivity, currentDate))
+                occurrenceCount++
             }
             currentDate = currentDate.plusDays(interval.toLong())
         }
     }
 
     /**
-     * Gera instâncias semanais customizadas com intervalo
+     * Gera instâncias semanais customizadas com intervalo e contagem
      */
-    private fun generateCustomWeeklyInstances(
+    private fun generateCustomWeeklyInstancesWithCount(
         baseActivity: Activity,
         baseDate: LocalDate,
         endDate: LocalDate,
         interval: Int,
+        count: Int?,
+        byDay: String?,
         instances: MutableList<Activity>
     ) {
-        var currentDate = baseDate.plusWeeks(interval.toLong())
-        while (!currentDate.isAfter(endDate)) {
-            instances.add(createRecurringInstance(baseActivity, currentDate))
-            currentDate = currentDate.plusWeeks(interval.toLong())
+        // Se não há BYDAY especificado, usar comportamento padrão (mesmo dia da semana)
+        if (byDay == null || byDay.isEmpty()) {
+            var currentDate = baseDate.plusWeeks(interval.toLong())
+            var occurrenceCount = 0 // Contador de ocorrências (incluindo a base)
+            
+            while (!currentDate.isAfter(endDate) && (count == null || occurrenceCount < count)) {
+                instances.add(createRecurringInstance(baseActivity, currentDate))
+                occurrenceCount++
+                currentDate = currentDate.plusWeeks(interval.toLong())
+            }
+            return
+        }
+        
+        // Parse dos dias da semana especificados
+        val targetDays = byDay.split(",").mapNotNull { day ->
+            when (day.trim()) {
+                "SU" -> 7 // Domingo (Java usa 1-7, onde 7 = Domingo)
+                "MO" -> 1 // Segunda
+                "TU" -> 2 // Terça
+                "WE" -> 3 // Quarta
+                "TH" -> 4 // Quinta
+                "FR" -> 5 // Sexta
+                "SA" -> 6 // Sábado
+                else -> null
+            }
+        }
+        
+        if (targetDays.isEmpty()) return
+        
+        var occurrenceCount = 0
+        var currentWeekStart = baseDate
+        
+        // Encontrar a próxima semana que contenha os dias especificados
+        while (!currentWeekStart.isAfter(endDate) && (count == null || occurrenceCount < count)) {
+            // Para cada dia da semana especificado nesta semana
+            targetDays.forEach { targetDay ->
+                val targetDate = currentWeekStart.with(TemporalAdjusters.nextOrSame(
+                    java.time.DayOfWeek.of(targetDay)
+                ))
+                
+                // Verificar se a data está dentro do período e não foi excluída
+                if (!targetDate.isAfter(endDate) && 
+                    !baseActivity.excludedDates.contains(targetDate.toString()) &&
+                    (count == null || occurrenceCount < count)) {
+                    instances.add(createRecurringInstance(baseActivity, targetDate))
+                    occurrenceCount++
+                }
+            }
+            
+            // Avançar para a próxima semana baseada no intervalo
+            currentWeekStart = currentWeekStart.plusWeeks(interval.toLong())
         }
     }
 
     /**
-     * Gera instâncias mensais customizadas com intervalo
+     * Gera instâncias mensais customizadas com intervalo e contagem
      */
-    private fun generateCustomMonthlyInstances(
+    private fun generateCustomMonthlyInstancesWithCount(
         baseActivity: Activity,
         baseDate: LocalDate,
         endDate: LocalDate,
         interval: Int,
+        count: Int?,
         instances: MutableList<Activity>
     ) {
         var currentDate = baseDate.plusMonths(interval.toLong())
-        while (!currentDate.isAfter(endDate)) {
+        var occurrenceCount = 0 // Contador de ocorrências (incluindo a base)
+        
+        while (!currentDate.isAfter(endDate) && (count == null || occurrenceCount < count)) {
             val targetDay = minOf(baseDate.dayOfMonth, currentDate.lengthOfMonth())
             val adjustedDate = currentDate.withDayOfMonth(targetDay)
             
             instances.add(createRecurringInstance(baseActivity, adjustedDate))
+            occurrenceCount++
             currentDate = currentDate.plusMonths(interval.toLong())
         }
     }
 
     /**
-     * Gera instâncias anuais customizadas com intervalo
+     * Gera instâncias anuais customizadas com intervalo e contagem
      */
-    private fun generateCustomYearlyInstances(
+    private fun generateCustomYearlyInstancesWithCount(
         baseActivity: Activity,
         baseDate: LocalDate,
         endDate: LocalDate,
         interval: Int,
+        count: Int?,
         instances: MutableList<Activity>
     ) {
         var currentDate = baseDate.plusYears(interval.toLong())
-        while (!currentDate.isAfter(endDate)) {
+        var occurrenceCount = 0 // Contador de ocorrências (incluindo a base)
+        
+        while (!currentDate.isAfter(endDate) && (count == null || occurrenceCount < count)) {
             instances.add(createRecurringInstance(baseActivity, currentDate))
+            occurrenceCount++
             currentDate = currentDate.plusYears(interval.toLong())
         }
     }
