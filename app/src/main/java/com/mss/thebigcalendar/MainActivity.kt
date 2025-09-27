@@ -261,7 +261,10 @@ class MainActivity : ComponentActivity() {
                             CompletedTasksScreen(
                                 onBackClick = { viewModel.closeCompletedTasksScreen() },
                                 completedActivities = uiState.completedActivities,
-                                onBackPressedDispatcher = onBackPressedDispatcher
+                                onBackPressedDispatcher = onBackPressedDispatcher,
+                                onDeleteCompletedActivity = { activityId ->
+                                    viewModel.deleteCompletedActivity(activityId)
+                                }
                             )
                         }
                         uiState.isSearchScreenOpen -> {

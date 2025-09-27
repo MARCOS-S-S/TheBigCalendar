@@ -2402,6 +2402,26 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         println("🚪 Fechando tela de tarefas concluídas")
         _uiState.update { it.copy(isCompletedTasksScreenOpen = false) }
     }
+    
+    fun deleteCompletedActivity(activityId: String) {
+        viewModelScope.launch {
+            try {
+                // Remover da lista de atividades concluídas
+                completedActivityRepository.removeCompletedActivity(activityId)
+                
+                // Atualizar o estado da UI
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        completedActivities = currentState.completedActivities.filter { it.id != activityId }
+                    )
+                }
+                
+                println("🗑️ Atividade concluída removida permanentemente: $activityId")
+            } catch (e: Exception) {
+                println("❌ Erro ao remover atividade concluída: ${e.message}")
+            }
+        }
+    }
 
     // --- Lixeira ---
     

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.filled.Search
@@ -61,6 +62,7 @@ fun CompletedTasksScreen(
     onBackClick: () -> Unit,
     completedActivities: List<Activity> = emptyList(),
     onBackPressedDispatcher: OnBackPressedDispatcher? = null,
+    onDeleteCompletedActivity: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
@@ -215,7 +217,10 @@ fun CompletedTasksScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(filteredActivities) { activity ->
-                        CompletedTaskItem(activity = activity)
+                        CompletedTaskItem(
+                            activity = activity,
+                            onDeleteClick = { onDeleteCompletedActivity(activity.id) }
+                        )
                     }
                 }
             }
@@ -226,6 +231,7 @@ fun CompletedTasksScreen(
 @Composable
 private fun CompletedTaskItem(
     activity: Activity,
+    onDeleteClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -306,13 +312,17 @@ private fun CompletedTaskItem(
                 }
             }
             
-            // Ícone de concluído
-            Icon(
-                Icons.Filled.CheckCircle,
-                contentDescription = stringResource(id = R.string.completed_content_description),
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.secondary
-            )
+            // Botão de exclusão permanente
+            IconButton(
+                onClick = onDeleteClick
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = stringResource(id = R.string.delete_permanently),
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
         }
     }
 }
