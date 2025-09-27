@@ -1546,6 +1546,39 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
+     * Calcula a próxima ocorrência para uma atividade recorrente horária
+     */
+    private fun calculateNextHourlyOccurrence(activity: Activity, currentDate: LocalDate, currentTime: LocalTime?): Pair<LocalDate, LocalTime?> {
+        val recurrenceService = RecurrenceService()
+        
+        // Gerar instâncias para os próximos 7 dias para encontrar a próxima ocorrência
+        val startDate = currentDate.plusDays(1)
+        val endDate = currentDate.plusDays(7)
+        
+        val recurringInstances = recurrenceService.generateRecurringInstances(
+            activity, startDate, endDate
+        )
+        
+        // Encontrar a primeira instância que não está excluída
+        val nextInstance = recurringInstances.firstOrNull { instance ->
+            val instanceDate = LocalDate.parse(instance.date)
+            val instanceTime = instance.startTime
+            val timeString = instanceTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
+            val instanceId = "${activity.id}_${instanceDate}_${timeString}"
+            
+            !activity.excludedInstances.contains(instanceId)
+        }
+        
+        return if (nextInstance != null) {
+            Pair(LocalDate.parse(nextInstance.date), nextInstance.startTime)
+        } else {
+            // Se não encontrar próxima instância, avançar para o próximo dia na mesma hora
+            val nextDate = currentDate.plusDays(1)
+            Pair(nextDate, currentTime)
+        }
+    }
+
+    /**
      * Remove todas as instâncias recorrentes de uma atividade
      */
     private fun removeRecurringInstances(baseActivity: Activity) {
@@ -2063,14 +2096,29 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         // Salvar instância específica como concluída
                         completedActivityRepository.addCompletedActivity(instanceToComplete)
                         
-                        // Para atividades HOURLY, adicionar instância específica à lista de exclusões
-                        // Para outras atividades, adicionar data à lista de exclusões
+                        // Para atividades HOURLY, implementar estratégia especial para primeira instância
                         val updatedBaseActivity = if (activityToComplete.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
                             val activityTime = activityToComplete.startTime
                             val timeString = activityTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
                             val instanceId = "${activityToComplete.id}_${activityDate}_${timeString}"
-                            val updatedExcludedInstances = activityToComplete.excludedInstances + instanceId
-                            activityToComplete.copy(excludedInstances = updatedExcludedInstances)
+                            
+                            // Verificar se é a primeira instância (mesma data e hora da atividade base)
+                            val baseDate = LocalDate.parse(activityToComplete.date)
+                            val isFirstInstance = baseDate.isEqual(LocalDate.parse(activityDate))
+                            
+                            if (isFirstInstance) {
+                                // Para a primeira instância, avançar a data/hora da atividade base para a próxima ocorrência
+                                val nextOccurrence = calculateNextHourlyOccurrence(activityToComplete, baseDate, activityTime)
+                                val updatedActivity = activityToComplete.copy(
+                                    date = nextOccurrence.first.toString(),
+                                    startTime = nextOccurrence.second
+                                )
+                                updatedActivity
+                            } else {
+                                // Para outras instâncias, adicionar à lista de exclusões
+                                val updatedExcludedInstances = activityToComplete.excludedInstances + instanceId
+                                activityToComplete.copy(excludedInstances = updatedExcludedInstances)
+                            }
                         } else {
                             val updatedExcludedDates = activityToComplete.excludedDates + activityDate
                             activityToComplete.copy(excludedDates = updatedExcludedDates)
