@@ -1995,13 +1995,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             
             // Verificar se é uma instância recorrente (ID contém data)
-            val isRecurringInstance = activityId.contains("_") && activityId.split("_").size == 2
+            val isRecurringInstance = activityId.contains("_") && activityId.split("_").size >= 2
             
             if (isRecurringInstance) {
                 // Tratar instância recorrente específica
                 val parts = activityId.split("_")
                 val baseId = parts[0]
                 val instanceDate = parts[1]
+                val instanceTime = if (parts.size >= 3) parts[2] else null
 
                 
                 // Buscar a atividade base
@@ -2021,9 +2022,16 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     // Salvar instância específica como concluída
                     completedActivityRepository.addCompletedActivity(instanceToComplete)
                     
-                    // Adicionar data à lista de exclusões da atividade base
-                    val updatedExcludedDates = baseActivity.excludedDates + instanceDate
-                    val updatedBaseActivity = baseActivity.copy(excludedDates = updatedExcludedDates)
+                    // Para atividades HOURLY, adicionar instância específica à lista de exclusões
+                    // Para outras atividades, adicionar data à lista de exclusões
+                    val updatedBaseActivity = if (baseActivity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                        val instanceId = if (instanceTime != null) "${baseActivity.id}_${instanceDate}_${instanceTime}" else "${baseActivity.id}_${instanceDate}"
+                        val updatedExcludedInstances = baseActivity.excludedInstances + instanceId
+                        baseActivity.copy(excludedInstances = updatedExcludedInstances)
+                    } else {
+                        val updatedExcludedDates = baseActivity.excludedDates + instanceDate
+                        baseActivity.copy(excludedDates = updatedExcludedDates)
+                    }
                     
                     // Atualizar a atividade base com a nova lista de exclusões
                     activityRepository.saveActivity(updatedBaseActivity)
@@ -2055,9 +2063,18 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         // Salvar instância específica como concluída
                         completedActivityRepository.addCompletedActivity(instanceToComplete)
                         
-                        // Adicionar data à lista de exclusões da atividade base
-                        val updatedExcludedDates = activityToComplete.excludedDates + activityDate
-                        val updatedBaseActivity = activityToComplete.copy(excludedDates = updatedExcludedDates)
+                        // Para atividades HOURLY, adicionar instância específica à lista de exclusões
+                        // Para outras atividades, adicionar data à lista de exclusões
+                        val updatedBaseActivity = if (activityToComplete.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                            val activityTime = activityToComplete.startTime
+                            val timeString = activityTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
+                            val instanceId = "${activityToComplete.id}_${activityDate}_${timeString}"
+                            val updatedExcludedInstances = activityToComplete.excludedInstances + instanceId
+                            activityToComplete.copy(excludedInstances = updatedExcludedInstances)
+                        } else {
+                            val updatedExcludedDates = activityToComplete.excludedDates + activityDate
+                            activityToComplete.copy(excludedDates = updatedExcludedDates)
+                        }
                         
                         // Atualizar a atividade base com a nova lista de exclusões
                         activityRepository.saveActivity(updatedBaseActivity)

@@ -230,8 +230,11 @@ class RecurrenceService {
             val currentDate = currentDateTime.toLocalDate()
             val currentTime = currentDateTime.toLocalTime()
             
-            // Verificar se esta data não foi excluída
-            if (!baseActivity.excludedDates.contains(currentDate.toString())) {
+            // Verificar se esta instância específica não foi excluída
+            val instanceId = "${baseActivity.id}_${currentDate}_${currentTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}"
+            val isExcluded = baseActivity.excludedInstances.contains(instanceId)
+            
+            if (!isExcluded) {
                 // Criar instância com hora no título
                 val instanceWithTime = createRecurringInstanceWithTime(baseActivity, currentDate, currentTime)
                 instances.add(instanceWithTime)

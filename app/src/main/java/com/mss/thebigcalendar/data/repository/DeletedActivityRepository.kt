@@ -128,7 +128,8 @@ class DeletedActivityRepository(private val context: Context) {
             notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings(),
             isCompleted = this.isCompleted,
             showInCalendar = this.showInCalendar,
-            excludedDates = emptyList() // Para atividades deletadas, não precisamos das datas excluídas
+            excludedDates = emptyList(), // Para atividades deletadas, não precisamos das datas excluídas
+            excludedInstances = emptyList() // Para atividades deletadas, não precisamos das instâncias excluídas
         )
     }
 

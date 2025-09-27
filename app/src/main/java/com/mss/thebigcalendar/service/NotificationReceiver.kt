@@ -282,7 +282,7 @@ class NotificationReceiver : BroadcastReceiver() {
                 val activities = repository.activities.first()
                 
                 // Verificar se é uma instância recorrente (ID contém data)
-                val isRecurringInstance = activityId?.contains("_") == true && activityId.split("_").size == 2
+                val isRecurringInstance = activityId?.contains("_") == true && activityId.split("_").size >= 2
                 
                 val activity = if (isRecurringInstance) {
                     // Para instâncias recorrentes, buscar pela atividade base
@@ -356,7 +356,7 @@ class NotificationReceiver : BroadcastReceiver() {
                     val recurrenceService = com.mss.thebigcalendar.service.RecurrenceService()
                     
                     // Verificar se é uma instância recorrente (ID contém data)
-                    val isRecurringInstance = activityId.contains("_") && activityId.split("_").size == 2
+                    val isRecurringInstance = activityId.contains("_") && activityId.split("_").size >= 2
                     
                     if (isRecurringInstance) {
                         // Tratar instância recorrente específica
@@ -391,9 +391,15 @@ class NotificationReceiver : BroadcastReceiver() {
                                 // Salvar instância específica como concluída
                                 completedRepository.addCompletedActivity(instanceToComplete)
                                 
-                                // Adicionar data à lista de exclusões da atividade base
-                                val updatedExcludedDates = baseActivity.excludedDates + instanceDate
-                                val updatedBaseActivity = baseActivity.copy(excludedDates = updatedExcludedDates)
+                                // Para atividades HOURLY, adicionar instância específica à lista de exclusões
+                                // Para outras atividades, adicionar data à lista de exclusões
+                                val updatedBaseActivity = if (baseActivity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                                    val updatedExcludedInstances = baseActivity.excludedInstances + activityId
+                                    baseActivity.copy(excludedInstances = updatedExcludedInstances)
+                                } else {
+                                    val updatedExcludedDates = baseActivity.excludedDates + instanceDate
+                                    baseActivity.copy(excludedDates = updatedExcludedDates)
+                                }
                                 
                                 // Atualizar a atividade base com a nova lista de exclusões
                                 repository.saveActivity(updatedBaseActivity)

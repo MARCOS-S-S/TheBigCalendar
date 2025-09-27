@@ -43,6 +43,7 @@ data class Activity(
     val showInCalendar: Boolean = true, // Nova opção para mostrar no calendário
     val isFromGoogle: Boolean = false,
     val excludedDates: List<String> = emptyList(), // Datas de instâncias recorrentes excluídas
+    val excludedInstances: List<String> = emptyList(), // Instâncias específicas excluídas (para HOURLY)
     val wikipediaLink: String? = null // Link para mais informações (usado em agendamentos JSON)
 )
 

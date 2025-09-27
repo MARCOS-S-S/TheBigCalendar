@@ -82,6 +82,7 @@ class CompletedActivityRepository(private val context: Context) {
             .setShowInCalendar(this.showInCalendar)
             .setNotificationSettings(this.notificationSettings.toProto())
             .addAllExcludedDates(this.excludedDates)
+            .addAllExcludedInstances(this.excludedInstances)
             .setWikipediaLink(this.wikipediaLink ?: "")
             .build()
     }
@@ -109,6 +110,7 @@ class CompletedActivityRepository(private val context: Context) {
             },
             showInCalendar = this.showInCalendar,
             excludedDates = this.excludedDatesList.toList(),
+            excludedInstances = this.excludedInstancesList.toList(),
             wikipediaLink = this.wikipediaLink.takeIf { it.isNotEmpty() }
         )
     }
