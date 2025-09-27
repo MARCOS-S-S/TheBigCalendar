@@ -19,7 +19,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -238,14 +240,39 @@ class MainActivity : ComponentActivity() {
                     } else {
                         // Mostrar loading até o calendário estar carregado
                         if (!uiState.isCalendarLoaded) {
-                            // Tela de loading com ícone central
+                            // Tela de loading com barra de progresso reta
                             androidx.compose.foundation.layout.Box(
                                 modifier = androidx.compose.ui.Modifier.fillMaxSize(),
                                 contentAlignment = androidx.compose.ui.Alignment.Center
                             ) {
-                                androidx.compose.material3.CircularProgressIndicator(
-                                    modifier = androidx.compose.ui.Modifier.size(48.dp)
-                                )
+                                androidx.compose.foundation.layout.Column(
+                                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp)
+                                ) {
+                                    // Título
+                                    androidx.compose.material3.Text(
+                                        text = "Carregando agendamentos",
+                                        style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                                    )
+                                    
+                                    // Barra de progresso reta com progresso real
+                                    androidx.compose.material3.LinearProgressIndicator(
+                                        progress = uiState.loadingProgress,
+                                        modifier = androidx.compose.ui.Modifier
+                                            .width(200.dp)
+                                            .height(6.dp),
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                                        trackColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                    
+                                    // Texto de progresso em porcentagem
+                                    androidx.compose.material3.Text(
+                                        text = "${(uiState.loadingProgress * 100).toInt()}%",
+                                        style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         } else {
                             when {

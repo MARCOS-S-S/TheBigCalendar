@@ -124,6 +124,7 @@ data class CalendarUiState(
     val lastGoogleSyncTime: Long = 0L,
     val showMoonPhases: Boolean = false,
     val isCalendarLoaded: Boolean = false,
+    val loadingProgress: Float = 0f, // Progresso de carregamento (0.0 a 1.0)
     val isJsonConfigScreenOpen: Boolean = false,
     val selectedJsonFileName: String? = null,
     val selectedJsonUri: android.net.Uri? = null,
