@@ -550,23 +550,19 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         // Primeiro limpar atividades JSON antigas
         viewModelScope.launch {
             cleanupOldJsonActivities()
-            _uiState.update { it.copy(loadingProgress = 0.2f) }
         }
         
         // Carregar apenas as atividades do mês atual
         loadActivitiesForCurrentMonth()
-        _uiState.update { it.copy(loadingProgress = 0.4f) }
         
         // Carregar calendários JSON
         loadJsonCalendars()
-        _uiState.update { it.copy(loadingProgress = 0.6f) }
         
         viewModelScope.launch {
             deletedActivityRepository.deletedActivities.collect { deletedActivities ->
                 _uiState.update { it.copy(deletedActivities = deletedActivities) }
             }
         }
-        _uiState.update { it.copy(loadingProgress = 0.7f) }
         
         viewModelScope.launch {
             completedActivityRepository.completedActivities.collect { completedActivities ->
@@ -577,15 +573,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 updateAllDateDependentUI()
             }
         }
-        _uiState.update { it.copy(loadingProgress = 0.8f) }
         
         loadInitialHolidaysAndSaints()
-        _uiState.update { it.copy(loadingProgress = 0.9f) }
         
-        // Finalizar carregamento após um pequeno delay para mostrar o progresso
+        // Aguardar tempo suficiente para garantir que a animação complete
         viewModelScope.launch {
-            kotlinx.coroutines.delay(500) // Pequeno delay para mostrar 90% antes de finalizar
-            _uiState.update { it.copy(loadingProgress = 1.0f) }
+            kotlinx.coroutines.delay(1700) // 1.7 segundos para garantir que a animação de 1.5s complete
+            _uiState.update { it.copy(isCalendarLoaded = true) }
         }
     }
 
@@ -953,9 +947,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             updateTasksForSelectedDate()
             updateHolidaysForSelectedDate()
             updateSaintDaysForSelectedDate()
-            
-            // Marcar calendário como carregado após primeira atualização
-            _uiState.update { it.copy(isCalendarLoaded = true) }
         }
     }
 

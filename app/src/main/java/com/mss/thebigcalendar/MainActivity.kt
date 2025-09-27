@@ -256,9 +256,30 @@ class MainActivity : ComponentActivity() {
                                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                                     )
                                     
-                                    // Barra de progresso reta com progresso real
+                                    // Controlar o progresso da animação
+                                    var progress by androidx.compose.runtime.remember { 
+                                        androidx.compose.runtime.mutableStateOf(0f) 
+                                    }
+                                    
+                                    // Iniciar animação quando a tela aparece
+                                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                                        kotlinx.coroutines.delay(100) // Pequeno delay para garantir que a tela esteja pronta
+                                        progress = 1f // Anima de 0 para 1
+                                    }
+                                    
+                                    // Animação fluída do progresso
+                                    val animatedProgress = androidx.compose.animation.core.animateFloatAsState(
+                                        targetValue = progress,
+                                        animationSpec = androidx.compose.animation.core.tween(
+                                            durationMillis = 1200, // 1 segundo de animação
+                                            easing = androidx.compose.animation.core.FastOutSlowInEasing
+                                        ),
+                                        label = "loading_animation"
+                                    )
+                                    
+                                    // Barra de progresso reta com animação fluída
                                     androidx.compose.material3.LinearProgressIndicator(
-                                        progress = uiState.loadingProgress,
+                                        progress = animatedProgress.value,
                                         modifier = androidx.compose.ui.Modifier
                                             .width(200.dp)
                                             .height(6.dp),
@@ -266,9 +287,9 @@ class MainActivity : ComponentActivity() {
                                         trackColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant
                                     )
                                     
-                                    // Texto de progresso em porcentagem
+                                    // Texto de progresso em porcentagem com animação
                                     androidx.compose.material3.Text(
-                                        text = "${(uiState.loadingProgress * 100).toInt()}%",
+                                        text = "${(animatedProgress.value * 100).toInt()}%",
                                         style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
                                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                                     )
