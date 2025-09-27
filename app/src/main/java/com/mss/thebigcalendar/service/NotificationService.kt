@@ -113,7 +113,13 @@ class NotificationService(
             activity.id
         } else {
             // É uma atividade base, criar ID da instância específica
-            "${activity.id}_${activity.date}"
+            // Para atividades HOURLY, incluir o horário no ID
+            if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true && activity.startTime != null) {
+                val timeString = activity.startTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                "${activity.id}_${activity.date}_${timeString}"
+            } else {
+                "${activity.id}_${activity.date}"
+            }
         }
         
         val intent = Intent(context, NotificationReceiver::class.java).apply {

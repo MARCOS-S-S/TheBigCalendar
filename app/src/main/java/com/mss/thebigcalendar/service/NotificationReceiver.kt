@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.time.LocalTime
 import java.time.LocalDateTime
+import java.time.LocalDate
 import com.mss.thebigcalendar.data.model.VisibilityLevel
 
 class NotificationReceiver : BroadcastReceiver() {
@@ -309,7 +310,13 @@ class NotificationReceiver : BroadcastReceiver() {
                     val snoozedActivity = activity.copy(
                         id = if (isRecurringInstance) {
                             // Para instâncias recorrentes, usar o ID com a nova data
-                            "${activity.id}_${snoozedTime.toLocalDate()}"
+                            // Para atividades HOURLY, incluir o horário no ID
+                            if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                                val timeString = snoozedTime.toLocalTime().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                                "${activity.id}_${snoozedTime.toLocalDate()}_${timeString}"
+                            } else {
+                                "${activity.id}_${snoozedTime.toLocalDate()}"
+                            }
                         } else {
                             // Para atividades únicas, manter o ID original
                             activity.id
@@ -338,6 +345,8 @@ class NotificationReceiver : BroadcastReceiver() {
     private fun handleDismiss(context: Context, intent: Intent) {
         val activityId = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_ID)
         
+        Log.d(TAG, "🔔 handleDismiss chamado para atividade: $activityId")
+        
         Log.d(TAG, "🔔 Marcando atividade como concluída: $activityId")
         
         if (activityId != null) {
@@ -358,6 +367,10 @@ class NotificationReceiver : BroadcastReceiver() {
                     // Verificar se é uma instância recorrente (ID contém data)
                     val isRecurringInstance = activityId.contains("_") && activityId.split("_").size >= 2
                     
+                    Log.d(TAG, "🔍 Verificando se é instância recorrente: $isRecurringInstance")
+                    Log.d(TAG, "🔍 ID recebido: $activityId")
+                    Log.d(TAG, "🔍 Partes do ID: ${activityId.split("_")}")
+                    
                     if (isRecurringInstance) {
                         // Tratar instância recorrente específica
                         val parts = activityId.split("_")
@@ -373,9 +386,12 @@ class NotificationReceiver : BroadcastReceiver() {
                         Log.d(TAG, "🔍 Buscando atividade base - ID: $baseId")
                         Log.d(TAG, "📋 Total de atividades disponíveis: ${activities.size}")
                         Log.d(TAG, "🔍 IDs disponíveis: ${activities.map { it.id }}")
+                        Log.d(TAG, "🔍 Atividade base encontrada: ${baseActivity != null}")
                         
                         if (baseActivity != null) {
                             Log.d(TAG, "📋 Atividade base encontrada: ${baseActivity.title}")
+                            Log.d(TAG, "📋 Regra de recorrência: ${baseActivity.recurrenceRule}")
+                            Log.d(TAG, "📋 É recorrente: ${recurrenceService.isRecurring(baseActivity)}")
                             
                             if (recurrenceService.isRecurring(baseActivity)) {
                                 Log.d(TAG, "🔄 Atividade é recorrente, processando instância específica")
@@ -391,12 +407,60 @@ class NotificationReceiver : BroadcastReceiver() {
                                 // Salvar instância específica como concluída
                                 completedRepository.addCompletedActivity(instanceToComplete)
                                 
-                                // Para atividades HOURLY, adicionar instância específica à lista de exclusões
+                                // Para atividades HOURLY, implementar estratégia especial como no CalendarViewModel
                                 // Para outras atividades, adicionar data à lista de exclusões
                                 val updatedBaseActivity = if (baseActivity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
-                                    val updatedExcludedInstances = baseActivity.excludedInstances + activityId
-                                    baseActivity.copy(excludedInstances = updatedExcludedInstances)
+                                    Log.d(TAG, "🕐 Processando atividade HOURLY - ID completo: $activityId")
+                                    
+                                    // Extrair horário da instância atual
+                                    val instanceTime = if (activityId.contains("_")) {
+                                        val parts = activityId.split("_")
+                                        val timePart = parts.getOrNull(2) // formato: baseId_date_time
+                                        if (timePart != null) {
+                                            try {
+                                                java.time.LocalTime.parse(timePart)
+                                            } catch (e: Exception) {
+                                                baseActivity.startTime
+                                            }
+                                        } else {
+                                            baseActivity.startTime
+                                        }
+                                    } else {
+                                        baseActivity.startTime
+                                    }
+                                    
+                                    val timeString = instanceTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
+                                    val instanceId = "${baseActivity.id}_${instanceDate}_${timeString}"
+                                    
+                                    // Verificar se é a primeira instância (mesma data e hora da atividade base)
+                                    val baseDate = LocalDate.parse(baseActivity.date)
+                                    val baseTime = baseActivity.startTime
+                                    val baseTimeString = baseTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
+                                    val isFirstInstance = baseDate.isEqual(LocalDate.parse(instanceDate)) && 
+                                                         timeString == baseTimeString
+                                    
+                                    Log.d(TAG, "🕐 Base date: $baseDate, Instance date: $instanceDate")
+                                    Log.d(TAG, "🕐 Base time: $baseTimeString, Instance time: $timeString")
+                                    Log.d(TAG, "🕐 Is first instance: $isFirstInstance")
+                                    
+                                    if (isFirstInstance) {
+                                        // Para a primeira instância, avançar a data/hora da atividade base para a próxima ocorrência
+                                        Log.d(TAG, "🕐 Primeira instância - calculando próxima ocorrência")
+                                        val nextOccurrence = calculateNextHourlyOccurrence(baseActivity, baseDate, instanceTime)
+                                        val updatedActivity = baseActivity.copy(
+                                            date = nextOccurrence.first.toString(),
+                                            startTime = nextOccurrence.second
+                                        )
+                                        Log.d(TAG, "🕐 Nova data/hora da atividade base: ${nextOccurrence.first} ${nextOccurrence.second}")
+                                        updatedActivity
+                                    } else {
+                                        // Para outras instâncias, adicionar à lista de exclusões
+                                        Log.d(TAG, "🕐 Instância subsequente - adicionando à lista de exclusões")
+                                        val updatedExcludedInstances = baseActivity.excludedInstances + instanceId
+                                        baseActivity.copy(excludedInstances = updatedExcludedInstances)
+                                    }
                                 } else {
+                                    Log.d(TAG, "📅 Processando atividade não-HOURLY - Data: $instanceDate")
                                     val updatedExcludedDates = baseActivity.excludedDates + instanceDate
                                     baseActivity.copy(excludedDates = updatedExcludedDates)
                                 }
@@ -405,6 +469,14 @@ class NotificationReceiver : BroadcastReceiver() {
                                 repository.saveActivity(updatedBaseActivity)
                                 
                                 Log.d(TAG, "✅ Instância recorrente marcada como concluída via notificação: ${instanceToComplete.title} - Data: $instanceDate")
+                                Log.d(TAG, "✅ Atividade base atualizada com lista de exclusões")
+                                
+                                // Log das listas de exclusão para debug
+                                if (baseActivity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                                    Log.d(TAG, "🕐 Instâncias excluídas: ${updatedBaseActivity.excludedInstances}")
+                                } else {
+                                    Log.d(TAG, "📅 Datas excluídas: ${updatedBaseActivity.excludedDates}")
+                                }
                             } else {
                                 Log.d(TAG, "📝 Atividade não é recorrente, tratando como única")
                                 
@@ -533,6 +605,40 @@ class NotificationReceiver : BroadcastReceiver() {
             } catch (e: Exception) {
                 Log.e(TAG, "🔔 Erro ao reagendar notificações após reinicialização", e)
             }
+        }
+    }
+    
+    /**
+     * Calcula a próxima ocorrência para uma atividade recorrente horária
+     * (Implementação idêntica à do CalendarViewModel)
+     */
+    private fun calculateNextHourlyOccurrence(activity: com.mss.thebigcalendar.data.model.Activity, currentDate: LocalDate, currentTime: LocalTime?): Pair<LocalDate, LocalTime?> {
+        val recurrenceService = com.mss.thebigcalendar.service.RecurrenceService()
+        
+        // Gerar instâncias para os próximos 7 dias para encontrar a próxima ocorrência
+        val startDate = currentDate.plusDays(1)
+        val endDate = currentDate.plusDays(7)
+        
+        val recurringInstances = recurrenceService.generateRecurringInstances(
+            activity, startDate, endDate
+        )
+        
+        // Encontrar a primeira instância que não está excluída
+        val nextInstance = recurringInstances.firstOrNull { instance ->
+            val instanceDate = LocalDate.parse(instance.date)
+            val instanceTime = instance.startTime
+            val timeString = instanceTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
+            val instanceId = "${activity.id}_${instanceDate}_${timeString}"
+            
+            !activity.excludedInstances.contains(instanceId)
+        }
+        
+        return if (nextInstance != null) {
+            Pair(LocalDate.parse(nextInstance.date), nextInstance.startTime)
+        } else {
+            // Se não encontrar próxima instância, avançar para o próximo dia na mesma hora
+            val nextDate = currentDate.plusDays(1)
+            Pair(nextDate, currentTime)
         }
     }
 }

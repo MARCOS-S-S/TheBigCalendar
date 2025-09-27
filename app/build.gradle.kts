@@ -78,7 +78,6 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1,DEPENDENCIES}"
-            excludes += "/META-INF/versions/9/OSGI-INF/MANIFEST.MF"
         }
     }
 }
@@ -137,8 +136,6 @@ dependencies {
     implementation(libs.androidx.tools.core)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.test)
-    implementation(libs.androidx.compose.testing)
 
     // Dependências de Teste
     testImplementation(libs.junit)

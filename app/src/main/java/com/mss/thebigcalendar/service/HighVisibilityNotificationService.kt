@@ -16,6 +16,8 @@ import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.VisibilityLevel
 import com.mss.thebigcalendar.ui.screens.HighVisibilityNotificationActivity
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 /**
  * Serviço para gerenciar notificações de alta visibilidade
@@ -62,8 +64,10 @@ class HighVisibilityNotificationService : Service() {
                 val activityTime = intent.getStringExtra(EXTRA_ACTIVITY_TIME)
                 
                 if (activityId != null && activityTitle != null) {
+                    Log.d(TAG, "🔔 Criando atividade para notificação de alta visibilidade - ID: $activityId")
+                    
                     val activity = Activity(
-                        id = activityId,
+                        id = activityId, // ✅ Manter o ID original (que pode incluir data e horário para instâncias recorrentes)
                         title = activityTitle,
                         description = activityDescription,
                         date = activityDate ?: "",
@@ -73,7 +77,7 @@ class HighVisibilityNotificationService : Service() {
                         location = null,
                         categoryColor = "#FF0000",
                         activityType = com.mss.thebigcalendar.data.model.ActivityType.TASK,
-                        recurrenceRule = null,
+                        recurrenceRule = null, // ✅ Será identificado pelo NotificationReceiver baseado no ID
                         notificationSettings = com.mss.thebigcalendar.data.model.NotificationSettings(
                             isEnabled = true,
                             notificationType = com.mss.thebigcalendar.data.model.NotificationType.BEFORE_ACTIVITY

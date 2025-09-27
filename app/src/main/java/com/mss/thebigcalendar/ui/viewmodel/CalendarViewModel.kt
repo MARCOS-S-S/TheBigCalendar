@@ -2058,7 +2058,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     // Para atividades HOURLY, adicionar instância específica à lista de exclusões
                     // Para outras atividades, adicionar data à lista de exclusões
                     val updatedBaseActivity = if (baseActivity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
-                        val instanceId = if (instanceTime != null) "${baseActivity.id}_${instanceDate}_${instanceTime}" else "${baseActivity.id}_${instanceDate}"
+                        // Para atividades HOURLY, sempre incluir horário no ID da instância
+                        val timeString = instanceTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
+                        val instanceId = "${baseActivity.id}_${instanceDate}_${timeString}"
                         val updatedExcludedInstances = baseActivity.excludedInstances + instanceId
                         baseActivity.copy(excludedInstances = updatedExcludedInstances)
                     } else {
