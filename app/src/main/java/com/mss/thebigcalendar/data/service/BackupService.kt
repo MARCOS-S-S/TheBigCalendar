@@ -177,6 +177,21 @@ class BackupService(
             activityJson.put("showInCalendar", activity.showInCalendar)
             activityJson.put("isFromGoogle", activity.isFromGoogle)
             
+            // Campos de recorrência
+            val excludedDatesArray = JSONArray()
+            activity.excludedDates.forEach { date ->
+                excludedDatesArray.put(date)
+            }
+            activityJson.put("excludedDates", excludedDatesArray)
+            
+            val excludedInstancesArray = JSONArray()
+            activity.excludedInstances.forEach { instance ->
+                excludedInstancesArray.put(instance)
+            }
+            activityJson.put("excludedInstances", excludedInstancesArray)
+            
+            activityJson.put("wikipediaLink", activity.wikipediaLink ?: "")
+            
             // Configurações de notificação
             val notificationJson = JSONObject()
             notificationJson.put("isEnabled", activity.notificationSettings.isEnabled)
@@ -240,6 +255,21 @@ class BackupService(
             activityJson.put("visibility", activity.visibility.name)
             activityJson.put("showInCalendar", activity.showInCalendar)
             activityJson.put("isFromGoogle", activity.isFromGoogle)
+            
+            // Campos de recorrência
+            val excludedDatesArray = JSONArray()
+            activity.excludedDates.forEach { date ->
+                excludedDatesArray.put(date)
+            }
+            activityJson.put("excludedDates", excludedDatesArray)
+            
+            val excludedInstancesArray = JSONArray()
+            activity.excludedInstances.forEach { instance ->
+                excludedInstancesArray.put(instance)
+            }
+            activityJson.put("excludedInstances", excludedInstancesArray)
+            
+            activityJson.put("wikipediaLink", activity.wikipediaLink ?: "")
             
             // Configurações de notificação
             val notificationJson = JSONObject()
@@ -471,9 +501,30 @@ class BackupService(
             visibility = visibility,
             showInCalendar = activityJson.optBoolean("showInCalendar", true), // Por padrão, mostrar no calendário
             isFromGoogle = activityJson.optBoolean("isFromGoogle", false),
-            excludedDates = emptyList(), // Backup não preserva excludedDates
+            excludedDates = parseStringArray(activityJson.optJSONArray("excludedDates")),
+            excludedInstances = parseStringArray(activityJson.optJSONArray("excludedInstances")),
             wikipediaLink = activityJson.optString("wikipediaLink").takeIf { it.isNotEmpty() } // Preservar link da Wikipedia se existir
         )
+    }
+    
+    /**
+     * Parseia um array de strings do JSON
+     */
+    private fun parseStringArray(jsonArray: JSONArray?): List<String> {
+        if (jsonArray == null) return emptyList()
+        
+        val result = mutableListOf<String>()
+        for (i in 0 until jsonArray.length()) {
+            try {
+                val value = jsonArray.getString(i)
+                if (value.isNotEmpty()) {
+                    result.add(value)
+                }
+            } catch (e: Exception) {
+                // Ignorar valores inválidos
+            }
+        }
+        return result
     }
     
     /**
