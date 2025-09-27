@@ -53,14 +53,24 @@ class RecurrenceService {
         endDate: LocalDate,
         instances: MutableList<Activity>
     ) {
-        // Para repetições por hora, gerar instâncias para cada dia até o final do período
-        var currentDate = baseDate.plusDays(1)
+        // Para repetições por hora, gerar instâncias baseadas em horas reais
+        // Como o calendário mensal mostra apenas dias, vamos gerar uma instância por dia
+        // mas respeitando o intervalo de horas
+        
+        // Parsear a regra para obter o intervalo
+        val interval = parseIntervalFromRule(baseActivity.recurrenceRule ?: "HOURLY")
+        
+        // Calcular quantas horas por dia (24 horas)
+        val hoursPerDay = 24
+        val daysPerInterval = if (interval > 0) (interval.toDouble() / hoursPerDay).toInt() else 1
+        
+        var currentDate = baseDate.plusDays(daysPerInterval.toLong())
         while (!currentDate.isAfter(endDate)) {
             // Verificar se esta data não foi excluída
             if (!baseActivity.excludedDates.contains(currentDate.toString())) {
                 instances.add(createRecurringInstance(baseActivity, currentDate))
             }
-            currentDate = currentDate.plusDays(1)
+            currentDate = currentDate.plusDays(daysPerInterval.toLong())
         }
     }
 
@@ -168,7 +178,12 @@ class RecurrenceService {
                     // Se COUNT está definido, calcular a data de término baseada no número de ocorrências
                     // COUNT inclui a atividade base, então precisamos de (count-1) ocorrências adicionais
                     when (freq) {
-                        "HOURLY" -> baseDate.plusDays(count * interval.toLong())
+                        "HOURLY" -> {
+                            // Para HOURLY, calcular baseado em horas reais
+                            val totalHours = count * interval
+                            val days = totalHours / 24
+                            baseDate.plusDays(days.toLong())
+                        }
                         "DAILY" -> baseDate.plusDays(count * interval.toLong())
                         "WEEKLY" -> baseDate.plusWeeks(count * interval.toLong())
                         "MONTHLY" -> baseDate.plusMonths(count * interval.toLong())
@@ -202,16 +217,28 @@ class RecurrenceService {
         count: Int?,
         instances: MutableList<Activity>
     ) {
-        var currentDate = baseDate.plusDays(interval.toLong())
+        // Para repetições por hora, calcular baseado em horas reais
+        // Usar a hora inicial da atividade base, ou 00:00 se não definida
+        val baseTime = baseActivity.startTime ?: java.time.LocalTime.of(0, 0)
+        var currentDateTime = baseDate.atTime(baseTime)
         var occurrenceCount = 0 // Contador de ocorrências (incluindo a base)
         
-        while (!currentDate.isAfter(endDate) && (count == null || occurrenceCount < count)) {
+        // Pular a primeira ocorrência (atividade base)
+        currentDateTime = currentDateTime.plusHours(interval.toLong())
+        
+        while (!currentDateTime.toLocalDate().isAfter(endDate) && (count == null || occurrenceCount < count)) {
+            val currentDate = currentDateTime.toLocalDate()
+            val currentTime = currentDateTime.toLocalTime()
+            
             // Verificar se esta data não foi excluída
             if (!baseActivity.excludedDates.contains(currentDate.toString())) {
-                instances.add(createRecurringInstance(baseActivity, currentDate))
+                // Criar instância com hora no título
+                val instanceWithTime = createRecurringInstanceWithTime(baseActivity, currentDate, currentTime)
+                instances.add(instanceWithTime)
                 occurrenceCount++
             }
-            currentDate = currentDate.plusDays(interval.toLong())
+            
+            currentDateTime = currentDateTime.plusHours(interval.toLong())
         }
     }
 
@@ -358,6 +385,33 @@ class RecurrenceService {
             id = "${baseActivity.id}_${date}",
             date = date.toString()
         )
+    }
+
+    /**
+     * Cria uma instância recorrente com hora específica
+     */
+    private fun createRecurringInstanceWithTime(baseActivity: Activity, date: LocalDate, time: java.time.LocalTime): Activity {
+        val timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+        val timeString = time.format(timeFormatter)
+        
+        return baseActivity.copy(
+            id = "${baseActivity.id}_${date}_${timeString}",
+            title = baseActivity.title, // Manter título original
+            date = date.toString(),
+            startTime = time // Definir a hora específica
+        )
+    }
+
+    /**
+     * Extrai o intervalo de uma regra de recorrência
+     */
+    private fun parseIntervalFromRule(rule: String): Int {
+        return try {
+            val intervalMatch = Regex("INTERVAL=(\\d+)").find(rule)
+            intervalMatch?.groupValues?.get(1)?.toInt() ?: 1
+        } catch (e: Exception) {
+            1
+        }
     }
 
     /**

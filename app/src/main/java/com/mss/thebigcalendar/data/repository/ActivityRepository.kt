@@ -92,22 +92,26 @@ class ActivityRepository(private val context: Context) {
             }
             
             // Para atividades recorrentes, verificar se há pelo menos uma instância no mês
-            return when (activity.recurrenceRule) {
-                "DAILY" -> {
+            return when {
+                activity.recurrenceRule == "HOURLY" || activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true -> {
+                    // Por hora: incluir se a data de início for antes ou igual ao fim do mês
+                    !startDate.isAfter(monthEnd)
+                }
+                activity.recurrenceRule == "DAILY" || activity.recurrenceRule?.startsWith("FREQ=DAILY") == true -> {
                     // Diárias só se a data de início for antes ou igual ao fim do mês
                     !startDate.isAfter(monthEnd)
                 }
-                "WEEKLY" -> {
+                activity.recurrenceRule == "WEEKLY" || activity.recurrenceRule?.startsWith("FREQ=WEEKLY") == true -> {
                     // Semanais só se houver pelo menos uma semana no mês
                     val weeksInMonth = (monthEnd.dayOfMonth - monthStart.dayOfMonth + 1) / 7 + 1
                     weeksInMonth > 0 && !startDate.isAfter(monthEnd)
                 }
-                "MONTHLY" -> {
+                activity.recurrenceRule == "MONTHLY" || activity.recurrenceRule?.startsWith("FREQ=MONTHLY") == true -> {
                     // Mensais só se o dia de início for válido no mês
                     val startDay = startDate.dayOfMonth
                     startDay <= monthEnd.dayOfMonth && startDate.month == yearMonth.month
                 }
-                "YEARLY" -> {
+                activity.recurrenceRule == "YEARLY" || activity.recurrenceRule?.startsWith("FREQ=YEARLY") == true -> {
                     // Anuais só se for do mesmo mês
                     startDate.month == yearMonth.month
                 }
