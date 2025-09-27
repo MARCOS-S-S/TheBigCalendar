@@ -699,15 +699,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             if (activity.recurrenceRule?.isNotEmpty() == true && 
                                 activity.showInCalendar) {
                                 
-                                // Debug: Log para atividades recorrentes
-                                if (activity.recurrenceRule == "HOURLY" || activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
-                                    android.util.Log.d("CalendarViewModel", "🕐 Processando atividade HOURLY: ${activity.title} - Regra: ${activity.recurrenceRule}")
-                                }
-                                
                                 val recurringInstances = calculateRecurringInstancesForDate(activity, date)
-                                if (recurringInstances.isNotEmpty() && (activity.recurrenceRule == "HOURLY" || activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true)) {
-                                    android.util.Log.d("CalendarViewModel", "🕐 Instâncias HOURLY geradas: ${recurringInstances.size} para data: $date")
-                                }
                                 allActivitiesForThisDay.addAll(recurringInstances)
                             }
                         }
@@ -1323,10 +1315,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 }
             }
 
-            // Debug: Log para verificar regra de repetição
-            if (activityToSave.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
-                android.util.Log.d("CalendarViewModel", "🕐 Salvando atividade HOURLY: ${activityToSave.title} - Regra: ${activityToSave.recurrenceRule}")
-            }
             
             // Salvar a atividade principal (com possível ID do Google)
             activityRepository.saveActivity(activityToSave)
@@ -1451,11 +1439,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         }
                         instances.addAll(instancesForTargetDate)
                         
-                        android.util.Log.d("CalendarViewModel", "🕐 HOURLY: ${instancesForTargetDate.size} instâncias para $targetDate")
                     } else {
                         // Para regras HOURLY simples, verificar se a data alvo é posterior à data base
                         val daysDiff = ChronoUnit.DAYS.between(baseDate, targetDate)
-                        android.util.Log.d("CalendarViewModel", "🕐 HOURLY: ${baseActivity.title} - Base: $baseDate, Target: $targetDate, Diff: $daysDiff")
                         if (daysDiff > 0) {
                             val instance = baseActivity.copy(
                                 id = "${baseActivity.id}_${targetDate}",

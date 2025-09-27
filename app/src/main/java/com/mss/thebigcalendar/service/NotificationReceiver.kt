@@ -345,8 +345,6 @@ class NotificationReceiver : BroadcastReceiver() {
     private fun handleDismiss(context: Context, intent: Intent) {
         val activityId = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_ID)
         
-        Log.d(TAG, "🔔 handleDismiss chamado para atividade: $activityId")
-        
         Log.d(TAG, "🔔 Marcando atividade como concluída: $activityId")
         
         if (activityId != null) {
@@ -367,10 +365,6 @@ class NotificationReceiver : BroadcastReceiver() {
                     // Verificar se é uma instância recorrente (ID contém data)
                     val isRecurringInstance = activityId.contains("_") && activityId.split("_").size >= 2
                     
-                    Log.d(TAG, "🔍 Verificando se é instância recorrente: $isRecurringInstance")
-                    Log.d(TAG, "🔍 ID recebido: $activityId")
-                    Log.d(TAG, "🔍 Partes do ID: ${activityId.split("_")}")
-                    
                     if (isRecurringInstance) {
                         // Tratar instância recorrente específica
                         val parts = activityId.split("_")
@@ -383,15 +377,7 @@ class NotificationReceiver : BroadcastReceiver() {
                         val activities = repository.activities.first()
                         val baseActivity = activities.find { it.id == baseId }
                         
-                        Log.d(TAG, "🔍 Buscando atividade base - ID: $baseId")
-                        Log.d(TAG, "📋 Total de atividades disponíveis: ${activities.size}")
-                        Log.d(TAG, "🔍 IDs disponíveis: ${activities.map { it.id }}")
-                        Log.d(TAG, "🔍 Atividade base encontrada: ${baseActivity != null}")
-                        
                         if (baseActivity != null) {
-                            Log.d(TAG, "📋 Atividade base encontrada: ${baseActivity.title}")
-                            Log.d(TAG, "📋 Regra de recorrência: ${baseActivity.recurrenceRule}")
-                            Log.d(TAG, "📋 É recorrente: ${recurrenceService.isRecurring(baseActivity)}")
                             
                             if (recurrenceService.isRecurring(baseActivity)) {
                                 Log.d(TAG, "🔄 Atividade é recorrente, processando instância específica")
@@ -410,7 +396,6 @@ class NotificationReceiver : BroadcastReceiver() {
                                 // Para atividades HOURLY, implementar estratégia especial como no CalendarViewModel
                                 // Para outras atividades, adicionar data à lista de exclusões
                                 val updatedBaseActivity = if (baseActivity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
-                                    Log.d(TAG, "🕐 Processando atividade HOURLY - ID completo: $activityId")
                                     
                                     // Extrair horário da instância atual
                                     val instanceTime = if (activityId.contains("_")) {
@@ -439,28 +424,19 @@ class NotificationReceiver : BroadcastReceiver() {
                                     val isFirstInstance = baseDate.isEqual(LocalDate.parse(instanceDate)) && 
                                                          timeString == baseTimeString
                                     
-                                    Log.d(TAG, "🕐 Base date: $baseDate, Instance date: $instanceDate")
-                                    Log.d(TAG, "🕐 Base time: $baseTimeString, Instance time: $timeString")
-                                    Log.d(TAG, "🕐 Is first instance: $isFirstInstance")
-                                    
                                     if (isFirstInstance) {
                                         // Para a primeira instância, avançar a data/hora da atividade base para a próxima ocorrência
-                                        Log.d(TAG, "🕐 Primeira instância - calculando próxima ocorrência")
                                         val nextOccurrence = calculateNextHourlyOccurrence(baseActivity, baseDate, instanceTime)
-                                        val updatedActivity = baseActivity.copy(
+                                        baseActivity.copy(
                                             date = nextOccurrence.first.toString(),
                                             startTime = nextOccurrence.second
                                         )
-                                        Log.d(TAG, "🕐 Nova data/hora da atividade base: ${nextOccurrence.first} ${nextOccurrence.second}")
-                                        updatedActivity
                                     } else {
                                         // Para outras instâncias, adicionar à lista de exclusões
-                                        Log.d(TAG, "🕐 Instância subsequente - adicionando à lista de exclusões")
                                         val updatedExcludedInstances = baseActivity.excludedInstances + instanceId
                                         baseActivity.copy(excludedInstances = updatedExcludedInstances)
                                     }
                                 } else {
-                                    Log.d(TAG, "📅 Processando atividade não-HOURLY - Data: $instanceDate")
                                     val updatedExcludedDates = baseActivity.excludedDates + instanceDate
                                     baseActivity.copy(excludedDates = updatedExcludedDates)
                                 }
@@ -468,15 +444,7 @@ class NotificationReceiver : BroadcastReceiver() {
                                 // Atualizar a atividade base com a nova lista de exclusões
                                 repository.saveActivity(updatedBaseActivity)
                                 
-                                Log.d(TAG, "✅ Instância recorrente marcada como concluída via notificação: ${instanceToComplete.title} - Data: $instanceDate")
-                                Log.d(TAG, "✅ Atividade base atualizada com lista de exclusões")
-                                
-                                // Log das listas de exclusão para debug
-                                if (baseActivity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
-                                    Log.d(TAG, "🕐 Instâncias excluídas: ${updatedBaseActivity.excludedInstances}")
-                                } else {
-                                    Log.d(TAG, "📅 Datas excluídas: ${updatedBaseActivity.excludedDates}")
-                                }
+                                Log.d(TAG, "✅ Instância recorrente marcada como concluída via notificação: ${instanceToComplete.title}")
                             } else {
                                 Log.d(TAG, "📝 Atividade não é recorrente, tratando como única")
                                 
