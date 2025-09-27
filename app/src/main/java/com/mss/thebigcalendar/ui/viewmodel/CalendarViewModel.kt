@@ -1418,6 +1418,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
             
             when (baseActivity.recurrenceRule) {
+                "HOURLY" -> {
+                    // Para repetições por hora, verificar se a data alvo é posterior à data base
+                    val daysDiff = ChronoUnit.DAYS.between(baseDate, targetDate)
+                    if (daysDiff > 0) {
+                        val instance = baseActivity.copy(
+                            id = "${baseActivity.id}_${targetDate}",
+                            date = targetDate.toString()
+                        )
+                        instances.add(instance)
+                    }
+                }
                 "DAILY" -> {
                     // Verificar se a data alvo é um múltiplo de dias a partir da data base
                     val daysDiff = ChronoUnit.DAYS.between(baseDate, targetDate)

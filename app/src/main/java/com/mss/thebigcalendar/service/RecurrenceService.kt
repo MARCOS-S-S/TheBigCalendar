@@ -33,6 +33,7 @@ class RecurrenceService {
         
         // Gerar instâncias recorrentes
         when (recurrenceRule) {
+            "HOURLY" -> generateHourlyInstances(baseActivity, baseDate, endDate, instances)
             "DAILY" -> generateDailyInstances(baseActivity, baseDate, endDate, instances)
             "WEEKLY" -> generateWeeklyInstances(baseActivity, baseDate, endDate, instances)
             "MONTHLY" -> generateMonthlyInstances(baseActivity, baseDate, endDate, instances)
@@ -41,6 +42,26 @@ class RecurrenceService {
         }
         
         return instances
+    }
+
+    /**
+     * Gera instâncias por hora
+     */
+    private fun generateHourlyInstances(
+        baseActivity: Activity,
+        baseDate: LocalDate,
+        endDate: LocalDate,
+        instances: MutableList<Activity>
+    ) {
+        // Para repetições por hora, gerar instâncias para cada dia até o final do período
+        var currentDate = baseDate.plusDays(1)
+        while (!currentDate.isAfter(endDate)) {
+            // Verificar se esta data não foi excluída
+            if (!baseActivity.excludedDates.contains(currentDate.toString())) {
+                instances.add(createRecurringInstance(baseActivity, currentDate))
+            }
+            currentDate = currentDate.plusDays(1)
+        }
     }
 
     /**
@@ -147,6 +168,7 @@ class RecurrenceService {
                     // Se COUNT está definido, calcular a data de término baseada no número de ocorrências
                     // COUNT inclui a atividade base, então precisamos de (count-1) ocorrências adicionais
                     when (freq) {
+                        "HOURLY" -> baseDate.plusDays(count * interval.toLong())
                         "DAILY" -> baseDate.plusDays(count * interval.toLong())
                         "WEEKLY" -> baseDate.plusWeeks(count * interval.toLong())
                         "MONTHLY" -> baseDate.plusMonths(count * interval.toLong())
@@ -159,12 +181,37 @@ class RecurrenceService {
             }
             
             when (freq) {
+                "HOURLY" -> generateCustomHourlyInstancesWithCount(baseActivity, baseDate, actualEndDate, interval, count, instances)
                 "DAILY" -> generateCustomDailyInstancesWithCount(baseActivity, baseDate, actualEndDate, interval, count, instances)
                 "WEEKLY" -> generateCustomWeeklyInstancesWithCount(baseActivity, baseDate, actualEndDate, interval, count, byDay, instances)
                 "MONTHLY" -> generateCustomMonthlyInstancesWithCount(baseActivity, baseDate, actualEndDate, interval, count, instances)
                 "YEARLY" -> generateCustomYearlyInstancesWithCount(baseActivity, baseDate, actualEndDate, interval, count, instances)
             }
         } catch (e: Exception) {
+        }
+    }
+
+    /**
+     * Gera instâncias por hora customizadas com intervalo e contagem
+     */
+    private fun generateCustomHourlyInstancesWithCount(
+        baseActivity: Activity,
+        baseDate: LocalDate,
+        endDate: LocalDate,
+        interval: Int,
+        count: Int?,
+        instances: MutableList<Activity>
+    ) {
+        var currentDate = baseDate.plusDays(interval.toLong())
+        var occurrenceCount = 0 // Contador de ocorrências (incluindo a base)
+        
+        while (!currentDate.isAfter(endDate) && (count == null || occurrenceCount < count)) {
+            // Verificar se esta data não foi excluída
+            if (!baseActivity.excludedDates.contains(currentDate.toString())) {
+                instances.add(createRecurringInstance(baseActivity, currentDate))
+                occurrenceCount++
+            }
+            currentDate = currentDate.plusDays(interval.toLong())
         }
     }
 

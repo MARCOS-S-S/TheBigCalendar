@@ -13,15 +13,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.xr.compose.testing.isFocused
 import com.mss.thebigcalendar.R
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 data class ParsedRule(
-    val freq: String = "days",
+    val freq: String = "hours",
     val interval: Int = 1,
     val selectedDays: Set<Int> = emptySet(),
     val endDate: String = "",
@@ -43,9 +45,11 @@ fun CustomRepetitionScreen(
     
     var repetitionType by remember { mutableStateOf(parsedRule.freq) }
     var interval by remember { mutableStateOf(parsedRule.interval) }
+    var intervalText by remember { mutableStateOf(parsedRule.interval.toString()) }
     var selectedDays by remember { mutableStateOf(parsedRule.selectedDays) }
     var endDate by remember { mutableStateOf(parsedRule.endDate) }
     var maxOccurrences by remember { mutableStateOf(parsedRule.maxOccurrences) }
+    var maxOccurrencesText by remember { mutableStateOf(parsedRule.maxOccurrences.toString()) }
     var hasEndDate by remember { mutableStateOf(parsedRule.hasEndDate) }
     var hasMaxOccurrences by remember { mutableStateOf(parsedRule.hasMaxOccurrences) }
     
@@ -102,6 +106,11 @@ fun CustomRepetitionScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         FilterChip(
+                            onClick = { repetitionType = "hours" },
+                            label = { Text("Horas") },
+                            selected = repetitionType == "hours"
+                        )
+                        FilterChip(
                             onClick = { repetitionType = "days" },
                             label = { Text("Dias") },
                             selected = repetitionType == "days"
@@ -143,21 +152,27 @@ fun CustomRepetitionScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         OutlinedTextField(
-                            value = interval.toString(),
-                            onValueChange = { 
-                                it.toIntOrNull()?.let { value ->
-                                    if (value > 0) interval = value
+                            value = intervalText,
+                            onValueChange = { newValue: String ->
+                                intervalText = newValue
+                                // Atualizar valor numérico apenas se for válido
+                                val numericValue = newValue.toIntOrNull()
+                                if (numericValue != null && numericValue > 0) {
+                                    interval = numericValue
                                 }
                             },
                             modifier = Modifier.width(80.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            placeholder = { Text("1") }
                         )
                         Text(
                             text = when (repetitionType) {
+                                "hours" -> if (interval == 1) "hora" else "horas"
                                 "days" -> if (interval == 1) "dia" else "dias"
                                 "weeks" -> if (interval == 1) "semana" else "semanas"
                                 "months" -> if (interval == 1) "mês" else "meses"
-                                else -> ""
+                                else -> "horas"
                             }
                         )
                     }
@@ -270,15 +285,20 @@ fun CustomRepetitionScreen(
                     
                     if (hasMaxOccurrences) {
                         OutlinedTextField(
-                            value = maxOccurrences.toString(),
-                            onValueChange = { 
-                                it.toIntOrNull()?.let { value ->
-                                    if (value > 0) maxOccurrences = value
+                            value = maxOccurrencesText,
+                            onValueChange = { newValue: String ->
+                                maxOccurrencesText = newValue
+                                // Atualizar valor numérico apenas se for válido
+                                val numericValue = newValue.toIntOrNull()
+                                if (numericValue != null && numericValue > 0) {
+                                    maxOccurrences = numericValue
                                 }
                             },
                             label = { Text("Quantidade") },
                             modifier = Modifier.fillMaxWidth(),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            placeholder = { Text("10") }
                         )
                     }
                 }
@@ -287,12 +307,16 @@ fun CustomRepetitionScreen(
             // Botão Salvar
             Button(
                 onClick = {
+                    // Aplicar valores padrão se campos estiverem vazios
+                    val finalInterval = if (intervalText.isEmpty()) 1 else interval
+                    val finalMaxOccurrences = if (maxOccurrencesText.isEmpty()) 10 else maxOccurrences
+                    
                     val customRule = buildCustomRecurrenceRule(
                         repetitionType = repetitionType,
-                        interval = interval,
+                        interval = finalInterval,
                         selectedDays = selectedDays,
                         endDate = if (hasEndDate) endDate else null,
-                        maxOccurrences = if (hasMaxOccurrences) maxOccurrences else null
+                        maxOccurrences = if (hasMaxOccurrences) finalMaxOccurrences else null
                     )
                     onSaveCustomRepetition(customRule)
                     onBackClick()
@@ -316,6 +340,7 @@ private fun buildCustomRecurrenceRule(
     maxOccurrences: Int?
 ): String {
     val freq = when (repetitionType) {
+        "hours" -> "HOURLY"
         "days" -> "DAILY"
         "weeks" -> "WEEKLY"
         "months" -> "MONTHLY"
@@ -381,6 +406,7 @@ private fun parseExistingRule(rule: String): ParsedRule {
         
         // Converter frequência para formato da UI
         val uiFreq = when (freq) {
+            "HOURLY" -> "hours"
             "DAILY" -> "days"
             "WEEKLY" -> "weeks"
             "MONTHLY" -> "months"
