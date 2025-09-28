@@ -1,8 +1,10 @@
 package com.mss.thebigcalendar.service
 
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.appwidget.AppWidgetManager
 import android.util.Log
 import com.mss.thebigcalendar.MainActivity
 import com.mss.thebigcalendar.data.repository.ActivityRepository
@@ -416,18 +418,36 @@ class NotificationReceiver : BroadcastReceiver() {
                         
                         Log.d(TAG, "🔔 Criando instância adiada para atividade recorrente: ${snoozedActivity.title} - ${snoozedActivity.date} ${snoozedActivity.startTime}")
                         Log.d(TAG, "🔔 Excluindo instância original: $originalInstanceId")
+                        Log.d(TAG, "🔔 Data original para exclusão: $originalInstanceDate")
+                        Log.d(TAG, "🔔 Atividade base ID: ${activity.id}")
+                        Log.d(TAG, "🔔 Atividade base recurrenceRule: ${activity.recurrenceRule}")
                         
                         // Adicionar instância original à lista de exclusões da atividade base
                         val updatedBaseActivity = if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
                             val updatedExcludedInstances = activity.excludedInstances + originalInstanceId
+                            Log.d(TAG, "🔔 Excluindo instância HOURLY: $originalInstanceId")
+                            Log.d(TAG, "🔔 Lista de exclusões atualizada: $updatedExcludedInstances")
                             activity.copy(excludedInstances = updatedExcludedInstances)
                         } else {
                             val updatedExcludedDates = activity.excludedDates + originalInstanceDate
+                            Log.d(TAG, "🔔 Excluindo data: $originalInstanceDate")
+                            Log.d(TAG, "🔔 Lista de datas excluídas atualizada: $updatedExcludedDates")
                             activity.copy(excludedDates = updatedExcludedDates)
                         }
                         
                         // Salvar a atividade base atualizada com a exclusão
                         repository.saveActivity(updatedBaseActivity)
+                        Log.d(TAG, "🔔 Atividade base atualizada com exclusão salva no repositório")
+                        
+                        // Para atividades HOURLY, remover a instância original específica do repositório
+                        if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                            try {
+                                repository.deleteActivity(originalInstanceId)
+                                Log.d(TAG, "🔔 Instância original HOURLY removida do repositório: $originalInstanceId")
+                            } catch (e: Exception) {
+                                Log.w(TAG, "⚠️ Erro ao remover instância original HOURLY: $originalInstanceId", e)
+                            }
+                        }
                         
                         // Salvar a instância adiada no repositório para que apareça no calendário
                         repository.saveActivity(snoozedActivity)
@@ -444,6 +464,16 @@ class NotificationReceiver : BroadcastReceiver() {
                         Log.d(TAG, "🔔 Atividade marcada como adiada: ${snoozedActivity.id} e base: ${activity.id}")
                         
                         Log.d(TAG, "🔔 Instância recorrente adiada e salva no repositório - instância original excluída - nova notificação agendada para: ${snoozedTime}")
+                        
+                        // Forçar atualização dos widgets para refletir as mudanças
+                        try {
+                            val widgetIntent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+                            widgetIntent.component = ComponentName(context, "com.mss.thebigcalendar.widget.GreetingWidgetProvider")
+                            context.sendBroadcast(widgetIntent)
+                            Log.d(TAG, "🔔 Widget atualizado após adiamento")
+                        } catch (e: Exception) {
+                            Log.w(TAG, "⚠️ Erro ao atualizar widget", e)
+                        }
                     } else {
                         // Para atividades não recorrentes, atualizar a atividade original no repositório
                         Log.d(TAG, "🔔 Processando atividade NÃO RECORRENTE: ${activity.title}")

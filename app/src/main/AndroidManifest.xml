@@ -163,18 +163,6 @@
 
         
 
-        <!-- Widget Provider - Cores Fixas -->
-        <receiver
-            android:name=".widget.CalendarWidgetFixedColorsProvider"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/calendar_widget_fixed_colors_info" />
-        </receiver>
-
         <!-- Widget Provider - Lista de Eventos -->
         <receiver
             android:name=".widget.EventListWidgetProvider"

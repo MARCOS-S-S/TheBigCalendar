@@ -125,9 +125,22 @@ class GreetingWidgetProvider : AppWidgetProvider() {
                                 } else {
                                     // Para atividades normais e recorrentes
                                     if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
-                                        // Verificar se a atividade base é para hoje
+                                        // ✅ Verificar se a atividade base é para hoje
+                                        // Para atividades HOURLY, só mostrar a base se não há instâncias específicas excluídas
                                         if (activityDate == today) {
-                                            todayTasks.add(activity)
+                                            val shouldShowBase = if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                                                // Para HOURLY, só mostrar a base se não há instâncias específicas excluídas para hoje
+                                                val hasExcludedInstancesForToday = activity.excludedInstances.any { excludedId ->
+                                                    excludedId.startsWith("${activity.id}_${today}")
+                                                }
+                                                !hasExcludedInstancesForToday
+                                            } else {
+                                                true
+                                            }
+                                            
+                                            if (shouldShowBase) {
+                                                todayTasks.add(activity)
+                                            }
                                         }
                                         
                                         // Gerar instâncias recorrentes para o dia atual
@@ -182,9 +195,22 @@ class GreetingWidgetProvider : AppWidgetProvider() {
                                     } else {
                                         // Para atividades normais e recorrentes
                                         if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
-                                            // Verificar se a atividade base é para amanhã
+                                            // ✅ Verificar se a atividade base é para amanhã
+                                            // Para atividades HOURLY, só mostrar a base se não há instâncias específicas excluídas
                                             if (activityDate == tomorrow) {
-                                                tomorrowTasksList.add(activity)
+                                                val shouldShowBase = if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                                                    // Para HOURLY, só mostrar a base se não há instâncias específicas excluídas para amanhã
+                                                    val hasExcludedInstancesForTomorrow = activity.excludedInstances.any { excludedId ->
+                                                        excludedId.startsWith("${activity.id}_${tomorrow}")
+                                                    }
+                                                    !hasExcludedInstancesForTomorrow
+                                                } else {
+                                                    true
+                                                }
+                                                
+                                                if (shouldShowBase) {
+                                                    tomorrowTasksList.add(activity)
+                                                }
                                             }
                                             
                                             // Gerar instâncias recorrentes para amanhã

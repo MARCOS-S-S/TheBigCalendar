@@ -108,16 +108,33 @@ class WidgetUpdateService : Service() {
     
     private fun updateAllWidgets() {
         val appWidgetManager = AppWidgetManager.getInstance(this)
-        val componentName = ComponentName(this, CalendarWidgetFixedColorsProvider::class.java)
-        val widgetIds = appWidgetManager.getAppWidgetIds(componentName)
         
-        if (widgetIds.isNotEmpty()) {
-            Log.d(TAG, "🔋 Atualizando ${widgetIds.size} widgets")
+        // Atualizar GreetingWidgetProvider
+        val greetingComponentName = ComponentName(this, GreetingWidgetProvider::class.java)
+        val greetingWidgetIds = appWidgetManager.getAppWidgetIds(greetingComponentName)
+        
+        if (greetingWidgetIds.isNotEmpty()) {
+            Log.d(TAG, "🔋 Atualizando ${greetingWidgetIds.size} GreetingWidgets")
             val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
-            intent.component = componentName
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, greetingWidgetIds)
+            intent.component = greetingComponentName
             sendBroadcast(intent)
-        } else {
+        }
+        
+        // Atualizar EventListWidgetProvider
+        val eventListComponentName = ComponentName(this, EventListWidgetProvider::class.java)
+        val eventListWidgetIds = appWidgetManager.getAppWidgetIds(eventListComponentName)
+        
+        if (eventListWidgetIds.isNotEmpty()) {
+            Log.d(TAG, "🔋 Atualizando ${eventListWidgetIds.size} EventListWidgets")
+            val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, eventListWidgetIds)
+            intent.component = eventListComponentName
+            sendBroadcast(intent)
+        }
+        
+        val totalWidgets = greetingWidgetIds.size + eventListWidgetIds.size
+        if (totalWidgets == 0) {
             // Se não há widgets ativos, parar o serviço para economizar bateria
             Log.d(TAG, "🔋 Nenhum widget ativo - parando serviço")
             stopSelf()
@@ -129,9 +146,16 @@ class WidgetUpdateService : Service() {
      */
     private fun hasActiveWidgets(): Boolean {
         val appWidgetManager = AppWidgetManager.getInstance(this)
-        val componentName = ComponentName(this, CalendarWidgetFixedColorsProvider::class.java)
-        val widgetIds = appWidgetManager.getAppWidgetIds(componentName)
-        return widgetIds.isNotEmpty()
+        
+        // Verificar GreetingWidgetProvider
+        val greetingComponentName = ComponentName(this, GreetingWidgetProvider::class.java)
+        val greetingWidgetIds = appWidgetManager.getAppWidgetIds(greetingComponentName)
+        
+        // Verificar EventListWidgetProvider
+        val eventListComponentName = ComponentName(this, EventListWidgetProvider::class.java)
+        val eventListWidgetIds = appWidgetManager.getAppWidgetIds(eventListComponentName)
+        
+        return greetingWidgetIds.isNotEmpty() || eventListWidgetIds.isNotEmpty()
     }
     
     override fun onDestroy() {
@@ -160,11 +184,19 @@ class WidgetUpdateService : Service() {
          */
         fun startIfNeeded(context: Context) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
-            val componentName = ComponentName(context, CalendarWidgetFixedColorsProvider::class.java)
-            val widgetIds = appWidgetManager.getAppWidgetIds(componentName)
             
-            if (widgetIds.isNotEmpty()) {
-                Log.d(TAG, "🔋 Iniciando WidgetUpdateService - ${widgetIds.size} widgets ativos")
+            // Verificar GreetingWidgetProvider
+            val greetingComponentName = ComponentName(context, GreetingWidgetProvider::class.java)
+            val greetingWidgetIds = appWidgetManager.getAppWidgetIds(greetingComponentName)
+            
+            // Verificar EventListWidgetProvider
+            val eventListComponentName = ComponentName(context, EventListWidgetProvider::class.java)
+            val eventListWidgetIds = appWidgetManager.getAppWidgetIds(eventListComponentName)
+            
+            val totalWidgets = greetingWidgetIds.size + eventListWidgetIds.size
+            
+            if (totalWidgets > 0) {
+                Log.d(TAG, "🔋 Iniciando WidgetUpdateService - $totalWidgets widgets ativos")
                 start(context)
             } else {
                 Log.d(TAG, "🔋 Nenhum widget ativo - não iniciando serviço")
