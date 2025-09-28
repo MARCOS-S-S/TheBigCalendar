@@ -1341,7 +1341,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 val notificationService = NotificationService(getApplication())
                 notificationService.scheduleNotification(activityForNotification)
                 
-                Log.d("CalendarViewModel", "🔔 Notificação agendada com sucesso!")
+                Log.d("CalendarViewModel", "🔔 Notificação agendada para instância atual!")
             } else {
                 Log.d("CalendarViewModel", "🔔 Notificação não agendada - configurações desabilitadas")
             }
@@ -1391,6 +1391,45 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             // Solicitar permissão apenas se não tiver sido concedida
             if (!hasPermission) {
                 _uiState.update { it.copy(showBackgroundPermissionDialog = true) }
+            }
+        }
+    }
+
+    /**
+     * Agenda notificação para a próxima instância de uma atividade recorrente
+     */
+    private fun scheduleNextRecurringInstanceNotification(baseActivity: Activity, completedDate: LocalDate) {
+        if (!baseActivity.notificationSettings.isEnabled ||
+            baseActivity.notificationSettings.notificationType == com.mss.thebigcalendar.data.model.NotificationType.NONE) {
+            return
+        }
+        
+        viewModelScope.launch {
+            try {
+                val recurrenceService = RecurrenceService()
+                val nextMonth = completedDate.plusMonths(1)
+                
+                // Gerar instâncias para o próximo mês
+                val nextInstances = recurrenceService.generateRecurringInstances(
+                    baseActivity, 
+                    completedDate.plusDays(1), // Próximo dia após a conclusão
+                    nextMonth
+                )
+                
+                // Pegar a primeira instância (próxima ocorrência)
+                val nextInstance = nextInstances.firstOrNull()
+                
+                if (nextInstance != null) {
+                    val notificationService = NotificationService(getApplication())
+                    notificationService.scheduleNotification(nextInstance)
+                    
+                    Log.d("CalendarViewModel", "🔔 Próxima notificação recorrente agendada para: ${nextInstance.date} às ${nextInstance.startTime}")
+                } else {
+                    Log.d("CalendarViewModel", "🔔 Nenhuma próxima instância encontrada para atividade recorrente")
+                }
+                
+            } catch (e: Exception) {
+                Log.e("CalendarViewModel", "❌ Erro ao agendar próxima notificação recorrente", e)
             }
         }
     }
@@ -2060,6 +2099,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     // Atualizar a atividade base com a nova lista de exclusões
                     activityRepository.saveActivity(updatedBaseActivity)
 
+                    // 🔔 Agendar notificação para a próxima instância recorrente
+                    scheduleNextRecurringInstanceNotification(updatedBaseActivity, LocalDate.parse(instanceDate))
                     
                     // Atualizar a UI
                     updateAllDateDependentUI()
@@ -2118,6 +2159,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         // Atualizar a atividade base com a nova lista de exclusões
                         activityRepository.saveActivity(updatedBaseActivity)
 
+                        // 🔔 Agendar notificação para a próxima instância recorrente
+                        scheduleNextRecurringInstanceNotification(updatedBaseActivity, LocalDate.parse(activityDate))
                         
                         // Atualizar a UI
                         updateAllDateDependentUI()

@@ -444,6 +444,9 @@ class NotificationReceiver : BroadcastReceiver() {
                                 // Atualizar a atividade base com a nova lista de exclusões
                                 repository.saveActivity(updatedBaseActivity)
                                 
+                                // 🔔 Agendar notificação para a próxima instância recorrente
+                                scheduleNextRecurringInstanceNotification(context, updatedBaseActivity, LocalDate.parse(instanceDate))
+                                
                                 Log.d(TAG, "✅ Instância recorrente marcada como concluída via notificação: ${instanceToComplete.title}")
                             } else {
                                 Log.d(TAG, "📝 Atividade não é recorrente, tratando como única")
@@ -501,6 +504,9 @@ class NotificationReceiver : BroadcastReceiver() {
                                 
                                 // Atualizar a atividade base com a nova lista de exclusões
                                 repository.saveActivity(updatedBaseActivity)
+                                
+                                // 🔔 Agendar notificação para a próxima instância recorrente
+                                scheduleNextRecurringInstanceNotification(context, updatedBaseActivity, LocalDate.parse(activityDate))
                                 
                                 Log.d(TAG, "✅ Primeira instância recorrente marcada como concluída via notificação: ${instanceToComplete.title} - Data: $activityDate")
                                 
@@ -576,6 +582,45 @@ class NotificationReceiver : BroadcastReceiver() {
         }
     }
     
+    /**
+     * Agenda notificação para a próxima instância de uma atividade recorrente
+     */
+    private fun scheduleNextRecurringInstanceNotification(context: Context, baseActivity: com.mss.thebigcalendar.data.model.Activity, completedDate: LocalDate) {
+        if (!baseActivity.notificationSettings.isEnabled ||
+            baseActivity.notificationSettings.notificationType == com.mss.thebigcalendar.data.model.NotificationType.NONE) {
+            return
+        }
+        
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val recurrenceService = com.mss.thebigcalendar.service.RecurrenceService()
+                val nextMonth = completedDate.plusMonths(1)
+                
+                // Gerar instâncias para o próximo mês
+                val nextInstances = recurrenceService.generateRecurringInstances(
+                    baseActivity, 
+                    completedDate.plusDays(1), // Próximo dia após a conclusão
+                    nextMonth
+                )
+                
+                // Pegar a primeira instância (próxima ocorrência)
+                val nextInstance = nextInstances.firstOrNull()
+                
+                if (nextInstance != null) {
+                    val notificationService = NotificationService(context)
+                    notificationService.scheduleNotification(nextInstance)
+                    
+                    Log.d(TAG, "🔔 Próxima notificação recorrente agendada via notificação para: ${nextInstance.date} às ${nextInstance.startTime}")
+                } else {
+                    Log.d(TAG, "🔔 Nenhuma próxima instância encontrada para atividade recorrente via notificação")
+                }
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "❌ Erro ao agendar próxima notificação recorrente via notificação", e)
+            }
+        }
+    }
+
     /**
      * Calcula a próxima ocorrência para uma atividade recorrente horária
      * (Implementação idêntica à do CalendarViewModel)
