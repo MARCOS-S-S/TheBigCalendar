@@ -12,6 +12,7 @@ import android.widget.RemoteViews
 import com.mss.thebigcalendar.MainActivity
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.repository.ActivityRepository
+import com.mss.thebigcalendar.service.RecurrenceService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -101,7 +102,10 @@ class GreetingWidgetProvider : AppWidgetProvider() {
                 val isNightTime = isNightTime(currentTime)
                 
                 repository.activities.collect { activities ->
-                    val todayTasks = activities.filter { activity ->
+                    val recurrenceService = RecurrenceService()
+                    val todayTasks = mutableListOf<com.mss.thebigcalendar.data.model.Activity>()
+                    
+                    activities.forEach { activity ->
                         try {
                             val activityDate = LocalDate.parse(activity.date)
                             
@@ -112,45 +116,81 @@ class GreetingWidgetProvider : AppWidgetProvider() {
                                 false
                             }
                             
-                            if (isExcluded) {
-                                false
-                            } else {
+                            if (!isExcluded) {
                                 // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
                                 if (activity.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
-                                    activityDate.month == today.month && activityDate.dayOfMonth == today.dayOfMonth
+                                    if (activityDate.month == today.month && activityDate.dayOfMonth == today.dayOfMonth) {
+                                        todayTasks.add(activity)
+                                    }
                                 } else {
-                                    activityDate == today
+                                    // Para atividades normais e recorrentes
+                                    if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
+                                        // Gerar instâncias recorrentes para o dia atual
+                                        val recurringInstances = recurrenceService.generateRecurringInstances(activity, today, today)
+                                        val instancesForToday = recurringInstances.filter { instance ->
+                                            val instanceDate = LocalDate.parse(instance.date)
+                                            instanceDate == today
+                                        }
+                                        todayTasks.addAll(instancesForToday)
+                                    } else {
+                                        // Atividade única - verificar se é para hoje
+                                        if (activityDate == today) {
+                                            todayTasks.add(activity)
+                                        }
+                                    }
                                 }
                             }
-                        } catch (_: Exception) {
-                            false
+                        } catch (e: Exception) {
+                            Log.w("GreetingWidget", "Erro ao processar atividade: ${activity.title}", e)
                         }
                     }
                     
-                    val tomorrowTasks = activities.filter { activity ->
-                        try {
-                            val activityDate = LocalDate.parse(activity.date)
-                            
-                            // Verificar se esta data específica foi excluída para atividades recorrentes
-                            val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
-                                activity.excludedDates.contains(tomorrow.toString())
-                            } else {
-                                false
-                            }
-                            
-                            if (isExcluded) {
-                                false
-                            } else {
-                                // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
-                                if (activity.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
-                                    activityDate.month == tomorrow.month && activityDate.dayOfMonth == tomorrow.dayOfMonth
+                    val tomorrowTasks = if (isNightTime) {
+                        val tomorrowTasksList = mutableListOf<com.mss.thebigcalendar.data.model.Activity>()
+                        
+                        activities.forEach { activity ->
+                            try {
+                                val activityDate = LocalDate.parse(activity.date)
+                                
+                                // Verificar se esta data específica foi excluída para atividades recorrentes
+                                val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
+                                    activity.excludedDates.contains(tomorrow.toString())
                                 } else {
-                                    activityDate == tomorrow
+                                    false
                                 }
+                                
+                                if (!isExcluded) {
+                                    // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
+                                    if (activity.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY) {
+                                        if (activityDate.month == tomorrow.month && activityDate.dayOfMonth == tomorrow.dayOfMonth) {
+                                            tomorrowTasksList.add(activity)
+                                        }
+                                    } else {
+                                        // Para atividades normais e recorrentes
+                                        if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
+                                            // Gerar instâncias recorrentes para amanhã
+                                            val recurringInstances = recurrenceService.generateRecurringInstances(activity, tomorrow, tomorrow)
+                                            val instancesForTomorrow = recurringInstances.filter { instance ->
+                                                val instanceDate = LocalDate.parse(instance.date)
+                                                instanceDate == tomorrow
+                                            }
+                                            tomorrowTasksList.addAll(instancesForTomorrow)
+                                        } else {
+                                            // Atividade única - verificar se é para amanhã
+                                            if (activityDate == tomorrow) {
+                                                tomorrowTasksList.add(activity)
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.w("GreetingWidget", "Erro ao processar atividade para amanhã: ${activity.title}", e)
                             }
-                        } catch (_: Exception) {
-                            false
                         }
+                        
+                        tomorrowTasksList
+                    } else {
+                        emptyList()
                     }
                     
                     val tasksText = buildTasksText(context, todayTasks, tomorrowTasks, isNightTime)
