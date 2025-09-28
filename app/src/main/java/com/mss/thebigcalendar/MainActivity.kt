@@ -51,6 +51,20 @@ import kotlinx.coroutines.flow.first
 class MainActivity : ComponentActivity() {
 
     private lateinit var viewModel: CalendarViewModel
+    
+    // ✅ Flag para detectar se o app já estava em execução
+    companion object {
+        private var isAppAlreadyRunning = false
+        private var isActivityResumed = false
+        
+        fun setAppRunningState(running: Boolean) {
+            isAppAlreadyRunning = running
+        }
+        
+        fun isAppAlreadyRunning(): Boolean {
+            return isAppAlreadyRunning && isActivityResumed
+        }
+    }
 
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -144,6 +158,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         viewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
+        
+        // ✅ Verificar se é um retorno via widget
+        val isReturningFromWidget = isAppAlreadyRunning()
+        if (isReturningFromWidget) {
+            // ✅ Se está retornando via widget, pular animação de carregamento
+            viewModel.skipLoadingAnimation()
+        }
 
         // Removido: requestIgnoreBatteryOptimizations() - agora será solicitado contextualmente
         
@@ -410,5 +431,30 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        // ✅ Marcar que a atividade está ativa
+        isActivityResumed = true
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        // ✅ Marcar que a atividade não está mais ativa
+        isActivityResumed = false
+    }
+    
+    override fun onStop() {
+        super.onStop()
+        // ✅ Marcar que o app ainda está em execução (mas não ativo)
+        setAppRunningState(true)
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        // ✅ Marcar que o app não está mais em execução
+        setAppRunningState(false)
+        isActivityResumed = false
     }
 }

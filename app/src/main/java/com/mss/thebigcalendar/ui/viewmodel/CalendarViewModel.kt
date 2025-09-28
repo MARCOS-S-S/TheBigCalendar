@@ -582,6 +582,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
+     * Pula a animação de carregamento quando o app já está em execução
+     */
+    fun skipLoadingAnimation() {
+        _uiState.update { it.copy(isCalendarLoaded = true) }
+    }
+
+    /**
      * Carrega apenas as atividades do mês atual
      * Otimização para reduzir uso de memória e melhorar performance
      */
