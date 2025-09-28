@@ -56,13 +56,17 @@ class MainActivity : ComponentActivity() {
     companion object {
         private var isAppAlreadyRunning = false
         private var isActivityResumed = false
+        private var wasActivityResumedBefore = false
         
         fun setAppRunningState(running: Boolean) {
             isAppAlreadyRunning = running
         }
         
         fun isAppAlreadyRunning(): Boolean {
-            return isAppAlreadyRunning && isActivityResumed
+            // ✅ App está em execução se:
+            // 1. Estava rodando antes E
+            // 2. A atividade já foi resumida pelo menos uma vez OU está atualmente resumida
+            return isAppAlreadyRunning && (wasActivityResumedBefore || isActivityResumed)
         }
     }
 
@@ -159,10 +163,10 @@ class MainActivity : ComponentActivity() {
 
         viewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
         
-        // ✅ Verificar se é um retorno via widget
-        val isReturningFromWidget = isAppAlreadyRunning()
-        if (isReturningFromWidget) {
-            // ✅ Se está retornando via widget, pular animação de carregamento
+        // ✅ Verificar se é um retorno via widget ou ícone do app
+        val isAppAlreadyRunning = isAppAlreadyRunning()
+        if (isAppAlreadyRunning) {
+            // ✅ Se o app já está em execução, pular animação de carregamento
             viewModel.skipLoadingAnimation()
         }
 
@@ -437,6 +441,8 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         // ✅ Marcar que a atividade está ativa
         isActivityResumed = true
+        // ✅ Marcar que a atividade já foi resumida pelo menos uma vez
+        wasActivityResumedBefore = true
     }
     
     override fun onPause() {
@@ -456,5 +462,7 @@ class MainActivity : ComponentActivity() {
         // ✅ Marcar que o app não está mais em execução
         setAppRunningState(false)
         isActivityResumed = false
+        // ✅ Resetar flag para próximo lançamento
+        wasActivityResumedBefore = false
     }
 }
