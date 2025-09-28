@@ -1019,7 +1019,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         if (monthChanged) {
             updateActivitiesForNewMonth(currentMonth)
         } else {
+            // ✅ Quando o mês não muda, atualizar todas as dependências da data
             updateSelectedDateInCalendar()
+            updateTasksForSelectedDate()
+            updateJsonCalendarActivitiesForSelectedDate()
+            updateHolidaysForSelectedDate()
+            updateSaintDaysForSelectedDate()
         }
     }
     
@@ -1829,24 +1834,44 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     
                     // Se é uma atividade recorrente, cancelar TODAS as notificações recorrentes
                     if (recurrenceService.isRecurring(activityToDelete)) {
-                        // Cancelar todas as notificações de todas as instâncias futuras
-                        notificationService.cancelAllRecurringNotifications(activityToDelete)
-                        
-                        val allActivities = _uiState.value.activities
-                        val recurringActivities = allActivities.filter { 
-                            it.title == activityToDelete.title && 
-                            it.recurrenceRule == activityToDelete.recurrenceRule
-                        }
-                        
-                        // Mover todas as instâncias para a lixeira
-                        recurringActivities.forEach { activity ->
-                            deletedActivityRepository.addDeletedActivity(activity)
-                            activityRepository.deleteActivity(activity.id)
+                        try {
+                            // ✅ Cancelar todas as notificações de todas as instâncias futuras
+                            notificationService.cancelAllRecurringNotifications(activityToDelete)
                             
-                            // Sincronizar com Google Calendar se for evento do Google
-                            if (activity.isFromGoogle) {
-                                deleteFromGoogleCalendar(activity)
+                            // ✅ Buscar apenas atividades com o mesmo ID base (mais eficiente)
+                            val allActivities = _uiState.value.activities
+                            val baseId = activityToDelete.id
+                            val recurringActivities = allActivities.filter { activity ->
+                                // Buscar pela atividade base ou instâncias que começam com o mesmo ID
+                                activity.id == baseId || 
+                                (activity.id.startsWith("${baseId}_") && 
+                                 activity.title == activityToDelete.title && 
+                                 activity.recurrenceRule == activityToDelete.recurrenceRule)
                             }
+                            
+                            Log.d("CalendarViewModel", "🔍 Encontradas ${recurringActivities.size} atividades recorrentes para deletar")
+                            
+                            // ✅ Mover todas as instâncias para a lixeira (com limite de segurança)
+                            val maxActivities = 100 // Limite para evitar loop infinito
+                            recurringActivities.take(maxActivities).forEach { activity ->
+                                deletedActivityRepository.addDeletedActivity(activity)
+                                activityRepository.deleteActivity(activity.id)
+                                
+                                // Sincronizar com Google Calendar se for evento do Google
+                                if (activity.isFromGoogle) {
+                                    deleteFromGoogleCalendar(activity)
+                                }
+                            }
+                            
+                            if (recurringActivities.size > maxActivities) {
+                                Log.w("CalendarViewModel", "⚠️ Limite de atividades atingido: ${recurringActivities.size} > $maxActivities")
+                            }
+                            
+                        } catch (e: Exception) {
+                            Log.e("CalendarViewModel", "❌ Erro ao deletar atividades recorrentes", e)
+                            // Fallback: deletar apenas a atividade base
+                            deletedActivityRepository.addDeletedActivity(activityToDelete)
+                            activityRepository.deleteActivity(activityId)
                         }
                         
                     } else {
