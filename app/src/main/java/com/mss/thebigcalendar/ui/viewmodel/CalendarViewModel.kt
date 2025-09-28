@@ -137,7 +137,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             if (intent?.action == "com.mss.thebigcalendar.ACTIVITY_COMPLETED") {
                 val activityId = intent.getStringExtra("activity_id")
                 if (activityId != null) {
-                    Log.d("CalendarViewModel", "🔔 Recebido broadcast de atividade concluída: $activityId")
                     // Atualizar a UI
                     updateAllDateDependentUI()
                 }
@@ -483,7 +482,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 
                 // 7. Verificar se há aniversários e criar alguns de exemplo se necessário
                 if (birthdayEvents == 0) {
-                    Log.w("CalendarViewModel", "⚠️ Nenhum aniversário detectado automaticamente. Criando aniversários de exemplo...")
                     createSampleBirthdays()
                 }
 
@@ -952,7 +950,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun updateAllDateDependentUI() {
-        Log.d("CalendarViewModel", "updateAllDateDependentUI() chamado")
         // Cancelar atualização anterior se ainda estiver pendente
         updateJob?.cancel()
         
@@ -1362,9 +1359,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 val notificationService = NotificationService(getApplication())
                 notificationService.scheduleNotification(activityForNotification)
 
-                Log.d("CalendarViewModel", "🔔 Notificação agendada para instância atual!")
             } else {
-                Log.d("CalendarViewModel", "🔔 Notificação não agendada - configurações desabilitadas")
             }
 
             // NOTA: Não geramos mais instâncias repetitivas automaticamente
@@ -1482,7 +1477,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                                 date = targetDate.toString()
                             )
                             instances.add(instance)
-                            android.util.Log.d("CalendarViewModel", "🕐 HOURLY: Instância adicionada para $targetDate")
                         }
                     }
                 }
@@ -1849,7 +1843,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                                  activity.recurrenceRule == activityToDelete.recurrenceRule)
                             }
                             
-                            Log.d("CalendarViewModel", "🔍 Encontradas ${recurringActivities.size} atividades recorrentes para deletar")
                             
                             // ✅ Mover todas as instâncias para a lixeira (com limite de segurança)
                             val maxActivities = 100 // Limite para evitar loop infinito
@@ -1864,7 +1857,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             }
                             
                             if (recurringActivities.size > maxActivities) {
-                                Log.w("CalendarViewModel", "⚠️ Limite de atividades atingido: ${recurringActivities.size} > $maxActivities")
                             }
                             
                         } catch (e: Exception) {
@@ -2275,7 +2267,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     
                     val result = alarmRepository.saveAlarm(updatedAlarm)
                     if (result.isSuccess) {
-                        Log.d("CalendarViewModel", "✅ Despertador órfão limpo: ${alarm.label}")
                         
                         // Cancelar o alarme no sistema
                         val notificationService = NotificationService(getApplication())
@@ -2285,9 +2276,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     }
                 }
                 
-                Log.d("CalendarViewModel", "🧹 Limpeza de despertadores órfãos concluída")
             } else {
-                Log.d("CalendarViewModel", "✅ Nenhum despertador órfão encontrado")
             }
         } catch (e: Exception) {
             Log.e("CalendarViewModel", "❌ Erro durante limpeza de despertadores órfãos", e)
@@ -2479,7 +2468,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun onManualSync() {
         val account = _uiState.value.googleSignInAccount
         if (account != null) {
-            Log.d("CalendarViewModel", "🔄 Sincronização manual progressiva solicitada")
             performProgressiveSync(account)
         }
     }
@@ -2495,7 +2483,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 
                 result.fold(
                     onSuccess = { totalEvents ->
-                        Log.d("CalendarViewModel", "✅ Sincronização progressiva concluída: $totalEvents eventos")
                         _uiState.update { it.copy(
                             isSyncing = false,
                             lastGoogleSyncTime = System.currentTimeMillis()
@@ -2548,7 +2535,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             .build()
         
         workManager.enqueue(syncWorkRequest)
-        Log.d("CalendarViewModel", "📅 Sincronização automática agendada para executar diariamente")
     }
     
     fun closeTrashScreen() {
@@ -2909,7 +2895,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun saveJsonConfig(title: String, color: androidx.compose.ui.graphics.Color, jsonContent: String = "") {
         viewModelScope.launch {
             try {
-                Log.d(TAG, "Salvando configuração JSON: título=$title, cor=$color, hasContent=${jsonContent.isNotBlank()}")
                 
                 // Obter dados do estado antes de processar
                 val currentState = _uiState.value
@@ -2953,7 +2938,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     
     private suspend fun processJsonFile(fileName: String, uri: android.net.Uri, calendarTitle: String, calendarColor: androidx.compose.ui.graphics.Color) {
         try {
-            Log.d(TAG, "Processando arquivo JSON: $fileName")
             
             // Ler o arquivo JSON
             val jsonString = readJsonFile(uri)
@@ -2963,14 +2947,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
             
             // Fazer parse do JSON
-            Log.d(TAG, "JSON string length: ${jsonString.length}")
             val jsonArray = JSONArray(jsonString)
-            Log.d(TAG, "JSON array length: ${jsonArray.length()}")
             val schedules = mutableListOf<JsonSchedule>()
             
             for (i in 0 until jsonArray.length()) {
                 try {
-                    Log.d(TAG, "Processando item $i do JSON")
                     val jsonObject = jsonArray.getJSONObject(i)
                     
                     val name = jsonObject.getString("name")
@@ -2988,8 +2969,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         null
                     }
                     
-                    Log.d(TAG, "🔍 Processando item $i: $name")
-                    Log.d(TAG, "  🔗 Wikipedia Link: $wikipediaLink")
                     
                     val schedule = JsonSchedule(
                         name = name,
@@ -2998,7 +2977,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         wikipediaLink = wikipediaLink
                     )
                     schedules.add(schedule)
-                    Log.d(TAG, "Item $i processado: $name")
                     
                 } catch (e: Exception) {
                     Log.e(TAG, "Erro ao processar item $i do JSON: ${e.message}")
@@ -3006,7 +2984,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 }
             }
             
-            Log.d(TAG, "Encontrados ${schedules.size} agendamentos no arquivo JSON")
             
             // Converter para Activities
             val activities = schedules.map { jsonSchedule ->
@@ -3018,7 +2995,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 activityRepository.saveActivity(activity)
             }
             
-            Log.d(TAG, "Processados e salvos ${activities.size} agendamentos do arquivo JSON")
             
             // Recarregar atividades para atualizar a UI
             loadActivitiesForCurrentMonth()
@@ -3033,7 +3009,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     
     private suspend fun processJsonContent(jsonContent: String, calendarTitle: String, calendarColor: androidx.compose.ui.graphics.Color) {
         try {
-            Log.d(TAG, "Processando conteúdo JSON digitado")
             
             // Criar e salvar o calendário JSON
             val jsonCalendar = JsonCalendar(
@@ -3051,12 +3026,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             // Fazer parse do JSON
             Log.d(TAG, "JSON string length: ${jsonContent.length}")
             val jsonArray = JSONArray(jsonContent)
-            Log.d(TAG, "JSON array length: ${jsonArray.length()}")
             val schedules = mutableListOf<JsonSchedule>()
             
             for (i in 0 until jsonArray.length()) {
                 try {
-                    Log.d(TAG, "Processando item $i do JSON")
                     val jsonObject = jsonArray.getJSONObject(i)
                     
                     val name = jsonObject.getString("name")
@@ -3074,8 +3047,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         null
                     }
                     
-                    Log.d(TAG, "🔍 Processando item $i: $name")
-                    Log.d(TAG, "  🔗 Wikipedia Link: $wikipediaLink")
                     
                     val schedule = JsonSchedule(
                         name = name,
@@ -3084,7 +3055,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         wikipediaLink = wikipediaLink
                     )
                     schedules.add(schedule)
-                    Log.d(TAG, "Item $i processado: $name")
                     
                 } catch (e: Exception) {
                     Log.e(TAG, "Erro ao processar item $i do JSON: ${e.message}")
@@ -3092,7 +3062,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 }
             }
             
-            Log.d(TAG, "Encontrados ${schedules.size} agendamentos no conteúdo JSON")
             
             // Converter para Activities
             val activities = schedules.map { jsonSchedule ->
@@ -3104,7 +3073,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 activityRepository.saveActivity(activity)
             }
             
-            Log.d(TAG, "Processados e salvos ${activities.size} agendamentos do conteúdo JSON")
             
             // Recarregar atividades para atualizar a UI
             loadActivitiesForCurrentMonth()
@@ -3119,7 +3087,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     private suspend fun readJsonFile(uri: android.net.Uri): String? {
         return try {
-            Log.d(TAG, "Tentando ler arquivo JSON: $uri")
             val inputStream = getApplication<Application>().contentResolver.openInputStream(uri)
             if (inputStream == null) {
                 Log.e(TAG, "InputStream é null para URI: $uri")
@@ -3191,7 +3158,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
         }
         
-        Log.d("CalendarViewModel", "Atualizando jsonHolidays com ${jsonHolidaysMap.size} entradas")
         _uiState.update { it.copy(jsonHolidays = jsonHolidaysMap) }
     }
     
@@ -3236,13 +3202,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         val selectedDate = currentState.selectedDate
         val visibleJsonCalendars = currentState.jsonCalendars.filter { it.isVisible }
         
-        Log.d("CalendarViewModel", "🔄 Atualizando agendamentos JSON para data: $selectedDate")
-        Log.d("CalendarViewModel", "📅 Calendários JSON visíveis: ${visibleJsonCalendars.size}")
         
         val jsonCalendarActivities = mutableMapOf<String, List<Activity>>()
         
         visibleJsonCalendars.forEach { jsonCalendar ->
-            Log.d("CalendarViewModel", "🔍 Processando calendário: ${jsonCalendar.title}")
             
             // Filtrar atividades que pertencem a este calendário JSON
             val calendarActivities = currentState.activities.filter { activity ->
@@ -3264,23 +3227,16 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 val dateMatches = activityDate?.isEqual(selectedDate) == true
                 val colorMatches = activityColor == jsonCalendar.color
                 
-                Log.d("CalendarViewModel", "  📋 Atividade: ${activity.title}")
-                Log.d("CalendarViewModel", "    📅 Data: ${activity.date} (matches: $dateMatches)")
-                Log.d("CalendarViewModel", "    🎨 Cor: ${activity.categoryColor} (matches: $colorMatches)")
-                Log.d("CalendarViewModel", "    📍 JSON Imported: $isJsonImported")
-                Log.d("CalendarViewModel", "    ✅ Show in Calendar: ${activity.showInCalendar}")
                 
                 dateMatches && colorMatches && activity.showInCalendar && isJsonImported
             }
             
-            Log.d("CalendarViewModel", "  📊 Encontradas ${calendarActivities.size} atividades para ${jsonCalendar.title}")
             
             if (calendarActivities.isNotEmpty()) {
                 jsonCalendarActivities[jsonCalendar.id] = calendarActivities
             }
         }
         
-        Log.d("CalendarViewModel", "✅ Total de atividades JSON encontradas para $selectedDate: ${jsonCalendarActivities.values.sumOf { it.size }}")
         
         _uiState.update { 
             it.copy(jsonCalendarActivitiesForSelectedDate = jsonCalendarActivities) 
@@ -3357,12 +3313,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 }
             }
             
-            Log.d("CalendarViewModel", "Encontradas ${oldJsonActivities.size} atividades JSON antigas para limpar")
             
             // Remover atividades JSON antigas
             oldJsonActivities.forEach { activity ->
                 activityRepository.deleteActivity(activity.id)
-                Log.d("CalendarViewModel", "Removida atividade JSON antiga: ${activity.title}")
             }
             
             // Recarregar dados após limpeza
