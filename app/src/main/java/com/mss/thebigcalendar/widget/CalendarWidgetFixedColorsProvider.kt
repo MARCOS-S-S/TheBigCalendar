@@ -137,6 +137,11 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                                 } else {
                                     // Para atividades normais e recorrentes
                                     if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
+                                        // Verificar se a atividade base é para hoje
+                                        if (activityDate == today) {
+                                            todayTasks.add(activity)
+                                        }
+                                        
                                         // Gerar instâncias recorrentes para o dia atual
                                         val recurringInstances = recurrenceService.generateRecurringInstances(activity, today, today)
                                         val instancesForToday = recurringInstances.filter { instance ->
@@ -189,6 +194,11 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                                     } else {
                                         // Para atividades normais e recorrentes
                                         if (activity.recurrenceRule?.isNotEmpty() == true && activity.recurrenceRule != "CUSTOM") {
+                                            // Verificar se a atividade base é para amanhã
+                                            if (activityDate == tomorrow) {
+                                                tomorrowTasksList.add(activity)
+                                            }
+                                            
                                             // Gerar instâncias recorrentes para amanhã
                                             val recurringInstances = recurrenceService.generateRecurringInstances(activity, tomorrow, tomorrow)
                                             val instancesForTomorrow = recurringInstances.filter { instance ->

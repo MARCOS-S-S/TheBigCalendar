@@ -258,6 +258,63 @@ class NotificationService(
     }
 
     /**
+     * Cancela todas as notificações de uma atividade recorrente
+     * Inclui todas as instâncias futuras que podem ter sido agendadas
+     */
+    fun cancelAllRecurringNotifications(baseActivity: Activity) {
+        Log.d(TAG, "🔔 Cancelando TODAS as notificações recorrentes para: ${baseActivity.title}")
+        
+        // Cancelar a notificação da atividade base
+        cancelNotification(baseActivity.id)
+        
+        // Cancelar todas as possíveis variações de IDs
+        val baseId = baseActivity.id
+        
+        // Para atividades HOURLY, cancelar possíveis instâncias com horários específicos
+        if (baseActivity.recurrenceRule?.startsWith("FREQ=HOURLY") == true && baseActivity.startTime != null) {
+            val timeString = baseActivity.startTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+            
+            // Cancelar instâncias para os próximos 30 dias
+            val today = java.time.LocalDate.now()
+            for (i in -1..30) { // -1 para incluir ontem (caso tenha sido agendada)
+                val futureDate = today.plusDays(i.toLong())
+                val instanceId = "${baseId}_${futureDate}_${timeString}"
+                cancelNotification(instanceId)
+                
+                // Também cancelar variações possíveis do formato
+                val instanceIdAlt = "${baseId}_${futureDate}_${timeString.replace(":", "")}"
+                cancelNotification(instanceIdAlt)
+            }
+        } else {
+            // Para outras recorrências, cancelar instâncias para os próximos 365 dias
+            val today = java.time.LocalDate.now()
+            for (i in -1..365) { // -1 para incluir ontem
+                val futureDate = today.plusDays(i.toLong())
+                val instanceId = "${baseId}_${futureDate}"
+                cancelNotification(instanceId)
+                
+                // Cancelar também variações com formato de data diferente
+                val dateFormat1 = futureDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                val dateFormat2 = futureDate.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                cancelNotification("${baseId}_${dateFormat1}")
+                cancelNotification("${baseId}_${dateFormat2}")
+            }
+        }
+        
+        // Cancelar também qualquer alarme que possa ter sido agendado com o título da atividade
+        // (para casos onde o ID pode ter variações)
+        val titleHash = baseActivity.title.hashCode()
+        alarmManager.cancel(PendingIntent.getBroadcast(
+            context,
+            titleHash,
+            Intent(context, NotificationReceiver::class.java),
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+        ))
+        
+        Log.d(TAG, "🔔 Todas as notificações recorrentes canceladas para: ${baseActivity.title}")
+    }
+
+    /**
      * Calcula o horário da notificação baseado nas configurações
      */
     private fun calculateNotificationTime(activity: Activity): LocalDateTime {

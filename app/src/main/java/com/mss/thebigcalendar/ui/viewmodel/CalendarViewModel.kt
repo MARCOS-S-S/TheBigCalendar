@@ -1826,10 +1826,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 if (activityToDelete != null) {
                     // ✅ Cancelar notificação antes de deletar
                     val notificationService = NotificationService(getApplication())
-                    notificationService.cancelNotification(activityId)
                     
-                    // Se é uma atividade recorrente, deletar todas as instâncias
+                    // Se é uma atividade recorrente, cancelar TODAS as notificações recorrentes
                     if (recurrenceService.isRecurring(activityToDelete)) {
+                        // Cancelar todas as notificações de todas as instâncias futuras
+                        notificationService.cancelAllRecurringNotifications(activityToDelete)
+                        
                         val allActivities = _uiState.value.activities
                         val recurringActivities = allActivities.filter { 
                             it.title == activityToDelete.title && 

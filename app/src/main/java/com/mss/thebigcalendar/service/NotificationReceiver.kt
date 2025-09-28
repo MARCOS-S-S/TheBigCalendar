@@ -56,14 +56,31 @@ class NotificationReceiver : BroadcastReceiver() {
         val activityDate = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_DATE)
         val activityTime = intent.getStringExtra(NotificationService.EXTRA_ACTIVITY_TIME)
         
-
+        Log.d(TAG, "🔔 handleViewActivity chamado para ID: $activityId")
         
-        // ✅ Buscar a atividade REAL do repositório para obter a visibilidade configurada
+        // ✅ Verificação imediata: se a atividade foi deletada, não processar a notificação
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         
         scope.launch {
             try {
                 val repository = ActivityRepository(context)
+                
+                // ✅ Verificar PRIMEIRO se a atividade ainda existe
+                val activities = repository.activities.first()
+                val activityExists = activities.any { 
+                    it.id == activityId || 
+                    (activityId?.contains("_") == true && it.id == activityId.split("_")[0])
+                }
+                
+                if (!activityExists) {
+                    Log.d(TAG, "🔔 Atividade $activityId foi deletada - cancelando notificação sem exibir")
+                    val notificationService = NotificationService(context)
+                    notificationService.cancelNotification(activityId ?: "")
+                    return@launch
+                }
+                
+                Log.d(TAG, "🔔 Atividade $activityId ainda existe - processando notificação")
+                
                 val notificationService = NotificationService(context)
                 
                 // Cancelar a notificação imediatamente
@@ -71,9 +88,6 @@ class NotificationReceiver : BroadcastReceiver() {
                     notificationService.cancelNotification(activityId)
                     Log.d(TAG, "🔔 Notificação cancelada imediatamente")
                 }
-                
-                // ✅ Usar first() em vez de collect() para obter apenas o primeiro valor
-                val activities = repository.activities.first()
                 
                 Log.d(TAG, "🔔 Buscando atividade com ID: $activityId")
                 Log.d(TAG, "🔔 Total de atividades no repositório: ${activities.size}")
