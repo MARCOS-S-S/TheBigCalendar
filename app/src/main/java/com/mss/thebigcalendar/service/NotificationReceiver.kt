@@ -81,14 +81,6 @@ class NotificationReceiver : BroadcastReceiver() {
                 
                 Log.d(TAG, "🔔 Atividade $activityId ainda existe - processando notificação")
                 
-                val notificationService = NotificationService(context)
-                
-                // Cancelar a notificação imediatamente
-                if (activityId != null) {
-                    notificationService.cancelNotification(activityId)
-                    Log.d(TAG, "🔔 Notificação cancelada imediatamente")
-                }
-                
                 Log.d(TAG, "🔔 Buscando atividade com ID: $activityId")
                 Log.d(TAG, "🔔 Total de atividades no repositório: ${activities.size}")
                 
@@ -146,6 +138,7 @@ class NotificationReceiver : BroadcastReceiver() {
                     } else {
                         // ✅ Mudar para Main thread para exibir overlay normal
                         withContext(Dispatchers.Main) {
+                            val notificationService = NotificationService(context)
                             notificationService.showNotification(realActivity)
                         }
                     }
@@ -163,6 +156,7 @@ class NotificationReceiver : BroadcastReceiver() {
                                 id = "${realActivity.id}_${nextOccurrenceDate}",
                                 date = nextOccurrenceDate.toString()
                             )
+                            val notificationService = NotificationService(context)
                             notificationService.scheduleNotification(nextActivity)
                         }
                     } else {
@@ -219,6 +213,7 @@ class NotificationReceiver : BroadcastReceiver() {
                     } else {
                         // ✅ Mudar para Main thread para exibir overlay normal
                         withContext(Dispatchers.Main) {
+                            val notificationService = NotificationService(context)
                             notificationService.showNotification(tempActivity)
                         }
                     }
@@ -267,6 +262,7 @@ class NotificationReceiver : BroadcastReceiver() {
                 } else {
                     // ✅ Mudar para Main thread para exibir overlay normal
                     withContext(Dispatchers.Main) {
+                        val notificationService = NotificationService(context)
                         notificationService.showNotification(tempActivity)
                     }
                 }
@@ -301,6 +297,17 @@ class NotificationReceiver : BroadcastReceiver() {
                 // Usar first() em vez de collect() para obter apenas o primeiro valor
                 val activities = repository.activities.first()
                 
+                // ✅ Verificar PRIMEIRO se a atividade ainda existe
+                val activityExists = activities.any { 
+                    it.id == activityId || 
+                    (activityId?.contains("_") == true && it.id == activityId.split("_")[0])
+                }
+                
+                if (!activityExists) {
+                    Log.d(TAG, "🔔 Atividade $activityId foi deletada - cancelando adiamento")
+                    return@launch
+                }
+                
                 // Verificar se é uma instância recorrente (ID contém data)
                 val isRecurringInstance = activityId?.contains("_") == true && activityId.split("_").size >= 2
                 
@@ -308,7 +315,15 @@ class NotificationReceiver : BroadcastReceiver() {
                     // Para instâncias recorrentes, buscar pela atividade base
                     val parts = activityId?.split("_")
                     val baseId = parts?.getOrNull(0) ?: ""
-                    activities.find { it.id == baseId }
+                    val baseActivity = activities.find { it.id == baseId }
+                    
+                    // Se encontrou a atividade base e ela é recorrente, é realmente uma instância
+                    if (baseActivity != null && baseActivity.recurrenceRule?.isNotEmpty() == true) {
+                        baseActivity
+                    } else {
+                        // Se a atividade base não é recorrente, tratar como atividade única
+                        activities.find { it.id == activityId }
+                    }
                 } else {
                     // Para atividades únicas, buscar pelo ID completo
                     activities.find { it.id == activityId }
@@ -326,26 +341,38 @@ class NotificationReceiver : BroadcastReceiver() {
                     val currentTime = LocalDateTime.now()
                     val snoozedTime = currentTime.plusMinutes(snoozeMinutes.toLong())
                     
-                    val snoozedActivity = activity.copy(
-                        id = if (isRecurringInstance) {
-                            // Para instâncias recorrentes, usar o ID com a nova data
-                            // Para atividades HOURLY, incluir o horário no ID
-                            if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                    if (activity.recurrenceRule?.isNotEmpty() == true) {
+                        // Para atividades recorrentes, criar instância específica
+                        val snoozedActivity = activity.copy(
+                            id = if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
                                 val timeString = snoozedTime.toLocalTime().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
                                 "${activity.id}_${snoozedTime.toLocalDate()}_${timeString}"
                             } else {
                                 "${activity.id}_${snoozedTime.toLocalDate()}"
-                            }
-                        } else {
-                            // Para atividades únicas, manter o ID original
-                            activity.id
-                        },
-                        startTime = snoozedTime.toLocalTime(),
-                        date = snoozedTime.toLocalDate().toString()
-                    )
-                    
-                    // Agendar nova notificação
-                    notificationService.scheduleNotification(snoozedActivity)
+                            },
+                            startTime = snoozedTime.toLocalTime(),
+                            date = snoozedTime.toLocalDate().toString()
+                        )
+                        
+                        // Agendar nova notificação
+                        val notificationService = NotificationService(context)
+                        notificationService.scheduleNotification(snoozedActivity)
+                    } else {
+                        // Para atividades não recorrentes, atualizar a atividade original no repositório
+                        val updatedActivity = activity.copy(
+                            startTime = snoozedTime.toLocalTime(),
+                            date = snoozedTime.toLocalDate().toString()
+                        )
+                        
+                        // Salvar a atividade atualizada no repositório
+                        repository.saveActivity(updatedActivity)
+                        
+                        // Agendar nova notificação com a atividade atualizada
+                        val notificationService = NotificationService(context)
+                        notificationService.scheduleNotification(updatedActivity)
+                        
+                        Log.d(TAG, "🔔 Atividade não recorrente atualizada no repositório com novo horário")
+                    }
                     
                     Log.d(TAG, "🔔 Notificação adiada com sucesso para: ${snoozedTime}")
                     
@@ -565,6 +592,7 @@ class NotificationReceiver : BroadcastReceiver() {
                         activity.notificationSettings.notificationType != com.mss.thebigcalendar.data.model.NotificationType.NONE) {
                         
                         // Reagendar notificação
+                        val notificationService = NotificationService(context)
                         notificationService.scheduleNotification(activity)
                         Log.d(TAG, "🔔 Notificação reagendada para: ${activity.title}")
                     }

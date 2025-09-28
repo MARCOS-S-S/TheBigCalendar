@@ -369,14 +369,8 @@ class NotificationService(
         val activityIdForNotification = if (activity.id.contains("_")) {
             activity.id
         } else {
-            // É uma atividade base, criar ID da instância específica
-            // Para atividades HOURLY, incluir o horário no ID
-            if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true && activity.startTime != null) {
-                val timeString = activity.startTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
-                "${activity.id}_${activity.date}_${timeString}"
-            } else {
-                "${activity.id}_${activity.date}"
-            }
+            // Para atividades não recorrentes, usar o ID original
+            activity.id
         }
         
         // ✅ Sincronização para evitar condição de corrida
@@ -490,12 +484,8 @@ class NotificationService(
             val activityIdForNotification = if (activity.id.contains("_")) {
                 activity.id
             } else {
-                if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true && activity.startTime != null) {
-                    val timeString = activity.startTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
-                    "${activity.id}_${activity.date}_${timeString}"
-                } else {
-                    "${activity.id}_${activity.date}"
-                }
+                // Para atividades não recorrentes, usar o ID original
+                activity.id
             }
             
             val snoozeIntent = Intent(context, NotificationReceiver::class.java).apply {
@@ -524,12 +514,8 @@ class NotificationService(
             val activityIdForNotification = if (activity.id.contains("_")) {
                 activity.id
             } else {
-                if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true && activity.startTime != null) {
-                    val timeString = activity.startTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
-                    "${activity.id}_${activity.date}_${timeString}"
-                } else {
-                    "${activity.id}_${activity.date}"
-                }
+                // Para atividades não recorrentes, usar o ID original
+                activity.id
             }
             
             val dismissIntent = Intent(context, NotificationReceiver::class.java).apply {
