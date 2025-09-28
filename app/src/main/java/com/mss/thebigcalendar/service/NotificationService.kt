@@ -427,11 +427,15 @@ class NotificationService(
         val soundUri = getNotificationSound()
         Log.d(TAG, "🔔 Som da notificação: $soundUri")
         
-        val snoozePendingIntent = createSnoozePendingIntent(activity, 5)
+        val snooze5minPendingIntent = createSnoozePendingIntent(activity, 5)
+        val snooze30minPendingIntent = createSnoozePendingIntent(activity, 30)
+        val snooze1hourPendingIntent = createSnoozePendingIntent(activity, 60)
         val dismissPendingIntent = createDismissPendingIntent(activity)
         
-        Log.d(TAG, "🔔 Criando PendingIntents - Snooze: ${snoozePendingIntent != null}, Dismiss: ${dismissPendingIntent != null}")
-        Log.d(TAG, "🔔 Snooze PendingIntent ID: ${(activity.id + "_snooze").hashCode()}")
+        Log.d(TAG, "🔔 Criando PendingIntents - Snooze 5min: ${snooze5minPendingIntent != null}, Snooze 30min: ${snooze30minPendingIntent != null}, Snooze 1h: ${snooze1hourPendingIntent != null}, Dismiss: ${dismissPendingIntent != null}")
+        Log.d(TAG, "🔔 Snooze 5min PendingIntent ID: ${(activity.id + "_snooze_5").hashCode()}")
+        Log.d(TAG, "🔔 Snooze 30min PendingIntent ID: ${(activity.id + "_snooze_30").hashCode()}")
+        Log.d(TAG, "🔔 Snooze 1h PendingIntent ID: ${(activity.id + "_snooze_60").hashCode()}")
         Log.d(TAG, "🔔 Dismiss PendingIntent ID: ${(activity.id + "_dismiss").hashCode()}")
         
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
@@ -451,7 +455,17 @@ class NotificationService(
             .addAction(
                 android.R.drawable.ic_menu_revert,
                 "Adiar 5 min",
-                snoozePendingIntent
+                snooze5minPendingIntent
+            )
+            .addAction(
+                android.R.drawable.ic_menu_revert,
+                "Adiar 30 min",
+                snooze30minPendingIntent
+            )
+            .addAction(
+                android.R.drawable.ic_menu_revert,
+                "Adiar 1 hora",
+                snooze1hourPendingIntent
             )
             .setVibrate(longArrayOf(0, 500, 200, 500)) // ✅ Adicionar vibração
             .setLights(0xFF0000FF.toInt(), 1000, 1000) // ✅ Adicionar luz LED
@@ -504,7 +518,7 @@ class NotificationService(
             
             PendingIntent.getBroadcast(
                 context,
-                (activityIdForNotification + "_snooze").hashCode(),
+                (activityIdForNotification + "_snooze_$minutes").hashCode(),
                 snoozeIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )

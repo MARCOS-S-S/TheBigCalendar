@@ -317,15 +317,37 @@ class NotificationReceiver : BroadcastReceiver() {
                     val baseId = parts?.getOrNull(0) ?: ""
                     val baseActivity = activities.find { it.id == baseId }
                     
+                    Log.d(TAG, "🔍 Verificando se é instância recorrente - Base ID: $baseId")
+                    Log.d(TAG, "🔍 Atividade base encontrada: ${baseActivity != null}")
+                    Log.d(TAG, "🔍 Atividade base é recorrente: ${baseActivity?.recurrenceRule?.isNotEmpty() == true}")
+                    
                     // Se encontrou a atividade base e ela é recorrente, é realmente uma instância
                     if (baseActivity != null && baseActivity.recurrenceRule?.isNotEmpty() == true) {
+                        Log.d(TAG, "🔍 Confirmado: É instância recorrente de atividade base")
                         baseActivity
                     } else {
                         // Se a atividade base não é recorrente, tratar como atividade única
-                        activities.find { it.id == activityId }
+                        Log.d(TAG, "🔍 Não é instância recorrente, buscando como atividade única")
+                        val foundActivity = activities.find { it.id == activityId }
+                        if (foundActivity != null) {
+                            Log.d(TAG, "🔍 Atividade encontrada pelo ID completo")
+                            foundActivity
+                        } else {
+                            // Se não encontrou pelo ID completo, tentar buscar pela atividade base
+                            Log.d(TAG, "🔍 Atividade não encontrada pelo ID completo, tentando buscar pela base")
+                            val baseActivity = activities.find { it.id == baseId }
+                            if (baseActivity != null) {
+                                Log.d(TAG, "🔍 Atividade base encontrada, usando ela para adiamento")
+                                baseActivity
+                            } else {
+                                Log.d(TAG, "🔍 Atividade base também não encontrada")
+                                null
+                            }
+                        }
                     }
                 } else {
                     // Para atividades únicas, buscar pelo ID completo
+                    Log.d(TAG, "🔍 Buscando como atividade única (ID sem underscore)")
                     activities.find { it.id == activityId }
                 }
                 
@@ -336,6 +358,9 @@ class NotificationReceiver : BroadcastReceiver() {
                 
                 if (activity != null) {
                     Log.d(TAG, "🔔 Atividade encontrada para adiar: ${activity.title}")
+                    Log.d(TAG, "🔔 Atividade ID: ${activity.id}")
+                    Log.d(TAG, "🔔 Atividade recurrenceRule: ${activity.recurrenceRule}")
+                    Log.d(TAG, "🔔 Atividade é recorrente: ${activity.recurrenceRule?.isNotEmpty() == true}")
                     
                     // Criar uma atividade temporária com horário ajustado
                     val currentTime = LocalDateTime.now()
@@ -421,17 +446,29 @@ class NotificationReceiver : BroadcastReceiver() {
                         Log.d(TAG, "🔔 Instância recorrente adiada e salva no repositório - instância original excluída - nova notificação agendada para: ${snoozedTime}")
                     } else {
                         // Para atividades não recorrentes, atualizar a atividade original no repositório
+                        Log.d(TAG, "🔔 Processando atividade NÃO RECORRENTE: ${activity.title}")
+                        Log.d(TAG, "🔔 Horário original: ${activity.startTime}")
+                        Log.d(TAG, "🔔 Data original: ${activity.date}")
+                        Log.d(TAG, "🔔 Novo horário adiado: ${snoozedTime.toLocalTime()}")
+                        Log.d(TAG, "🔔 Nova data adiada: ${snoozedTime.toLocalDate()}")
+                        
                         val updatedActivity = activity.copy(
                             startTime = snoozedTime.toLocalTime(),
                             date = snoozedTime.toLocalDate().toString()
                         )
                         
+                        Log.d(TAG, "🔔 Atividade atualizada - ID: ${updatedActivity.id}")
+                        Log.d(TAG, "🔔 Atividade atualizada - Horário: ${updatedActivity.startTime}")
+                        Log.d(TAG, "🔔 Atividade atualizada - Data: ${updatedActivity.date}")
+                        
                         // Salvar a atividade atualizada no repositório
                         repository.saveActivity(updatedActivity)
+                        Log.d(TAG, "🔔 Atividade salva no repositório com novo horário")
                         
                         // Agendar nova notificação com a atividade atualizada
                         val notificationService = NotificationService(context)
                         notificationService.scheduleNotification(updatedActivity)
+                        Log.d(TAG, "🔔 Nova notificação agendada para: ${snoozedTime}")
                         
                         // ✅ Marcar atividade como adiada para evitar notificações tardias desnecessárias
                         val prefs = context.getSharedPreferences("notification_tracking", Context.MODE_PRIVATE)

@@ -96,7 +96,9 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
                     activityDate = intent.getStringExtra(HighVisibilityNotificationService.EXTRA_ACTIVITY_DATE),
                     activityTime = intent.getStringExtra(HighVisibilityNotificationService.EXTRA_ACTIVITY_TIME),
                     onDismiss = { dismissNotification() },
-                    onSnooze = { snoozeNotification() },
+                    onSnooze5min = { snoozeNotification(5) },
+                    onSnooze30min = { snoozeNotification(30) },
+                    onSnooze1hour = { snoozeNotification(60) },
                     onOpenApp = { openMainApp() }
                 )
             }
@@ -312,8 +314,8 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
     /**
      * Adia a notificação (snooze)
      */
-    private fun snoozeNotification() {
-        Log.d(TAG, "🔔 Adiando notificação de alta visibilidade")
+    private fun snoozeNotification(minutes: Int) {
+        Log.d(TAG, "🔔 Adiando notificação de alta visibilidade por $minutes minutos")
         
         isActivityActive = false
         stopNotificationSound()
@@ -331,7 +333,7 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
             val snoozeIntent = Intent(this, com.mss.thebigcalendar.service.NotificationReceiver::class.java).apply {
                 action = NotificationService.ACTION_SNOOZE
                 putExtra(NotificationService.EXTRA_ACTIVITY_ID, activityId)
-                putExtra("snooze_minutes", 5)
+                putExtra("snooze_minutes", minutes)
             }
             sendBroadcast(snoozeIntent)
         }
@@ -403,7 +405,9 @@ private fun HighVisibilityNotificationScreen(
     activityDate: String?,
     activityTime: String?,
     onDismiss: () -> Unit,
-    onSnooze: () -> Unit,
+    onSnooze5min: () -> Unit,
+    onSnooze30min: () -> Unit,
+    onSnooze1hour: () -> Unit,
     onOpenApp: () -> Unit
 ) {
     val context = LocalContext.current
@@ -503,13 +507,13 @@ private fun HighVisibilityNotificationScreen(
                     )
                 }
                 
-                // Botões de ação
+                // Botões de adiamento
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Botão Snooze
+                    // Botão Snooze 5min
                     Button(
-                        onClick = onSnooze,
+                        onClick = onSnooze5min,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Magenta
                         ),
@@ -525,23 +529,23 @@ private fun HighVisibilityNotificationScreen(
                                 imageVector = Icons.Default.Snooze,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(20.dp)
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Adiar 5min",
+                                text = "5min",
                                 color = Color.White,
-                                fontSize = 14.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium
                             )
                         }
                     }
                     
-                    // Botão Dismiss
+                    // Botão Snooze 30min
                     Button(
-                        onClick = onDismiss,
+                        onClick = onSnooze30min,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Red
+                            containerColor = Color(0xFF9C27B0) // Purple
                         ),
                         modifier = Modifier
                             .weight(1f)
@@ -552,19 +556,79 @@ private fun HighVisibilityNotificationScreen(
                             verticalArrangement = Arrangement.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.AlarmOff,
+                                imageVector = Icons.Default.Snooze,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(20.dp)
                             )
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Finalizar",
+                                text = "30min",
                                 color = Color.White,
-                                fontSize = 14.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium
                             )
                         }
+                    }
+                    
+                    // Botão Snooze 1h
+                    Button(
+                        onClick = onSnooze1hour,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF673AB7) // Deep Purple
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(70.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Snooze,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "1h",
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                }
+                
+                // Botão Finalizar
+                Button(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Red
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AlarmOff,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "FINALIZAR",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
