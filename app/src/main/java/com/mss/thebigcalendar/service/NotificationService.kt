@@ -237,6 +237,14 @@ class NotificationService(
             Log.d(TAG, "🔔 Alarme cancelado")
         }
         
+        // ✅ CANCELAR WORKMANAGER BACKUP
+        try {
+            androidx.work.WorkManager.getInstance(context).cancelUniqueWork("notification_${activityId}")
+            Log.d(TAG, "🔔 WorkManager backup cancelado para: $activityId")
+        } catch (e: Exception) {
+            Log.e(TAG, "🔔 Erro ao cancelar WorkManager backup", e)
+        }
+        
         // Cancelar a notificação atual (se estiver sendo exibida)
         val notificationId = activityId.hashCode()
         Log.d(TAG, "🔔 Cancelando notificação com ID: $notificationId")

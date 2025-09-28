@@ -88,6 +88,8 @@ class HighVisibilityNotificationService : Service() {
                         isFromGoogle = false
                     )
                     
+                    Log.d(TAG, "🔔 Atividade criada com ID: ${activity.id}")
+                    
                     showHighVisibilityNotification(activity)
                 }
             }

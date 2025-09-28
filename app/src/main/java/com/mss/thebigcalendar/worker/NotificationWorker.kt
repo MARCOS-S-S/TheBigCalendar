@@ -64,7 +64,21 @@ class NotificationWorker(
                         synchronized(notificationLock) {
                             Log.d(TAG, "🔔 Worker - Verificando deduplicação para ID: $activityIdForNotification")
                             
-                            if (hasNotificationBeenSentRecently(activityIdForNotification)) {
+                            // ✅ Verificar se a atividade foi adiada recentemente
+                            // Verificar tanto o ID específico quanto o ID base para atividades recorrentes
+                            val baseId = if (activity.id.contains("_")) {
+                                activity.id.split("_")[0]
+                            } else {
+                                activity.id
+                            }
+                            
+                            val wasSnoozed = wasActivityRecentlySnoozed(activityIdForNotification) || 
+                                           wasActivityRecentlySnoozed(baseId) ||
+                                           wasActivityRecentlySnoozed(activity.id)
+                            
+                            if (wasSnoozed) {
+                                Log.d(TAG, "🔔 Worker - Notificação tardia bloqueada (atividade foi adiada recentemente) para: ${activity.title}")
+                            } else if (hasNotificationBeenSentRecently(activityIdForNotification)) {
                                 Log.d(TAG, "🔔 Worker - Notificação tardia bloqueada (duplicata) para: ${activity.title}")
                             } else {
                                 Log.d(TAG, "🔔 Worker - Notificação tardia permitida para: ${activity.title}")
@@ -174,5 +188,28 @@ class NotificationWorker(
         }
         
         return wasSentRecently
+    }
+    
+    /**
+     * Verifica se uma atividade foi adiada recentemente para evitar notificações tardias desnecessárias
+     */
+    private fun wasActivityRecentlySnoozed(activityId: String): Boolean {
+        val prefs = applicationContext.getSharedPreferences("notification_tracking", Context.MODE_PRIVATE)
+        val key = "activity_snoozed_$activityId"
+        val snoozedTime = prefs.getLong(key, 0)
+        val currentTime = System.currentTimeMillis()
+        
+        val timeDiff = currentTime - snoozedTime
+        val wasRecentlySnoozed = timeDiff < 300000L // 5 minutos (janela para atividades adiadas)
+        
+        Log.d(TAG, "🔔 Worker - Verificação de adiamento - ID: $activityId, Adiada em: $snoozedTime, Agora: $currentTime, Diferença: ${timeDiff/1000}s, Janela: 300s")
+        
+        if (wasRecentlySnoozed) {
+            Log.d(TAG, "🔔 Worker - Atividade foi adiada recentemente para $activityId (${timeDiff/1000}s atrás)")
+        } else {
+            Log.d(TAG, "🔔 Worker - Atividade não foi adiada recentemente para $activityId (${timeDiff/1000}s atrás)")
+        }
+        
+        return wasRecentlySnoozed
     }
 }

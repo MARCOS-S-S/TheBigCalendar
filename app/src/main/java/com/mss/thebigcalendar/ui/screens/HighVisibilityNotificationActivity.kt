@@ -296,11 +296,13 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
         
         // Enviar broadcast para marcar atividade como concluída
         val activityId = intent.getStringExtra(HighVisibilityNotificationService.EXTRA_ACTIVITY_ID)
+        Log.d(TAG, "🔔 Activity ID recebido para dismiss: $activityId")
         if (activityId != null) {
             val completeIntent = Intent(this, com.mss.thebigcalendar.service.NotificationReceiver::class.java).apply {
                 action = NotificationService.ACTION_DISMISS
                 putExtra(NotificationService.EXTRA_ACTIVITY_ID, activityId)
             }
+            Log.d(TAG, "🔔 Enviando ACTION_DISMISS com ID: $activityId")
             sendBroadcast(completeIntent)
         }
         

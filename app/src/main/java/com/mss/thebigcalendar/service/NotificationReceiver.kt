@@ -308,7 +308,7 @@ class NotificationReceiver : BroadcastReceiver() {
                     return@launch
                 }
                 
-                // Verificar se é uma instância recorrente (ID contém data)
+                // Verificar se é uma instância recorrente (ID contém data e horário)
                 val isRecurringInstance = activityId?.contains("_") == true && activityId.split("_").size >= 2
                 
                 val activity = if (isRecurringInstance) {
@@ -342,7 +342,41 @@ class NotificationReceiver : BroadcastReceiver() {
                     val snoozedTime = currentTime.plusMinutes(snoozeMinutes.toLong())
                     
                     if (activity.recurrenceRule?.isNotEmpty() == true) {
-                        // Para atividades recorrentes, criar instância específica
+                        // Para atividades recorrentes, criar instância específica adiada e salvar no repositório
+                        
+                        // Extrair informações da instância original para excluí-la
+                        val originalInstanceDate = if (isRecurringInstance && activityId != null) {
+                            val parts = activityId.split("_")
+                            parts.getOrNull(1) ?: activity.date
+                        } else {
+                            activity.date
+                        }
+                        
+                        val originalInstanceTime = if (isRecurringInstance && activityId != null && activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                            val parts = activityId.split("_")
+                            val timePart = parts.getOrNull(2)
+                            if (timePart != null) {
+                                try {
+                                    java.time.LocalTime.parse(timePart)
+                                } catch (e: Exception) {
+                                    activity.startTime
+                                }
+                            } else {
+                                activity.startTime
+                            }
+                        } else {
+                            activity.startTime
+                        }
+                        
+                        // Criar ID da instância original para exclusão
+                        val originalInstanceId = if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                            val timeString = originalInstanceTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
+                            "${activity.id}_${originalInstanceDate}_${timeString}"
+                        } else {
+                            "${activity.id}_${originalInstanceDate}"
+                        }
+                        
+                        // Criar nova instância com horário adiado
                         val snoozedActivity = activity.copy(
                             id = if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
                                 val timeString = snoozedTime.toLocalTime().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
@@ -351,12 +385,40 @@ class NotificationReceiver : BroadcastReceiver() {
                                 "${activity.id}_${snoozedTime.toLocalDate()}"
                             },
                             startTime = snoozedTime.toLocalTime(),
-                            date = snoozedTime.toLocalDate().toString()
+                            date = snoozedTime.toLocalDate().toString(),
+                            recurrenceRule = null // Remover recorrência para que seja tratada como instância única
                         )
+                        
+                        Log.d(TAG, "🔔 Criando instância adiada para atividade recorrente: ${snoozedActivity.title} - ${snoozedActivity.date} ${snoozedActivity.startTime}")
+                        Log.d(TAG, "🔔 Excluindo instância original: $originalInstanceId")
+                        
+                        // Adicionar instância original à lista de exclusões da atividade base
+                        val updatedBaseActivity = if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                            val updatedExcludedInstances = activity.excludedInstances + originalInstanceId
+                            activity.copy(excludedInstances = updatedExcludedInstances)
+                        } else {
+                            val updatedExcludedDates = activity.excludedDates + originalInstanceDate
+                            activity.copy(excludedDates = updatedExcludedDates)
+                        }
+                        
+                        // Salvar a atividade base atualizada com a exclusão
+                        repository.saveActivity(updatedBaseActivity)
+                        
+                        // Salvar a instância adiada no repositório para que apareça no calendário
+                        repository.saveActivity(snoozedActivity)
                         
                         // Agendar nova notificação
                         val notificationService = NotificationService(context)
                         notificationService.scheduleNotification(snoozedActivity)
+                        
+                        // ✅ Marcar atividade como adiada para evitar notificações tardias desnecessárias
+                        val prefs = context.getSharedPreferences("notification_tracking", Context.MODE_PRIVATE)
+                        prefs.edit().putLong("activity_snoozed_${snoozedActivity.id}", System.currentTimeMillis()).apply()
+                        // ✅ Também marcar a atividade base como adiada para evitar notificações tardias do Worker
+                        prefs.edit().putLong("activity_snoozed_${activity.id}", System.currentTimeMillis()).apply()
+                        Log.d(TAG, "🔔 Atividade marcada como adiada: ${snoozedActivity.id} e base: ${activity.id}")
+                        
+                        Log.d(TAG, "🔔 Instância recorrente adiada e salva no repositório - instância original excluída - nova notificação agendada para: ${snoozedTime}")
                     } else {
                         // Para atividades não recorrentes, atualizar a atividade original no repositório
                         val updatedActivity = activity.copy(
@@ -370,6 +432,13 @@ class NotificationReceiver : BroadcastReceiver() {
                         // Agendar nova notificação com a atividade atualizada
                         val notificationService = NotificationService(context)
                         notificationService.scheduleNotification(updatedActivity)
+                        
+                        // ✅ Marcar atividade como adiada para evitar notificações tardias desnecessárias
+                        val prefs = context.getSharedPreferences("notification_tracking", Context.MODE_PRIVATE)
+                        prefs.edit().putLong("activity_snoozed_${updatedActivity.id}", System.currentTimeMillis()).apply()
+                        // ✅ Também marcar a atividade original como adiada para evitar notificações tardias do Worker
+                        prefs.edit().putLong("activity_snoozed_${activity.id}", System.currentTimeMillis()).apply()
+                        Log.d(TAG, "🔔 Atividade marcada como adiada: ${updatedActivity.id} e original: ${activity.id}")
                         
                         Log.d(TAG, "🔔 Atividade não recorrente atualizada no repositório com novo horário")
                     }
@@ -471,6 +540,13 @@ class NotificationReceiver : BroadcastReceiver() {
                                 
                                 // Atualizar a atividade base com a nova lista de exclusões
                                 repository.saveActivity(updatedBaseActivity)
+                                
+                                // ✅ Remover a instância específica do repositório principal se ela existir
+                                val specificInstance = activities.find { it.id == activityId }
+                                if (specificInstance != null) {
+                                    repository.deleteActivity(activityId)
+                                    Log.d(TAG, "✅ Instância específica removida do repositório principal: $activityId")
+                                }
 
                                 Log.d(TAG, "✅ Instância recorrente marcada como concluída via notificação: ${instanceToComplete.title}")
                             } else {
@@ -487,8 +563,9 @@ class NotificationReceiver : BroadcastReceiver() {
                                 // Salvar no repositório de atividades finalizadas
                                 completedRepository.addCompletedActivity(completedActivity)
                                 
-                                // Remover da lista principal
+                                // Remover da lista principal (tanto a base quanto a instância específica)
                                 repository.deleteActivity(baseId)
+                                repository.deleteActivity(activityId)
                                 
                                 Log.d(TAG, "✅ Atividade única marcada como concluída via notificação: ${completedActivity.title}")
                             }
@@ -498,60 +575,90 @@ class NotificationReceiver : BroadcastReceiver() {
                     } else {
                         // Tratar atividade única ou atividade base
                         val activities = repository.activities.first()
-                        val activity = activities.find { it.id == activityId }
                         
                         Log.d(TAG, "🔍 Buscando atividade única para marcar como concluída - ID: $activityId")
                         Log.d(TAG, "📋 Total de atividades disponíveis: ${activities.size}")
                         Log.d(TAG, "🔍 IDs disponíveis: ${activities.map { it.id }}")
                         
-                        if (activity != null) {
-                            // Verificar se é uma atividade recorrente
-                            if (recurrenceService.isRecurring(activity)) {
-                                // Para atividades recorrentes (primeira instância), sempre tratar como instância específica
-                                val activityDate = activity.date
+                        // ✅ Verificar se é uma instância específica que foi criada pelo adiamento
+                        val isSnoozedInstance = activityId.contains("_") && activityId.split("_").size >= 2
+                        
+                        if (isSnoozedInstance) {
+                            // É uma instância específica criada pelo adiamento - buscar pela instância exata
+                            val instanceActivity = activities.find { it.id == activityId }
+                            
+                            if (instanceActivity != null) {
+                                Log.d(TAG, "✅ Marcando instância específica adiada como concluída: ${instanceActivity.title}")
                                 
-                                Log.d(TAG, "🔄 Processando primeira instância recorrente via notificação - ID: $activityId, Data: $activityDate")
-                                
-                                // Criar instância específica para salvar como concluída
-                                val instanceToComplete = activity.copy(
-                                    id = activityId,
-                                    date = activityDate,
-                                    isCompleted = true,
-                                    showInCalendar = false
-                                )
-                                
-                                // Salvar instância específica como concluída
-                                completedRepository.addCompletedActivity(instanceToComplete)
-                                
-                                // Adicionar data à lista de exclusões da atividade base
-                                val updatedExcludedDates = activity.excludedDates + activityDate
-                                val updatedBaseActivity = activity.copy(excludedDates = updatedExcludedDates)
-                                
-                                // Atualizar a atividade base com a nova lista de exclusões
-                                repository.saveActivity(updatedBaseActivity)
-
-                                Log.d(TAG, "✅ Primeira instância recorrente marcada como concluída via notificação: ${instanceToComplete.title} - Data: $activityDate")
-                                
-                            } else {
-                                // Tratar atividade única (não recorrente)
-                                Log.d(TAG, "✅ Marcando atividade única como concluída via notificação: ${activity.title}")
-                                
-                                // Marcar como concluída e salvar no repositório de finalizadas
-                                val completedActivity = activity.copy(
+                                // Marcar instância específica como concluída
+                                val completedInstance = instanceActivity.copy(
                                     isCompleted = true,
                                     showInCalendar = false
                                 )
                                 
                                 // Salvar no repositório de atividades finalizadas
-                                completedRepository.addCompletedActivity(completedActivity)
+                                completedRepository.addCompletedActivity(completedInstance)
                                 
-                                // Remover da lista principal
+                                // Remover a instância específica do repositório principal
                                 repository.deleteActivity(activityId)
                                 
-                                Log.d(TAG, "✅ Atividade única marcada como concluída via notificação: ${completedActivity.title}")
+                                Log.d(TAG, "✅ Instância específica adiada marcada como concluída e removida: ${completedInstance.title}")
+                            } else {
+                                Log.w(TAG, "⚠️ Instância específica não encontrada: $activityId")
                             }
                         } else {
-                            Log.w(TAG, "⚠️ Atividade não encontrada para marcar como concluída: $activityId")
+                            // É uma atividade base - buscar normalmente
+                            val activity = activities.find { it.id == activityId }
+                            
+                            if (activity != null) {
+                                // Verificar se é uma atividade recorrente
+                                if (recurrenceService.isRecurring(activity)) {
+                                    // Para atividades recorrentes (primeira instância), sempre tratar como instância específica
+                                    val activityDate = activity.date
+                                    
+                                    Log.d(TAG, "🔄 Processando primeira instância recorrente via notificação - ID: $activityId, Data: $activityDate")
+                                    
+                                    // Criar instância específica para salvar como concluída
+                                    val instanceToComplete = activity.copy(
+                                        id = activityId,
+                                        date = activityDate,
+                                        isCompleted = true,
+                                        showInCalendar = false
+                                    )
+                                    
+                                    // Salvar instância específica como concluída
+                                    completedRepository.addCompletedActivity(instanceToComplete)
+                                    
+                                    // Adicionar data à lista de exclusões da atividade base
+                                    val updatedExcludedDates = activity.excludedDates + activityDate
+                                    val updatedBaseActivity = activity.copy(excludedDates = updatedExcludedDates)
+                                    
+                                    // Atualizar a atividade base com a nova lista de exclusões
+                                    repository.saveActivity(updatedBaseActivity)
+
+                                    Log.d(TAG, "✅ Primeira instância recorrente marcada como concluída via notificação: ${instanceToComplete.title} - Data: $activityDate")
+                                    
+                                } else {
+                                    // Tratar atividade única (não recorrente)
+                                    Log.d(TAG, "✅ Marcando atividade única como concluída via notificação: ${activity.title}")
+                                    
+                                    // Marcar como concluída e salvar no repositório de finalizadas
+                                    val completedActivity = activity.copy(
+                                        isCompleted = true,
+                                        showInCalendar = false
+                                    )
+                                    
+                                    // Salvar no repositório de atividades finalizadas
+                                    completedRepository.addCompletedActivity(completedActivity)
+                                    
+                                    // Remover da lista principal
+                                    repository.deleteActivity(activityId)
+                                    
+                                    Log.d(TAG, "✅ Atividade única marcada como concluída via notificação: ${completedActivity.title}")
+                                }
+                            } else {
+                                Log.w(TAG, "⚠️ Atividade não encontrada para marcar como concluída: $activityId")
+                            }
                         }
                     }
                     
