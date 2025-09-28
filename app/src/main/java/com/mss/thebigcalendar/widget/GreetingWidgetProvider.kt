@@ -145,6 +145,15 @@ class GreetingWidgetProvider : AppWidgetProvider() {
                         }
                     }
                     
+                    // Ordenar as tarefas de hoje por horário crescente
+                    todayTasks.sortWith(
+                        compareBy<com.mss.thebigcalendar.data.model.Activity> { 
+                            it.startTime ?: LocalTime.MAX 
+                        }.thenByDescending { 
+                            it.categoryColor?.toIntOrNull() ?: 0 
+                        }
+                    )
+                    
                     val tomorrowTasks = if (isNightTime) {
                         val tomorrowTasksList = mutableListOf<com.mss.thebigcalendar.data.model.Activity>()
                         
@@ -187,6 +196,15 @@ class GreetingWidgetProvider : AppWidgetProvider() {
                                 Log.w("GreetingWidget", "Erro ao processar atividade para amanhã: ${activity.title}", e)
                             }
                         }
+                        
+                        // Ordenar as tarefas de amanhã por horário crescente
+                        tomorrowTasksList.sortWith(
+                            compareBy<com.mss.thebigcalendar.data.model.Activity> { 
+                                it.startTime ?: LocalTime.MAX 
+                            }.thenByDescending { 
+                                it.categoryColor?.toIntOrNull() ?: 0 
+                            }
+                        )
                         
                         tomorrowTasksList
                     } else {

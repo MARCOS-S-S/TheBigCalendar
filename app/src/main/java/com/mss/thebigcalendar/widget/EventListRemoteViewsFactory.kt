@@ -74,8 +74,8 @@ class EventListRemoteViewsFactory(private val context: Context, intent: Intent) 
             }
 
             todayTasks.sortWith(
-                compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }
-                    .thenBy { it.startTime ?: LocalTime.MIN }
+                compareBy<Activity> { it.startTime ?: LocalTime.MAX }
+                    .thenByDescending { it.categoryColor?.toIntOrNull() ?: 0 }
             )
 
             val tomorrowTasks = if (isNightTime) {
@@ -119,8 +119,8 @@ class EventListRemoteViewsFactory(private val context: Context, intent: Intent) 
                 }
                 
                 tomorrowTasksList.sortWith(
-                    compareByDescending<Activity> { it.categoryColor.toIntOrNull() ?: 0 }
-                        .thenBy { it.startTime ?: LocalTime.MIN }
+                    compareBy<Activity> { it.startTime ?: LocalTime.MAX }
+                        .thenByDescending { it.categoryColor.toIntOrNull() ?: 0 }
                 )
                 
                 tomorrowTasksList

@@ -157,12 +157,12 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                         }
                     }
                     
-                    // Ordenar as tarefas
+                    // Ordenar as tarefas por horário crescente
                     todayTasks.sortWith(
-                        compareByDescending<com.mss.thebigcalendar.data.model.Activity> { 
+                        compareBy<com.mss.thebigcalendar.data.model.Activity> { 
+                            it.startTime ?: LocalTime.MAX 
+                        }.thenByDescending { 
                             it.categoryColor?.toIntOrNull() ?: 0 
-                        }.thenBy { 
-                            it.startTime ?: LocalTime.MIN 
                         }
                     )
                     
@@ -209,12 +209,12 @@ class CalendarWidgetFixedColorsProvider : AppWidgetProvider() {
                             }
                         }
                         
-                        // Ordenar as tarefas de amanhã
+                        // Ordenar as tarefas de amanhã por horário crescente
                         tomorrowTasksList.sortWith(
-                            compareByDescending<com.mss.thebigcalendar.data.model.Activity> { 
+                            compareBy<com.mss.thebigcalendar.data.model.Activity> { 
+                                it.startTime ?: LocalTime.MAX 
+                            }.thenByDescending { 
                                 it.categoryColor.toIntOrNull() ?: 0
-                            }.thenBy { 
-                                it.startTime ?: LocalTime.MIN 
                             }
                         )
                         
