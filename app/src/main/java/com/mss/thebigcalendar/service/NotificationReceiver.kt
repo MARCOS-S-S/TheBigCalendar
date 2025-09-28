@@ -136,18 +136,23 @@ class NotificationReceiver : BroadcastReceiver() {
                         }
                     }
 
-                    // ✅ Agendar a próxima ocorrência se for uma atividade recorrente
+                    // ✅ Agendar a próxima ocorrência APENAS se for uma atividade recorrente base
+                    // e não for uma instância específica (que já foi processada)
                     val recurrenceService = RecurrenceService()
-                    if (recurrenceService.isRecurring(realActivity)) {
+                    val isRecurringBase = recurrenceService.isRecurring(realActivity) && !realActivity.id.contains("_")
+                    
+                    if (isRecurringBase) {
+                        Log.d(TAG, "🔔 Agendando próxima ocorrência para atividade recorrente: ${realActivity.title}")
                         val nextOccurrenceDate = recurrenceService.getNextOccurrence(realActivity, java.time.LocalDate.parse(realActivity.date))
                         if (nextOccurrenceDate != null) {
-                            val baseId = realActivity.id.split("_").firstOrNull() ?: realActivity.id
                             val nextActivity = realActivity.copy(
-                                id = "${baseId}_${nextOccurrenceDate}",
+                                id = "${realActivity.id}_${nextOccurrenceDate}",
                                 date = nextOccurrenceDate.toString()
                             )
                             notificationService.scheduleNotification(nextActivity)
                         }
+                    } else {
+                        Log.d(TAG, "🔔 Não agendando próxima ocorrência - atividade não é base recorrente ou já é instância específica")
                     }
                     
                 } else {
@@ -393,10 +398,8 @@ class NotificationReceiver : BroadcastReceiver() {
                                 // Salvar instância específica como concluída
                                 completedRepository.addCompletedActivity(instanceToComplete)
                                 
-                                // Para atividades HOURLY, implementar estratégia especial como no CalendarViewModel
-                                // Para outras atividades, adicionar data à lista de exclusões
+                                // Para TODAS as instâncias, apenas adicionar à lista de exclusões (mesma lógica do CalendarViewModel)
                                 val updatedBaseActivity = if (baseActivity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
-                                    
                                     // Extrair horário da instância atual
                                     val instanceTime = if (activityId.contains("_")) {
                                         val parts = activityId.split("_")
@@ -417,25 +420,9 @@ class NotificationReceiver : BroadcastReceiver() {
                                     val timeString = instanceTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
                                     val instanceId = "${baseActivity.id}_${instanceDate}_${timeString}"
                                     
-                                    // Verificar se é a primeira instância (mesma data e hora da atividade base)
-                                    val baseDate = LocalDate.parse(baseActivity.date)
-                                    val baseTime = baseActivity.startTime
-                                    val baseTimeString = baseTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
-                                    val isFirstInstance = baseDate.isEqual(LocalDate.parse(instanceDate)) && 
-                                                         timeString == baseTimeString
-                                    
-                                    if (isFirstInstance) {
-                                        // Para a primeira instância, avançar a data/hora da atividade base para a próxima ocorrência
-                                        val nextOccurrence = calculateNextHourlyOccurrence(baseActivity, baseDate, instanceTime)
-                                        baseActivity.copy(
-                                            date = nextOccurrence.first.toString(),
-                                            startTime = nextOccurrence.second
-                                        )
-                                    } else {
-                                        // Para outras instâncias, adicionar à lista de exclusões
-                                        val updatedExcludedInstances = baseActivity.excludedInstances + instanceId
-                                        baseActivity.copy(excludedInstances = updatedExcludedInstances)
-                                    }
+                                    // Para TODAS as instâncias, apenas adicionar à lista de exclusões
+                                    val updatedExcludedInstances = baseActivity.excludedInstances + instanceId
+                                    baseActivity.copy(excludedInstances = updatedExcludedInstances)
                                 } else {
                                     val updatedExcludedDates = baseActivity.excludedDates + instanceDate
                                     baseActivity.copy(excludedDates = updatedExcludedDates)

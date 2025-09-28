@@ -312,7 +312,14 @@ class NotificationService(
         val activityIdForNotification = if (activity.id.contains("_")) {
             activity.id
         } else {
-            "${activity.id}_${activity.date}"
+            // É uma atividade base, criar ID da instância específica
+            // Para atividades HOURLY, incluir o horário no ID
+            if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true && activity.startTime != null) {
+                val timeString = activity.startTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                "${activity.id}_${activity.date}_${timeString}"
+            } else {
+                "${activity.id}_${activity.date}"
+            }
         }
         
         // ✅ Sincronização para evitar condição de corrida
@@ -420,40 +427,69 @@ class NotificationService(
     /**
      * Cria intent para adiar notificação
      */
-    private fun createSnoozePendingIntent(activity: Activity, minutes: Int): PendingIntent {
-        val intent = Intent(context, NotificationReceiver::class.java).apply {
-            action = ACTION_SNOOZE
-            putExtra(EXTRA_ACTIVITY_ID, activity.id)
-            putExtra("snooze_minutes", minutes)
+    private fun createSnoozePendingIntent(activity: Activity, minutes: Int): PendingIntent? {
+        return try {
+            // Para atividades recorrentes, usar o ID da instância específica
+            val activityIdForNotification = if (activity.id.contains("_")) {
+                activity.id
+            } else {
+                if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true && activity.startTime != null) {
+                    val timeString = activity.startTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                    "${activity.id}_${activity.date}_${timeString}"
+                } else {
+                    "${activity.id}_${activity.date}"
+                }
+            }
+            
+            val snoozeIntent = Intent(context, NotificationReceiver::class.java).apply {
+                action = ACTION_SNOOZE
+                putExtra(EXTRA_ACTIVITY_ID, activityIdForNotification)
+                putExtra("snooze_minutes", minutes)
+            }
+            
+            PendingIntent.getBroadcast(
+                context,
+                (activityIdForNotification + "_snooze").hashCode(),
+                snoozeIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao criar PendingIntent de adiamento", e)
+            null
         }
-        
-        Log.d(TAG, "🔔 Criando Snooze PendingIntent para atividade: ${activity.title}, ID: ${activity.id}")
-        
-        return PendingIntent.getBroadcast(
-            context,
-            (activity.id + "_snooze").hashCode(),
-            intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
     }
-
     /**
      * Cria intent para cancelar notificação
      */
-    private fun createDismissPendingIntent(activity: Activity): PendingIntent {
-        val intent = Intent(context, NotificationReceiver::class.java).apply {
-            action = ACTION_DISMISS
-            putExtra(EXTRA_ACTIVITY_ID, activity.id)
+    private fun createDismissPendingIntent(activity: Activity): PendingIntent? {
+        return try {
+            // Para atividades recorrentes, usar o ID da instância específica
+            val activityIdForNotification = if (activity.id.contains("_")) {
+                activity.id
+            } else {
+                if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true && activity.startTime != null) {
+                    val timeString = activity.startTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                    "${activity.id}_${activity.date}_${timeString}"
+                } else {
+                    "${activity.id}_${activity.date}"
+                }
+            }
+            
+            val dismissIntent = Intent(context, NotificationReceiver::class.java).apply {
+                action = ACTION_DISMISS
+                putExtra(EXTRA_ACTIVITY_ID, activityIdForNotification)
+            }
+            
+            PendingIntent.getBroadcast(
+                context,
+                (activityIdForNotification + "_dismiss").hashCode(),
+                dismissIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "❌ Erro ao criar PendingIntent de finalização", e)
+            null
         }
-        
-        Log.d(TAG, "🔔 Criando Dismiss PendingIntent para atividade: ${activity.title}, ID: ${activity.id}")
-        
-        return PendingIntent.getBroadcast(
-            context,
-            (activity.id + "_dismiss").hashCode(),
-            intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
     }
 
     /**

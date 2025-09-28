@@ -287,10 +287,25 @@ class VisibilityService(private val context: Context) {
      * Notificação de fallback quando não há permissão de sobreposição
      */
     private fun showFallbackNotification(activity: Activity, alertType: String) {
+        // Para atividades recorrentes, usar o ID da instância específica
+        val activityIdForNotification = if (activity.id.contains("_")) {
+            // Já é uma instância específica
+            activity.id
+        } else {
+            // É uma atividade base, criar ID da instância específica
+            // Para atividades HOURLY, incluir o horário no ID
+            if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true && activity.startTime != null) {
+                val timeString = activity.startTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                "${activity.id}_${activity.date}_${timeString}"
+            } else {
+                "${activity.id}_${activity.date}"
+            }
+        }
+        
         // Intent para marcar como concluída
         val completeIntent = Intent(context, NotificationReceiver::class.java).apply {
             action = NotificationService.ACTION_DISMISS
-            putExtra(NotificationService.EXTRA_ACTIVITY_ID, activity.id)
+            putExtra(NotificationService.EXTRA_ACTIVITY_ID, activityIdForNotification)
         }
         
         val completePendingIntent = PendingIntent.getBroadcast(
