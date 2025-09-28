@@ -230,6 +230,9 @@ class RecurrenceService {
             val currentDate = currentDateTime.toLocalDate()
             val currentTime = currentDateTime.toLocalTime()
             
+            // Incrementar contador para todas as ocorrências (incluindo excluídas)
+            occurrenceCount++
+            
             // Verificar se esta instância específica não foi excluída
             val instanceId = "${baseActivity.id}_${currentDate}_${currentTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}"
             val isExcluded = baseActivity.excludedInstances.contains(instanceId)
@@ -238,7 +241,6 @@ class RecurrenceService {
                 // Criar instância com hora no título
                 val instanceWithTime = createRecurringInstanceWithTime(baseActivity, currentDate, currentTime)
                 instances.add(instanceWithTime)
-                occurrenceCount++
             }
             
             currentDateTime = currentDateTime.plusHours(interval.toLong())
@@ -260,10 +262,12 @@ class RecurrenceService {
         var occurrenceCount = 0 // Contador de ocorrências (incluindo a base)
         
         while (!currentDate.isAfter(endDate) && (count == null || occurrenceCount < count)) {
+            // Incrementar contador para todas as ocorrências (incluindo excluídas)
+            occurrenceCount++
+            
             // Verificar se esta data não foi excluída
             if (!baseActivity.excludedDates.contains(currentDate.toString())) {
                 instances.add(createRecurringInstance(baseActivity, currentDate))
-                occurrenceCount++
             }
             currentDate = currentDate.plusDays(interval.toLong())
         }
@@ -287,8 +291,9 @@ class RecurrenceService {
             var occurrenceCount = 0 // Contador de ocorrências (incluindo a base)
             
             while (!currentDate.isAfter(endDate) && (count == null || occurrenceCount < count)) {
-                instances.add(createRecurringInstance(baseActivity, currentDate))
+                // Incrementar contador para todas as ocorrências
                 occurrenceCount++
+                instances.add(createRecurringInstance(baseActivity, currentDate))
                 currentDate = currentDate.plusWeeks(interval.toLong())
             }
             return
@@ -321,12 +326,15 @@ class RecurrenceService {
                     java.time.DayOfWeek.of(targetDay)
                 ))
                 
-                // Verificar se a data está dentro do período e não foi excluída
-                if (!targetDate.isAfter(endDate) && 
-                    !baseActivity.excludedDates.contains(targetDate.toString()) &&
-                    (count == null || occurrenceCount < count)) {
-                    instances.add(createRecurringInstance(baseActivity, targetDate))
+                // Verificar se a data está dentro do período
+                if (!targetDate.isAfter(endDate) && (count == null || occurrenceCount < count)) {
+                    // Incrementar contador para todas as ocorrências (incluindo excluídas)
                     occurrenceCount++
+                    
+                    // Verificar se esta data não foi excluída
+                    if (!baseActivity.excludedDates.contains(targetDate.toString())) {
+                        instances.add(createRecurringInstance(baseActivity, targetDate))
+                    }
                 }
             }
             
@@ -350,11 +358,13 @@ class RecurrenceService {
         var occurrenceCount = 0 // Contador de ocorrências (incluindo a base)
         
         while (!currentDate.isAfter(endDate) && (count == null || occurrenceCount < count)) {
+            // Incrementar contador para todas as ocorrências
+            occurrenceCount++
+            
             val targetDay = minOf(baseDate.dayOfMonth, currentDate.lengthOfMonth())
             val adjustedDate = currentDate.withDayOfMonth(targetDay)
             
             instances.add(createRecurringInstance(baseActivity, adjustedDate))
-            occurrenceCount++
             currentDate = currentDate.plusMonths(interval.toLong())
         }
     }
@@ -374,8 +384,9 @@ class RecurrenceService {
         var occurrenceCount = 0 // Contador de ocorrências (incluindo a base)
         
         while (!currentDate.isAfter(endDate) && (count == null || occurrenceCount < count)) {
-            instances.add(createRecurringInstance(baseActivity, currentDate))
+            // Incrementar contador para todas as ocorrências
             occurrenceCount++
+            instances.add(createRecurringInstance(baseActivity, currentDate))
             currentDate = currentDate.plusYears(interval.toLong())
         }
     }

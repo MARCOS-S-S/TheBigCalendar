@@ -691,7 +691,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                                 
                                 // Para atividades recorrentes, verificar se esta data específica foi excluída
                                 val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true) {
-                                    activity.excludedDates.contains(date.toString())
+                                    if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                                        // Para atividades HOURLY, verificar se a instância específica foi excluída
+                                        val timeString = activity.startTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
+                                        val instanceId = "${activity.id}_${date}_${timeString}"
+                                        activity.excludedInstances.contains(instanceId)
+                                    } else {
+                                        // Para outras atividades, verificar se a data foi excluída
+                                        activity.excludedDates.contains(date.toString())
+                                    }
                                 } else {
                                     false
                                 }
@@ -848,7 +856,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     if (dateMatches) {
                         // Para atividades recorrentes, verificar se esta data específica foi excluída
                         val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true) {
-                            activity.excludedDates.contains(state.selectedDate.toString())
+                            if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                                // Para atividades HOURLY, verificar se a instância específica foi excluída
+                                val timeString = activity.startTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
+                                val instanceId = "${activity.id}_${state.selectedDate}_${timeString}"
+                                activity.excludedInstances.contains(instanceId)
+                            } else {
+                                // Para outras atividades, verificar se a data foi excluída
+                                activity.excludedDates.contains(state.selectedDate.toString())
+                            }
                         } else {
                             false
                         }
@@ -1340,7 +1356,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 
                 val notificationService = NotificationService(getApplication())
                 notificationService.scheduleNotification(activityForNotification)
-                
+
                 Log.d("CalendarViewModel", "🔔 Notificação agendada para instância atual!")
             } else {
                 Log.d("CalendarViewModel", "🔔 Notificação não agendada - configurações desabilitadas")
@@ -1396,45 +1412,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
-     * Agenda notificação para a próxima instância de uma atividade recorrente
-     */
-    private fun scheduleNextRecurringInstanceNotification(baseActivity: Activity, completedDate: LocalDate) {
-        if (!baseActivity.notificationSettings.isEnabled ||
-            baseActivity.notificationSettings.notificationType == com.mss.thebigcalendar.data.model.NotificationType.NONE) {
-            return
-        }
-        
-        viewModelScope.launch {
-            try {
-                val recurrenceService = RecurrenceService()
-                val nextMonth = completedDate.plusMonths(1)
-                
-                // Gerar instâncias para o próximo mês
-                val nextInstances = recurrenceService.generateRecurringInstances(
-                    baseActivity, 
-                    completedDate.plusDays(1), // Próximo dia após a conclusão
-                    nextMonth
-                )
-                
-                // Pegar a primeira instância (próxima ocorrência)
-                val nextInstance = nextInstances.firstOrNull()
-                
-                if (nextInstance != null) {
-                    val notificationService = NotificationService(getApplication())
-                    notificationService.scheduleNotification(nextInstance)
-                    
-                    Log.d("CalendarViewModel", "🔔 Próxima notificação recorrente agendada para: ${nextInstance.date} às ${nextInstance.startTime}")
-                } else {
-                    Log.d("CalendarViewModel", "🔔 Nenhuma próxima instância encontrada para atividade recorrente")
-                }
-                
-            } catch (e: Exception) {
-                Log.e("CalendarViewModel", "❌ Erro ao agendar próxima notificação recorrente", e)
-            }
-        }
-    }
-
-    /**
      * Calcula instâncias repetitivas para uma data específica
      */
     private fun calculateRecurringInstancesForDate(baseActivity: Activity, targetDate: LocalDate): List<Activity> {
@@ -1479,7 +1456,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         val instancesForTargetDate = recurringInstances.filter { 
                             LocalDate.parse(it.date).isEqual(targetDate) 
                         }
-                        instances.addAll(instancesForTargetDate)
+                        
+                        // Verificar se cada instância não foi excluída
+                        instancesForTargetDate.forEach { instance ->
+                            val timeString = instance.startTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
+                            val instanceId = "${baseActivity.id}_${targetDate}_${timeString}"
+                            val isExcluded = baseActivity.excludedInstances.contains(instanceId)
+                            
+                            if (!isExcluded) {
+                                instances.add(instance)
+                            }
+                        }
                         
                     } else {
                         // Para regras HOURLY simples, verificar se a data alvo é posterior à data base
@@ -2098,10 +2085,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     
                     // Atualizar a atividade base com a nova lista de exclusões
                     activityRepository.saveActivity(updatedBaseActivity)
-
-                    // 🔔 Agendar notificação para a próxima instância recorrente
-                    scheduleNextRecurringInstanceNotification(updatedBaseActivity, LocalDate.parse(instanceDate))
-                    
                     // Atualizar a UI
                     updateAllDateDependentUI()
                     
@@ -2134,23 +2117,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                             val timeString = activityTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
                             val instanceId = "${activityToComplete.id}_${activityDate}_${timeString}"
                             
-                            // Verificar se é a primeira instância (mesma data e hora da atividade base)
-                            val baseDate = LocalDate.parse(activityToComplete.date)
-                            val isFirstInstance = baseDate.isEqual(LocalDate.parse(activityDate))
-                            
-                            if (isFirstInstance) {
-                                // Para a primeira instância, avançar a data/hora da atividade base para a próxima ocorrência
-                                val nextOccurrence = calculateNextHourlyOccurrence(activityToComplete, baseDate, activityTime)
-                                val updatedActivity = activityToComplete.copy(
-                                    date = nextOccurrence.first.toString(),
-                                    startTime = nextOccurrence.second
-                                )
-                                updatedActivity
-                            } else {
-                                // Para outras instâncias, adicionar à lista de exclusões
-                                val updatedExcludedInstances = activityToComplete.excludedInstances + instanceId
-                                activityToComplete.copy(excludedInstances = updatedExcludedInstances)
-                            }
+                            // Para TODAS as instâncias, apenas adicionar à lista de exclusões
+                            val updatedExcludedInstances = activityToComplete.excludedInstances + instanceId
+                            activityToComplete.copy(excludedInstances = updatedExcludedInstances)
                         } else {
                             val updatedExcludedDates = activityToComplete.excludedDates + activityDate
                             activityToComplete.copy(excludedDates = updatedExcludedDates)
@@ -2159,9 +2128,6 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         // Atualizar a atividade base com a nova lista de exclusões
                         activityRepository.saveActivity(updatedBaseActivity)
 
-                        // 🔔 Agendar notificação para a próxima instância recorrente
-                        scheduleNextRecurringInstanceNotification(updatedBaseActivity, LocalDate.parse(activityDate))
-                        
                         // Atualizar a UI
                         updateAllDateDependentUI()
                         
