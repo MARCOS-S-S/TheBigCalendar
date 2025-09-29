@@ -194,6 +194,42 @@
                 android:resource="@xml/greeting_widget_info" />
         </receiver>
 
+        <!-- Widget Provider - Saudação Compacta -->
+        <receiver
+            android:name=".widget.CompactGreetingWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/compact_greeting_widget_info" />
+        </receiver>
+
+        <!-- Widget Provider - Saudação Simples -->
+        <receiver
+            android:name=".widget.SimpleGreetingWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/simple_greeting_widget_info" />
+        </receiver>
+
+        <!-- Widget Provider - Teste -->
+        <receiver
+            android:name=".widget.TestWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/test_widget_info" />
+        </receiver>
+
         <!-- Service para o Widget de Lista de Eventos -->
         <service
             android:name=".widget.EventListWidgetService"

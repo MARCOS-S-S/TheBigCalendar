@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/test_widget_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test Widget"
+        android:textColor="@color/widget_text_color_fixed"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <ImageButton
+        android:id="@+id/test_widget_refresh_button"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@android:drawable/ic_popup_sync"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Refresh Widget"
+        android:padding="4dp" />
+
+</LinearLayout>

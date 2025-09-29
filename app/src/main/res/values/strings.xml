@@ -205,6 +205,9 @@
     <string name="widget_fixed_colors_description">Widget do calendário com relógio e tarefas do dia (cores fixas)</string>
     <string name="event_list_widget_description">Widget de lista de agendamentos do dia</string>
     <string name="greeting_widget_description">Widget de saudação com dia da semana e tarefas</string>
+    <string name="compact_greeting_widget_description">Widget compacto de saudação com tarefas</string>
+    <string name="simple_greeting_widget_description">Widget simples de saudação</string>
+    <string name="test_widget_description">Widget de teste</string>
     <string name="go_to_today">Ir para hoje</string>
     <string name="search">Pesquisar</string>
     <string name="chart">Gráfico</string>

@@ -18,3 +18,4 @@ enum class AnimationType(val displayName: String) {
 
 
 
+
