@@ -18,6 +18,7 @@ import java.time.LocalTime
 import java.time.LocalDateTime
 import java.time.LocalDate
 import com.mss.thebigcalendar.data.model.VisibilityLevel
+import com.mss.thebigcalendar.data.model.NotificationType
 
 class NotificationReceiver : BroadcastReceiver() {
 
@@ -313,7 +314,7 @@ class NotificationReceiver : BroadcastReceiver() {
                 // Verificar se é uma instância recorrente (ID contém data e horário)
                 val isRecurringInstance = activityId?.contains("_") == true && activityId.split("_").size >= 2
                 
-                val activity = if (isRecurringInstance) {
+                val activity: com.mss.thebigcalendar.data.model.Activity? = if (isRecurringInstance) {
                     // Para instâncias recorrentes, buscar pela atividade base
                     val parts = activityId?.split("_")
                     val baseId = parts?.getOrNull(0) ?: ""

@@ -416,6 +416,7 @@
     <string name="widget_no_tasks_today">Nenhuma tarefa para hoje</string>
     <string name="widget_tomorrow_header">Amanhã:</string>
     <string name="widget_error_loading_tasks">Erro ao carregar tarefas</string>
+    <string name="widget_loading_tasks">Carregando tarefas...</string>
     <string name="widget_birthday_icon">🎂</string>
 
     <!-- AlarmService.kt -->

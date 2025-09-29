@@ -23,6 +23,11 @@
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="android.permission.VIBRATE" />
     
+    <!-- Permissões específicas para MIUI/HyperOS -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    
 
     
     <!-- Permissões para backup e restauração -->
@@ -47,6 +52,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TheBigCalendar"
         android:enableOnBackInvokedCallback="true"
+        android:requestLegacyExternalStorage="true"
+        android:preserveLegacyExternalStorage="true"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
