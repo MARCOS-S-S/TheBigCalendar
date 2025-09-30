@@ -262,7 +262,18 @@ class VisibilityService(private val context: Context) {
             val completeButton = fullScreenView.findViewById<Button>(R.id.alert_complete_button)
             completeButton.setOnClickListener {
                 try {
+                    // Remover a janela de sobreposição imediatamente
                     windowManager.removeView(fullScreenView)
+                    
+                    // Garantir que a janela seja removida dos apps recentes
+                    fullScreenView.post {
+                        try {
+                            // Forçar remoção da janela se ainda estiver presente
+                            windowManager.removeView(fullScreenView)
+                        } catch (e: Exception) {
+                            // Janela já foi removida, ignorar erro
+                        }
+                    }
 
                     // Enviar broadcast para que o NotificationReceiver marque a atividade como concluída
                     val completeIntent = Intent(context, NotificationReceiver::class.java).apply {
@@ -537,9 +548,19 @@ class VisibilityService(private val context: Context) {
             // Botão cancelar
             cancelButton.setOnClickListener {
                 try {
+                    // Remover o diálogo imediatamente
                     windowManager.removeView(dialogView)
+                    
+                    // Garantir que a janela seja removida dos apps recentes
+                    dialogView.post {
+                        try {
+                            windowManager.removeView(dialogView)
+                        } catch (e: Exception) {
+                            // Janela já foi removida, ignorar erro
+                        }
+                    }
                 } catch (e: Exception) {
-                    // Erro ao remover diálogo de adiamento
+                    Log.e(TAG, "❌ Erro ao remover diálogo de adiamento", e)
                 }
             }
             
@@ -553,16 +574,35 @@ class VisibilityService(private val context: Context) {
      */
     private fun snoozeActivity(activity: Activity, minutes: Int, currentView: View, dialogView: View) {
         try {
-            // Remover o diálogo e o alerta atual
+            // Remover o diálogo primeiro
             windowManager.removeView(dialogView)
+            
+            // Remover o alerta principal
             windowManager.removeView(currentView)
+            
+            // Garantir que ambas as janelas sejam removidas dos apps recentes
+            dialogView.post {
+                try {
+                    windowManager.removeView(dialogView)
+                } catch (e: Exception) {
+                    // Janela já foi removida, ignorar erro
+                }
+            }
+            
+            currentView.post {
+                try {
+                    windowManager.removeView(currentView)
+                } catch (e: Exception) {
+                    // Janela já foi removida, ignorar erro
+                }
+            }
             
             // Agendar nova notificação para o tempo de adiamento
             val notificationService = NotificationService(context)
             notificationService.scheduleSnoozedNotification(activity, minutes)
             
         } catch (e: Exception) {
-            // Erro ao adiar atividade
+            Log.e(TAG, "❌ Erro ao adiar atividade", e)
         }
     }
     

@@ -308,7 +308,8 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
             sendBroadcast(completeIntent)
         }
         
-        finish()
+        // Garantir que a activity seja removida dos apps recentes
+        finishAndRemoveTask()
     }
     
     /**
@@ -338,7 +339,8 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
             sendBroadcast(snoozeIntent)
         }
         
-        finish()
+        // Garantir que a activity seja removida dos apps recentes
+        finishAndRemoveTask()
     }
     
     /**
