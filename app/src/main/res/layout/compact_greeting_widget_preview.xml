@@ -55,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:text="09:00 Reunião\n10:30 Café\n12:00 Almoço"
+            android:text="@string/widget_test_tasks"
             android:textColor="#FFFFFF"
             android:textSize="11sp"
             android:lineSpacingMultiplier="1.0"

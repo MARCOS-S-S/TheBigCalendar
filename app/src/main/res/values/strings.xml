@@ -208,6 +208,15 @@
     <string name="compact_greeting_widget_description">Widget compacto de saudação com tarefas</string>
     <string name="simple_greeting_widget_description">Widget simples de saudação</string>
     <string name="test_widget_description">Widget de teste</string>
+    
+    <!-- Widget day abbreviations -->
+    <string name="widget_sunday_short">Dom</string>
+    <string name="widget_monday_short">Seg</string>
+    <string name="widget_tuesday_short">Ter</string>
+    <string name="widget_wednesday_short">Qua</string>
+    <string name="widget_thursday_short">Qui</string>
+    <string name="widget_friday_short">Sex</string>
+    <string name="widget_saturday_short">Sáb</string>
     <string name="go_to_today">Ir para hoje</string>
     <string name="search">Pesquisar</string>
     <string name="chart">Gráfico</string>
@@ -540,7 +549,10 @@
     <string name="widget_monday">Segunda-feira</string>
     <string name="widget_august_26">26 de agosto</string>
     <string name="widget_loading_tasks_text">Carregando tarefas...</string>
-    <string name="widget_monday_short">Seg - 26/08</string>
+    <string name="widget_for_today">Para hoje:</string>
+    <string name="widget_event_title_placeholder">Título do Evento</string>
+    <string name="widget_event_time_placeholder">Horário do Evento</string>
+    <string name="widget_test_tasks">09:00 Reunião\n10:30 Café\n12:00 Almoço</string>
 
     <!-- CustomRepetitionScreen.kt -->
     <string name="custom_repetition_type_title">Tipo de Repetição</string>

@@ -14,3 +14,4 @@
     android:widgetCategory="home_screen"
     android:configure="com.mss.thebigcalendar.ui.screens.WidgetConfigurationActivity" />
 
+

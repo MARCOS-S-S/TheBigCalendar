@@ -118,7 +118,7 @@ class CompactGreetingWidgetProvider : AppWidgetProvider() {
     private fun loadTasksSync(context: Context): String {
         return try {
             // Por enquanto, retornar texto simples para testar
-            "09:00 Reunião\n10:30 Café\n12:00 Almoço"
+            context.getString(R.string.widget_test_tasks)
         } catch (e: Exception) {
             context.getString(R.string.widget_no_tasks_today)
         }

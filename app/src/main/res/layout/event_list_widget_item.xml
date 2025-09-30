@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:singleLine="true"
         android:ellipsize="end"
-        android:text="Event Title" />
+        android:text="@string/widget_event_title_placeholder" />
 
     <TextView
         android:id="@+id/event_item_time"
@@ -25,6 +25,6 @@
         android:textSize="11sp"
         android:singleLine="true"
         android:ellipsize="end"
-        android:text="HH:mm - HH:mm" />
+        android:text="@string/widget_event_time_placeholder" />
 
 </LinearLayout>
