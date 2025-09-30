@@ -11,7 +11,7 @@
         android:id="@+id/compact_widget_greeting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bom dia"
+        android:text="@string/widget_good_morning"
         android:textColor="@color/widget_text_color_fixed"
         android:textSize="16sp"
         android:textStyle="bold" />
@@ -21,7 +21,7 @@
         android:id="@+id/compact_widget_day_of_week"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Seg - 26/08"
+        android:text="@string/widget_monday_short"
         android:textColor="@color/widget_text_color_fixed"
         android:textSize="14sp"
         android:textStyle="bold" />
@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:text="Carregando tarefas..."
+        android:text="@string/widget_loading_tasks_text"
         android:textColor="#FFFFFF"
         android:textSize="12sp"
         android:gravity="start|top" />

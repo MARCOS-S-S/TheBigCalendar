@@ -94,7 +94,7 @@ fun CustomRepetitionScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "Tipo de Repetição",
+                        text = stringResource(id = R.string.custom_repetition_type_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -139,7 +139,7 @@ fun CustomRepetitionScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "Repetir a cada",
+                        text = stringResource(id = R.string.custom_repetition_every_label),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -190,7 +190,7 @@ fun CustomRepetitionScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "Dias da Semana",
+                            text = stringResource(id = R.string.custom_repetition_weekdays_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium
                         )
@@ -233,7 +233,7 @@ fun CustomRepetitionScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Data de Término",
+                            text = stringResource(id = R.string.custom_repetition_end_date_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium
                         )
@@ -271,7 +271,7 @@ fun CustomRepetitionScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Número Máximo de Ocorrências",
+                            text = stringResource(id = R.string.custom_repetition_max_occurrences_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium
                         )

@@ -11,7 +11,7 @@
         android:id="@+id/test_widget_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Test Widget"
+        android:text="@string/widget_test_title"
         android:textColor="@color/widget_text_color_fixed"
         android:textSize="16sp"
         android:textStyle="bold"

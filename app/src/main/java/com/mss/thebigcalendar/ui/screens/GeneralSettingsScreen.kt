@@ -255,7 +255,7 @@ fun GeneralSettingsScreen(
                         .height(40.dp) // Altura menor
                 ) {
                     Text(
-                        text = "Importar Arquivo JSON",
+                        text = stringResource(id = R.string.general_import_json_file),
                         style = MaterialTheme.typography.bodyMedium // Texto menor
                     )
                 }
@@ -271,7 +271,7 @@ fun GeneralSettingsScreen(
                     .padding(vertical = 10.dp)
             ) {
                 Text(
-                    text = "Tipo de Animação",
+                    text = stringResource(id = R.string.general_animation_type),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.weight(1f))

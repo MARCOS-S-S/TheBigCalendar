@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -276,7 +277,7 @@ class MainActivity : ComponentActivity() {
                                 ) {
                                     // Título
                                     androidx.compose.material3.Text(
-                                        text = "Carregando agendamentos",
+                                        text = stringResource(id = R.string.main_loading_appointments),
                                         style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
                                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                                     )
@@ -314,7 +315,7 @@ class MainActivity : ComponentActivity() {
                                     
                                     // Texto de progresso em porcentagem com animação
                                     androidx.compose.material3.Text(
-                                        text = "${(animatedProgress.value * 100).toInt()}%",
+                                        text = stringResource(id = R.string.main_loading_progress, (animatedProgress.value * 100).toInt()),
                                         style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
                                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                                     )

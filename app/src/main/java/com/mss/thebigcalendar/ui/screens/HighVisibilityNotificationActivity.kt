@@ -26,11 +26,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import com.mss.thebigcalendar.MainActivity
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.service.HighVisibilityNotificationService
 import com.mss.thebigcalendar.service.NotificationService
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
@@ -91,7 +93,7 @@ class HighVisibilityNotificationActivity : ComponentActivity() {
         setContent {
             TheBigCalendarTheme {
                 HighVisibilityNotificationScreen(
-                    activityTitle = intent.getStringExtra(HighVisibilityNotificationService.EXTRA_ACTIVITY_TITLE) ?: "Notificação",
+                    activityTitle = intent.getStringExtra(HighVisibilityNotificationService.EXTRA_ACTIVITY_TITLE) ?: getString(R.string.high_visibility_default_title),
                     activityDescription = intent.getStringExtra(HighVisibilityNotificationService.EXTRA_ACTIVITY_DESCRIPTION),
                     activityDate = intent.getStringExtra(HighVisibilityNotificationService.EXTRA_ACTIVITY_DATE),
                     activityTime = intent.getStringExtra(HighVisibilityNotificationService.EXTRA_ACTIVITY_TIME),
@@ -436,7 +438,7 @@ private fun HighVisibilityNotificationScreen(
         ) {
             // Título da notificação
             Text(
-                text = "🔔 NOTIFICAÇÃO IMPORTANTE",
+                text = stringResource(id = R.string.high_visibility_notification_title),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Red
@@ -472,9 +474,9 @@ private fun HighVisibilityNotificationScreen(
             // Data e horário da atividade
             if (activityDate != null || activityTime != null) {
                 val dateTimeText = buildString {
-                    activityDate?.let { append("Data: $it") }
-                    if (activityDate != null && activityTime != null) append(" | ")
-                    activityTime?.let { append("Horário: $it") }
+                    activityDate?.let { append(stringResource(id = R.string.high_visibility_date_label, it)) }
+                    if (activityDate != null && activityTime != null) append(stringResource(id = R.string.high_visibility_date_time_separator))
+                    activityTime?.let { append(stringResource(id = R.string.high_visibility_time_label, it)) }
                 }
                 
                 Text(

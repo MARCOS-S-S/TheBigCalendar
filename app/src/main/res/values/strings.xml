@@ -521,4 +521,40 @@
     <string name="completed_content_description">Concluída</string>
     <string name="save">Salvar</string>
 
+    <!-- HighVisibilityNotificationActivity.kt -->
+    <string name="high_visibility_notification_title">🔔 NOTIFICAÇÃO IMPORTANTE</string>
+    <string name="high_visibility_open_app">ABRIR APP</string>
+    <string name="high_visibility_snooze_5min">5min</string>
+    <string name="high_visibility_snooze_30min">30min</string>
+    <string name="high_visibility_snooze_1hour">1h</string>
+    <string name="high_visibility_finalize">FINALIZAR</string>
+    <string name="high_visibility_date_label">Data: %1$s</string>
+    <string name="high_visibility_time_label">Horário: %1$s</string>
+    <string name="high_visibility_date_time_separator"> | </string>
+    <string name="high_visibility_default_title">Notificação</string>
+
+    <!-- Widget strings -->
+    <string name="widget_no_appointments_today">Nenhum agendamento para hoje.</string>
+    <string name="widget_test_title">Test Widget</string>
+    <string name="widget_good_morning">Bom dia</string>
+    <string name="widget_monday">Segunda-feira</string>
+    <string name="widget_august_26">26 de agosto</string>
+    <string name="widget_loading_tasks_text">Carregando tarefas...</string>
+    <string name="widget_monday_short">Seg - 26/08</string>
+
+    <!-- CustomRepetitionScreen.kt -->
+    <string name="custom_repetition_type_title">Tipo de Repetição</string>
+    <string name="custom_repetition_every_label">Repetir a cada</string>
+    <string name="custom_repetition_weekdays_title">Dias da Semana</string>
+    <string name="custom_repetition_end_date_title">Data de Término</string>
+    <string name="custom_repetition_max_occurrences_title">Número Máximo de Ocorrências</string>
+
+    <!-- MainActivity.kt -->
+    <string name="main_loading_appointments">Carregando agendamentos</string>
+    <string name="main_loading_progress">%1$d%%</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="general_import_json_file">Importar Arquivo JSON</string>
+    <string name="general_animation_type">Tipo de Animação</string>
+
 </resources>

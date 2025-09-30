@@ -50,7 +50,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="Nenhum agendamento para hoje."
+        android:text="@string/widget_no_appointments_today"
         android:textColor="#CCCCCC"
         android:textSize="14sp"
         android:visibility="gone" />
