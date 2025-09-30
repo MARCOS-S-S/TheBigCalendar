@@ -320,8 +320,8 @@ fun DeletedActivityItem(
 private fun formatDate(dateString: String): String {
     return try {
         val date = LocalDate.parse(dateString)
-        val formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", Locale("pt", "BR"))
-        date.format(formatter).replaceFirstChar { it.titlecase(Locale("pt", "BR")) }
+        val formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", Locale.getDefault())
+        date.format(formatter).replaceFirstChar { it.titlecase(Locale.getDefault()) }
     } catch (e: Exception) {
         dateString
     }
@@ -329,6 +329,6 @@ private fun formatDate(dateString: String): String {
 
 @Composable
 private fun formatDateTime(dateTime: LocalDateTime): String {
-    val formatter = DateTimeFormatter.ofPattern(stringResource(R.string.date_format_full_with_time), Locale("pt", "BR"))
+    val formatter = DateTimeFormatter.ofPattern(stringResource(R.string.date_format_full_with_time), Locale.getDefault())
     return dateTime.format(formatter)
 }

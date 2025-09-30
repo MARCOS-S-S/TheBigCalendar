@@ -240,19 +240,14 @@ private fun calculateMoonPhase(year: Int, month: Int, phase: Double): LocalDate 
 }
 
 private fun getMonthName(month: Int): String {
-    return when (month) {
-        1 -> "Janeiro"
-        2 -> "Fevereiro"
-        3 -> "Março"
-        4 -> "Abril"
-        5 -> "Maio"
-        6 -> "Junho"
-        7 -> "Julho"
-        8 -> "Agosto"
-        9 -> "Setembro"
-        10 -> "Outubro"
-        11 -> "Novembro"
-        12 -> "Dezembro"
-        else -> "Mês"
+    return try {
+        java.time.Month.of(month).getDisplayName(
+            java.time.format.TextStyle.FULL,
+            java.util.Locale.getDefault()
+        ).replaceFirstChar { 
+            if (it.isLowerCase()) it.titlecase(java.util.Locale.getDefault()) else it.toString() 
+        }
+    } catch (e: Exception) {
+        "Month"
     }
 }

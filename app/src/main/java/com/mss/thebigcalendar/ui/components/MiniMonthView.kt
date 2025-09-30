@@ -33,8 +33,8 @@ fun MiniMonthView(
     onMonthClicked: (YearMonth) -> Unit,
     highlightWeekends: Boolean = true
 ) {
-    val monthName = yearMonth.month.getDisplayName(TextStyle.FULL, Locale("pt", "BR"))
-        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale("pt", "BR")) else it.toString() }
+    val monthName = yearMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
     // Gera os dias para este mini calendário (semelhante ao ViewModel, mas simplificado)
     val firstDayOfMonth = yearMonth.atDay(1)

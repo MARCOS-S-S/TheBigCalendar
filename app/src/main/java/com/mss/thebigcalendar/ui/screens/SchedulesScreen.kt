@@ -241,8 +241,8 @@ private fun ActivityDateSection(
     activities: List<Activity>,
     activityType: ActivityType
 ) {
-    val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_full), Locale("pt", "BR"))
-    val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("pt", "BR"))
+    val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_full), Locale.getDefault())
+    val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
     
     Column {
         // Cabeçalho da data

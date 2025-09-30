@@ -351,7 +351,7 @@ class VisibilityService(private val context: Context) {
         return if (activity.isAllDay) {
             "Dia inteiro"
         } else if (activity.startTime != null) {
-            val formatter = DateTimeFormatter.ofPattern("HH:mm", Locale("pt", "BR"))
+            val formatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
             "Às ${activity.startTime.format(formatter)}"
         } else {
             "Sem horário definido"

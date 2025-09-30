@@ -569,7 +569,7 @@ private fun formatBackupDate(dateString: String): String {
     return try {
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
         val date = formatter.parse(dateString)
-        val displayFormatter = SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", Locale("pt", "BR"))
+        val displayFormatter = SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", Locale.getDefault())
         date?.let { displayFormatter.format(it) } ?: dateString
     } catch (e: Exception) {
         dateString

@@ -25,7 +25,7 @@ class SearchService {
     ): List<SearchResult> {
         if (query.isBlank()) return emptyList()
         
-        val normalizedQuery = query.trim().lowercase(Locale("pt", "BR"))
+        val normalizedQuery = query.trim().lowercase(Locale.getDefault())
         val results = mutableListOf<SearchResult>()
         
         // Pesquisar em atividades
@@ -49,8 +49,8 @@ class SearchService {
             compareBy<SearchResult> { result ->
                 // Priorizar resultados que começam com a query
                 when {
-                    result.title.lowercase(Locale("pt", "BR")).startsWith(normalizedQuery) -> 0
-                    result.title.lowercase(Locale("pt", "BR")).contains(normalizedQuery) -> 1
+                    result.title.lowercase(Locale.getDefault()).startsWith(normalizedQuery) -> 0
+                    result.title.lowercase(Locale.getDefault()).contains(normalizedQuery) -> 1
                     else -> 2
                 }
             }.thenBy { result ->
@@ -71,9 +71,9 @@ class SearchService {
         query: String
     ): List<SearchResult> {
         return activities.filter { activity ->
-            activity.title.lowercase(Locale("pt", "BR")).contains(query) ||
-            (activity.description?.lowercase(Locale("pt", "BR"))?.contains(query) == true) ||
-            (activity.location?.lowercase(Locale("pt", "BR"))?.contains(query) == true)
+            activity.title.lowercase(Locale.getDefault()).contains(query) ||
+            (activity.description?.lowercase(Locale.getDefault())?.contains(query) == true) ||
+            (activity.location?.lowercase(Locale.getDefault())?.contains(query) == true)
         }.map { it.toSearchResult() }
     }
     
@@ -85,8 +85,8 @@ class SearchService {
         query: String
     ): List<SearchResult> {
         return holidays.values.filter { holiday ->
-            holiday.name.lowercase(Locale("pt", "BR")).contains(query) ||
-            (holiday.summary?.lowercase(Locale("pt", "BR"))?.contains(query) == true)
+            holiday.name.lowercase(Locale.getDefault()).contains(query) ||
+            (holiday.summary?.lowercase(Locale.getDefault())?.contains(query) == true)
         }.map { it.toSearchResult() }
     }
     
@@ -98,8 +98,8 @@ class SearchService {
         query: String
     ): List<SearchResult> {
         return saintDays.values.filter { saint ->
-            saint.name.lowercase(Locale("pt", "BR")).contains(query) ||
-            (saint.summary?.lowercase(Locale("pt", "BR"))?.contains(query) == true)
+            saint.name.lowercase(Locale.getDefault()).contains(query) ||
+            (saint.summary?.lowercase(Locale.getDefault())?.contains(query) == true)
         }.map { it.toSearchResult() }
     }
     
@@ -111,8 +111,8 @@ class SearchService {
         query: String
     ): List<SearchResult> {
         return commemorativeDates.values.filter { commemorative ->
-            commemorative.name.lowercase(Locale("pt", "BR")).contains(query) ||
-            (commemorative.summary?.lowercase(Locale("pt", "BR"))?.contains(query) == true)
+            commemorative.name.lowercase(Locale.getDefault()).contains(query) ||
+            (commemorative.summary?.lowercase(Locale.getDefault())?.contains(query) == true)
         }.map { it.toSearchResult() }
     }
     

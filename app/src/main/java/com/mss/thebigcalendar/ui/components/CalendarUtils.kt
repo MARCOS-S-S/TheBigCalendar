@@ -20,7 +20,7 @@ fun getContrastingTextColor(backgroundColor: Color): Color {
     return if (luminance > 0.5) Color.Black else Color.White
 }
 
-fun getWeekDayAbbreviations(locale: Locale = Locale("pt", "BR")): List<String> {
+fun getWeekDayAbbreviations(locale: Locale = Locale.getDefault()): List<String> {
     // DayOfWeek.values() retorna [MONDAY, TUESDAY, ..., SUNDAY]
     // Queremos [SUNDAY, MONDAY, ..., SATURDAY] para a exibição comum de calendários.
     val daysOfWeek = DayOfWeek.values()

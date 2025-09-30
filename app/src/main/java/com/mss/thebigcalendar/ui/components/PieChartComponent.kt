@@ -69,7 +69,7 @@ fun PieChartComponent(
             Text(
                 text = stringResource(
                     id = R.string.activity_distribution_title,
-                    currentMonth.month.getDisplayName(TextStyle.FULL, Locale("pt", "BR")).replaceFirstChar { it.titlecase(Locale("pt", "BR")) }
+                    currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault()).replaceFirstChar { it.titlecase(Locale.getDefault()) }
                 ),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold

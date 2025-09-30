@@ -985,9 +985,9 @@ private fun formatDate(
 }
 
 private fun formatDateWithDay(date: LocalDate): String {
-    val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("pt", "BR"))
+    val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
     val dayOfMonth = date.dayOfMonth
-    val month = date.month.getDisplayName(TextStyle.FULL, Locale("pt", "BR"))
+    val month = date.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
     val year = date.year
     
     return "$dayOfWeek, $dayOfMonth de $month de $year"

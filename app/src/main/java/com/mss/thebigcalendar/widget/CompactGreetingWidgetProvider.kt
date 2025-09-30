@@ -55,7 +55,7 @@ class CompactGreetingWidgetProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.compact_widget_greeting, greeting)
 
         // Atualiza a data
-        val locale = Locale("pt", "BR")
+        val locale = Locale.getDefault()
         val dayOfWeekFormat = SimpleDateFormat("EEE", locale)
         val dayMonthFormat = SimpleDateFormat("dd/MM", locale)
         val date = Date()

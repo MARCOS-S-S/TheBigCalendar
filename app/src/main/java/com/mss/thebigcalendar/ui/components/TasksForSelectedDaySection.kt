@@ -59,7 +59,7 @@ fun TasksForSelectedDaySection(
     onAddTaskClick: () -> Unit
 ) {
     val dateFormat = stringResource(id = R.string.date_format_day_month)
-    val dateFormatter = remember(dateFormat) { DateTimeFormatter.ofPattern(dateFormat, Locale("pt", "BR")) }
+    val dateFormatter = remember(dateFormat) { DateTimeFormatter.ofPattern(dateFormat, Locale.getDefault()) }
 
     // NOTA: Não filtramos por showInCalendar aqui, pois queremos que todas as tarefas apareçam
     // na seção de agendamentos, mesmo as que não são mostradas no calendário

@@ -323,6 +323,6 @@ fun SearchResultItem(
 }
 
 private fun formatDate(date: LocalDate): String {
-    val formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", Locale("pt", "BR"))
-    return date.format(formatter).replaceFirstChar { it.titlecase(Locale("pt", "BR")) }
+    val formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", Locale.getDefault())
+    return date.format(formatter).replaceFirstChar { it.titlecase(Locale.getDefault()) }
 }

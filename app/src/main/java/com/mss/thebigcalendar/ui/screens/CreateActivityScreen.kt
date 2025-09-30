@@ -143,7 +143,7 @@ fun CreateActivityScreen(
         }
     }
 
-    val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_day_month), java.util.Locale("pt", "BR"))
+    val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_day_month), java.util.Locale.getDefault())
     val formattedDate = selectedDate.format(formatter)
     
     // Debug: Log para verificar a data formatada

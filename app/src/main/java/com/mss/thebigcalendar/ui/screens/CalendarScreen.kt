@@ -208,14 +208,11 @@ fun CalendarScreen(
                                             val monthName = uiState.displayedYearMonth.month
                                                 .getDisplayName(
                                                     java.time.format.TextStyle.FULL,
-                                                    Locale("pt", "BR")
+                                                    Locale.getDefault()
                                                 )
                                                 .replaceFirstChar {
                                                     it.titlecase(
-                                                        Locale(
-                                                            "pt",
-                                                            "BR"
-                                                        )
+                                                        Locale.getDefault()
                                                     )
                                                 }
                                             Column(horizontalAlignment = Alignment.Start) {

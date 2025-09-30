@@ -52,7 +52,7 @@ fun BirthdaysForSelectedDaySection(
     if (!hasBirthdays) return
     
     val dateFormat = stringResource(id = R.string.date_format_day_month)
-    val dateFormatter = remember(dateFormat) { DateTimeFormatter.ofPattern(dateFormat, Locale("pt", "BR")) }
+    val dateFormatter = remember(dateFormat) { DateTimeFormatter.ofPattern(dateFormat, Locale.getDefault()) }
     
     Column(modifier = modifier) {
         Row(

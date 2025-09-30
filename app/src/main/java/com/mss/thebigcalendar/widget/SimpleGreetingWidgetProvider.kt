@@ -108,7 +108,7 @@ class SimpleGreetingWidgetProvider : AppWidgetProvider() {
      * Obtém o dia da semana
      */
     private fun getDayOfWeek(context: Context): String {
-        val locale = Locale("pt", "BR")
+        val locale = Locale.getDefault()
         val dayOfWeekFormat = SimpleDateFormat("EEEE", locale)
         val date = Date()
         return dayOfWeekFormat.format(date)
@@ -118,7 +118,7 @@ class SimpleGreetingWidgetProvider : AppWidgetProvider() {
      * Obtém o dia do mês
      */
     private fun getDayOfMonth(context: Context): String {
-        val locale = Locale("pt", "BR")
+        val locale = Locale.getDefault()
         val dayFormat = SimpleDateFormat("dd", locale)
         val monthFormat = SimpleDateFormat("MMMM", locale)
         val date = Date()
