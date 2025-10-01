@@ -1,0 +1,572 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">TBCalendar</string>
+
+    <!-- CreateActivityModal.kt -->
+    <string name="create_activity_modal_title">Titel</string>
+    <string name="create_activity_modal_description">Beschreibung</string>
+    <string name="create_activity_modal_color">Farbe festlegen</string>
+    <string name="create_activity_modal_save">Speichern</string>
+    <string name="create_activity_modal_cancel">Abbrechen</string>
+    <string name="create_activity_modal_new_task">Neue Aufgabe</string>
+    <string name="create_activity_modal_edit_task">Aktivität bearbeiten</string>
+    <string name="create_activity_modal_new_event">Neues Ereignis</string>
+    <string name="create_activity_modal_edit_event">Ereignis bearbeiten</string>
+    <string name="create_activity_modal_edit_note">Notiz bearbeiten</string>
+    <string name="create_activity_modal_new_note">Neue Notiz</string>
+    <string name="create_activity_modal_new_birthday">Neuer Geburtstag</string>
+    <string name="create_activity_modal_edit_birthday">Geburtstag bearbeiten</string>
+    <string name="priority">Priorität:</string>
+    <string name="visibility">Sichtbarkeit:</string>
+    <string name="visibility_low">Niedrig</string>
+    <string name="visibility_medium">Mittel</string>
+    <string name="visibility_high">Hoch</string>
+    <string name="visibility_low_description">Sendet eine Benachrichtigung</string>
+    <string name="visibility_medium_description">Warnmeldung auf dem Bildschirm</string>
+    <string name="visibility_high_description">Vollbild anzeigen</string>
+    <string name="overlay_permission_title">Berechtigung erforderlich</string>
+    <string name="overlay_permission_message">Um mittlere oder hohe Sichtbarkeit zu verwenden, benötigt die Anwendung die Berechtigung, andere Anwendungen zu überlagern. Diese Berechtigung ermöglicht es der App, wichtige Warnungen anzuzeigen, auch wenn andere Apps verwendet werden.\n\nNach der Konfiguration der Berechtigung kehren Sie zur App zurück und die Auswahl wird automatisch angewendet.</string>
+    <string name="overlay_permission_confirm">Berechtigung konfigurieren</string>
+<!--    <string name="task" tools:ignore="DuplicateDefinition">Aufgabe</string>-->
+<!--    <string name="event" tools:ignore="DuplicateDefinition">Ereignis</string>-->
+    <string name="notifications">Benachrichtigungen</string>
+    <string name="repetition_dont_repeat">Nicht wiederholen</string>
+    <string name="repetition_every_day">Täglich</string>
+    <string name="repetition_every_week">Wöchentlich</string>
+    <string name="repetition_every_month">Monatlich</string>
+    <string name="repetition_every_year">Jährlich</string>
+    <string name="repetition_custom">Benutzerdefiniert…</string>
+    <string name="repeat">Wiederholen</string>
+    <string name="start_time">Startzeit</string>
+    <string name="end_time">Endzeit</string>
+    <string name="time">Zeit</string>
+    <string name="start">Start</string>
+    <string name="end">Ende</string>
+    <string name="ok">OK</string>
+    <string name="show_in_calendar">Im Kalender anzeigen</string>
+    <string name="show_in_calendar_description">Die Aufgabe wird nicht unter dem Tag im Kalender angezeigt</string>
+    <string name="sync_with_google">Mit Google Kalender synchronisieren</string>
+    <string name="select_date">Datum auswählen</string>
+    
+    <!-- Widget Configuration -->
+    <string name="widget_configuration_title">Widget konfigurieren</string>
+    <string name="widget_configuration_welcome">Willkommen zur Widget-Konfiguration</string>
+    <string name="widget_configuration_description">Passen Sie Ihr Kalender-Widget nach Ihren Vorlieben an.</string>
+    <string name="widget_id_label">Widget-ID</string>
+    <string name="widget_configuration_coming_soon">Einstellungen kommen bald</string>
+    <string name="widget_configuration_placeholder_text">Bald können Sie Farben, Größen und andere Optionen Ihres Widgets anpassen.</string>
+
+    <!-- DeleteConfirmationDialog.kt -->
+    <string name="delete_confirmation_title">Löschen bestätigen</string>
+    <string name="delete_confirmation_message">Sind Sie sicher, dass Sie "%1$s" löschen möchten?</string>
+    <string name="delete">Löschen</string>
+    <string name="mark_as_completed">Als erledigt markieren</string>
+
+    <!-- HolidaysForSelectedDaySection.kt -->
+    <string name="holidays">Feiertage</string>
+
+    <!-- SaintDaysForSelectedDaySection.kt -->
+    <string name="saint_days">Katholische Heilige</string>
+
+    <!-- SaintInfoDialog.kt -->
+    <string name="no_information_available">Keine Informationen verfügbar.</string>
+    <string name="open_in_wikipedia">Mehr anzeigen</string>
+    <string name="close">Schließen</string>
+
+    <!-- Sidebar.kt -->
+    <string name="national_holidays">Nationale Feiertage</string>
+    <string name="catholic_saint_days">Katholische Heilige</string>
+    <string name="commemorative_dates">Gedenktage</string>
+    <string name="events">Ereignisse</string>
+    <string name="tasks">Aufgaben</string>
+    <string name="birthday">Geburtstage</string>
+    <string name="note">Notizen</string>
+    <string name="close_menu">Menü schließen</string>
+    <string name="dark_mode">Dunkler Modus</string>
+    <string name="light_mode">Heller Modus</string>
+    <string name="visualization">Visualisierung</string>
+    <string name="monthly">Monatlich</string>
+    <string name="yearly">Jährlich</string>
+    <string name="show_on_calendar">Im Kalender anzeigen</string>
+    <string name="show_in_menu">Im Menü anzeigen</string>
+    <string name="settings">Einstellungen</string>
+    <string name="general">Allgemein</string>
+    <string name="backup">Backup</string>
+    <string name="do_backup">Backup</string>
+    <string name="backup_options">Backup-Optionen</string>
+    <string name="local_backup">Lokales Backup</string>
+    <string name="local_backup_description">Daten im Gerätespeicher speichern</string>
+    <string name="cloud_backup">Cloud-Backup</string>
+    <string name="cloud_backup_description">Daten in der Cloud speichern (demnächst verfügbar)</string>
+    <string name="backup_limitations_info">⚠️ Aktuelle Einschränkungen:\n• Unabhängige Alarme sind nicht im Backup enthalten\n• Benachrichtigungen für wiederkehrende Aktivitäten müssen nach der Wiederherstellung manuell neu geplant werden.</string>
+    <string name="local_backups_list">Lokale Backups</string>
+    <string name="no_backups_yet">Keine Backups gefunden</string>
+    <string name="no_backups_description">Erstellen Sie ein Backup, um Dateien hier zu sehen</string>
+    <string name="backup_info_details">%1$d Aktivitäten, %2$d im Papierkorb • %3$s</string>
+    <string name="backup_created_at">Erstellt am %1$s</string>
+    <string name="restore_backup">Backup wiederherstellen</string>
+    <string name="delete_backup">Backup löschen</string>
+    <string name="restore_backup_confirmation_title">Wiederherstellung bestätigen</string>
+    <string name="restore_backup_confirmation_message">Sind Sie sicher, dass Sie das Backup "%1$s" wiederherstellen möchten?\n\n⚠️ WARNUNG: Diese Aktion ersetzt alle aktuellen Daten durch:\n• %2$d Aktivitäten\n• %3$d Elemente im Papierkorb\n\nAlle aktuellen Daten gehen dauerhaft verloren!</string>
+    <string name="restore_backup_confirm">Wiederherstellen</string>
+    <string name="delete_backup_confirmation_title">Löschen bestätigen</string>
+    <string name="delete_backup_confirmation_message">Sind Sie sicher, dass Sie das Backup "%1$s" löschen möchten?\n\nDiese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="delete_backup_confirm">Löschen</string>
+    <string name="sidebar_change_theme">Dunkles Theme</string>
+    <string name="sync_now">Jetzt synchronisieren</string>
+    <string name="syncing">Synchronisierung…</string>
+    <string name="synchronization">Synchronisierung</string>
+    <string name="sync_progress">%1$d/%2$d Ereignisse</string>
+    <string name="welcome_name_setting_title">Willkommensname</string>
+    <string name="notes_menu">Termine</string>
+    <string name="completed_tasks_filter">Abgeschlossene Aufgaben</string>
+    <string name="moon_phases_filter">Mondphasen</string>
+    <string name="imported_calendars">Importierte Kalender</string>
+    
+    <!-- JsonConfigScreen.kt -->
+    <string name="configure_calendar">Kalender konfigurieren</string>
+    <string name="selected_file">Ausgewählte Datei:</string>
+    <string name="select_file">Datei auswählen</string>
+    <string name="json_content">JSON-Inhalt</string>
+    <string name="json_content_placeholder">JSON-Inhalt hier einfügen oder eingeben…</string>
+    <string name="calendar_title">Kalendertitel</string>
+    <string name="calendar_title_placeholder">Z.B.: Mein benutzerdefinierter Kalender</string>
+    <string name="day_color">Tagesfarbe:</string>
+    <string name="choose_color">Farbe wählen</string>
+    <string name="suggested_colors">Vorgeschlagene Farben:</string>
+    <string name="save_configuration">Konfiguration speichern</string>
+    <string name="choose_color_dialog">Farbe wählen</string>
+    <string name="selected_color">Ausgewählte Farbe</string>
+    <string name="available_colors">Verfügbare Farben:</string>
+    <string name="confirm">Bestätigen</string>
+    
+    <!-- Color names -->
+    <string name="color_red">Rot</string>
+    <string name="color_blue">Blau</string>
+    <string name="color_green">Grün</string>
+    <string name="color_magenta">Magenta</string>
+    <string name="color_cyan">Cyan</string>
+    <string name="color_yellow">Gelb</string>
+
+    <!-- TasksForSelectedDaySection.kt -->
+    <string name="date_format_day_month">dd.MM</string>
+    <string name="appointments_for">Termine für %1$s</string>
+    <string name="no_appointments">Nichts geplant.</string>
+    <string name="no_tasks_or_events">Keine Aufgaben oder Ereignisse geplant.</string>
+    <string name="at_time">Um %1$s</string>
+    
+    <!-- Storage Permission Dialog -->
+    <string name="storage_permission_title">Speicherberechtigung</string>
+    <string name="storage_permission_message">Um Backups zu erstellen, benötigt die Anwendung die Berechtigung, auf den Gerätespeicher zuzugreifen.</string>
+    <string name="settings_permission_title">Erforderliche Einstellungen</string>
+    <string name="settings_permission_message">Bitte gewähren Sie die Berechtigung \"Alle Dateien verwalten\" in den Anwendungseinstellungen.</string>
+    <string name="grant_permission">Berechtigung gewähren</string>
+    <string name="open_settings">Einstellungen öffnen</string>
+    <string name="cancel">OK</string>
+
+    <!-- YearlyCalendarView.kt -->
+    <string name="previous_year">Vorheriges Jahr</string>
+    <string name="next_year">Nächstes Jahr</string>
+
+    <!-- CalendarScreen.kt -->
+    <string name="month_year_format">%1$s %2$s</string>
+    <string name="open_close_menu">Menü öffnen/schließen</string>
+    <string name="previous_month">Vorheriger Monat</string>
+    <string name="next_month">Nächster Monat</string>
+    <string name="add_appointment">Termin hinzufügen</string>
+    <string name="previous">Zurück</string>
+    <string name="next">Weiter</string>
+<!--    <string name="back" tools:ignore="DuplicateDefinition">Zurück</string>-->
+
+    <!-- HolidayRepository.kt -->
+    <string name="new_year">Neujahr</string>
+    <string name="carnival">Karneval (Nationaler fakultativer Feiertag)</string>
+    <string name="good_friday">Karfreitag</string>
+    <string name="tiradentes">Tiradentes</string>
+    <string name="labor_day">Tag der Arbeit</string>
+    <string name="corpus_christi">Fronleichnam (Nationaler fakultativer Feiertag)</string>
+    <string name="independence_day">Unabhängigkeitstag Brasiliens</string>
+    <string name="our_lady_of_aparecida">Unsere Liebe Frau von Aparecida</string>
+    <string name="all_souls_day">Allerseelen</string>
+    <string name="republic_proclamation_day">Tag der Republikausrufung</string>
+    <string name="christmas">Weihnachten</string>
+    <string name="saint_mary_mother_of_god">Heilige Maria, Mutter Gottes</string>
+    <string name="saint_anthony_abbot">Heiliger Antonius, Abt</string>
+    <string name="saint_sebastian_martyr">Heiliger Sebastian, Märtyrer</string>
+    <string name="saint_agnes_virgin_and_martyr">Heilige Agnes, Jungfrau und Märtyrerin</string>
+    <string name="international_womens_day">Internationaler Frauentag</string>
+    <string name="mothers_day">Muttertag</string>
+    <string name="valentines_day">Valentinstag</string>
+    <string name="friends_day">Tag der Freundschaft</string>
+    <string name="fathers_day">Vatertag</string>
+    <string name="childrens_day">Kindertag</string>
+
+    <!-- Widget strings -->
+    <string name="widget_description">Kalender-Widget mit Uhr und täglichen Aufgaben (dynamische Farben)</string>
+    <string name="widget_fixed_colors_description">Kalender-Widget mit Uhr und täglichen Aufgaben (feste Farben)</string>
+    <string name="event_list_widget_description">Widget für tägliche Terminliste</string>
+    <string name="greeting_widget_description">Begrüßungs-Widget mit Wochentag und Aufgaben</string>
+    <string name="compact_greeting_widget_description">Kompaktes Begrüßungs-Widget mit Aufgaben</string>
+    <string name="simple_greeting_widget_description">Einfaches Begrüßungs-Widget</string>
+    <string name="test_widget_description">Test-Widget</string>
+    
+    <!-- Widget day abbreviations -->
+    <string name="widget_sunday_short">So</string>
+    <string name="widget_monday_short">Mo</string>
+    <string name="widget_tuesday_short">Di</string>
+    <string name="widget_wednesday_short">Mi</string>
+    <string name="widget_thursday_short">Do</string>
+    <string name="widget_friday_short">Fr</string>
+    <string name="widget_saturday_short">Sa</string>
+    <string name="go_to_today">Zu heute gehen</string>
+    <string name="search">Suchen</string>
+    <string name="chart">Diagramm</string>
+
+    <!-- SearchScreen.kt -->
+    <string name="search_results">Ergebnisse (%1$d)</string>
+    <string name="no_results_found">Keine Ergebnisse für "%1$s" gefunden</string>
+    <string name="type_to_search"> </string>
+    <string name="search_hints">Einfach tippen :)</string>
+    <string name="search_placeholder"> </string>
+    <string name="clear_search">Suche löschen</string>
+    
+    <!-- TrashScreen.kt -->
+    <string name="trash">Papierkorb</string>
+    <string name="back">Zurück</string>
+    <string name="empty_trash">Papierkorb leeren</string>
+    <string name="deleted_activities_count">Gelöschte Aktivitäten (%1$d)</string>
+    <string name="trash_empty">Papierkorb ist leer</string>
+    <string name="trash_empty_description">Gelöschte Aktivitäten werden hier angezeigt</string>
+    <string name="event">Ereignis</string>
+    <string name="task">Aufgabe</string>
+    <string name="birthdays_for">Geburtstage am %1$s</string>
+    <string name="notes_for">Notizen am %1$s</string>
+    <string name="tasks_and_events_for">Aufgaben und Ereignisse für %1$s</string>
+    <string name="restore_activity">Aktivität wiederherstellen</string>
+    <string name="delete_permanently">Dauerhaft löschen</string>
+    <string name="deleted_at">Gelöscht am %1$s</string>
+    <string name="sort_order">Sortieren</string>
+    <string name="oldest_first">Älteste zuerst</string>
+    <string name="newest_first">Neueste zuerst</string>
+
+    <!-- SchedulesScreen.kt -->
+    <string name="schedules_title">Termine</string>
+    <string name="filter_button">Filtern</string>
+    <string name="no_items_found">Kein %1$s gefunden</string>
+    <string name="create_first_item">Erstellen Sie Ihren ersten %1$s im Kalender</string>
+    <string name="date_format_full">dd. MMMM yyyy</string>
+    
+    <!-- Activity types -->
+    <string name="events_title">Ereignisse</string>
+    <string name="tasks_title">Aufgaben</string>
+    <string name="notes_title">Notizen</string>
+    <string name="birthdays_title">Geburtstage</string>
+    
+    <!-- Activity count -->
+    <string name="events_count">Ereignis(se)</string>
+    <string name="tasks_count">Aufgabe(n)</string>
+    <string name="notes_count">Notiz(en)</string>
+    <string name="birthdays_count">Geburtstag(e)</string>
+
+    <!-- BarChartComponent.kt -->
+    <string name="bar_chart_default_title">Balkendiagramm</string>
+    <string name="no_data_available">Keine Daten verfügbar</string>
+    <string name="legend_label">Legende:</string>
+
+    <!-- PieChartComponent.kt -->
+    <string name="activity_distribution_title">Aktivitätsverteilung (%1$s)</string>
+    <string name="no_activities_found">Keine Aktivitäten gefunden</string>
+    <string name="others_label">Andere</string>
+
+    <!-- ChartScreen.kt -->
+    <string name="scheduling_statistics">Terminplanungsstatistiken</string>
+    <string name="back_button">Zurück</string>
+    <string name="scheduling_analysis">Terminplanungsanalyse</string>
+    <string name="scheduling_analysis_description">Hier finden Sie detaillierte Statistiken über Ihre Termine, einschließlich Produktivitätsdiagramme, Aktivitätsverteilung und vieles mehr.</string>
+
+    <!-- TrashScreen.kt -->
+    <string name="note_label">Notiz</string>
+    <string name="date_format_full_with_time">dd.MM.yyyy \'um\' HH:mm</string>
+
+    <!-- CompletedTasksScreen.kt -->
+    <string name="completed_tasks_title">Abgeschlossene Aufgaben</string>
+    <string name="search_completed_tasks">Abgeschlossene Aufgaben suchen</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="google_account">Google-Konto</string>
+    <string name="disconnect">Trennen</string>
+    <string name="connect">Verbinden</string>
+
+    <!-- MoonPhasesComponent.kt -->
+    <string name="moon_phase_new">Neumond</string>
+    <string name="moon_phase_waxing_crescent">Zunehmender Halbmond</string>
+    <string name="moon_phase_first_quarter">Erstes Viertel</string>
+    <string name="moon_phase_waxing_gibbous">Zunehmender Mond</string>
+    <string name="moon_phase_full">Vollmond</string>
+    <string name="moon_phase_waning_gibbous">Abnehmender Mond</string>
+    <string name="moon_phase_last_quarter">Letztes Viertel</string>
+    <string name="moon_phase_waning_crescent">Abnehmender Halbmond</string>
+
+    <!-- TasksForSelectedDaySection.kt -->
+    <string name="add_task_or_event">Aufgabe oder Ereignis hinzufügen</string>
+
+    <!-- NotesForSelectedDaySection.kt -->
+    <string name="add_note">Notiz hinzufügen</string>
+    <string name="ok_button">OK</string>
+    <string name="del_button">LÖSCH</string>
+
+    <!-- BirthdaysForSelectedDaySection.kt -->
+    <string name="add_birthday">Geburtstag hinzufügen</string>
+
+    <!-- YearlyCalendarView.kt -->
+    <string name="previous_year_desc">Vorheriges Jahr</string>
+    <string name="next_year_desc">Nächstes Jahr</string>
+
+    <!-- GreetingService.kt -->
+    <string name="good_morning">Guten Morgen</string>
+    <string name="good_afternoon">Guten Tag</string>
+    <string name="good_evening">Guten Abend</string>
+    <string name="good_dawn">Guten Morgen</string>
+    <string name="greeting_with_name">%1$s, %2$s!</string>
+    <string name="greeting_without_name">%1$s!</string>
+
+    <!-- AlarmScreen.kt -->
+    <string name="select_time">Zeit auswählen</string>
+    <string name="default_alarm_label">Wecker</string>
+    <string name="alarm_saved_success">Wecker erfolgreich gespeichert!</string>
+    <string name="error_saving_alarm">Fehler beim Speichern des Weckers: %1$s</string>
+    <string name="unexpected_error">Unerwarteter Fehler: %1$s</string>
+    <!--<string name="edit_alarm">Wecker bearbeiten</string> -->
+    <string name="configure_alarm">Wecker konfigurieren</string>
+    <string name="alarm_enabled">Aktiviert</string>
+    <string name="alarm_disabled">Deaktiviert</string>
+    <string name="permission_required">Berechtigung erforderlich</string>
+    <string name="overlay_permission_message_alarm">Damit der Wecker ordnungsgemäß funktioniert, muss die App berechtigt werden, über andere Apps angezeigt zu werden.</string>
+    <string name="configure_button">Konfigurieren</string>
+    <string name="done_button">Fertig</string>
+    <string name="thank_you">✅ Danke!</string>
+    <string name="permission_granted">Berechtigung erfolgreich gewährt!</string>
+    <string name="enable_alarm">Wecker aktivieren</string>
+    <string name="alarm_label_hint">Wecker-Beschriftung</string>
+    <string name="repeat_label">Wiederholen</string>
+    <string name="settings_label">Einstellungen</string>
+    <string name="sound_label">Ton</string>
+    <string name="vibration_label">Vibration</string>
+    <string name="snooze_minutes">Snooze (Minuten)</string>
+    <string name="saving_alarm">Speichern…</string>
+    <string name="save_alarm">Wecker speichern</string>
+    <string name="overlay_permission_dialog_message">Damit der Wecker ordnungsgemäß funktioniert, muss die App berechtigt werden, über andere Apps angezeigt zu werden. Dies ermöglicht es der Alarm, auch bei gesperrtem Gerät zu erscheinen.</string>
+    <string name="grant_permission_button">Berechtigung gewähren</string>
+    <string name="cancel_button">Abbrechen</string>
+    
+    <!-- Days of week -->
+    <string name="sun">So</string>
+    <string name="mon">Mo</string>
+    <string name="tue">Di</string>
+    <string name="wed">Mi</string>
+    <string name="thu">Do</string>
+    <string name="fri">Fr</string>
+    <string name="sat">Sa</string>
+    
+    <!-- Additional AlarmScreen strings -->
+    <string name="error_loading_config">Fehler beim Laden der Konfiguration: %1$s</string>
+    <string name="enable_alarm_title">Wecker aktivieren</string>
+    <string name="repeat_title">Wiederholen</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="sound_title">Ton</string>
+    <string name="vibration_title">Vibration</string>
+    <string name="snooze_minutes_title">Snooze (Minuten)</string>
+    <string name="minus_button">-</string>
+    <string name="plus_button">+</string>
+    <string name="thank_you_message">✅ Danke!</string>
+    <string name="permission_granted_message">Berechtigung erfolgreich gewährt!</string>
+
+    <!-- AlarmsScreen.kt -->
+    <string name="alarms">Wecker</string>
+    <string name="create_alarm">Wecker erstellen</string>
+    <string name="no_alarms_configured">Keine Wecker konfiguriert</string>
+    <string name="no_alarms_description">Alle Ihre Wecker werden hier angezeigt</string>
+    <string name="edit_alarm">Wecker bearbeiten</string>
+
+    <!-- NotificationSelector.kt -->
+    <string name="notifications_content_description">Benachrichtigungen</string>
+    <string name="custom_configuration_content_description">Benutzerdefinierte Konfiguration</string>
+    <string name="notification_type_content_description">Benachrichtigungstyp</string>
+    <string name="minutes_before_label">Minuten vorher</string>
+    <string name="custom_time_dialog_title">Benutzerdefinierte Zeit</string>
+    <string name="custom_time_dialog_message">Geben Sie ein, wie viele Minuten vor der Aktivität Sie benachrichtigt werden möchten:</string>
+    <string name="minutes_label">Minuten</string>
+
+    <!-- CreateActivityScreen.kt -->
+    <string name="alarm_card_title">Wecker</string>
+    <string name="alarm_card_description">Wecker für diese Aufgabe konfigurieren</string>
+    <string name="visibility_custom_configuration_content_description">Benutzerdefinierte Konfiguration</string>
+
+    <!-- AlarmScreen.kt -->
+    <string name="permission_required_title">Berechtigung erforderlich</string>
+    <string name="permission_required_message">Damit der Wecker ordnungsgemäß funktioniert, muss die App berechtigt werden, über andere Apps angezeigt zu werden.</string>
+    <string name="configure_button_text">Konfigurieren</string>
+    <string name="done_button_text">Fertig</string>
+    <string name="thank_you_title">✅ Danke!</string>
+    <string name="permission_granted_title">Berechtigung erfolgreich gewährt!</string>
+    <string name="permission_dialog_title">Berechtigung erforderlich</string>
+    <string name="permission_dialog_message">Damit der Wecker ordnungsgemäß funktioniert, muss die App berechtigt werden, über andere Apps angezeigt zu werden. Dies ermöglicht es der Alarm, auch bei gesperrtem Gerät zu erscheinen.</string>
+    <string name="grant_permission_button_text">Berechtigung gewähren</string>
+    <string name="cancel_button_text">Abbrechen</string>
+    <string name="day_sun">So</string>
+    <string name="day_mon">Mo</string>
+    <string name="day_tue">Di</string>
+    <string name="day_wed">Mi</string>
+    <string name="day_thu">Do</string>
+    <string name="day_fri">Fr</string>
+    <string name="day_sat">Sa</string>
+
+    <!-- GreetingWidgetProvider.kt -->
+    <string name="widget_greeting_morning">Guten Morgen</string>
+    <string name="widget_greeting_afternoon">Guten Tag</string>
+    <string name="widget_greeting_evening">Guten Abend</string>
+    <string name="widget_greeting_dawn">Guten Morgen</string>
+    <string name="widget_no_tasks_today">Keine Aufgaben für heute</string>
+    <string name="widget_tomorrow_header">Morgen:</string>
+    <string name="widget_error_loading_tasks">Fehler beim Laden der Aufgaben</string>
+    <string name="widget_loading_tasks">Aufgaben werden geladen…</string>
+    <string name="widget_birthday_icon">🎂</string>
+
+    <!-- AlarmService.kt -->
+    <string name="alarm_channel_name">Vollbild-Wecker</string>
+    <string name="alarm_channel_description">Vollbild-Wecker-Benachrichtigungen</string>
+    <string name="alarm_notification_channel_name">Wecker</string>
+    <string name="alarm_notification_channel_description">Wecker-Benachrichtigungen</string>
+    <string name="alarm_status_channel_name">Wecker-Status</string>
+    <string name="alarm_status_channel_description">Zeigt an, wenn aktive Wecker vorhanden sind</string>
+    <string name="alarm_notification_title">⏰ Wecker</string>
+    <string name="alarm_status_notification_title">⏰ Aktiver Wecker</string>
+    <string name="alarm_dismiss_action">Verwerfen</string>
+    <string name="alarm_description_default">Geplanter Wecker</string>
+    <string name="day_of_week_sunday">So</string>
+    <string name="day_of_week_monday">Mo</string>
+    <string name="day_of_week_tuesday">Di</string>
+    <string name="day_of_week_wednesday">Mi</string>
+    <string name="day_of_week_thursday">Do</string>
+    <string name="day_of_week_friday">Fr</string>
+    <string name="day_of_week_saturday">Sa</string>
+
+    <!-- AlarmsScreen.kt -->
+    <string name="alarm_status_active">Aktiv</string>
+    <string name="alarm_status_disabled">Deaktiviert</string>
+    <string name="alarm_repeats_label">Wiederholt:</string>
+    <string name="alarm_snooze_label">Snooze: %1$dmin</string>
+    <string name="alarm_delete_content_description">Wecker löschen</string>
+    <string name="alarm_clear_orphaned_content_description">Verwaiste Wecker löschen</string>
+    <string name="delete_alarm_dialog_title">Wecker löschen</string>
+    <string name="delete_alarm_dialog_message">Sind Sie sicher, dass Sie den Wecker "%1$s" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="delete_alarm_button">Löschen</string>
+    <string name="cancel_alarm_button">Abbrechen</string>
+    <string name="today_label">Heute</string>
+    <string name="tomorrow_label">Morgen</string>
+    <string name="past_label">Vergangen - %1$s</string>
+    <string name="activity_type_task">Aufgabe</string>
+    <string name="activity_type_event">Ereignis</string>
+    <string name="activity_type_birthday">Geburtstag</string>
+    <string name="activity_type_note">Notiz</string>
+    <string name="notification_type_on_time">Pünktlich</string>
+    <string name="notification_type_5min_before">5 Min vorher</string>
+    <string name="notification_type_10min_before">10 Min vorher</string>
+    <string name="notification_type_15min_before">15 Min vorher</string>
+    <string name="notification_type_30min_before">30 Min vorher</string>
+    <string name="notification_type_1hour_before">1 Stunde vorher</string>
+    <string name="notification_type_2hours_before">2 Stunden vorher</string>
+    <string name="notification_type_1day_before">1 Tag vorher</string>
+    <string name="notification_type_custom">Benutzerdefiniert</string>
+    <string name="notification_type_disabled">Deaktiviert</string>
+    <string name="reminder_label">Erinnerung: %1$s</string>
+
+    <!-- AlarmRepository.kt -->
+    <string name="alarm_not_found_error">Wecker nicht gefunden</string>
+
+    <!-- AlarmSettings.kt -->
+    <string name="alarm_default_label">Wecker</string>
+    <string name="alarm_validation_label_empty">Beschriftung darf nicht leer sein</string>
+    <string name="alarm_validation_label_too_long">Beschriftung zu lang (maximal 50 Zeichen)</string>
+    <string name="alarm_validation_invalid_days">Ungültige Wochentage</string>
+    <string name="alarm_validation_snooze_range">Snooze muss zwischen 1 und 60 Minuten liegen</string>
+
+    <!-- CalendarViewModel.kt -->
+    <string name="login_success_message">Anmeldung erfolgreich!</string>
+    <string name="login_failure_message">Anmeldung fehlgeschlagen. Überprüfen Sie die Protokolle für Details.</string>
+    <string name="event_no_title">Kein Titel</string>
+    <string name="default_user_name">Benutzer</string>
+    <string name="sync_failure_message">Fehler beim Synchronisieren der Ereignisse.</string>
+
+    <!-- ChartScreen.kt -->
+    <string name="chart_tasks_last_7_days">Abgeschlossene Aufgaben - Letzte 7 Tage</string>
+    <string name="chart_tasks_last_year">Abgeschlossene Aufgaben - Letztes Jahr</string>
+    <string name="chart_basic_statistics">Grundstatistiken</string>
+    <string name="chart_total_activities">Gesamtaktivitäten</string>
+    <string name="chart_completed_tasks">Abgeschlossene Aufgaben</string>
+    <string name="chart_scheduled_events">Geplante Ereignisse</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="sync_content_description">Synchronisieren</string>
+    <string name="sync_progress_format">%1$d/%2$d Ereignisse</string>
+    <string name="json_format_instructions">Erstellen Sie eine JSON-Datei mit (z.B.: Militärfeiertage in Brasilien) im Jahr (z.B.: 2025) und folgen Sie EXAKT diesem Format:</string>
+    <string name="json_structure_title">OBLIGATORISCHE STRUKTUR:</string>
+    <string name="json_example">{
+  "name": "Name",
+  "date": "MM-dd",
+  "summary": "Kurze Beschreibung",
+  "wikipediaLink": "https://link-für-mehr-infos (optional)"
+}</string>
+    <string name="copy_json_format">Kopieren</string>
+    <string name="copy_json_content_description">JSON-Format kopieren</string>
+    <string name="json_example_text">Ersetzen Sie die folgenden Beispiele durch die gewünschten Daten und kopieren Sie den Text zu einer KI Ihrer Wahl.</string>
+
+    <!-- CompletedTasksScreen.kt -->
+    <string name="search_content_description">Suchen</string>
+    <string name="total_completed_tasks">Gesamte abgeschlossene Aufgaben:</string>
+    <string name="no_completed_tasks">Noch keine Aufgaben abgeschlossen</string>
+    <string name="no_tasks_found">Keine Aufgaben gefunden</string>
+    <string name="complete_tasks_hint">Schließen Sie einige Aufgaben ab, um sie hier zu sehen</string>
+    <string name="adjust_search_hint">Versuchen Sie, Ihre Suche anzupassen</string>
+    <string name="completed_content_description">Abgeschlossen</string>
+    <string name="save">Speichern</string>
+
+    <!-- HighVisibilityNotificationActivity.kt -->
+    <string name="high_visibility_notification_title">🔔 WICHTIGE BENACHRICHTIGUNG</string>
+    <string name="high_visibility_open_app">APP ÖFFNEN</string>
+    <string name="high_visibility_snooze_5min">5min</string>
+    <string name="high_visibility_snooze_30min">30min</string>
+    <string name="high_visibility_snooze_1hour">1h</string>
+    <string name="high_visibility_finalize">BEENDEN</string>
+    <string name="high_visibility_date_label">Datum: %1$s</string>
+    <string name="high_visibility_time_label">Zeit: %1$s</string>
+    <string name="high_visibility_date_time_separator"> | </string>
+    <string name="high_visibility_default_title">Benachrichtigung</string>
+
+    <!-- Widget strings -->
+    <string name="widget_no_appointments_today">Keine Termine für heute.</string>
+    <string name="widget_test_title">Test-Widget</string>
+    <string name="widget_good_morning">Guten Morgen</string>
+    <string name="widget_monday">Montag</string>
+    <string name="widget_august_26">26. August</string>
+    <string name="widget_loading_tasks_text">Aufgaben werden geladen…</string>
+    <string name="widget_for_today">Für heute:</string>
+    <string name="widget_event_title_placeholder">Ereignistitel</string>
+    <string name="widget_event_time_placeholder">Ereigniszeit</string>
+    <string name="widget_test_tasks">09:00 Besprechung\n10:30 Kaffee\n12:00 Mittagessen</string>
+
+    <!-- CustomRepetitionScreen.kt -->
+    <string name="custom_repetition_type_title">Wiederholungstyp</string>
+    <string name="custom_repetition_every_label">Wiederholen alle</string>
+    <string name="custom_repetition_weekdays_title">Wochentage</string>
+    <string name="custom_repetition_end_date_title">Enddatum</string>
+    <string name="custom_repetition_max_occurrences_title">Maximale Anzahl von Vorkommen</string>
+
+    <!-- MainActivity.kt -->
+    <string name="main_loading_appointments">Termine werden geladen</string>
+    <string name="main_loading_progress">%1$d%%</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="general_import_json_file">JSON-Datei importieren</string>
+    <string name="general_animation_type">Animationstyp</string>
+
+</resources>

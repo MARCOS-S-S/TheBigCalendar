@@ -1,0 +1,572 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">TBCalendar</string>
+
+    <!-- CreateActivityModal.kt -->
+    <string name="create_activity_modal_title">标题</string>
+    <string name="create_activity_modal_description">描述</string>
+    <string name="create_activity_modal_color">设置颜色</string>
+    <string name="create_activity_modal_save">保存</string>
+    <string name="create_activity_modal_cancel">取消</string>
+    <string name="create_activity_modal_new_task">新任务</string>
+    <string name="create_activity_modal_edit_task">编辑活动</string>
+    <string name="create_activity_modal_new_event">新事件</string>
+    <string name="create_activity_modal_edit_event">编辑事件</string>
+    <string name="create_activity_modal_edit_note">编辑笔记</string>
+    <string name="create_activity_modal_new_note">新笔记</string>
+    <string name="create_activity_modal_new_birthday">新生日</string>
+    <string name="create_activity_modal_edit_birthday">编辑生日</string>
+    <string name="priority">优先级：</string>
+    <string name="visibility">可见性：</string>
+    <string name="visibility_low">低</string>
+    <string name="visibility_medium">中</string>
+    <string name="visibility_high">高</string>
+    <string name="visibility_low_description">发送通知</string>
+    <string name="visibility_medium_description">屏幕上显示警告消息</string>
+    <string name="visibility_high_description">全屏显示</string>
+    <string name="overlay_permission_title">需要权限</string>
+    <string name="overlay_permission_message">要使用中等或高可见性，应用程序需要覆盖其他应用程序的权限。此权限允许应用在其他应用使用时也能显示重要警告。\n\n配置权限后，返回应用，选择将自动应用。</string>
+    <string name="overlay_permission_confirm">配置权限</string>
+<!--    <string name="task" tools:ignore="DuplicateDefinition">任务</string>-->
+<!--    <string name="event" tools:ignore="DuplicateDefinition">事件</string>-->
+    <string name="notifications">通知</string>
+    <string name="repetition_dont_repeat">不重复</string>
+    <string name="repetition_every_day">每天</string>
+    <string name="repetition_every_week">每周</string>
+    <string name="repetition_every_month">每月</string>
+    <string name="repetition_every_year">每年</string>
+    <string name="repetition_custom">自定义…</string>
+    <string name="repeat">重复</string>
+    <string name="start_time">开始时间</string>
+    <string name="end_time">结束时间</string>
+    <string name="time">时间</string>
+    <string name="start">开始</string>
+    <string name="end">结束</string>
+    <string name="ok">确定</string>
+    <string name="show_in_calendar">在日历中显示</string>
+    <string name="show_in_calendar_description">任务不会显示在日历中日期下方</string>
+    <string name="sync_with_google">与Google日历同步</string>
+    <string name="select_date">选择日期</string>
+    
+    <!-- Widget Configuration -->
+    <string name="widget_configuration_title">配置小部件</string>
+    <string name="widget_configuration_welcome">欢迎使用小部件配置</string>
+    <string name="widget_configuration_description">根据您的偏好自定义您的日历小部件。</string>
+    <string name="widget_id_label">小部件ID</string>
+    <string name="widget_configuration_coming_soon">设置即将推出</string>
+    <string name="widget_configuration_placeholder_text">很快您就可以自定义小部件的颜色、大小和其他选项。</string>
+
+    <!-- DeleteConfirmationDialog.kt -->
+    <string name="delete_confirmation_title">确认删除</string>
+    <string name="delete_confirmation_message">您确定要删除"%1$s"吗？</string>
+    <string name="delete">删除</string>
+    <string name="mark_as_completed">标记为已完成</string>
+
+    <!-- HolidaysForSelectedDaySection.kt -->
+    <string name="holidays">节假日</string>
+
+    <!-- SaintDaysForSelectedDaySection.kt -->
+    <string name="saint_days">天主教圣人</string>
+
+    <!-- SaintInfoDialog.kt -->
+    <string name="no_information_available">没有可用信息。</string>
+    <string name="open_in_wikipedia">查看更多</string>
+    <string name="close">关闭</string>
+
+    <!-- Sidebar.kt -->
+    <string name="national_holidays">国家节假日</string>
+    <string name="catholic_saint_days">天主教圣人</string>
+    <string name="commemorative_dates">纪念日</string>
+    <string name="events">事件</string>
+    <string name="tasks">任务</string>
+    <string name="birthday">生日</string>
+    <string name="note">笔记</string>
+    <string name="close_menu">关闭菜单</string>
+    <string name="dark_mode">深色模式</string>
+    <string name="light_mode">浅色模式</string>
+    <string name="visualization">可视化</string>
+    <string name="monthly">月度</string>
+    <string name="yearly">年度</string>
+    <string name="show_on_calendar">在日历中显示</string>
+    <string name="show_in_menu">在菜单中显示</string>
+    <string name="settings">设置</string>
+    <string name="general">常规</string>
+    <string name="backup">备份</string>
+    <string name="do_backup">备份</string>
+    <string name="backup_options">备份选项</string>
+    <string name="local_backup">本地备份</string>
+    <string name="local_backup_description">将数据保存到设备存储</string>
+    <string name="cloud_backup">云备份</string>
+    <string name="cloud_backup_description">将数据保存到云端（即将推出）</string>
+    <string name="backup_limitations_info">⚠️ 当前限制：\n• 独立闹钟不包含在备份中\n• 重复活动的通知需要在恢复后手动重新安排。</string>
+    <string name="local_backups_list">本地备份</string>
+    <string name="no_backups_yet">未找到备份</string>
+    <string name="no_backups_description">创建备份以在此处查看文件</string>
+    <string name="backup_info_details">%1$d个活动，%2$d个在回收站 • %3$s</string>
+    <string name="backup_created_at">创建于%1$s</string>
+    <string name="restore_backup">恢复备份</string>
+    <string name="delete_backup">删除备份</string>
+    <string name="restore_backup_confirmation_title">确认恢复</string>
+    <string name="restore_backup_confirmation_message">您确定要恢复备份"%1$s"吗？\n\n⚠️ 警告：此操作将用以下内容替换所有当前数据：\n• %2$d个活动\n• %3$d个回收站项目\n\n所有当前数据将永久丢失！</string>
+    <string name="restore_backup_confirm">恢复</string>
+    <string name="delete_backup_confirmation_title">确认删除</string>
+    <string name="delete_backup_confirmation_message">您确定要删除备份"%1$s"吗？\n\n此操作无法撤销。</string>
+    <string name="delete_backup_confirm">删除</string>
+    <string name="sidebar_change_theme">深色主题</string>
+    <string name="sync_now">立即同步</string>
+    <string name="syncing">同步中…</string>
+    <string name="synchronization">同步</string>
+    <string name="sync_progress">%1$d/%2$d个事件</string>
+    <string name="welcome_name_setting_title">欢迎名称</string>
+    <string name="notes_menu">日程安排</string>
+    <string name="completed_tasks_filter">已完成的任务</string>
+    <string name="moon_phases_filter">月相</string>
+    <string name="imported_calendars">导入的日历</string>
+    
+    <!-- JsonConfigScreen.kt -->
+    <string name="configure_calendar">配置日历</string>
+    <string name="selected_file">选择的文件：</string>
+    <string name="select_file">选择文件</string>
+    <string name="json_content">JSON内容</string>
+    <string name="json_content_placeholder">在此处粘贴或输入JSON内容…</string>
+    <string name="calendar_title">日历标题</string>
+    <string name="calendar_title_placeholder">例如：我的自定义日历</string>
+    <string name="day_color">日期颜色：</string>
+    <string name="choose_color">选择颜色</string>
+    <string name="suggested_colors">建议颜色：</string>
+    <string name="save_configuration">保存配置</string>
+    <string name="choose_color_dialog">选择颜色</string>
+    <string name="selected_color">选择的颜色</string>
+    <string name="available_colors">可用颜色：</string>
+    <string name="confirm">确认</string>
+    
+    <!-- Color names -->
+    <string name="color_red">红色</string>
+    <string name="color_blue">蓝色</string>
+    <string name="color_green">绿色</string>
+    <string name="color_magenta">洋红色</string>
+    <string name="color_cyan">青色</string>
+    <string name="color_yellow">黄色</string>
+
+    <!-- TasksForSelectedDaySection.kt -->
+    <string name="date_format_day_month">MM/dd</string>
+    <string name="appointments_for">%1$s的预约</string>
+    <string name="no_appointments">无安排。</string>
+    <string name="no_tasks_or_events">没有安排任务或事件。</string>
+    <string name="at_time">%1$s</string>
+    
+    <!-- Storage Permission Dialog -->
+    <string name="storage_permission_title">存储权限</string>
+    <string name="storage_permission_message">要创建备份，应用程序需要访问设备存储的权限。</string>
+    <string name="settings_permission_title">所需设置</string>
+    <string name="settings_permission_message">请在应用程序设置中授予"管理所有文件"权限。</string>
+    <string name="grant_permission">授予权限</string>
+    <string name="open_settings">打开设置</string>
+    <string name="cancel">确定</string>
+
+    <!-- YearlyCalendarView.kt -->
+    <string name="previous_year">上一年</string>
+    <string name="next_year">下一年</string>
+
+    <!-- CalendarScreen.kt -->
+    <string name="month_year_format">%1$s %2$s</string>
+    <string name="open_close_menu">打开/关闭菜单</string>
+    <string name="previous_month">上个月</string>
+    <string name="next_month">下个月</string>
+    <string name="add_appointment">添加预约</string>
+    <string name="previous">上一个</string>
+    <string name="next">下一个</string>
+<!--    <string name="back" tools:ignore="DuplicateDefinition">返回</string>-->
+
+    <!-- HolidayRepository.kt -->
+    <string name="new_year">新年</string>
+    <string name="carnival">狂欢节（国家可选假日）</string>
+    <string name="good_friday">耶稣受难日</string>
+    <string name="tiradentes">蒂拉登特斯</string>
+    <string name="labor_day">劳动节</string>
+    <string name="corpus_christi">基督圣体节（国家可选假日）</string>
+    <string name="independence_day">巴西独立日</string>
+    <string name="our_lady_of_aparecida">阿帕雷西达圣母</string>
+    <string name="all_souls_day">万灵节</string>
+    <string name="republic_proclamation_day">共和国宣言日</string>
+    <string name="christmas">圣诞节</string>
+    <string name="saint_mary_mother_of_god">圣母玛利亚，上帝之母</string>
+    <string name="saint_anthony_abbot">圣安东尼，修道院院长</string>
+    <string name="saint_sebastian_martyr">圣塞巴斯蒂安，殉道者</string>
+    <string name="saint_agnes_virgin_and_martyr">圣艾格尼丝，处女和殉道者</string>
+    <string name="international_womens_day">国际妇女节</string>
+    <string name="mothers_day">母亲节</string>
+    <string name="valentines_day">情人节</string>
+    <string name="friends_day">朋友节</string>
+    <string name="fathers_day">父亲节</string>
+    <string name="childrens_day">儿童节</string>
+
+    <!-- Widget strings -->
+    <string name="widget_description">带时钟和日常任务的日历小部件（动态颜色）</string>
+    <string name="widget_fixed_colors_description">带时钟和日常任务的日历小部件（固定颜色）</string>
+    <string name="event_list_widget_description">日常预约列表小部件</string>
+    <string name="greeting_widget_description">带星期几和任务的问候小部件</string>
+    <string name="compact_greeting_widget_description">带任务的紧凑问候小部件</string>
+    <string name="simple_greeting_widget_description">简单问候小部件</string>
+    <string name="test_widget_description">测试小部件</string>
+    
+    <!-- Widget day abbreviations -->
+    <string name="widget_sunday_short">日</string>
+    <string name="widget_monday_short">一</string>
+    <string name="widget_tuesday_short">二</string>
+    <string name="widget_wednesday_short">三</string>
+    <string name="widget_thursday_short">四</string>
+    <string name="widget_friday_short">五</string>
+    <string name="widget_saturday_short">六</string>
+    <string name="go_to_today">转到今天</string>
+    <string name="search">搜索</string>
+    <string name="chart">图表</string>
+
+    <!-- SearchScreen.kt -->
+    <string name="search_results">结果（%1$d）</string>
+    <string name="no_results_found">未找到"%1$s"的结果</string>
+    <string name="type_to_search"> </string>
+    <string name="search_hints">只需输入 :)</string>
+    <string name="search_placeholder"> </string>
+    <string name="clear_search">清除搜索</string>
+    
+    <!-- TrashScreen.kt -->
+    <string name="trash">回收站</string>
+    <string name="back">返回</string>
+    <string name="empty_trash">清空回收站</string>
+    <string name="deleted_activities_count">已删除的活动（%1$d）</string>
+    <string name="trash_empty">回收站为空</string>
+    <string name="trash_empty_description">已删除的活动将显示在此处</string>
+    <string name="event">事件</string>
+    <string name="task">任务</string>
+    <string name="birthdays_for">%1$s的生日</string>
+    <string name="notes_for">%1$s的笔记</string>
+    <string name="tasks_and_events_for">%1$s的任务和事件</string>
+    <string name="restore_activity">恢复活动</string>
+    <string name="delete_permanently">永久删除</string>
+    <string name="deleted_at">删除于%1$s</string>
+    <string name="sort_order">排序</string>
+    <string name="oldest_first">最旧的在前</string>
+    <string name="newest_first">最新的在前</string>
+
+    <!-- SchedulesScreen.kt -->
+    <string name="schedules_title">日程安排</string>
+    <string name="filter_button">筛选</string>
+    <string name="no_items_found">未找到%1$s</string>
+    <string name="create_first_item">在日历中创建您的第一个%1$s</string>
+    <string name="date_format_full">yyyy年M月d日</string>
+    
+    <!-- Activity types -->
+    <string name="events_title">事件</string>
+    <string name="tasks_title">任务</string>
+    <string name="notes_title">笔记</string>
+    <string name="birthdays_title">生日</string>
+    
+    <!-- Activity count -->
+    <string name="events_count">事件</string>
+    <string name="tasks_count">任务</string>
+    <string name="notes_count">笔记</string>
+    <string name="birthdays_count">生日</string>
+
+    <!-- BarChartComponent.kt -->
+    <string name="bar_chart_default_title">柱状图</string>
+    <string name="no_data_available">无可用数据</string>
+    <string name="legend_label">图例：</string>
+
+    <!-- PieChartComponent.kt -->
+    <string name="activity_distribution_title">活动分布（%1$s）</string>
+    <string name="no_activities_found">未找到活动</string>
+    <string name="others_label">其他</string>
+
+    <!-- ChartScreen.kt -->
+    <string name="scheduling_statistics">日程安排统计</string>
+    <string name="back_button">返回</string>
+    <string name="scheduling_analysis">日程安排分析</string>
+    <string name="scheduling_analysis_description">在这里您将找到关于您日程安排的详细统计，包括生产力图表、活动分布等等。</string>
+
+    <!-- TrashScreen.kt -->
+    <string name="note_label">笔记</string>
+    <string name="date_format_full_with_time">yyyy/MM/dd %1$s时%2$s分</string>
+
+    <!-- CompletedTasksScreen.kt -->
+    <string name="completed_tasks_title">已完成的任务</string>
+    <string name="search_completed_tasks">搜索已完成的任务</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="google_account">Google账户</string>
+    <string name="disconnect">断开连接</string>
+    <string name="connect">连接</string>
+
+    <!-- MoonPhasesComponent.kt -->
+    <string name="moon_phase_new">新月</string>
+    <string name="moon_phase_waxing_crescent">上弦月</string>
+    <string name="moon_phase_first_quarter">上弦</string>
+    <string name="moon_phase_waxing_gibbous">盈凸月</string>
+    <string name="moon_phase_full">满月</string>
+    <string name="moon_phase_waning_gibbous">亏凸月</string>
+    <string name="moon_phase_last_quarter">下弦</string>
+    <string name="moon_phase_waning_crescent">下弦月</string>
+
+    <!-- TasksForSelectedDaySection.kt -->
+    <string name="add_task_or_event">添加任务或事件</string>
+
+    <!-- NotesForSelectedDaySection.kt -->
+    <string name="add_note">添加笔记</string>
+    <string name="ok_button">确定</string>
+    <string name="del_button">删除</string>
+
+    <!-- BirthdaysForSelectedDaySection.kt -->
+    <string name="add_birthday">添加生日</string>
+
+    <!-- YearlyCalendarView.kt -->
+    <string name="previous_year_desc">上一年</string>
+    <string name="next_year_desc">下一年</string>
+
+    <!-- GreetingService.kt -->
+    <string name="good_morning">早上好</string>
+    <string name="good_afternoon">下午好</string>
+    <string name="good_evening">晚上好</string>
+    <string name="good_dawn">早上好</string>
+    <string name="greeting_with_name">%1$s，%2$s！</string>
+    <string name="greeting_without_name">%1$s！</string>
+
+    <!-- AlarmScreen.kt -->
+    <string name="select_time">选择时间</string>
+    <string name="default_alarm_label">闹钟</string>
+    <string name="alarm_saved_success">闹钟保存成功！</string>
+    <string name="error_saving_alarm">保存闹钟时出错：%1$s</string>
+    <string name="unexpected_error">意外错误：%1$s</string>
+    <!--<string name="edit_alarm">编辑闹钟</string> -->
+    <string name="configure_alarm">配置闹钟</string>
+    <string name="alarm_enabled">已启用</string>
+    <string name="alarm_disabled">已禁用</string>
+    <string name="permission_required">需要权限</string>
+    <string name="overlay_permission_message_alarm">闹钟正常工作需要允许应用在其他应用之上显示。</string>
+    <string name="configure_button">配置</string>
+    <string name="done_button">完成</string>
+    <string name="thank_you">✅ 谢谢！</string>
+    <string name="permission_granted">权限授予成功！</string>
+    <string name="enable_alarm">启用闹钟</string>
+    <string name="alarm_label_hint">闹钟标签</string>
+    <string name="repeat_label">重复</string>
+    <string name="settings_label">设置</string>
+    <string name="sound_label">声音</string>
+    <string name="vibration_label">振动</string>
+    <string name="snooze_minutes">贪睡（分钟）</string>
+    <string name="saving_alarm">保存中…</string>
+    <string name="save_alarm">保存闹钟</string>
+    <string name="overlay_permission_dialog_message">闹钟正常工作需要允许应用在其他应用之上显示。这允许闹钟在设备锁定时也能显示。</string>
+    <string name="grant_permission_button">授予权限</string>
+    <string name="cancel_button">取消</string>
+    
+    <!-- Days of week -->
+    <string name="sun">日</string>
+    <string name="mon">一</string>
+    <string name="tue">二</string>
+    <string name="wed">三</string>
+    <string name="thu">四</string>
+    <string name="fri">五</string>
+    <string name="sat">六</string>
+    
+    <!-- Additional AlarmScreen strings -->
+    <string name="error_loading_config">加载配置时出错：%1$s</string>
+    <string name="enable_alarm_title">启用闹钟</string>
+    <string name="repeat_title">重复</string>
+    <string name="settings_title">设置</string>
+    <string name="sound_title">声音</string>
+    <string name="vibration_title">振动</string>
+    <string name="snooze_minutes_title">贪睡（分钟）</string>
+    <string name="minus_button">-</string>
+    <string name="plus_button">+</string>
+    <string name="thank_you_message">✅ 谢谢！</string>
+    <string name="permission_granted_message">权限授予成功！</string>
+
+    <!-- AlarmsScreen.kt -->
+    <string name="alarms">闹钟</string>
+    <string name="create_alarm">创建闹钟</string>
+    <string name="no_alarms_configured">未配置闹钟</string>
+    <string name="no_alarms_description">您的所有闹钟将显示在此处</string>
+    <string name="edit_alarm">编辑闹钟</string>
+
+    <!-- NotificationSelector.kt -->
+    <string name="notifications_content_description">通知</string>
+    <string name="custom_configuration_content_description">自定义配置</string>
+    <string name="notification_type_content_description">通知类型</string>
+    <string name="minutes_before_label">分钟前</string>
+    <string name="custom_time_dialog_title">自定义时间</string>
+    <string name="custom_time_dialog_message">输入您希望在活动前多少分钟收到通知：</string>
+    <string name="minutes_label">分钟</string>
+
+    <!-- CreateActivityScreen.kt -->
+    <string name="alarm_card_title">闹钟</string>
+    <string name="alarm_card_description">为此任务配置闹钟</string>
+    <string name="visibility_custom_configuration_content_description">自定义配置</string>
+
+    <!-- AlarmScreen.kt -->
+    <string name="permission_required_title">需要权限</string>
+    <string name="permission_required_message">闹钟正常工作需要允许应用在其他应用之上显示。</string>
+    <string name="configure_button_text">配置</string>
+    <string name="done_button_text">完成</string>
+    <string name="thank_you_title">✅ 谢谢！</string>
+    <string name="permission_granted_title">权限授予成功！</string>
+    <string name="permission_dialog_title">需要权限</string>
+    <string name="permission_dialog_message">闹钟正常工作需要允许应用在其他应用之上显示。这允许闹钟在设备锁定时也能显示。</string>
+    <string name="grant_permission_button_text">授予权限</string>
+    <string name="cancel_button_text">取消</string>
+    <string name="day_sun">日</string>
+    <string name="day_mon">一</string>
+    <string name="day_tue">二</string>
+    <string name="day_wed">三</string>
+    <string name="day_thu">四</string>
+    <string name="day_fri">五</string>
+    <string name="day_sat">六</string>
+
+    <!-- GreetingWidgetProvider.kt -->
+    <string name="widget_greeting_morning">早上好</string>
+    <string name="widget_greeting_afternoon">下午好</string>
+    <string name="widget_greeting_evening">晚上好</string>
+    <string name="widget_greeting_dawn">早上好</string>
+    <string name="widget_no_tasks_today">今天没有任务</string>
+    <string name="widget_tomorrow_header">明天：</string>
+    <string name="widget_error_loading_tasks">加载任务时出错</string>
+    <string name="widget_loading_tasks">正在加载任务…</string>
+    <string name="widget_birthday_icon">🎂</string>
+
+    <!-- AlarmService.kt -->
+    <string name="alarm_channel_name">全屏闹钟</string>
+    <string name="alarm_channel_description">全屏闹钟通知</string>
+    <string name="alarm_notification_channel_name">闹钟</string>
+    <string name="alarm_notification_channel_description">闹钟通知</string>
+    <string name="alarm_status_channel_name">闹钟状态</string>
+    <string name="alarm_status_channel_description">显示有活动闹钟时</string>
+    <string name="alarm_notification_title">⏰ 闹钟</string>
+    <string name="alarm_status_notification_title">⏰ 活动闹钟</string>
+    <string name="alarm_dismiss_action">忽略</string>
+    <string name="alarm_description_default">已安排的闹钟</string>
+    <string name="day_of_week_sunday">日</string>
+    <string name="day_of_week_monday">一</string>
+    <string name="day_of_week_tuesday">二</string>
+    <string name="day_of_week_wednesday">三</string>
+    <string name="day_of_week_thursday">四</string>
+    <string name="day_of_week_friday">五</string>
+    <string name="day_of_week_saturday">六</string>
+
+    <!-- AlarmsScreen.kt -->
+    <string name="alarm_status_active">活动</string>
+    <string name="alarm_status_disabled">已禁用</string>
+    <string name="alarm_repeats_label">重复：</string>
+    <string name="alarm_snooze_label">贪睡：%1$d分钟</string>
+    <string name="alarm_delete_content_description">删除闹钟</string>
+    <string name="alarm_clear_orphaned_content_description">清除孤立闹钟</string>
+    <string name="delete_alarm_dialog_title">删除闹钟</string>
+    <string name="delete_alarm_dialog_message">您确定要删除闹钟"%1$s"吗？此操作无法撤销。</string>
+    <string name="delete_alarm_button">删除</string>
+    <string name="cancel_alarm_button">取消</string>
+    <string name="today_label">今天</string>
+    <string name="tomorrow_label">明天</string>
+    <string name="past_label">过去 - %1$s</string>
+    <string name="activity_type_task">任务</string>
+    <string name="activity_type_event">事件</string>
+    <string name="activity_type_birthday">生日</string>
+    <string name="activity_type_note">笔记</string>
+    <string name="notification_type_on_time">准时</string>
+    <string name="notification_type_5min_before">5分钟前</string>
+    <string name="notification_type_10min_before">10分钟前</string>
+    <string name="notification_type_15min_before">15分钟前</string>
+    <string name="notification_type_30min_before">30分钟前</string>
+    <string name="notification_type_1hour_before">1小时前</string>
+    <string name="notification_type_2hours_before">2小时前</string>
+    <string name="notification_type_1day_before">1天前</string>
+    <string name="notification_type_custom">自定义</string>
+    <string name="notification_type_disabled">已禁用</string>
+    <string name="reminder_label">提醒：%1$s</string>
+
+    <!-- AlarmRepository.kt -->
+    <string name="alarm_not_found_error">未找到闹钟</string>
+
+    <!-- AlarmSettings.kt -->
+    <string name="alarm_default_label">闹钟</string>
+    <string name="alarm_validation_label_empty">标签不能为空</string>
+    <string name="alarm_validation_label_too_long">标签过长（最多50个字符）</string>
+    <string name="alarm_validation_invalid_days">无效的星期几</string>
+    <string name="alarm_validation_snooze_range">贪睡时间必须在1到60分钟之间</string>
+
+    <!-- CalendarViewModel.kt -->
+    <string name="login_success_message">登录成功！</string>
+    <string name="login_failure_message">登录失败。请查看日志了解详情。</string>
+    <string name="event_no_title">无标题</string>
+    <string name="default_user_name">用户</string>
+    <string name="sync_failure_message">同步事件失败。</string>
+
+    <!-- ChartScreen.kt -->
+    <string name="chart_tasks_last_7_days">已完成任务 - 过去7天</string>
+    <string name="chart_tasks_last_year">已完成任务 - 去年</string>
+    <string name="chart_basic_statistics">基本统计</string>
+    <string name="chart_total_activities">总活动数</string>
+    <string name="chart_completed_tasks">已完成任务</string>
+    <string name="chart_scheduled_events">已安排事件</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="sync_content_description">同步</string>
+    <string name="sync_progress_format">%1$d/%2$d个事件</string>
+    <string name="json_format_instructions">创建一个JSON文件（例如：巴西军事节假日）在年份（例如：2025年）中，严格按照此格式：</string>
+    <string name="json_structure_title">必需结构：</string>
+    <string name="json_example">{
+  "name": "名称",
+  "date": "MM-dd",
+  "summary": "简短描述",
+  "wikipediaLink": "https://更多信息链接（可选）"
+}</string>
+    <string name="copy_json_format">复制</string>
+    <string name="copy_json_content_description">复制JSON格式</string>
+    <string name="json_example_text">将以下示例替换为所需日期，并将文本复制到您选择的AI。</string>
+
+    <!-- CompletedTasksScreen.kt -->
+    <string name="search_content_description">搜索</string>
+    <string name="total_completed_tasks">已完成任务总数：</string>
+    <string name="no_completed_tasks">还没有已完成的任务</string>
+    <string name="no_tasks_found">未找到任务</string>
+    <string name="complete_tasks_hint">完成一些任务以在此处查看</string>
+    <string name="adjust_search_hint">尝试调整您的搜索</string>
+    <string name="completed_content_description">已完成</string>
+    <string name="save">保存</string>
+
+    <!-- HighVisibilityNotificationActivity.kt -->
+    <string name="high_visibility_notification_title">🔔 重要通知</string>
+    <string name="high_visibility_open_app">打开应用</string>
+    <string name="high_visibility_snooze_5min">5分钟</string>
+    <string name="high_visibility_snooze_30min">30分钟</string>
+    <string name="high_visibility_snooze_1hour">1小时</string>
+    <string name="high_visibility_finalize">完成</string>
+    <string name="high_visibility_date_label">日期：%1$s</string>
+    <string name="high_visibility_time_label">时间：%1$s</string>
+    <string name="high_visibility_date_time_separator"> | </string>
+    <string name="high_visibility_default_title">通知</string>
+
+    <!-- Widget strings -->
+    <string name="widget_no_appointments_today">今天没有预约。</string>
+    <string name="widget_test_title">测试小部件</string>
+    <string name="widget_good_morning">早上好</string>
+    <string name="widget_monday">星期一</string>
+    <string name="widget_august_26">8月26日</string>
+    <string name="widget_loading_tasks_text">正在加载任务…</string>
+    <string name="widget_for_today">今天：</string>
+    <string name="widget_event_title_placeholder">事件标题</string>
+    <string name="widget_event_time_placeholder">事件时间</string>
+    <string name="widget_test_tasks">09:00 会议\n10:30 咖啡\n12:00 午餐</string>
+
+    <!-- CustomRepetitionScreen.kt -->
+    <string name="custom_repetition_type_title">重复类型</string>
+    <string name="custom_repetition_every_label">每</string>
+    <string name="custom_repetition_weekdays_title">星期几</string>
+    <string name="custom_repetition_end_date_title">结束日期</string>
+    <string name="custom_repetition_max_occurrences_title">最大出现次数</string>
+
+    <!-- MainActivity.kt -->
+    <string name="main_loading_appointments">正在加载预约</string>
+    <string name="main_loading_progress">%1$d%%</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="general_import_json_file">导入JSON文件</string>
+    <string name="general_animation_type">动画类型</string>
+
+</resources>

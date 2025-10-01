@@ -1,0 +1,572 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">TBCalendar</string>
+
+    <!-- CreateActivityModal.kt -->
+    <string name="create_activity_modal_title">タイトル</string>
+    <string name="create_activity_modal_description">説明</string>
+    <string name="create_activity_modal_color">色を設定</string>
+    <string name="create_activity_modal_save">保存</string>
+    <string name="create_activity_modal_cancel">キャンセル</string>
+    <string name="create_activity_modal_new_task">新しいタスク</string>
+    <string name="create_activity_modal_edit_task">アクティビティを編集</string>
+    <string name="create_activity_modal_new_event">新しいイベント</string>
+    <string name="create_activity_modal_edit_event">イベントを編集</string>
+    <string name="create_activity_modal_edit_note">ノートを編集</string>
+    <string name="create_activity_modal_new_note">新しいノート</string>
+    <string name="create_activity_modal_new_birthday">新しい誕生日</string>
+    <string name="create_activity_modal_edit_birthday">誕生日を編集</string>
+    <string name="priority">優先度：</string>
+    <string name="visibility">表示度：</string>
+    <string name="visibility_low">低</string>
+    <string name="visibility_medium">中</string>
+    <string name="visibility_high">高</string>
+    <string name="visibility_low_description">通知を送信</string>
+    <string name="visibility_medium_description">画面上にアラートメッセージ</string>
+    <string name="visibility_high_description">全画面表示</string>
+    <string name="overlay_permission_title">権限が必要</string>
+    <string name="overlay_permission_message">中または高の表示度を使用するには、アプリケーションが他のアプリケーションの上に重ねて表示する権限が必要です。この権限により、他のアプリが使用中でも重要なアラートを表示できます。\n\n権限を設定した後、アプリに戻ると選択が自動的に適用されます。</string>
+    <string name="overlay_permission_confirm">権限を設定</string>
+<!--    <string name="task" tools:ignore="DuplicateDefinition">タスク</string>-->
+<!--    <string name="event" tools:ignore="DuplicateDefinition">イベント</string>-->
+    <string name="notifications">通知</string>
+    <string name="repetition_dont_repeat">繰り返さない</string>
+    <string name="repetition_every_day">毎日</string>
+    <string name="repetition_every_week">毎週</string>
+    <string name="repetition_every_month">毎月</string>
+    <string name="repetition_every_year">毎年</string>
+    <string name="repetition_custom">カスタム…</string>
+    <string name="repeat">繰り返し</string>
+    <string name="start_time">開始時刻</string>
+    <string name="end_time">終了時刻</string>
+    <string name="time">時刻</string>
+    <string name="start">開始</string>
+    <string name="end">終了</string>
+    <string name="ok">OK</string>
+    <string name="show_in_calendar">カレンダーに表示</string>
+    <string name="show_in_calendar_description">タスクはカレンダーの日付の下に表示されません</string>
+    <string name="sync_with_google">Googleカレンダーと同期</string>
+    <string name="select_date">日付を選択</string>
+    
+    <!-- Widget Configuration -->
+    <string name="widget_configuration_title">ウィジェットを設定</string>
+    <string name="widget_configuration_welcome">ウィジェット設定へようこそ</string>
+    <string name="widget_configuration_description">お好みに合わせてカレンダーウィジェットをカスタマイズしてください。</string>
+    <string name="widget_id_label">ウィジェットID</string>
+    <string name="widget_configuration_coming_soon">設定は近日公開</string>
+    <string name="widget_configuration_placeholder_text">まもなく、ウィジェットの色、サイズ、その他のオプションをカスタマイズできるようになります。</string>
+
+    <!-- DeleteConfirmationDialog.kt -->
+    <string name="delete_confirmation_title">削除を確認</string>
+    <string name="delete_confirmation_message">"%1$s"を削除してもよろしいですか？</string>
+    <string name="delete">削除</string>
+    <string name="mark_as_completed">完了としてマーク</string>
+
+    <!-- HolidaysForSelectedDaySection.kt -->
+    <string name="holidays">祝日</string>
+
+    <!-- SaintDaysForSelectedDaySection.kt -->
+    <string name="saint_days">カトリック聖人</string>
+
+    <!-- SaintInfoDialog.kt -->
+    <string name="no_information_available">情報がありません。</string>
+    <string name="open_in_wikipedia">詳細を見る</string>
+    <string name="close">閉じる</string>
+
+    <!-- Sidebar.kt -->
+    <string name="national_holidays">国民の祝日</string>
+    <string name="catholic_saint_days">カトリック聖人</string>
+    <string name="commemorative_dates">記念日</string>
+    <string name="events">イベント</string>
+    <string name="tasks">タスク</string>
+    <string name="birthday">誕生日</string>
+    <string name="note">ノート</string>
+    <string name="close_menu">メニューを閉じる</string>
+    <string name="dark_mode">ダークモード</string>
+    <string name="light_mode">ライトモード</string>
+    <string name="visualization">表示</string>
+    <string name="monthly">月間</string>
+    <string name="yearly">年間</string>
+    <string name="show_on_calendar">カレンダーに表示</string>
+    <string name="show_in_menu">メニューに表示</string>
+    <string name="settings">設定</string>
+    <string name="general">一般</string>
+    <string name="backup">バックアップ</string>
+    <string name="do_backup">バックアップ</string>
+    <string name="backup_options">バックアップオプション</string>
+    <string name="local_backup">ローカルバックアップ</string>
+    <string name="local_backup_description">デバイスストレージにデータを保存</string>
+    <string name="cloud_backup">クラウドバックアップ</string>
+    <string name="cloud_backup_description">クラウドにデータを保存（近日公開）</string>
+    <string name="backup_limitations_info">⚠️ 現在の制限：\n• 独立したアラームはバックアップに含まれません\n• 繰り返しアクティビティの通知は復元後に手動で再スケジュールする必要があります。</string>
+    <string name="local_backups_list">ローカルバックアップ</string>
+    <string name="no_backups_yet">バックアップが見つかりません</string>
+    <string name="no_backups_description">バックアップを作成すると、ここにファイルが表示されます</string>
+    <string name="backup_info_details">%1$d件のアクティビティ、%2$d件がゴミ箱 • %3$s</string>
+    <string name="backup_created_at">%1$sに作成</string>
+    <string name="restore_backup">バックアップを復元</string>
+    <string name="delete_backup">バックアップを削除</string>
+    <string name="restore_backup_confirmation_title">復元を確認</string>
+    <string name="restore_backup_confirmation_message">バックアップ"%1$s"を復元してもよろしいですか？\n\n⚠️ 警告：この操作により、現在のすべてのデータが以下で置き換えられます：\n• %2$d件のアクティビティ\n• %3$d件のゴミ箱アイテム\n\n現在のすべてのデータが永続的に失われます！</string>
+    <string name="restore_backup_confirm">復元</string>
+    <string name="delete_backup_confirmation_title">削除を確認</string>
+    <string name="delete_backup_confirmation_message">バックアップ"%1$s"を削除してもよろしいですか？\n\nこの操作は元に戻せません。</string>
+    <string name="delete_backup_confirm">削除</string>
+    <string name="sidebar_change_theme">ダークテーマ</string>
+    <string name="sync_now">今すぐ同期</string>
+    <string name="syncing">同期中…</string>
+    <string name="synchronization">同期</string>
+    <string name="sync_progress">%1$d/%2$d件のイベント</string>
+    <string name="welcome_name_setting_title">ウェルカム名</string>
+    <string name="notes_menu">スケジュール</string>
+    <string name="completed_tasks_filter">完了したタスク</string>
+    <string name="moon_phases_filter">月の満ち欠け</string>
+    <string name="imported_calendars">インポートされたカレンダー</string>
+    
+    <!-- JsonConfigScreen.kt -->
+    <string name="configure_calendar">カレンダーを設定</string>
+    <string name="selected_file">選択されたファイル：</string>
+    <string name="select_file">ファイルを選択</string>
+    <string name="json_content">JSONコンテンツ</string>
+    <string name="json_content_placeholder">JSONコンテンツをここに貼り付けまたは入力…</string>
+    <string name="calendar_title">カレンダータイトル</string>
+    <string name="calendar_title_placeholder">例：マイカスタムカレンダー</string>
+    <string name="day_color">日の色：</string>
+    <string name="choose_color">色を選択</string>
+    <string name="suggested_colors">推奨色：</string>
+    <string name="save_configuration">設定を保存</string>
+    <string name="choose_color_dialog">色を選択</string>
+    <string name="selected_color">選択された色</string>
+    <string name="available_colors">利用可能な色：</string>
+    <string name="confirm">確認</string>
+    
+    <!-- Color names -->
+    <string name="color_red">赤</string>
+    <string name="color_blue">青</string>
+    <string name="color_green">緑</string>
+    <string name="color_magenta">マゼンタ</string>
+    <string name="color_cyan">シアン</string>
+    <string name="color_yellow">黄</string>
+
+    <!-- TasksForSelectedDaySection.kt -->
+    <string name="date_format_day_month">MM/dd</string>
+    <string name="appointments_for">%1$sの予定</string>
+    <string name="no_appointments">予定なし。</string>
+    <string name="no_tasks_or_events">タスクやイベントの予定はありません。</string>
+    <string name="at_time">%1$s</string>
+    
+    <!-- Storage Permission Dialog -->
+    <string name="storage_permission_title">ストレージ権限</string>
+    <string name="storage_permission_message">バックアップを作成するには、アプリケーションがデバイスストレージにアクセスする権限が必要です。</string>
+    <string name="settings_permission_title">必要な設定</string>
+    <string name="settings_permission_message">アプリケーション設定で「すべてのファイルを管理」権限を付与してください。</string>
+    <string name="grant_permission">権限を付与</string>
+    <string name="open_settings">設定を開く</string>
+    <string name="cancel">OK</string>
+
+    <!-- YearlyCalendarView.kt -->
+    <string name="previous_year">前年</string>
+    <string name="next_year">翌年</string>
+
+    <!-- CalendarScreen.kt -->
+    <string name="month_year_format">%1$s %2$s</string>
+    <string name="open_close_menu">メニューを開く/閉じる</string>
+    <string name="previous_month">前月</string>
+    <string name="next_month">翌月</string>
+    <string name="add_appointment">予定を追加</string>
+    <string name="previous">前へ</string>
+    <string name="next">次へ</string>
+<!--    <string name="back" tools:ignore="DuplicateDefinition">戻る</string>-->
+
+    <!-- HolidayRepository.kt -->
+    <string name="new_year">元日</string>
+    <string name="carnival">カーニバル（国民の休日）</string>
+    <string name="good_friday">聖金曜日</string>
+    <string name="tiradentes">チラデンテス</string>
+    <string name="labor_day">労働者の日</string>
+    <string name="corpus_christi">聖体の祝日（国民の休日）</string>
+    <string name="independence_day">ブラジル独立記念日</string>
+    <string name="our_lady_of_aparecida">アパレシーダの聖母</string>
+    <string name="all_souls_day">万霊節</string>
+    <string name="republic_proclamation_day">共和国宣言の日</string>
+    <string name="christmas">クリスマス</string>
+    <string name="saint_mary_mother_of_god">神の母聖マリア</string>
+    <string name="saint_anthony_abbot">聖アントニオ修道院長</string>
+    <string name="saint_sebastian_martyr">聖セバスティアン殉教者</string>
+    <string name="saint_agnes_virgin_and_martyr">聖アグネス処女殉教者</string>
+    <string name="international_womens_day">国際女性デー</string>
+    <string name="mothers_day">母の日</string>
+    <string name="valentines_day">バレンタインデー</string>
+    <string name="friends_day">友人の日</string>
+    <string name="fathers_day">父の日</string>
+    <string name="childrens_day">こどもの日</string>
+
+    <!-- Widget strings -->
+    <string name="widget_description">時計と日次タスク付きカレンダーウィジェット（動的色）</string>
+    <string name="widget_fixed_colors_description">時計と日次タスク付きカレンダーウィジェット（固定色）</string>
+    <string name="event_list_widget_description">日次予定リストウィジェット</string>
+    <string name="greeting_widget_description">曜日とタスク付き挨拶ウィジェット</string>
+    <string name="compact_greeting_widget_description">タスク付きコンパクト挨拶ウィジェット</string>
+    <string name="simple_greeting_widget_description">シンプル挨拶ウィジェット</string>
+    <string name="test_widget_description">テストウィジェット</string>
+    
+    <!-- Widget day abbreviations -->
+    <string name="widget_sunday_short">日</string>
+    <string name="widget_monday_short">月</string>
+    <string name="widget_tuesday_short">火</string>
+    <string name="widget_wednesday_short">水</string>
+    <string name="widget_thursday_short">木</string>
+    <string name="widget_friday_short">金</string>
+    <string name="widget_saturday_short">土</string>
+    <string name="go_to_today">今日に移動</string>
+    <string name="search">検索</string>
+    <string name="chart">グラフ</string>
+
+    <!-- SearchScreen.kt -->
+    <string name="search_results">結果（%1$d件）</string>
+    <string name="no_results_found">"%1$s"の結果が見つかりません</string>
+    <string name="type_to_search"> </string>
+    <string name="search_hints">入力してください :)</string>
+    <string name="search_placeholder"> </string>
+    <string name="clear_search">検索をクリア</string>
+    
+    <!-- TrashScreen.kt -->
+    <string name="trash">ゴミ箱</string>
+    <string name="back">戻る</string>
+    <string name="empty_trash">ゴミ箱を空にする</string>
+    <string name="deleted_activities_count">削除されたアクティビティ（%1$d件）</string>
+    <string name="trash_empty">ゴミ箱は空です</string>
+    <string name="trash_empty_description">削除されたアクティビティがここに表示されます</string>
+    <string name="event">イベント</string>
+    <string name="task">タスク</string>
+    <string name="birthdays_for">%1$sの誕生日</string>
+    <string name="notes_for">%1$sのノート</string>
+    <string name="tasks_and_events_for">%1$sのタスクとイベント</string>
+    <string name="restore_activity">アクティビティを復元</string>
+    <string name="delete_permanently">完全に削除</string>
+    <string name="deleted_at">%1$sに削除</string>
+    <string name="sort_order">並び替え</string>
+    <string name="oldest_first">古い順</string>
+    <string name="newest_first">新しい順</string>
+
+    <!-- SchedulesScreen.kt -->
+    <string name="schedules_title">スケジュール</string>
+    <string name="filter_button">フィルター</string>
+    <string name="no_items_found">%1$sが見つかりません</string>
+    <string name="create_first_item">カレンダーで最初の%1$sを作成</string>
+    <string name="date_format_full">yyyy年M月d日</string>
+    
+    <!-- Activity types -->
+    <string name="events_title">イベント</string>
+    <string name="tasks_title">タスク</string>
+    <string name="notes_title">ノート</string>
+    <string name="birthdays_title">誕生日</string>
+    
+    <!-- Activity count -->
+    <string name="events_count">イベント</string>
+    <string name="tasks_count">タスク</string>
+    <string name="notes_count">ノート</string>
+    <string name="birthdays_count">誕生日</string>
+
+    <!-- BarChartComponent.kt -->
+    <string name="bar_chart_default_title">棒グラフ</string>
+    <string name="no_data_available">データがありません</string>
+    <string name="legend_label">凡例：</string>
+
+    <!-- PieChartComponent.kt -->
+    <string name="activity_distribution_title">アクティビティ分布（%1$s）</string>
+    <string name="no_activities_found">アクティビティが見つかりません</string>
+    <string name="others_label">その他</string>
+
+    <!-- ChartScreen.kt -->
+    <string name="scheduling_statistics">スケジュール統計</string>
+    <string name="back_button">戻る</string>
+    <string name="scheduling_analysis">スケジュール分析</string>
+    <string name="scheduling_analysis_description">ここでは、生産性グラフ、アクティビティ分布など、スケジュールに関する詳細な統計を見つけることができます。</string>
+
+    <!-- TrashScreen.kt -->
+    <string name="note_label">ノート</string>
+    <string name="date_format_full_with_time">yyyy/MM/dd %1$s時%2$s分</string>
+
+    <!-- CompletedTasksScreen.kt -->
+    <string name="completed_tasks_title">完了したタスク</string>
+    <string name="search_completed_tasks">完了したタスクを検索</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="google_account">Googleアカウント</string>
+    <string name="disconnect">切断</string>
+    <string name="connect">接続</string>
+
+    <!-- MoonPhasesComponent.kt -->
+    <string name="moon_phase_new">新月</string>
+    <string name="moon_phase_waxing_crescent">上弦の月</string>
+    <string name="moon_phase_first_quarter">上弦</string>
+    <string name="moon_phase_waxing_gibbous">上弦の凸月</string>
+    <string name="moon_phase_full">満月</string>
+    <string name="moon_phase_waning_gibbous">下弦の凸月</string>
+    <string name="moon_phase_last_quarter">下弦</string>
+    <string name="moon_phase_waning_crescent">下弦の月</string>
+
+    <!-- TasksForSelectedDaySection.kt -->
+    <string name="add_task_or_event">タスクまたはイベントを追加</string>
+
+    <!-- NotesForSelectedDaySection.kt -->
+    <string name="add_note">ノートを追加</string>
+    <string name="ok_button">OK</string>
+    <string name="del_button">削除</string>
+
+    <!-- BirthdaysForSelectedDaySection.kt -->
+    <string name="add_birthday">誕生日を追加</string>
+
+    <!-- YearlyCalendarView.kt -->
+    <string name="previous_year_desc">前年</string>
+    <string name="next_year_desc">翌年</string>
+
+    <!-- GreetingService.kt -->
+    <string name="good_morning">おはようございます</string>
+    <string name="good_afternoon">こんにちは</string>
+    <string name="good_evening">こんばんは</string>
+    <string name="good_dawn">おはようございます</string>
+    <string name="greeting_with_name">%1$s、%2$s！</string>
+    <string name="greeting_without_name">%1$s！</string>
+
+    <!-- AlarmScreen.kt -->
+    <string name="select_time">時刻を選択</string>
+    <string name="default_alarm_label">アラーム</string>
+    <string name="alarm_saved_success">アラームが正常に保存されました！</string>
+    <string name="error_saving_alarm">アラームの保存エラー：%1$s</string>
+    <string name="unexpected_error">予期しないエラー：%1$s</string>
+    <!--<string name="edit_alarm">アラームを編集</string> -->
+    <string name="configure_alarm">アラームを設定</string>
+    <string name="alarm_enabled">有効</string>
+    <string name="alarm_disabled">無効</string>
+    <string name="permission_required">権限が必要</string>
+    <string name="overlay_permission_message_alarm">アラームが正常に機能するには、アプリが他のアプリの上に表示されることを許可する必要があります。</string>
+    <string name="configure_button">設定</string>
+    <string name="done_button">完了</string>
+    <string name="thank_you">✅ ありがとうございます！</string>
+    <string name="permission_granted">権限が正常に付与されました！</string>
+    <string name="enable_alarm">アラームを有効化</string>
+    <string name="alarm_label_hint">アラームラベル</string>
+    <string name="repeat_label">繰り返し</string>
+    <string name="settings_label">設定</string>
+    <string name="sound_label">音</string>
+    <string name="vibration_label">振動</string>
+    <string name="snooze_minutes">スヌーズ（分）</string>
+    <string name="saving_alarm">保存中…</string>
+    <string name="save_alarm">アラームを保存</string>
+    <string name="overlay_permission_dialog_message">アラームが正常に機能するには、アプリが他のアプリの上に表示されることを許可する必要があります。これにより、デバイスがロックされていてもアラームが表示されます。</string>
+    <string name="grant_permission_button">権限を付与</string>
+    <string name="cancel_button">キャンセル</string>
+    
+    <!-- Days of week -->
+    <string name="sun">日</string>
+    <string name="mon">月</string>
+    <string name="tue">火</string>
+    <string name="wed">水</string>
+    <string name="thu">木</string>
+    <string name="fri">金</string>
+    <string name="sat">土</string>
+    
+    <!-- Additional AlarmScreen strings -->
+    <string name="error_loading_config">設定の読み込みエラー：%1$s</string>
+    <string name="enable_alarm_title">アラームを有効化</string>
+    <string name="repeat_title">繰り返し</string>
+    <string name="settings_title">設定</string>
+    <string name="sound_title">音</string>
+    <string name="vibration_title">振動</string>
+    <string name="snooze_minutes_title">スヌーズ（分）</string>
+    <string name="minus_button">-</string>
+    <string name="plus_button">+</string>
+    <string name="thank_you_message">✅ ありがとうございます！</string>
+    <string name="permission_granted_message">権限が正常に付与されました！</string>
+
+    <!-- AlarmsScreen.kt -->
+    <string name="alarms">アラーム</string>
+    <string name="create_alarm">アラームを作成</string>
+    <string name="no_alarms_configured">アラームが設定されていません</string>
+    <string name="no_alarms_description">すべてのアラームがここに表示されます</string>
+    <string name="edit_alarm">アラームを編集</string>
+
+    <!-- NotificationSelector.kt -->
+    <string name="notifications_content_description">通知</string>
+    <string name="custom_configuration_content_description">カスタム設定</string>
+    <string name="notification_type_content_description">通知タイプ</string>
+    <string name="minutes_before_label">分前</string>
+    <string name="custom_time_dialog_title">カスタム時間</string>
+    <string name="custom_time_dialog_message">アクティビティの何分前に通知を受けたいか入力してください：</string>
+    <string name="minutes_label">分</string>
+
+    <!-- CreateActivityScreen.kt -->
+    <string name="alarm_card_title">アラーム</string>
+    <string name="alarm_card_description">このタスクのアラームを設定</string>
+    <string name="visibility_custom_configuration_content_description">カスタム設定</string>
+
+    <!-- AlarmScreen.kt -->
+    <string name="permission_required_title">権限が必要</string>
+    <string name="permission_required_message">アラームが正常に機能するには、アプリが他のアプリの上に表示されることを許可する必要があります。</string>
+    <string name="configure_button_text">設定</string>
+    <string name="done_button_text">完了</string>
+    <string name="thank_you_title">✅ ありがとうございます！</string>
+    <string name="permission_granted_title">権限が正常に付与されました！</string>
+    <string name="permission_dialog_title">権限が必要</string>
+    <string name="permission_dialog_message">アラームが正常に機能するには、アプリが他のアプリの上に表示されることを許可する必要があります。これにより、デバイスがロックされていてもアラームが表示されます。</string>
+    <string name="grant_permission_button_text">権限を付与</string>
+    <string name="cancel_button_text">キャンセル</string>
+    <string name="day_sun">日</string>
+    <string name="day_mon">月</string>
+    <string name="day_tue">火</string>
+    <string name="day_wed">水</string>
+    <string name="day_thu">木</string>
+    <string name="day_fri">金</string>
+    <string name="day_sat">土</string>
+
+    <!-- GreetingWidgetProvider.kt -->
+    <string name="widget_greeting_morning">おはようございます</string>
+    <string name="widget_greeting_afternoon">こんにちは</string>
+    <string name="widget_greeting_evening">こんばんは</string>
+    <string name="widget_greeting_dawn">おはようございます</string>
+    <string name="widget_no_tasks_today">今日のタスクはありません</string>
+    <string name="widget_tomorrow_header">明日：</string>
+    <string name="widget_error_loading_tasks">タスクの読み込みエラー</string>
+    <string name="widget_loading_tasks">タスクを読み込み中…</string>
+    <string name="widget_birthday_icon">🎂</string>
+
+    <!-- AlarmService.kt -->
+    <string name="alarm_channel_name">フルスクリーンアラーム</string>
+    <string name="alarm_channel_description">フルスクリーンアラーム通知</string>
+    <string name="alarm_notification_channel_name">アラーム</string>
+    <string name="alarm_notification_channel_description">アラーム通知</string>
+    <string name="alarm_status_channel_name">アラームステータス</string>
+    <string name="alarm_status_channel_description">アクティブなアラームがあるときに表示</string>
+    <string name="alarm_notification_title">⏰ アラーム</string>
+    <string name="alarm_status_notification_title">⏰ アクティブなアラーム</string>
+    <string name="alarm_dismiss_action">却下</string>
+    <string name="alarm_description_default">スケジュールされたアラーム</string>
+    <string name="day_of_week_sunday">日</string>
+    <string name="day_of_week_monday">月</string>
+    <string name="day_of_week_tuesday">火</string>
+    <string name="day_of_week_wednesday">水</string>
+    <string name="day_of_week_thursday">木</string>
+    <string name="day_of_week_friday">金</string>
+    <string name="day_of_week_saturday">土</string>
+
+    <!-- AlarmsScreen.kt -->
+    <string name="alarm_status_active">アクティブ</string>
+    <string name="alarm_status_disabled">無効</string>
+    <string name="alarm_repeats_label">繰り返し：</string>
+    <string name="alarm_snooze_label">スヌーズ：%1$d分</string>
+    <string name="alarm_delete_content_description">アラームを削除</string>
+    <string name="alarm_clear_orphaned_content_description">孤立したアラームをクリア</string>
+    <string name="delete_alarm_dialog_title">アラームを削除</string>
+    <string name="delete_alarm_dialog_message">アラーム"%1$s"を削除してもよろしいですか？この操作は元に戻せません。</string>
+    <string name="delete_alarm_button">削除</string>
+    <string name="cancel_alarm_button">キャンセル</string>
+    <string name="today_label">今日</string>
+    <string name="tomorrow_label">明日</string>
+    <string name="past_label">過去 - %1$s</string>
+    <string name="activity_type_task">タスク</string>
+    <string name="activity_type_event">イベント</string>
+    <string name="activity_type_birthday">誕生日</string>
+    <string name="activity_type_note">ノート</string>
+    <string name="notification_type_on_time">時間通り</string>
+    <string name="notification_type_5min_before">5分前</string>
+    <string name="notification_type_10min_before">10分前</string>
+    <string name="notification_type_15min_before">15分前</string>
+    <string name="notification_type_30min_before">30分前</string>
+    <string name="notification_type_1hour_before">1時間前</string>
+    <string name="notification_type_2hours_before">2時間前</string>
+    <string name="notification_type_1day_before">1日前</string>
+    <string name="notification_type_custom">カスタム</string>
+    <string name="notification_type_disabled">無効</string>
+    <string name="reminder_label">リマインダー：%1$s</string>
+
+    <!-- AlarmRepository.kt -->
+    <string name="alarm_not_found_error">アラームが見つかりません</string>
+
+    <!-- AlarmSettings.kt -->
+    <string name="alarm_default_label">アラーム</string>
+    <string name="alarm_validation_label_empty">ラベルは空にできません</string>
+    <string name="alarm_validation_label_too_long">ラベルが長すぎます（最大50文字）</string>
+    <string name="alarm_validation_invalid_days">無効な曜日</string>
+    <string name="alarm_validation_snooze_range">スヌーズは1〜60分の間である必要があります</string>
+
+    <!-- CalendarViewModel.kt -->
+    <string name="login_success_message">ログインに成功しました！</string>
+    <string name="login_failure_message">ログインに失敗しました。詳細はログを確認してください。</string>
+    <string name="event_no_title">タイトルなし</string>
+    <string name="default_user_name">ユーザー</string>
+    <string name="sync_failure_message">イベントの同期に失敗しました。</string>
+
+    <!-- ChartScreen.kt -->
+    <string name="chart_tasks_last_7_days">完了したタスク - 過去7日間</string>
+    <string name="chart_tasks_last_year">完了したタスク - 昨年</string>
+    <string name="chart_basic_statistics">基本統計</string>
+    <string name="chart_total_activities">総アクティビティ数</string>
+    <string name="chart_completed_tasks">完了したタスク</string>
+    <string name="chart_scheduled_events">スケジュールされたイベント</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="sync_content_description">同期</string>
+    <string name="sync_progress_format">%1$d/%2$d件のイベント</string>
+    <string name="json_format_instructions">JSONファイルを作成（例：ブラジルの軍事祝日）年（例：2025年）で、この形式に正確に従ってください：</string>
+    <string name="json_structure_title">必須構造：</string>
+    <string name="json_example">{
+  "name": "名前",
+  "date": "MM-dd",
+  "summary": "簡単な説明",
+  "wikipediaLink": "https://詳細情報へのリンク（オプション）"
+}</string>
+    <string name="copy_json_format">コピー</string>
+    <string name="copy_json_content_description">JSON形式をコピー</string>
+    <string name="json_example_text">以下の例を希望する日付に置き換えて、テキストを選択したAIにコピーしてください。</string>
+
+    <!-- CompletedTasksScreen.kt -->
+    <string name="search_content_description">検索</string>
+    <string name="total_completed_tasks">完了したタスクの総数：</string>
+    <string name="no_completed_tasks">まだ完了したタスクはありません</string>
+    <string name="no_tasks_found">タスクが見つかりません</string>
+    <string name="complete_tasks_hint">いくつかのタスクを完了してここで確認してください</string>
+    <string name="adjust_search_hint">検索を調整してみてください</string>
+    <string name="completed_content_description">完了</string>
+    <string name="save">保存</string>
+
+    <!-- HighVisibilityNotificationActivity.kt -->
+    <string name="high_visibility_notification_title">🔔 重要な通知</string>
+    <string name="high_visibility_open_app">アプリを開く</string>
+    <string name="high_visibility_snooze_5min">5分</string>
+    <string name="high_visibility_snooze_30min">30分</string>
+    <string name="high_visibility_snooze_1hour">1時間</string>
+    <string name="high_visibility_finalize">終了</string>
+    <string name="high_visibility_date_label">日付：%1$s</string>
+    <string name="high_visibility_time_label">時刻：%1$s</string>
+    <string name="high_visibility_date_time_separator"> | </string>
+    <string name="high_visibility_default_title">通知</string>
+
+    <!-- Widget strings -->
+    <string name="widget_no_appointments_today">今日の予定はありません。</string>
+    <string name="widget_test_title">テストウィジェット</string>
+    <string name="widget_good_morning">おはようございます</string>
+    <string name="widget_monday">月曜日</string>
+    <string name="widget_august_26">8月26日</string>
+    <string name="widget_loading_tasks_text">タスクを読み込み中…</string>
+    <string name="widget_for_today">今日の予定：</string>
+    <string name="widget_event_title_placeholder">イベントタイトル</string>
+    <string name="widget_event_time_placeholder">イベント時刻</string>
+    <string name="widget_test_tasks">09:00 会議\n10:30 コーヒー\n12:00 昼食</string>
+
+    <!-- CustomRepetitionScreen.kt -->
+    <string name="custom_repetition_type_title">繰り返しタイプ</string>
+    <string name="custom_repetition_every_label">繰り返し間隔</string>
+    <string name="custom_repetition_weekdays_title">曜日</string>
+    <string name="custom_repetition_end_date_title">終了日</string>
+    <string name="custom_repetition_max_occurrences_title">最大発生回数</string>
+
+    <!-- MainActivity.kt -->
+    <string name="main_loading_appointments">予定を読み込み中</string>
+    <string name="main_loading_progress">%1$d%%</string>
+
+    <!-- GeneralSettingsScreen.kt -->
+    <string name="general_import_json_file">JSONファイルをインポート</string>
+    <string name="general_animation_type">アニメーションタイプ</string>
+
+</resources>
