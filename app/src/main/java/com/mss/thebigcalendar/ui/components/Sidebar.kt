@@ -1,12 +1,15 @@
 
 package com.mss.thebigcalendar.ui.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,6 +18,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
@@ -87,11 +104,17 @@ fun Sidebar(
     ModalDrawerSheet(
         drawerContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
     ) {
-        Column(
+        val scrollState = rememberScrollState()
+        
+        Box(
             modifier = Modifier.width(320.dp)
-                .padding(NavigationDrawerItemDefaults.ItemPadding)
-                .verticalScroll(rememberScrollState())
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(NavigationDrawerItemDefaults.ItemPadding)
+                    .verticalScroll(scrollState)
+            ) {
             // Cabeçalho com mensagem de boas-vindas e botão de fechar
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -290,6 +313,15 @@ fun Sidebar(
                 selected = false,
                 onClick = { onBackup() }
             )
+            }
+            
+            // Scrollbar customizada seguindo Material Design
+            CustomScrollbar(
+                scrollState = scrollState,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .fillMaxHeight()
+            )
         }
     }
 }
@@ -400,6 +432,66 @@ private fun JsonCalendarItem(
                 contentDescription = "Remover calendário",
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+/**
+ * Scrollbar customizada seguindo as diretrizes do Material Design
+ */
+@Composable
+private fun CustomScrollbar(
+    scrollState: androidx.compose.foundation.ScrollState,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    var isHovered by remember { mutableFloatStateOf(0f) }
+    
+    // Obter cor da scrollbar baseada no tema Material Design
+    val scrollbarColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+        alpha = (0.1f + isHovered * 0.2f).coerceIn(0.1f, 0.3f)
+    )
+    
+    // Anima a opacidade da scrollbar
+    LaunchedEffect(isHovered) {
+        // Implementação simples de hover - pode ser expandida
+    }
+    
+    Canvas(
+        modifier = modifier
+            .width(4.dp)
+            .pointerInput(Unit) {
+                // Detectar hover/interação se necessário
+            }
+    ) {
+        val canvasHeight = size.height
+        val canvasWidth = size.width
+        
+        // Calcular dimensões da scrollbar
+        val scrollbarThickness = with(density) { 4.dp.toPx() }
+        val scrollbarPadding = with(density) { 2.dp.toPx() }
+        
+        // Calcular posição e tamanho do thumb
+        val maxScrollValue = scrollState.maxValue.toFloat()
+        val currentScrollValue = scrollState.value.toFloat()
+        
+        if (maxScrollValue > 0) {
+            val thumbHeight = (canvasHeight * canvasHeight / (canvasHeight + maxScrollValue)).coerceAtLeast(scrollbarThickness * 2)
+            val thumbTop = (currentScrollValue / maxScrollValue) * (canvasHeight - thumbHeight)
+            
+            // Desenhar o thumb da scrollbar
+            drawRoundRect(
+                color = scrollbarColor,
+                topLeft = Offset(
+                    x = (canvasWidth - scrollbarThickness) / 2,
+                    y = thumbTop + scrollbarPadding
+                ),
+                size = Size(
+                    width = scrollbarThickness,
+                    height = thumbHeight - scrollbarPadding * 2
+                ),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(scrollbarThickness / 2)
             )
         }
     }
