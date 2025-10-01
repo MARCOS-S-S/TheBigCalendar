@@ -438,7 +438,7 @@ private fun JsonCalendarItem(
 }
 
 /**
- * Scrollbar customizada seguindo as diretrizes do Material Design
+ * Scrollbar customizada
  */
 @Composable
 private fun CustomScrollbar(
