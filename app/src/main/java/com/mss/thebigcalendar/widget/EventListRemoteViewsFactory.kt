@@ -13,11 +13,16 @@ import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import android.util.Log
 
 class EventListRemoteViewsFactory(private val context: Context, intent: Intent) : RemoteViewsService.RemoteViewsFactory {
 
     private var activities: List<Activity> = emptyList()
     private lateinit var activityRepository: ActivityRepository
+    
+    companion object {
+        private const val TAG = "EventListRemoteViewsFactory"
+    }
 
     override fun onCreate() {
         activityRepository = ActivityRepository(context)
@@ -26,6 +31,7 @@ class EventListRemoteViewsFactory(private val context: Context, intent: Intent) 
     override fun onDataSetChanged() {
         // This is called by the app widget manager whenever the data set has changed.
         // You can use this to update your data.
+        Log.d(TAG, "🔄 onDataSetChanged() chamado - recarregando dados do widget")
         runBlocking {
             val today = LocalDate.now()
             val tomorrow = today.plusDays(1)
@@ -139,6 +145,10 @@ class EventListRemoteViewsFactory(private val context: Context, intent: Intent) 
             }
 
             activities = todayTasks + tomorrowTasks
+            
+            Log.d(TAG, "📋 Widget atualizado - ${activities.size} atividades encontradas")
+            Log.d(TAG, "📋 Atividades de hoje: ${todayTasks.size}")
+            Log.d(TAG, "📋 Atividades de amanhã: ${tomorrowTasks.size}")
         }
     }
 

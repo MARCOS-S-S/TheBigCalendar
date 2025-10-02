@@ -9,17 +9,28 @@ import android.net.Uri
 import android.widget.RemoteViews
 import com.mss.thebigcalendar.MainActivity
 import com.mss.thebigcalendar.R
+import android.util.Log
 
 class EventListWidgetProvider : AppWidgetProvider() {
+
+    companion object {
+        private const val TAG = "EventListWidgetProvider"
+        const val ACTION_REFRESH_EVENT_LIST_WIDGET = "com.mss.thebigcalendar.ACTION_REFRESH_EVENT_LIST_WIDGET"
+    }
 
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
+        Log.d(TAG, "🔄 onUpdate() chamado para ${appWidgetIds.size} widgets")
         for (appWidgetId in appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
+        
+        // Forçar atualização dos dados do RemoteViewsFactory
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.event_list_view)
+        Log.d(TAG, "📱 notifyAppWidgetViewDataChanged() chamado")
     }
 
 
@@ -73,21 +84,22 @@ class EventListWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
+        Log.d(TAG, "📨 onReceive() chamado com action: ${intent?.action}")
+        
         if (intent?.action == ACTION_REFRESH_EVENT_LIST_WIDGET) {
             val appWidgetId = intent.getIntExtra(
                 AppWidgetManager.EXTRA_APPWIDGET_ID,
                 AppWidgetManager.INVALID_APPWIDGET_ID
             )
+            Log.d(TAG, "🔄 Refresh manual solicitado para widget ID: $appWidgetId")
             if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
                 context?.let {
                     val appWidgetManager = AppWidgetManager.getInstance(it)
                     updateAppWidget(it, appWidgetManager, appWidgetId)
                 }
             }
+        } else if (intent?.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
+            Log.d(TAG, "🔄 Atualização automática recebida")
         }
-    }
-
-    companion object {
-        const val ACTION_REFRESH_EVENT_LIST_WIDGET = "com.mss.thebigcalendar.ACTION_REFRESH_EVENT_LIST_WIDGET"
     }
 }

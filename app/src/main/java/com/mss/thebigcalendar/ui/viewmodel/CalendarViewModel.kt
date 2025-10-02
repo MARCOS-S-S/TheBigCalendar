@@ -3,7 +3,6 @@ package com.mss.thebigcalendar.ui.viewmodel
 import android.app.Application
 import android.content.ContentValues.TAG
 import android.content.Context
-import android.content.Intent
 import android.os.PowerManager
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -74,6 +73,16 @@ import org.json.JSONObject
 import org.json.JSONArray
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Intent
+import com.mss.thebigcalendar.widget.EventListWidgetProvider
+import android.widget.RemoteViews
+import android.net.Uri
+import android.app.PendingIntent
+import com.mss.thebigcalendar.widget.EventListWidgetService
+import com.mss.thebigcalendar.MainActivity
+import com.mss.thebigcalendar.R
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -985,6 +994,71 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(calendarDays = updatedCalendarDays) }
     }
 
+    // ===== WIDGET NOTIFICATION FUNCTIONS =====
+    
+    /**
+     * Notifica todos os widgets sobre mudanças nos dados
+     */
+    private fun notifyWidgetsDataChanged() {
+        try {
+            val context = getApplication<Application>()
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            
+            // Obter todos os IDs dos widgets EventListWidget
+            val componentName = ComponentName(context, EventListWidgetProvider::class.java)
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+            
+            if (appWidgetIds.isNotEmpty()) {
+                Log.d("CalendarViewModel", "📱 Notificando ${appWidgetIds.size} widgets sobre mudança de dados")
+                
+                // Método 1: Broadcast com IDs específicos
+                val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+                    component = componentName
+                }
+                context.sendBroadcast(intent)
+                
+                // Método 2: Forçar atualização dos dados do RemoteViewsFactory
+                appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.event_list_view)
+                
+                // Método 3: Atualização direta usando updateAppWidget
+                for (appWidgetId in appWidgetIds) {
+                    try {
+                        val views = RemoteViews(context.packageName, R.layout.event_list_widget)
+                        
+                        // Configurar o RemoteViewsService
+                        val serviceIntent = Intent(context, EventListWidgetService::class.java).apply {
+                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                            data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
+                        }
+                        views.setRemoteAdapter(R.id.event_list_view, serviceIntent)
+                        views.setEmptyView(R.id.event_list_view, R.id.empty_view)
+                        
+                        // Configurar click listeners
+                        val appIntent = Intent(context, MainActivity::class.java)
+                        val appPendingIntent = PendingIntent.getActivity(
+                            context, 0, appIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
+                        views.setOnClickPendingIntent(R.id.widget_title, appPendingIntent)
+                        
+                        // Atualizar o widget
+                        appWidgetManager.updateAppWidget(appWidgetId, views)
+                        
+                    } catch (e: Exception) {
+                        Log.e("CalendarViewModel", "❌ Erro ao atualizar widget $appWidgetId", e)
+                    }
+                }
+                
+                Log.d("CalendarViewModel", "📱 Widgets atualizados com sucesso")
+            } else {
+                Log.d("CalendarViewModel", "📱 Nenhum EventListWidget ativo encontrado")
+            }
+        } catch (e: Exception) {
+            Log.e("CalendarViewModel", "❌ Erro ao notificar widgets", e)
+        }
+    }
+
     // ===== CALENDAR NAVIGATION FUNCTIONS =====
     
     fun onPreviousMonth() {
@@ -1381,6 +1455,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
             // Recarregar atividades do mês atual após salvar
             loadActivitiesForCurrentMonth()
+            
+            // Notificar widgets sobre a mudança com delay para garantir persistência
+            viewModelScope.launch {
+                delay(500) // Aguardar 500ms para garantir que os dados foram persistidos
+                notifyWidgetsDataChanged()
+            }
             
             // Verificar se é uma nova atividade criada e solicitar permissão contextualmente
             val isNewActivityCreated = activityData.id == "new" || activityData.id.isBlank()
@@ -1891,6 +1971,10 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     }
                 }
             }
+            
+            // Notificar widgets sobre a mudança
+            notifyWidgetsDataChanged()
+            
             cancelDeleteActivity()
         }
     }
@@ -2109,10 +2193,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         baseActivity.copy(excludedDates = updatedExcludedDates)
                     }
                     
-                    // Atualizar a atividade base com a nova lista de exclusões
-                    activityRepository.saveActivity(updatedBaseActivity)
-                    // Atualizar a UI
-                    updateAllDateDependentUI()
+                        // Atualizar a atividade base com a nova lista de exclusões
+                        activityRepository.saveActivity(updatedBaseActivity)
+                        // Atualizar a UI
+                        updateAllDateDependentUI()
+                        
+                        // Notificar widgets sobre a mudança
+                        notifyWidgetsDataChanged()
                     
                 }
             } else {
@@ -2157,6 +2244,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         // Atualizar a UI
                         updateAllDateDependentUI()
                         
+                        // Notificar widgets sobre a mudança
+                        notifyWidgetsDataChanged()
+                        
                     } else {
                         // Tratar atividade única (não recorrente)
                         
@@ -2183,6 +2273,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         
                         // Atualizar a UI após marcar como concluída
                         updateAllDateDependentUI()
+                        
+                        // Notificar widgets sobre a mudança
+                        notifyWidgetsDataChanged()
                     }
                 }
             }
@@ -2827,6 +2920,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         result.activities.forEach { activity ->
                             notificationService.scheduleNotification(activity)
                         }
+                        
+                        // Notificar widgets sobre a mudança
+                        viewModelScope.launch {
+                            delay(500) // Aguardar 500ms para garantir que os dados foram persistidos
+                            notifyWidgetsDataChanged()
+                        }
                     },
                     onFailure = { exception ->
                         println("❌ Erro ao restaurar backup: ${exception.message}")
@@ -3009,6 +3108,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             // Atualizar agendamentos JSON para a data selecionada
             updateJsonCalendarActivitiesForSelectedDate()
             
+            // Notificar widgets sobre a mudança
+            viewModelScope.launch {
+                delay(500) // Aguardar 500ms para garantir que os dados foram persistidos
+                notifyWidgetsDataChanged()
+            }
+            
         } catch (e: Exception) {
             Log.e(TAG, "Erro ao processar arquivo JSON", e)
         }
@@ -3086,6 +3191,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             
             // Atualizar agendamentos JSON para a data selecionada
             updateJsonCalendarActivitiesForSelectedDate()
+            
+            // Notificar widgets sobre a mudança
+            viewModelScope.launch {
+                delay(500) // Aguardar 500ms para garantir que os dados foram persistidos
+                notifyWidgetsDataChanged()
+            }
             
         } catch (e: Exception) {
             Log.e(TAG, "Erro ao processar conteúdo JSON", e)
