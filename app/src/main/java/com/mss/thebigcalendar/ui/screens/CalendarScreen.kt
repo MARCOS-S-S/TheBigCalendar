@@ -140,6 +140,14 @@ fun CalendarScreen(
         }
     }
 
+    // Mostra mensagem de mudança de idioma
+    LaunchedEffect(uiState.languageChangedMessage) {
+        uiState.languageChangedMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            viewModel.clearLanguageChangedMessage()
+        }
+    }
+
     val blurRadius = if (drawerState.targetValue == DrawerValue.Open || drawerState.isOpen) 8f else 0f
     
 

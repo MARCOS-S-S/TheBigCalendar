@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Animation
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -36,7 +37,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.AnimationType
+import com.mss.thebigcalendar.data.model.Language
 import com.mss.thebigcalendar.ui.components.AnimationSelectionDialog
+import com.mss.thebigcalendar.ui.components.LanguageSelectionDialog
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -52,6 +55,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,11 +75,17 @@ fun GeneralSettingsScreen(
     currentAnimation: AnimationType = AnimationType.NONE,
     onAnimationChange: (AnimationType) -> Unit = {},
     sidebarFilterVisibility: com.mss.thebigcalendar.data.model.SidebarFilterVisibility = com.mss.thebigcalendar.data.model.SidebarFilterVisibility(),
-    onToggleSidebarFilterVisibility: (String) -> Unit = {}
+    onToggleSidebarFilterVisibility: (String) -> Unit = {},
+    currentLanguage: Language = Language.SYSTEM,
+    onLanguageChange: (Language) -> Unit = {}
 ) {
+    Log.d("GeneralSettingsScreen", "📱 GeneralSettingsScreen iniciada")
+    Log.d("GeneralSettingsScreen", "🌐 Idioma atual: ${currentLanguage.displayName} (${currentLanguage.code})")
+    
     val scope = rememberCoroutineScope()
     var welcomeNameInput by remember { mutableStateOf(welcomeName) }
     var showAnimationDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
 
     // Sincronizar o estado local com o estado do ViewModel
     LaunchedEffect(welcomeName) {
@@ -286,6 +296,42 @@ fun GeneralSettingsScreen(
                 }
             }
 
+            // Configuração de idioma
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Log.d("GeneralSettingsScreen", "🎨 Renderizando seção de idioma")
+            
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Language,
+                    contentDescription = "Idioma",
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Idioma",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    onClick = { 
+                        Log.d("GeneralSettingsScreen", "🔘 Botão de idioma clicado")
+                        showLanguageDialog = true 
+                    },
+                    modifier = Modifier.height(40.dp)
+                ) {
+                    Text(
+                        text = "${currentLanguage.flag} ${currentLanguage.displayName}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
             // Seção "Mostrar no menu"
             Spacer(modifier = Modifier.height(24.dp))
             
@@ -356,6 +402,23 @@ fun GeneralSettingsScreen(
                 showAnimationDialog = false
             },
             onDismiss = { showAnimationDialog = false }
+        )
+    }
+
+    // Dialog de seleção de idioma
+    if (showLanguageDialog) {
+        Log.d("GeneralSettingsScreen", "📱 Exibindo diálogo de seleção de idioma")
+        LanguageSelectionDialog(
+            currentLanguage = currentLanguage,
+            onLanguageSelected = { language ->
+                Log.d("GeneralSettingsScreen", "🌐 Idioma selecionado: ${language.displayName} (${language.code})")
+                onLanguageChange(language)
+                showLanguageDialog = false
+            },
+            onDismiss = { 
+                Log.d("GeneralSettingsScreen", "❌ Diálogo de idioma fechado")
+                showLanguageDialog = false 
+            }
         )
     }
 }

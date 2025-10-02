@@ -96,6 +96,7 @@ data class CalendarUiState(
     val birthdaysForSelectedDate: List<Activity> = emptyList(), // Lista de aniversários para o dia selecionado
     val notesForSelectedDate: List<Activity> = emptyList(), // Lista de notas para o dia selecionado
     val animationType: AnimationType = AnimationType.NONE, // Tipo de animação selecionado
+    val language: Language = Language.SYSTEM, // Idioma selecionado
     val holidaysForSelectedDate: List<Holiday> = emptyList(),
     val saintDaysForSelectedDate: List<Holiday> = emptyList(),
     val googleSignInAccount: GoogleSignInAccount? = null,
@@ -134,6 +135,7 @@ data class CalendarUiState(
     val showBackgroundPermissionDialog: Boolean = false,
     val showDeleteJsonCalendarDialog: Boolean = false,
     val jsonCalendarToDelete: com.mss.thebigcalendar.data.model.JsonCalendar? = null,
+    val languageChangedMessage: String? = null, // Mensagem sobre mudança de idioma
     val sidebarFilterVisibility: SidebarFilterVisibility = SidebarFilterVisibility()
 
 )

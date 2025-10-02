@@ -531,6 +531,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             }
         }
         viewModelScope.launch {
+            settingsRepository.language.collect { language ->
+                _uiState.update { it.copy(language = language) }
+            }
+        }
+        viewModelScope.launch {
             settingsRepository.sidebarFilterVisibility.collect { sidebarFilterVisibility ->
                 _uiState.update { it.copy(sidebarFilterVisibility = sidebarFilterVisibility) }
             }
@@ -1226,6 +1231,18 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             settingsRepository.saveAnimationType(newAnimationType)
         }
+    }
+
+    suspend fun onLanguageChange(newLanguage: com.mss.thebigcalendar.data.model.Language) {
+        Log.d("CalendarViewModel", "🌐 onLanguageChange chamado com: ${newLanguage.displayName} (${newLanguage.code})")
+        settingsRepository.saveLanguage(newLanguage)
+    }
+
+    /**
+     * Limpa a mensagem de mudança de idioma
+     */
+    fun clearLanguageChangedMessage() {
+        _uiState.update { it.copy(languageChangedMessage = null) }
     }
 
     /**

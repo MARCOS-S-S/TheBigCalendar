@@ -17,6 +17,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
+import androidx.appcompat.app.AppCompatDelegate
+import java.util.Locale
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -48,6 +50,8 @@ import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import com.mss.thebigcalendar.ui.onboarding.OnboardingFlow
 import kotlinx.coroutines.flow.first
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -153,14 +157,21 @@ class MainActivity : ComponentActivity() {
 
 
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LocaleHelper.onAttach(newBase))
+    }
+
     private fun openJsonFilePicker() {
         jsonFilePickerLauncher.launch("application/json")
     }
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+
 
         viewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
         
@@ -401,6 +412,13 @@ class MainActivity : ComponentActivity() {
                                 sidebarFilterVisibility = uiState.sidebarFilterVisibility,
                                 onToggleSidebarFilterVisibility = { filterKey ->
                                     viewModel.toggleSidebarFilterVisibility(filterKey)
+                                },
+                                currentLanguage = uiState.language,
+                                onLanguageChange = { language ->
+                                    lifecycleScope.launch {
+                                        viewModel.onLanguageChange(language)
+                                        recreate()
+                                    }
                                 }
                             )
                         }

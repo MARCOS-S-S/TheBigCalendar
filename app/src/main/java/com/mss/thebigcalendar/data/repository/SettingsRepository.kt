@@ -11,6 +11,7 @@ import com.mss.thebigcalendar.data.model.CalendarFilterOptions
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.AnimationType
 import com.mss.thebigcalendar.data.model.SidebarFilterVisibility
+import com.mss.thebigcalendar.data.model.Language
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -31,6 +32,7 @@ class SettingsRepository(private val context: Context) {
         val SHOW_NOTES = booleanPreferencesKey("show_notes")
         val SHOW_MOON_PHASES = booleanPreferencesKey("show_moon_phases")
         val ANIMATION_TYPE = stringPreferencesKey("animation_type")
+        val LANGUAGE = stringPreferencesKey("language")
         
         // Sidebar filter visibility
         val SIDEBAR_SHOW_HOLIDAYS = booleanPreferencesKey("sidebar_show_holidays")
@@ -64,6 +66,12 @@ class SettingsRepository(private val context: Context) {
         .map { preferences ->
             val animationName = preferences[PreferencesKeys.ANIMATION_TYPE] ?: AnimationType.NONE.name
             AnimationType.valueOf(animationName)
+        }
+
+    val language: Flow<Language> = context.dataStore.data
+        .map { preferences ->
+            val languageCode = preferences[PreferencesKeys.LANGUAGE] ?: Language.SYSTEM.code
+            Language.fromCode(languageCode)
         }
 
     val sidebarFilterVisibility: Flow<SidebarFilterVisibility> = context.dataStore.data
@@ -127,6 +135,15 @@ class SettingsRepository(private val context: Context) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.ANIMATION_TYPE] = animationType.name
         }
+    }
+
+    suspend fun saveLanguage(language: Language) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LANGUAGE] = language.code
+        }
+        // Also save to SharedPreferences for immediate reload in MainActivity
+        val sharedPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        sharedPrefs.edit().putString("selected_language", language.code).apply()
     }
 
     suspend fun saveSidebarFilterVisibility(visibility: SidebarFilterVisibility) {
