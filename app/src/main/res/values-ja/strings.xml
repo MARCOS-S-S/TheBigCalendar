@@ -70,7 +70,6 @@
     <!-- SaintInfoDialog.kt -->
     <string name="no_information_available">情報がありません。</string>
     <string name="open_in_wikipedia">詳細を見る</string>
-    <string name="close">閉じる</string>
 
     <!-- Sidebar.kt -->
     <string name="national_holidays">国民の祝日</string>
@@ -568,5 +567,18 @@
     <!-- GeneralSettingsScreen.kt -->
     <string name="general_import_json_file">JSONファイルをインポート</string>
     <string name="general_animation_type">アニメーションタイプ</string>
+    <string name="select_animation">アニメーションを選択</string>
+    <string name="close">閉じる</string>
+    
+    <!-- Animation Types -->
+    <string name="animation_slide">スライド</string>
+    <string name="animation_reveal">表示</string>
+    <string name="animation_fade">フェード</string>
+    <string name="animation_scale">スケール</string>
+    <string name="animation_rotation">回転</string>
+    <string name="animation_bounce">バウンス</string>
+    <string name="animation_none">アニメーションなし</string>
 
 </resources>
+
+

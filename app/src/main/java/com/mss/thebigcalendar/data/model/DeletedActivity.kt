@@ -9,5 +9,5 @@ data class DeletedActivity(
     val id: String,
     val originalActivity: Activity,
     val deletedAt: LocalDateTime = LocalDateTime.now(),
-    val deletedBy: String = "Usuário"
+    val deletedBy: String = ""
 )

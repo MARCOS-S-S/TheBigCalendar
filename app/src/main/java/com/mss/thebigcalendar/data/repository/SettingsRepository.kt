@@ -54,7 +54,7 @@ class SettingsRepository(private val context: Context) {
 
     val welcomeName: Flow<String> = context.dataStore.data
         .map { preferences ->
-            preferences[PreferencesKeys.WELCOME_NAME] ?: "Usuário"
+            preferences[PreferencesKeys.WELCOME_NAME] ?: ""
         }
 
     val showMoonPhases: Flow<Boolean> = context.dataStore.data

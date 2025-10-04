@@ -290,7 +290,7 @@ fun GeneralSettingsScreen(
                     modifier = Modifier.height(40.dp)
                 ) {
                     Text(
-                        text = currentAnimation.displayName,
+                        text = currentAnimation.getDisplayName(),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

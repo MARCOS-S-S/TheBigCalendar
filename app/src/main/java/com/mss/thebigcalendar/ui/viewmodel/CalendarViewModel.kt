@@ -546,7 +546,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 val googleAccount = uiState.googleSignInAccount
                 val currentWelcomeName = uiState.welcomeName
 
-                if (googleAccount != null && currentWelcomeName == getApplication<Application>().getString(com.mss.thebigcalendar.R.string.default_user_name)) {
+                if (googleAccount != null && currentWelcomeName.isBlank()) {
                     val firstName = googleAccount.displayName?.split(" ")?.firstOrNull()
                     if (!firstName.isNullOrBlank()) {
                         settingsRepository.saveWelcomeName(firstName)

@@ -70,7 +70,6 @@
     <!-- SaintInfoDialog.kt -->
     <string name="no_information_available">Nenhuma informação disponível.</string>
     <string name="open_in_wikipedia">Ver mais</string>
-    <string name="close">Fechar</string>
 
     <!-- Sidebar.kt -->
     <string name="national_holidays">Feriados nacionais</string>
@@ -568,5 +567,16 @@
     <!-- GeneralSettingsScreen.kt -->
     <string name="general_import_json_file">Importar Arquivo JSON</string>
     <string name="general_animation_type">Tipo de Animação</string>
+    <string name="select_animation">Selecionar Animação</string>
+    <string name="close">Fechar</string>
+    
+    <!-- Animation Types -->
+    <string name="animation_slide">Deslizamento</string>
+    <string name="animation_reveal">Revelação</string>
+    <string name="animation_fade">Fade</string>
+    <string name="animation_scale">Escala</string>
+    <string name="animation_rotation">Rotação</string>
+    <string name="animation_bounce">Bounce</string>
+    <string name="animation_none">Sem Animação</string>
 
 </resources>

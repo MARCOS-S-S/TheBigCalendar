@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import com.mss.thebigcalendar.data.model.AnimationType
+import com.mss.thebigcalendar.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,7 +36,7 @@ fun AnimationSelectionDialog(
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("Selecionar Animação")
+            Text(stringResource(id = R.string.select_animation))
         },
         text = {
             Column(
@@ -60,7 +62,7 @@ fun AnimationSelectionDialog(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = animationType.displayName,
+                                text = animationType.getDisplayName(),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             
@@ -83,11 +85,13 @@ fun AnimationSelectionDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Fechar")
+                Text(stringResource(id = R.string.close))
             }
         }
     )
 }
+
+
 
 
 

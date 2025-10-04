@@ -70,7 +70,6 @@
     <!-- SaintInfoDialog.kt -->
     <string name="no_information_available">没有可用信息。</string>
     <string name="open_in_wikipedia">查看更多</string>
-    <string name="close">关闭</string>
 
     <!-- Sidebar.kt -->
     <string name="national_holidays">国家节假日</string>
@@ -568,5 +567,18 @@
     <!-- GeneralSettingsScreen.kt -->
     <string name="general_import_json_file">导入JSON文件</string>
     <string name="general_animation_type">动画类型</string>
+    <string name="select_animation">选择动画</string>
+    <string name="close">关闭</string>
+    
+    <!-- Animation Types -->
+    <string name="animation_slide">滑动</string>
+    <string name="animation_reveal">显示</string>
+    <string name="animation_fade">淡入淡出</string>
+    <string name="animation_scale">缩放</string>
+    <string name="animation_rotation">旋转</string>
+    <string name="animation_bounce">弹跳</string>
+    <string name="animation_none">无动画</string>
 
 </resources>
+
+
