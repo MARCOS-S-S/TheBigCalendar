@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Animation
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -77,7 +78,8 @@ fun GeneralSettingsScreen(
     sidebarFilterVisibility: com.mss.thebigcalendar.data.model.SidebarFilterVisibility = com.mss.thebigcalendar.data.model.SidebarFilterVisibility(),
     onToggleSidebarFilterVisibility: (String) -> Unit = {},
     currentLanguage: Language = Language.SYSTEM,
-    onLanguageChange: (Language) -> Unit = {}
+    onLanguageChange: (Language) -> Unit = {},
+    onOpenCalendarVisualization: () -> Unit = {}
 ) {
     Log.d("GeneralSettingsScreen", "📱 GeneralSettingsScreen iniciada")
     Log.d("GeneralSettingsScreen", "🌐 Idioma atual: ${currentLanguage.displayName} (${currentLanguage.code})")
@@ -115,6 +117,40 @@ fun GeneralSettingsScreen(
         Column(
             modifier = Modifier.padding(paddingValues).padding(horizontal = 16.dp)
         ) { // Apply padding from Scaffold and add horizontal padding
+            // Calendar Visualization entry
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+                    .clickable { onOpenCalendarVisualization() }
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Visibility,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(id = R.string.calendar_visualization_settings),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = stringResource(id = R.string.calendar_visualization_settings_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Filled.ArrowForward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier

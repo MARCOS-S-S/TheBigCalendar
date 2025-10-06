@@ -51,6 +51,7 @@ import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import com.mss.thebigcalendar.ui.onboarding.OnboardingFlow
 import kotlinx.coroutines.flow.first
 import androidx.lifecycle.lifecycleScope
+import com.mss.thebigcalendar.ui.screens.CalendarVisualizationSettingsScreen
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -419,7 +420,13 @@ class MainActivity : ComponentActivity() {
                                         viewModel.onLanguageChange(language)
                                         recreate()
                                     }
-                                }
+                                },
+                                onOpenCalendarVisualization = { viewModel.openCalendarVisualizationSettings() }
+                            )
+                        }
+                        uiState.isCalendarVisualizationSettingsOpen -> {
+                            CalendarVisualizationSettingsScreen(
+                                onBackClick = { viewModel.closeCalendarVisualizationSettings() }
                             )
                         }
                         uiState.isBackupScreenOpen -> {

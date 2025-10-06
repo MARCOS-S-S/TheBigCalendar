@@ -525,7 +525,7 @@ fun MainCalendarView(
                                             onVerticalDrag = { _, dragAmount ->
                                                 // Arrastar para baixo aumenta, para cima diminui
                                                 val delta = (dragAmount) / 400f
-                                                val newScale = (calendarScale + delta).coerceIn(0.5f, 1.2f)
+                                                val newScale = (calendarScale + delta).coerceIn(0.5f, 1.22f)
                                                 if (newScale != calendarScale) {
                                                     calendarScale = newScale
                                                     viewModel.setCalendarScale(newScale)

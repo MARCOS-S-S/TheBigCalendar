@@ -134,6 +134,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun openCalendarVisualizationSettings() {
+        _uiState.update { it.copy(isCalendarVisualizationSettingsOpen = true, isSettingsScreenOpen = false) }
+    }
+
+    fun closeCalendarVisualizationSettings() {
+        _uiState.update { it.copy(isCalendarVisualizationSettingsOpen = false, isSettingsScreenOpen = true) }
+    }
+
     override fun onCleared() {
         super.onCleared()
         // Limpar job pendente quando o ViewModel for destruído

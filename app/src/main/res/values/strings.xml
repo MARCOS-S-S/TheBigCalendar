@@ -578,5 +578,9 @@
     <string name="animation_rotation">Rotação</string>
     <string name="animation_bounce">Bounce</string>
     <string name="animation_none">Sem Animação</string>
+    
+    <!-- Calendar visualization settings -->
+    <string name="calendar_visualization_settings">Opções de visualização</string>
+    <string name="calendar_visualization_settings_desc">Ajustes de tamanho e densidade do calendário</string>
 
 </resources>

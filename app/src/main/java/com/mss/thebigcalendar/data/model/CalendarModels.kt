@@ -138,6 +138,7 @@ data class CalendarUiState(
     val languageChangedMessage: String? = null, // Mensagem sobre mudança de idioma
     val sidebarFilterVisibility: SidebarFilterVisibility = SidebarFilterVisibility(),
     val calendarScale: Float = 1f,
+    val isCalendarVisualizationSettingsOpen: Boolean = false,
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }
