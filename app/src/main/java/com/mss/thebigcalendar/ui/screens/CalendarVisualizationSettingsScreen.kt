@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -22,7 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,6 +43,7 @@ fun CalendarVisualizationSettingsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val currentScale = uiState.calendarScale
     val sliderValue = remember(currentScale) { mutableFloatStateOf(currentScale) }
+    var hideOtherMonths by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -90,6 +94,29 @@ fun CalendarVisualizationSettingsScreen(
                 valueRange = 0.6f..1.22f,
                 steps = 12
             )
+
+            // Placeholder: Ocultar dias de outros meses (sem lógica aplicada ainda)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(id = R.string.hide_other_month_days),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = stringResource(id = R.string.hide_other_month_days_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = hideOtherMonths,
+                    onCheckedChange = { hideOtherMonths = it }
+                )
+            }
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = "As alterações são salvas automaticamente.",
