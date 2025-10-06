@@ -141,6 +141,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun setPureBlackTheme(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setPureBlackTheme(enabled)
+            _uiState.update { it.copy(pureBlackTheme = enabled) }
+        }
+    }
+
     fun openCalendarVisualizationSettings() {
         _uiState.update { it.copy(isCalendarVisualizationSettingsOpen = true, isSettingsScreenOpen = false) }
     }
@@ -539,6 +546,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             settingsRepository.hideOtherMonthDays.collect { hide ->
                 _uiState.update { it.copy(hideOtherMonthDays = hide) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.pureBlackTheme.collect { enabled ->
+                _uiState.update { it.copy(pureBlackTheme = enabled) }
             }
         }
         viewModelScope.launch {

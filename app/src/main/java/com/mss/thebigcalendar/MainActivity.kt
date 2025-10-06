@@ -230,6 +230,11 @@ class MainActivity : ComponentActivity() {
                         Theme.LIGHT -> false
                         Theme.DARK -> true
                         else -> isSystemInDarkTheme()
+                    },
+                    pureBlack = uiState.pureBlackTheme && when (uiState.theme) {
+                        Theme.LIGHT -> false
+                        Theme.DARK -> true
+                        else -> isSystemInDarkTheme()
                     }
                 ) {
                     if (showOnboarding) {

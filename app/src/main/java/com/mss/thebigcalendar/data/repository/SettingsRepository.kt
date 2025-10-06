@@ -35,6 +35,7 @@ class SettingsRepository(private val context: Context) {
         val LANGUAGE = stringPreferencesKey("language")
         val CALENDAR_SCALE = stringPreferencesKey("calendar_scale")
         val HIDE_OTHER_MONTH_DAYS = booleanPreferencesKey("hide_other_month_days")
+        val PURE_BLACK_THEME = booleanPreferencesKey("pure_black_theme")
         
         // Sidebar filter visibility
         val SIDEBAR_SHOW_HOLIDAYS = booleanPreferencesKey("sidebar_show_holidays")
@@ -97,6 +98,17 @@ class SettingsRepository(private val context: Context) {
     suspend fun setHideOtherMonthDays(hide: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[PreferencesKeys.HIDE_OTHER_MONTH_DAYS] = hide
+        }
+    }
+
+    val pureBlackTheme: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[PreferencesKeys.PURE_BLACK_THEME] ?: false
+        }
+
+    suspend fun setPureBlackTheme(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[PreferencesKeys.PURE_BLACK_THEME] = enabled
         }
     }
 

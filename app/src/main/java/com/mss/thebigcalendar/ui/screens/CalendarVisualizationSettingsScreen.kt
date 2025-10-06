@@ -186,8 +186,10 @@ fun CalendarVisualizationSettingsScreen(
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Switch(
-                    checked = false, // Placeholder - será implementado depois
-                    onCheckedChange = { /* Placeholder - será implementado depois */ },
+                    checked = uiState.pureBlackTheme,
+                    onCheckedChange = { enabled ->
+                        viewModel.setPureBlackTheme(enabled)
+                    },
                     enabled = isDarkThemeActive
                 )
             }

@@ -140,6 +140,7 @@ data class CalendarUiState(
     val calendarScale: Float = 1f,
     val isCalendarVisualizationSettingsOpen: Boolean = false,
     val hideOtherMonthDays: Boolean = false,
+    val pureBlackTheme: Boolean = false,
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }
