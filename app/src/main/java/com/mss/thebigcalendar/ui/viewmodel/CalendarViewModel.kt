@@ -819,7 +819,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 jsonHolidays = jsonHolidaysForThisDay,
                 isWeekend = date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY,
                 isNationalHoliday = holidayForThisDay?.type == com.mss.thebigcalendar.data.model.HolidayType.NATIONAL,
-                isSaintDay = saintDayForThisDay != null,
+                isSaintDay = state.filterOptions.showSaintDays && saintDayForThisDay != null,
                 isJsonHolidayDay = jsonHolidaysForThisDay.isNotEmpty()
             )
         }

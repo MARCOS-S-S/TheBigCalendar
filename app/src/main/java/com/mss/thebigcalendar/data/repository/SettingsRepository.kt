@@ -120,7 +120,7 @@ class SettingsRepository(private val context: Context) {
         .map { preferences ->
             CalendarFilterOptions(
                 showHolidays = preferences[PreferencesKeys.SHOW_HOLIDAYS] ?: true,
-                showSaintDays = preferences[PreferencesKeys.SHOW_SAINT_DAYS] ?: true,
+                showSaintDays = preferences[PreferencesKeys.SHOW_SAINT_DAYS] ?: false, // Desativado por padrão na primeira inicialização
                 showEvents = preferences[PreferencesKeys.SHOW_EVENTS] ?: true,
                 showTasks = preferences[PreferencesKeys.SHOW_TASKS] ?: true,
                 showBirthdays = preferences[PreferencesKeys.SHOW_BIRTHDAYS] ?: true,
