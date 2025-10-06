@@ -136,8 +136,8 @@ data class CalendarUiState(
     val showDeleteJsonCalendarDialog: Boolean = false,
     val jsonCalendarToDelete: com.mss.thebigcalendar.data.model.JsonCalendar? = null,
     val languageChangedMessage: String? = null, // Mensagem sobre mudança de idioma
-    val sidebarFilterVisibility: SidebarFilterVisibility = SidebarFilterVisibility()
-
+    val sidebarFilterVisibility: SidebarFilterVisibility = SidebarFilterVisibility(),
+    val calendarScale: Float = 1f,
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

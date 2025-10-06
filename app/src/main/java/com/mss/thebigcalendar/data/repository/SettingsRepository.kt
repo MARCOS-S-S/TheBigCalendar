@@ -33,6 +33,7 @@ class SettingsRepository(private val context: Context) {
         val SHOW_MOON_PHASES = booleanPreferencesKey("show_moon_phases")
         val ANIMATION_TYPE = stringPreferencesKey("animation_type")
         val LANGUAGE = stringPreferencesKey("language")
+        val CALENDAR_SCALE = stringPreferencesKey("calendar_scale")
         
         // Sidebar filter visibility
         val SIDEBAR_SHOW_HOLIDAYS = booleanPreferencesKey("sidebar_show_holidays")
@@ -73,6 +74,19 @@ class SettingsRepository(private val context: Context) {
             val languageCode = preferences[PreferencesKeys.LANGUAGE] ?: Language.SYSTEM.code
             Language.fromCode(languageCode)
         }
+
+    // Calendar scale (persisted as String to ensure compatibility)
+    val calendarScale: Flow<Float> = context.dataStore.data
+        .map { preferences ->
+            val raw = preferences[PreferencesKeys.CALENDAR_SCALE]
+            raw?.toFloatOrNull() ?: 1f
+        }
+
+    suspend fun setCalendarScale(scale: Float) {
+        context.dataStore.edit { prefs ->
+            prefs[PreferencesKeys.CALENDAR_SCALE] = scale.toString()
+        }
+    }
 
     val sidebarFilterVisibility: Flow<SidebarFilterVisibility> = context.dataStore.data
         .map { preferences ->

@@ -127,6 +127,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         registerNotificationBroadcastReceiver()
     }
 
+    fun setCalendarScale(scale: Float) {
+        viewModelScope.launch {
+            settingsRepository.setCalendarScale(scale)
+            _uiState.update { it.copy(calendarScale = scale) }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         // Limpar job pendente quando o ViewModel for destruído
@@ -507,6 +514,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             settingsRepository.theme.collect { theme ->
                 _uiState.update { it.copy(theme = theme) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.calendarScale.collect { scale ->
+                _uiState.update { it.copy(calendarScale = scale) }
             }
         }
         viewModelScope.launch {

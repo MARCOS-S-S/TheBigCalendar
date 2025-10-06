@@ -471,7 +471,7 @@ fun MainCalendarView(
             ViewMode.MONTHLY -> {
                 val listState = rememberLazyListState()
                 var isZooming by remember { mutableStateOf(false) }
-                var calendarScale by remember { mutableFloatStateOf(1f) }
+                var calendarScale by remember { mutableFloatStateOf(uiState.calendarScale) }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() },
                     state = listState,
@@ -525,7 +525,11 @@ fun MainCalendarView(
                                             onVerticalDrag = { _, dragAmount ->
                                                 // Arrastar para baixo aumenta, para cima diminui
                                                 val delta = (dragAmount) / 400f
-                                                calendarScale = (calendarScale + delta).coerceIn(0.5f, 1.4f)
+                                                val newScale = (calendarScale + delta).coerceIn(0.5f, 1.2f)
+                                                if (newScale != calendarScale) {
+                                                    calendarScale = newScale
+                                                    viewModel.setCalendarScale(newScale)
+                                                }
                                             },
                                             onDragEnd = { isZooming = false },
                                             onDragCancel = { isZooming = false }
