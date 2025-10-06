@@ -523,8 +523,9 @@ fun MainCalendarView(
                                         detectVerticalDragGestures(
                                             onDragStart = { isZooming = true },
                                             onVerticalDrag = { _, dragAmount ->
-                                                val delta = (-dragAmount) / 400f
-                                                calendarScale = (calendarScale + delta).coerceIn(0.85f, 2.2f)
+                                                // Arrastar para baixo aumenta, para cima diminui
+                                                val delta = (dragAmount) / 400f
+                                                calendarScale = (calendarScale + delta).coerceIn(0.5f, 1.4f)
                                             },
                                             onDragEnd = { isZooming = false },
                                             onDragCancel = { isZooming = false }
@@ -714,9 +715,8 @@ fun AnimatedMonthlyCalendar(
     verticalScale: Float = 1f
 ) {
     var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
-    var calendarScale by remember { mutableFloatStateOf(1f) }
     val density = LocalDensity.current
-    // remove rememberTransformableState; using detectTransformGestures instead
+    // Pinch-to-zoom removido. Escala vem do pai via verticalScale.
     
     // Usar o sistema de animações modular
     val animationValues = com.mss.thebigcalendar.ui.animations.CalendarAnimationState(
@@ -743,22 +743,7 @@ fun AnimatedMonthlyCalendar(
                     println("DEBUG: Aplicando animação ${animationType.name} - scale: ${animationValues.scaleX}, alpha: ${animationValues.alpha}")
                 }
             }
-            .pointerInput("pinch-zoom") {
-                while (true) {
-                    var zooming = false
-                    detectTransformGestures { _, _, zoom, _ ->
-                        val newScale = (calendarScale * zoom).coerceIn(0.85f, 2.2f)
-                        if (newScale != calendarScale) {
-                            if (!zooming) {
-                                zooming = true
-                                // onZoomingChanged(true) // This is now handled by the parent
-                            }
-                            calendarScale = newScale
-                        }
-                    }
-                    // if (zooming) onZoomingChanged(false) // This is now handled by the parent
-                }
-            }
+            // nenhum manipulador de pinça aqui
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onHorizontalDrag = { _, dragAmount ->
@@ -783,7 +768,7 @@ fun AnimatedMonthlyCalendar(
             calendarDays = calendarDays,
             onDateSelected = onDateSelected,
             theme = theme,
-            verticalScale = calendarScale * verticalScale
+            verticalScale = verticalScale
         )
     }
 }
