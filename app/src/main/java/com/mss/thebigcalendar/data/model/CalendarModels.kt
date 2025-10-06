@@ -139,6 +139,7 @@ data class CalendarUiState(
     val sidebarFilterVisibility: SidebarFilterVisibility = SidebarFilterVisibility(),
     val calendarScale: Float = 1f,
     val isCalendarVisualizationSettingsOpen: Boolean = false,
+    val hideOtherMonthDays: Boolean = false,
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

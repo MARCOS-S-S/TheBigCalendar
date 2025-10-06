@@ -43,7 +43,7 @@ fun CalendarVisualizationSettingsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val currentScale = uiState.calendarScale
     val sliderValue = remember(currentScale) { mutableFloatStateOf(currentScale) }
-    var hideOtherMonths by remember { mutableStateOf(false) }
+    var hideOtherMonths by remember { mutableStateOf(uiState.hideOtherMonthDays) }
 
     Scaffold(
         topBar = {
@@ -114,7 +114,10 @@ fun CalendarVisualizationSettingsScreen(
                 }
                 Switch(
                     checked = hideOtherMonths,
-                    onCheckedChange = { hideOtherMonths = it }
+                    onCheckedChange = { 
+                        hideOtherMonths = it
+                        viewModel.setHideOtherMonthDays(it)
+                    }
                 )
             }
             Spacer(modifier = Modifier.weight(1f))

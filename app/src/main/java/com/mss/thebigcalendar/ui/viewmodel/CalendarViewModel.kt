@@ -134,6 +134,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun setHideOtherMonthDays(hide: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setHideOtherMonthDays(hide)
+            _uiState.update { it.copy(hideOtherMonthDays = hide) }
+        }
+    }
+
     fun openCalendarVisualizationSettings() {
         _uiState.update { it.copy(isCalendarVisualizationSettingsOpen = true, isSettingsScreenOpen = false) }
     }
@@ -527,6 +534,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             settingsRepository.calendarScale.collect { scale ->
                 _uiState.update { it.copy(calendarScale = scale) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.hideOtherMonthDays.collect { hide ->
+                _uiState.update { it.copy(hideOtherMonthDays = hide) }
             }
         }
         viewModelScope.launch {

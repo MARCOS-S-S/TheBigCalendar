@@ -503,7 +503,8 @@ fun MainCalendarView(
                                     isAnimating = isAnimating,
                                     animationDirection = animationDirection,
                                     animationType = animationType,
-                                    verticalScale = calendarScale
+                                    verticalScale = calendarScale,
+                                    hideOtherMonthDays = uiState.hideOtherMonthDays
                                 )
 
                                 if (uiState.showMoonPhases) {
@@ -716,7 +717,8 @@ fun AnimatedMonthlyCalendar(
     isAnimating: Boolean,
     animationDirection: Float,
     animationType: com.mss.thebigcalendar.data.model.AnimationType = com.mss.thebigcalendar.data.model.AnimationType.NONE,
-    verticalScale: Float = 1f
+    verticalScale: Float = 1f,
+    hideOtherMonthDays: Boolean = false
 ) {
     var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
     val density = LocalDensity.current
@@ -772,7 +774,8 @@ fun AnimatedMonthlyCalendar(
             calendarDays = calendarDays,
             onDateSelected = onDateSelected,
             theme = theme,
-            verticalScale = verticalScale
+            verticalScale = verticalScale,
+            hideOtherMonthDays = hideOtherMonthDays
         )
     }
 }

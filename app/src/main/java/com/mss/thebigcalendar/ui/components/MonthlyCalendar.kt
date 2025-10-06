@@ -43,7 +43,8 @@ fun MonthlyCalendar(
     calendarDays: List<CalendarDay>,
     onDateSelected: (LocalDate) -> Unit,
     theme: com.mss.thebigcalendar.data.model.Theme,
-    verticalScale: Float = 1f
+    verticalScale: Float = 1f,
+    hideOtherMonthDays: Boolean = false
 ) {
     val weekDayAbbreviations = getWeekDayAbbreviations()
 
@@ -64,20 +65,70 @@ fun MonthlyCalendar(
         }
 
         Column(modifier = Modifier.padding(horizontal = 8.dp)) {
-            val weeks = remember(calendarDays) { calendarDays.chunked(7) }
-            weeks.forEach { week ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    week.forEach { day ->
-                        Box(modifier = Modifier.weight(1f)) {
-                            DayCell(
-                                day = day,
-                                onDateSelected = onDateSelected,
-                                theme = theme,
-                                verticalScale = verticalScale
-                            )
+            if (hideOtherMonthDays) {
+                // Modo compacto: mostrar apenas dias do mês atual com alinhamento correto
+                val currentMonthDays = remember(calendarDays) { 
+                    calendarDays.filter { it.isCurrentMonth } 
+                }
+                
+                // Encontrar o primeiro dia do mês para determinar o offset
+                val firstDayOfMonth = remember(currentMonthDays) {
+                    currentMonthDays.firstOrNull()?.date?.dayOfWeek?.value ?: 1
+                }
+                // Converter para índice baseado em domingo (1 = domingo, 7 = sábado)
+                val startOffset = if (firstDayOfMonth == 7) 0 else firstDayOfMonth
+                
+                // Criar uma grade que respeita o alinhamento dos dias da semana
+                val daysPerRow = 7
+                val totalCells = currentMonthDays.size + startOffset
+                val rows = remember(totalCells) { 
+                    (totalCells + daysPerRow - 1) / daysPerRow 
+                }
+                
+                repeat(rows) { rowIndex ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        repeat(daysPerRow) { colIndex ->
+                            val cellIndex = rowIndex * daysPerRow + colIndex
+                            Box(modifier = Modifier.weight(1f)) {
+                                if (cellIndex >= startOffset && cellIndex < startOffset + currentMonthDays.size) {
+                                    val dayIndex = cellIndex - startOffset
+                                    DayCell(
+                                        day = currentMonthDays[dayIndex],
+                                        onDateSelected = onDateSelected,
+                                        theme = theme,
+                                        verticalScale = verticalScale
+                                    )
+                                } else {
+                                    // Espaço vazio invisível para manter a grade consistente
+                                    Spacer(modifier = Modifier
+                                        .padding(1.dp)
+                                        .aspectRatio((1f / 1.35f) / verticalScale.coerceAtLeast(0.5f))
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Modo normal: usar a estrutura original
+                val weeks = remember(calendarDays) { calendarDays.chunked(7) }
+                weeks.forEach { week ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        week.forEach { day ->
+                            Box(modifier = Modifier.weight(1f)) {
+                                DayCell(
+                                    day = day,
+                                    onDateSelected = onDateSelected,
+                                    theme = theme,
+                                    verticalScale = verticalScale
+                                )
+                            }
                         }
                     }
                 }

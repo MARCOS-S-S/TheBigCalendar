@@ -34,6 +34,7 @@ class SettingsRepository(private val context: Context) {
         val ANIMATION_TYPE = stringPreferencesKey("animation_type")
         val LANGUAGE = stringPreferencesKey("language")
         val CALENDAR_SCALE = stringPreferencesKey("calendar_scale")
+        val HIDE_OTHER_MONTH_DAYS = booleanPreferencesKey("hide_other_month_days")
         
         // Sidebar filter visibility
         val SIDEBAR_SHOW_HOLIDAYS = booleanPreferencesKey("sidebar_show_holidays")
@@ -85,6 +86,17 @@ class SettingsRepository(private val context: Context) {
     suspend fun setCalendarScale(scale: Float) {
         context.dataStore.edit { prefs ->
             prefs[PreferencesKeys.CALENDAR_SCALE] = scale.toString()
+        }
+    }
+
+    val hideOtherMonthDays: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[PreferencesKeys.HIDE_OTHER_MONTH_DAYS] ?: false
+        }
+
+    suspend fun setHideOtherMonthDays(hide: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[PreferencesKeys.HIDE_OTHER_MONTH_DAYS] = hide
         }
     }
 
