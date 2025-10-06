@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoMode
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -248,6 +249,35 @@ fun CalendarVisualizationSettingsScreen(
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // Botão automático como primeira opção
+                    item {
+                        val isAutoSelected = uiState.primaryColor == "#6650a4" // Cor padrão = automático
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(
+                                    width = if (isAutoSelected) 3.dp else 1.dp,
+                                    color = if (isAutoSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                    shape = CircleShape
+                                )
+                                .clickable {
+                                    // TODO: Implementar lógica do botão automático
+                                    viewModel.setPrimaryColor("#6650a4")
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.AutoMode,
+                                contentDescription = "Automático",
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                    
+                    // Cores predefinidas
                     items(predefinedColors) { colorHex ->
                         val isSelected = uiState.primaryColor == colorHex
                         Box(
