@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -117,6 +118,35 @@ fun CalendarVisualizationSettingsScreen(
                     onCheckedChange = { 
                         hideOtherMonths = it
                         viewModel.setHideOtherMonthDays(it)
+                    }
+                )
+            }
+
+            // Opção do tema escuro
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.sidebar_change_theme),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Switch(
+                    checked = when (uiState.theme) {
+                        com.mss.thebigcalendar.data.model.Theme.LIGHT -> false
+                        com.mss.thebigcalendar.data.model.Theme.DARK -> true
+                        com.mss.thebigcalendar.data.model.Theme.SYSTEM -> isSystemInDarkTheme()
+                    },
+                    onCheckedChange = { isChecked ->
+                        val newTheme = if (isChecked) {
+                            com.mss.thebigcalendar.data.model.Theme.DARK
+                        } else {
+                            com.mss.thebigcalendar.data.model.Theme.LIGHT
+                        }
+                        viewModel.onThemeChange(newTheme)
                     }
                 )
             }

@@ -150,30 +150,6 @@ fun GeneralSettingsScreen(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 10.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.sidebar_change_theme),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Switch(
-                    checked = when (currentTheme) {
-                        Theme.LIGHT -> false
-                        Theme.DARK -> true
-                        Theme.SYSTEM -> isSystemInDarkTheme()
-                    },
-                    onCheckedChange = { isChecked ->
-                        onThemeChange(if (isChecked) Theme.DARK else Theme.LIGHT)
-                    }
-                )
-            }
-
             Spacer(modifier = Modifier.height(16.dp))
 
             // Campo para o nome de boas-vindas

@@ -192,6 +192,7 @@ class MainActivity : ComponentActivity() {
                 when {
                     state.activityToEdit != null -> viewModel.closeCreateActivityModal()
                     state.isSidebarOpen -> viewModel.closeSidebar()
+                    state.isCalendarVisualizationSettingsOpen -> viewModel.closeCalendarVisualizationSettings()
                     state.isSettingsScreenOpen -> viewModel.closeSettingsScreen()
                     state.isSearchScreenOpen -> viewModel.closeSearchScreen()
                     state.isChartScreenOpen -> viewModel.closeChartScreen()
