@@ -586,6 +586,9 @@
     <string name="hide_other_month_days_desc">Supprime les jours en dehors du mois actuel de la grille</string>
     <string name="pure_black_theme">Noir pur</string>
     <string name="pure_black_theme_desc">Utiliser le noir pur au lieu du gris foncé en mode sombre</string>
+    <string name="primary_color">Couleur primaire</string>
+    <string name="primary_color_desc">Choisissez la couleur primaire de l\'application</string>
+    <string name="changes_saved_automatically">Les modifications sont sauvegardées automatiquement.</string>
 
 </resources>
 

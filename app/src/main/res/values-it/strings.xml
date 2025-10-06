@@ -586,6 +586,9 @@
     <string name="hide_other_month_days_desc">Rimuove i giorni fuori dal mese corrente dalla griglia</string>
     <string name="pure_black_theme">Nero puro</string>
     <string name="pure_black_theme_desc">Usa nero puro invece di grigio scuro in modalità scura</string>
+    <string name="primary_color">Colore primario</string>
+    <string name="primary_color_desc">Scegli il colore primario dell\'applicazione</string>
+    <string name="changes_saved_automatically">Le modifiche vengono salvate automaticamente.</string>
 
 </resources>
 

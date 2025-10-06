@@ -270,7 +270,7 @@ fun CalendarVisualizationSettingsScreen(
             
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "As alterações são salvas automaticamente.",
+                text = stringResource(id = R.string.changes_saved_automatically),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

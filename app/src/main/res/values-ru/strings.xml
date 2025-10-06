@@ -586,6 +586,9 @@
     <string name="hide_other_month_days_desc">Удаляет дни вне текущего месяца из сетки</string>
     <string name="pure_black_theme">Чистый черный</string>
     <string name="pure_black_theme_desc">Использовать чистый черный вместо темно-серого в темном режиме</string>
+    <string name="primary_color">Основной цвет</string>
+    <string name="primary_color_desc">Выберите основной цвет приложения</string>
+    <string name="changes_saved_automatically">Изменения сохраняются автоматически.</string>
 
 </resources>
 

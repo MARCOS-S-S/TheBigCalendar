@@ -588,5 +588,6 @@
     <string name="pure_black_theme_desc">Usa preto puro em vez de cinza escuro no modo escuro</string>
     <string name="primary_color">Cor primária</string>
     <string name="primary_color_desc">Escolha a cor primária do aplicativo</string>
+    <string name="changes_saved_automatically">As alterações são salvas automaticamente.</string>
 
 </resources>

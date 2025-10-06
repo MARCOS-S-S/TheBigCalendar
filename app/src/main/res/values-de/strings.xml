@@ -586,6 +586,9 @@
     <string name="hide_other_month_days_desc">Entfernt Tage außerhalb des aktuellen Monats aus dem Raster</string>
     <string name="pure_black_theme">Reines Schwarz</string>
     <string name="pure_black_theme_desc">Verwende reines Schwarz statt dunkles Grau im dunklen Modus</string>
+    <string name="primary_color">Primärfarbe</string>
+    <string name="primary_color_desc">Wähle die Primärfarbe der Anwendung</string>
+    <string name="changes_saved_automatically">Änderungen werden automatisch gespeichert.</string>
 
 </resources>
 

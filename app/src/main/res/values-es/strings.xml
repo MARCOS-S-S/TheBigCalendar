@@ -586,6 +586,9 @@
     <string name="hide_other_month_days_desc">Elimina los días fuera del mes actual de la cuadrícula</string>
     <string name="pure_black_theme">Negro puro</string>
     <string name="pure_black_theme_desc">Usar negro puro en lugar de gris oscuro en modo oscuro</string>
+    <string name="primary_color">Color primario</string>
+    <string name="primary_color_desc">Elige el color primario de la aplicación</string>
+    <string name="changes_saved_automatically">Los cambios se guardan automáticamente.</string>
 
 </resources>
 

@@ -586,6 +586,9 @@
     <string name="hide_other_month_days_desc">現在の月以外の日をグリッドから削除</string>
     <string name="pure_black_theme">純粋な黒</string>
     <string name="pure_black_theme_desc">ダークモードで暗いグレーの代わりに純粋な黒を使用</string>
+    <string name="primary_color">プライマリカラー</string>
+    <string name="primary_color_desc">アプリケーションのプライマリカラーを選択</string>
+    <string name="changes_saved_automatically">変更は自動的に保存されます。</string>
 
 </resources>
 
