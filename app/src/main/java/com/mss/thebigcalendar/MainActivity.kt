@@ -225,18 +225,19 @@ class MainActivity : ComponentActivity() {
             }
 
             if (isThemeLoaded) {
-                TheBigCalendarTheme(
-                    darkTheme = when (uiState.theme) {
-                        Theme.LIGHT -> false
-                        Theme.DARK -> true
-                        else -> isSystemInDarkTheme()
-                    },
-                    pureBlack = uiState.pureBlackTheme && when (uiState.theme) {
-                        Theme.LIGHT -> false
-                        Theme.DARK -> true
-                        else -> isSystemInDarkTheme()
-                    }
-                ) {
+        TheBigCalendarTheme(
+            darkTheme = when (uiState.theme) {
+                Theme.LIGHT -> false
+                Theme.DARK -> true
+                else -> isSystemInDarkTheme()
+            },
+            pureBlack = uiState.pureBlackTheme && when (uiState.theme) {
+                Theme.LIGHT -> false
+                Theme.DARK -> true
+                else -> isSystemInDarkTheme()
+            },
+            primaryColorHex = uiState.primaryColor
+        ) {
                     if (showOnboarding) {
                         OnboardingFlow(
                             onComplete = {

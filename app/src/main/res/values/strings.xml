@@ -586,5 +586,7 @@
     <string name="hide_other_month_days_desc">Remove os dias fora do mês atual na grade</string>
     <string name="pure_black_theme">Preto puro</string>
     <string name="pure_black_theme_desc">Usa preto puro em vez de cinza escuro no modo escuro</string>
+    <string name="primary_color">Cor primária</string>
+    <string name="primary_color_desc">Escolha a cor primária do aplicativo</string>
 
 </resources>

@@ -141,6 +141,7 @@ data class CalendarUiState(
     val isCalendarVisualizationSettingsOpen: Boolean = false,
     val hideOtherMonthDays: Boolean = false,
     val pureBlackTheme: Boolean = false,
+    val primaryColor: String = "#6650a4",
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

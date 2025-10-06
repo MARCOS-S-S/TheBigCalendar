@@ -148,6 +148,13 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun setPrimaryColor(colorHex: String) {
+        viewModelScope.launch {
+            settingsRepository.setPrimaryColor(colorHex)
+            _uiState.update { it.copy(primaryColor = colorHex) }
+        }
+    }
+
     fun openCalendarVisualizationSettings() {
         _uiState.update { it.copy(isCalendarVisualizationSettingsOpen = true, isSettingsScreenOpen = false) }
     }
@@ -551,6 +558,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             settingsRepository.pureBlackTheme.collect { enabled ->
                 _uiState.update { it.copy(pureBlackTheme = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.primaryColor.collect { color ->
+                _uiState.update { it.copy(primaryColor = color) }
             }
         }
         viewModelScope.launch {
