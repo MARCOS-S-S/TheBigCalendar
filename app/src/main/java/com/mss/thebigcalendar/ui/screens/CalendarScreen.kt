@@ -489,6 +489,22 @@ fun MainCalendarView(
                                     color = MaterialTheme.colorScheme.outline,
                                     shape = MaterialTheme.shapes.medium
                                 )
+                                .pointerInput("calendar-resize") {
+                                    detectVerticalDragGestures(
+                                        onDragStart = { isZooming = true },
+                                        onVerticalDrag = { _, dragAmount ->
+                                            // Arrastar para baixo aumenta, para cima diminui
+                                            val delta = (dragAmount) / 800f
+                                            val newScale = (calendarScale + delta).coerceIn(0.5f, 1.22f)
+                                            if (newScale != calendarScale) {
+                                                calendarScale = newScale
+                                                viewModel.setCalendarScale(newScale)
+                                            }
+                                        },
+                                        onDragEnd = { isZooming = false },
+                                        onDragCancel = { isZooming = false }
+                                    )
+                                }
                         ) {
                             Column(
                                 modifier = Modifier.padding(vertical = 8.dp)
@@ -513,35 +529,6 @@ fun MainCalendarView(
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 0.dp)
                                     )
                                 }
-                            }
-
-                            IconButton(
-                                onClick = {},
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .size(20.dp)
-                                    .pointerInput("drag-resize-handle") {
-                                        detectVerticalDragGestures(
-                                            onDragStart = { isZooming = true },
-                                            onVerticalDrag = { _, dragAmount ->
-                                                // Arrastar para baixo aumenta, para cima diminui
-                                                val delta = (dragAmount) / 400f
-                                                val newScale = (calendarScale + delta).coerceIn(0.5f, 1.22f)
-                                                if (newScale != calendarScale) {
-                                                    calendarScale = newScale
-                                                    viewModel.setCalendarScale(newScale)
-                                                }
-                                            },
-                                            onDragEnd = { isZooming = false },
-                                            onDragCancel = { isZooming = false }
-                                        )
-                                    }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.OpenInFull,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
                             }
                         }
                     }
