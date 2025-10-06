@@ -548,7 +548,7 @@
     <string name="widget_monday">Segunda-feira</string>
     <string name="widget_august_26">26 de agosto</string>
     <string name="widget_loading_tasks_text">Carregando tarefas...</string>
-    <string name="widget_for_today">Para hoje:</string>
+    <string name="widget_for_today">Afazeres</string>
     <string name="widget_event_title_placeholder">Título do Evento</string>
     <string name="widget_event_time_placeholder">Horário do Evento</string>
     <string name="widget_test_tasks">09:00 Reunião\n10:30 Café\n12:00 Almoço</string>

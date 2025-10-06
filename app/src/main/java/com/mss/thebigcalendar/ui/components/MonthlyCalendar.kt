@@ -42,7 +42,8 @@ fun MonthlyCalendar(
     modifier: Modifier = Modifier,
     calendarDays: List<CalendarDay>,
     onDateSelected: (LocalDate) -> Unit,
-    theme: com.mss.thebigcalendar.data.model.Theme
+    theme: com.mss.thebigcalendar.data.model.Theme,
+    verticalScale: Float = 1f
 ) {
     val weekDayAbbreviations = getWeekDayAbbreviations()
 
@@ -74,7 +75,8 @@ fun MonthlyCalendar(
                             DayCell(
                                 day = day,
                                 onDateSelected = onDateSelected,
-                                theme = theme
+                                theme = theme,
+                                verticalScale = verticalScale
                             )
                         }
                     }
@@ -89,11 +91,12 @@ private fun DayCell(
     day: CalendarDay,
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
-    theme: com.mss.thebigcalendar.data.model.Theme
+    theme: com.mss.thebigcalendar.data.model.Theme,
+    verticalScale: Float = 1f
 ) {
     val cellModifier = modifier
         .padding(1.dp)
-        .aspectRatio(1f / 1.35f)
+        .aspectRatio((1f / 1.35f) * verticalScale.coerceAtLeast(0.85f))
         .clip(MaterialTheme.shapes.small)
         .then(
             when {

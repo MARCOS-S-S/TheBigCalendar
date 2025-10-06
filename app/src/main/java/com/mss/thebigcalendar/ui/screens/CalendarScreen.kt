@@ -10,7 +10,11 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +33,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.BarChart
@@ -59,6 +64,8 @@ import androidx.compose.runtime.setValue
  
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -68,7 +75,11 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.pointerInput
+// import androidx.compose.ui.input.pointer APIs for low-level event if needed
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -459,15 +470,18 @@ fun MainCalendarView(
         when (uiState.viewMode) {
             ViewMode.MONTHLY -> {
                 val listState = rememberLazyListState()
+                var isZooming by remember { mutableStateOf(false) }
+                var calendarScale by remember { mutableFloatStateOf(1f) }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().clickableWithoutRipple { viewModel.hideDeleteButton() },
-                    state = listState
+                    state = listState,
+                    userScrollEnabled = !isZooming
                 ) {
                     item(
                         key = "calendar-${uiState.displayedYearMonth}",
                         contentType = "calendarHeader"
                     ) {
-                        Column(
+                        Box(
                             modifier = Modifier
                                 .padding(horizontal = 8.dp, vertical = 16.dp)
                                 .border(
@@ -475,24 +489,52 @@ fun MainCalendarView(
                                     color = MaterialTheme.colorScheme.outline,
                                     shape = MaterialTheme.shapes.medium
                                 )
-                                .padding(vertical = 8.dp)
                         ) {
-                            AnimatedMonthlyCalendar(
-                                calendarDays = uiState.calendarDays,
-                                onDateSelected = { viewModel.onDateSelected(it) },
-                                theme = uiState.theme,
-                                yearMonth = uiState.displayedYearMonth,
-                                onPreviousMonth = { viewModel.onPreviousMonth() },
-                                onNextMonth = { viewModel.onNextMonth() },
-                                isAnimating = isAnimating,
-                                animationDirection = animationDirection,
-                                animationType = animationType
-                            )
-                            
-                            if (uiState.showMoonPhases) {
-                                MoonPhasesComponent(
+                            Column(
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            ) {
+                                AnimatedMonthlyCalendar(
+                                    calendarDays = uiState.calendarDays,
+                                    onDateSelected = { viewModel.onDateSelected(it) },
+                                    theme = uiState.theme,
                                     yearMonth = uiState.displayedYearMonth,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 0.dp)
+                                    onPreviousMonth = { viewModel.onPreviousMonth() },
+                                    onNextMonth = { viewModel.onNextMonth() },
+                                    isAnimating = isAnimating,
+                                    animationDirection = animationDirection,
+                                    animationType = animationType,
+                                    verticalScale = calendarScale
+                                )
+
+                                if (uiState.showMoonPhases) {
+                                    MoonPhasesComponent(
+                                        yearMonth = uiState.displayedYearMonth,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 0.dp)
+                                    )
+                                }
+                            }
+
+                            IconButton(
+                                onClick = {},
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .size(20.dp)
+                                    .pointerInput("drag-resize-handle") {
+                                        detectVerticalDragGestures(
+                                            onDragStart = { isZooming = true },
+                                            onVerticalDrag = { _, dragAmount ->
+                                                val delta = (-dragAmount) / 400f
+                                                calendarScale = (calendarScale + delta).coerceIn(0.85f, 2.2f)
+                                            },
+                                            onDragEnd = { isZooming = false },
+                                            onDragCancel = { isZooming = false }
+                                        )
+                                    }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.OpenInFull,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -668,9 +710,13 @@ fun AnimatedMonthlyCalendar(
     onNextMonth: () -> Unit,
     isAnimating: Boolean,
     animationDirection: Float,
-    animationType: com.mss.thebigcalendar.data.model.AnimationType = com.mss.thebigcalendar.data.model.AnimationType.NONE
+    animationType: com.mss.thebigcalendar.data.model.AnimationType = com.mss.thebigcalendar.data.model.AnimationType.NONE,
+    verticalScale: Float = 1f
 ) {
     var horizontalDragOffset by remember { mutableFloatStateOf(0f) }
+    var calendarScale by remember { mutableFloatStateOf(1f) }
+    val density = LocalDensity.current
+    // remove rememberTransformableState; using detectTransformGestures instead
     
     // Usar o sistema de animações modular
     val animationValues = com.mss.thebigcalendar.ui.animations.CalendarAnimationState(
@@ -687,15 +733,30 @@ fun AnimatedMonthlyCalendar(
                 this.translationY = animationValues.translationY
                 this.scaleX = animationValues.scaleX
                 this.scaleY = animationValues.scaleY
+                this.transformOrigin = TransformOrigin(0.5f, 0f)
                 this.rotationX = animationValues.rotationX
                 this.rotationY = animationValues.rotationY
                 this.rotationZ = animationValues.rotationZ
                 this.alpha = animationValues.alpha
                 this.shadowElevation = animationValues.shadowElevation
-                
-                // Debug das transformações
                 if (isAnimating) {
                     println("DEBUG: Aplicando animação ${animationType.name} - scale: ${animationValues.scaleX}, alpha: ${animationValues.alpha}")
+                }
+            }
+            .pointerInput("pinch-zoom") {
+                while (true) {
+                    var zooming = false
+                    detectTransformGestures { _, _, zoom, _ ->
+                        val newScale = (calendarScale * zoom).coerceIn(0.85f, 2.2f)
+                        if (newScale != calendarScale) {
+                            if (!zooming) {
+                                zooming = true
+                                // onZoomingChanged(true) // This is now handled by the parent
+                            }
+                            calendarScale = newScale
+                        }
+                    }
+                    // if (zooming) onZoomingChanged(false) // This is now handled by the parent
                 }
             }
             .pointerInput(Unit) {
@@ -721,7 +782,8 @@ fun AnimatedMonthlyCalendar(
         MonthlyCalendar(
             calendarDays = calendarDays,
             onDateSelected = onDateSelected,
-            theme = theme
+            theme = theme,
+            verticalScale = calendarScale * verticalScale
         )
     }
 }
