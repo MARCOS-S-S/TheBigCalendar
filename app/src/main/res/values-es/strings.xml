@@ -578,6 +578,14 @@
     <string name="animation_rotation">Rotación</string>
     <string name="animation_bounce">Rebote</string>
     <string name="animation_none">Sin Animación</string>
+    
+    <!-- Calendar visualization settings -->
+    <string name="calendar_visualization_settings">Opciones de visualización</string>
+    <string name="calendar_visualization_settings_desc">Ajustes de tamaño y densidad del calendario</string>
+    <string name="hide_other_month_days">Ocultar días de otros meses</string>
+    <string name="hide_other_month_days_desc">Elimina los días fuera del mes actual de la cuadrícula</string>
+    <string name="pure_black_theme">Negro puro</string>
+    <string name="pure_black_theme_desc">Usar negro puro en lugar de gris oscuro en modo oscuro</string>
 
 </resources>
 

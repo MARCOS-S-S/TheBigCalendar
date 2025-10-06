@@ -578,6 +578,14 @@
     <string name="animation_rotation">Rotation</string>
     <string name="animation_bounce">Hüpfen</string>
     <string name="animation_none">Keine Animation</string>
+    
+    <!-- Calendar visualization settings -->
+    <string name="calendar_visualization_settings">Visualisierungsoptionen</string>
+    <string name="calendar_visualization_settings_desc">Kalendergröße und Dichte-Einstellungen</string>
+    <string name="hide_other_month_days">Andere Monatstage ausblenden</string>
+    <string name="hide_other_month_days_desc">Entfernt Tage außerhalb des aktuellen Monats aus dem Raster</string>
+    <string name="pure_black_theme">Reines Schwarz</string>
+    <string name="pure_black_theme_desc">Verwende reines Schwarz statt dunkles Grau im dunklen Modus</string>
 
 </resources>
 

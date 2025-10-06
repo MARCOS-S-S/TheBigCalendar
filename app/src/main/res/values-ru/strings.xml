@@ -578,6 +578,14 @@
     <string name="animation_rotation">Поворот</string>
     <string name="animation_bounce">Подпрыгивание</string>
     <string name="animation_none">Без Анимации</string>
+    
+    <!-- Calendar visualization settings -->
+    <string name="calendar_visualization_settings">Параметры отображения</string>
+    <string name="calendar_visualization_settings_desc">Настройки размера и плотности календаря</string>
+    <string name="hide_other_month_days">Скрыть дни других месяцев</string>
+    <string name="hide_other_month_days_desc">Удаляет дни вне текущего месяца из сетки</string>
+    <string name="pure_black_theme">Чистый черный</string>
+    <string name="pure_black_theme_desc">Использовать чистый черный вместо темно-серого в темном режиме</string>
 
 </resources>
 

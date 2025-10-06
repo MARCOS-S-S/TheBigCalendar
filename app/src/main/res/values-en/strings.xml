@@ -574,5 +574,13 @@
     <string name="animation_rotation">Rotation</string>
     <string name="animation_bounce">Bounce</string>
     <string name="animation_none">No Animation</string>
+    
+    <!-- Calendar visualization settings -->
+    <string name="calendar_visualization_settings">Visualization Options</string>
+    <string name="calendar_visualization_settings_desc">Calendar size and density adjustments</string>
+    <string name="hide_other_month_days">Hide other month days</string>
+    <string name="hide_other_month_days_desc">Remove days outside the current month from the grid</string>
+    <string name="pure_black_theme">Pure Black</string>
+    <string name="pure_black_theme_desc">Use pure black instead of dark gray in dark mode</string>
 
 </resources>

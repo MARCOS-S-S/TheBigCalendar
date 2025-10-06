@@ -150,6 +150,47 @@ fun CalendarVisualizationSettingsScreen(
                     }
                 )
             }
+
+            // Opção do preto puro
+            val isDarkThemeActive = when (uiState.theme) {
+                com.mss.thebigcalendar.data.model.Theme.DARK -> true
+                com.mss.thebigcalendar.data.model.Theme.SYSTEM -> isSystemInDarkTheme()
+                else -> false
+            }
+            
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(id = R.string.pure_black_theme),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (isDarkThemeActive) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        }
+                    )
+                    Text(
+                        text = stringResource(id = R.string.pure_black_theme_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (isDarkThemeActive) {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Switch(
+                    checked = false, // Placeholder - será implementado depois
+                    onCheckedChange = { /* Placeholder - será implementado depois */ },
+                    enabled = isDarkThemeActive
+                )
+            }
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = "As alterações são salvas automaticamente.",

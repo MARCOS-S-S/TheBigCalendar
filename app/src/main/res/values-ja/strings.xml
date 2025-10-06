@@ -578,6 +578,14 @@
     <string name="animation_rotation">回転</string>
     <string name="animation_bounce">バウンス</string>
     <string name="animation_none">アニメーションなし</string>
+    
+    <!-- Calendar visualization settings -->
+    <string name="calendar_visualization_settings">表示オプション</string>
+    <string name="calendar_visualization_settings_desc">カレンダーのサイズと密度の調整</string>
+    <string name="hide_other_month_days">他の月の日を非表示</string>
+    <string name="hide_other_month_days_desc">現在の月以外の日をグリッドから削除</string>
+    <string name="pure_black_theme">純粋な黒</string>
+    <string name="pure_black_theme_desc">ダークモードで暗いグレーの代わりに純粋な黒を使用</string>
 
 </resources>
 

@@ -578,6 +578,14 @@
     <string name="animation_rotation">旋转</string>
     <string name="animation_bounce">弹跳</string>
     <string name="animation_none">无动画</string>
+    
+    <!-- Calendar visualization settings -->
+    <string name="calendar_visualization_settings">显示选项</string>
+    <string name="calendar_visualization_settings_desc">日历大小和密度调整</string>
+    <string name="hide_other_month_days">隐藏其他月份的日期</string>
+    <string name="hide_other_month_days_desc">从网格中移除当前月份以外的日期</string>
+    <string name="pure_black_theme">纯黑色</string>
+    <string name="pure_black_theme_desc">在深色模式下使用纯黑色而不是深灰色</string>
 
 </resources>
 

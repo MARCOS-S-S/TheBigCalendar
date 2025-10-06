@@ -578,6 +578,14 @@
     <string name="animation_rotation">Rotazione</string>
     <string name="animation_bounce">Rimbalzo</string>
     <string name="animation_none">Nessuna Animazione</string>
+    
+    <!-- Calendar visualization settings -->
+    <string name="calendar_visualization_settings">Opzioni di visualizzazione</string>
+    <string name="calendar_visualization_settings_desc">Regolazioni di dimensione e densità del calendario</string>
+    <string name="hide_other_month_days">Nascondi giorni di altri mesi</string>
+    <string name="hide_other_month_days_desc">Rimuove i giorni fuori dal mese corrente dalla griglia</string>
+    <string name="pure_black_theme">Nero puro</string>
+    <string name="pure_black_theme_desc">Usa nero puro invece di grigio scuro in modalità scura</string>
 
 </resources>
 

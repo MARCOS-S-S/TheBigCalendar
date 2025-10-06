@@ -584,5 +584,7 @@
     <string name="calendar_visualization_settings_desc">Ajustes de tamanho e densidade do calendário</string>
     <string name="hide_other_month_days">Ocultar dias de outros meses</string>
     <string name="hide_other_month_days_desc">Remove os dias fora do mês atual na grade</string>
+    <string name="pure_black_theme">Preto puro</string>
+    <string name="pure_black_theme_desc">Usa preto puro em vez de cinza escuro no modo escuro</string>
 
 </resources>
