@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,12 +19,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -49,14 +54,19 @@ fun CustomDrawer(
     val drawerWidth = 320.dp
     val drawerWidthPx = with(density) { drawerWidth.toPx() }
     
+    // Estado para controlar o arrasto manual
+    var dragOffset by remember { mutableFloatStateOf(0f) }
+    var isDragging by remember { mutableStateOf(false) }
+    
     val drawerOffset by animateFloatAsState(
         targetValue = when {
+            isDragging -> dragOffset // Durante o arrasto, usar offset manual
             drawerState.isOpen -> 0f
             drawerState.targetValue == DrawerValue.Open -> 0f
             else -> -drawerWidthPx
         },
         animationSpec = tween(
-            durationMillis = animationDuration,
+            durationMillis = if (isDragging) 0 else animationDuration, // Sem animação durante arrasto
             easing = EaseInOutCubic
         ),
         label = "drawerOffset"
@@ -93,7 +103,7 @@ fun CustomDrawer(
             )
         }
         
-        // Drawer com animação de abertura customizada
+        // Drawer com animação de abertura customizada e suporte a arrastar para fechar
         Column(
             modifier = Modifier
                 .fillMaxHeight()
@@ -101,7 +111,36 @@ fun CustomDrawer(
                 .graphicsLayer {
                     translationX = drawerOffset
                 }
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.45f)),
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.45f))
+                .pointerInput(gesturesEnabled && drawerState.isOpen) {
+                    if (gesturesEnabled && drawerState.isOpen) {
+                        detectDragGestures(
+                            onDragStart = { 
+                                isDragging = true
+                                dragOffset = 0f // Reset do offset quando começar a arrastar
+                            },
+                            onDragEnd = {
+                                isDragging = false
+                                // Determinar se deve fechar baseado na distância arrastada
+                                val shouldClose = dragOffset < -drawerWidthPx * 0.3f // 30% da largura
+                                scope.launch {
+                                    if (shouldClose) {
+                                        drawerState.close()
+                                    } else {
+                                        // Voltar para posição aberta
+                                        dragOffset = 0f
+                                    }
+                                }
+                            },
+                            onDrag = { _, dragAmount ->
+                                // Permitir arrastar em ambas as direções durante o arrasto
+                                val newOffset = dragOffset + dragAmount.x
+                                // Limitar entre posição fechada (-drawerWidthPx) e aberta (0f)
+                                dragOffset = newOffset.coerceIn(-drawerWidthPx, 0f)
+                            }
+                        )
+                    }
+                },
             content = drawerContent
         )
     }

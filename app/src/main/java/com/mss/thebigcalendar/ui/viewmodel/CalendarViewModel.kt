@@ -2597,7 +2597,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     fun closePrintCalendarScreen() {
         println("🚪 Fechando tela de impressão de calendário")
-        _uiState.update { it.copy(isPrintCalendarScreenOpen = false) }
+        _uiState.update { it.copy(isPrintCalendarScreenOpen = false, isSidebarOpen = false) }
     }
     
     fun generateCalendarPdf(printOptions: com.mss.thebigcalendar.ui.screens.PrintOptions, onPdfGenerated: (String) -> Unit) {
