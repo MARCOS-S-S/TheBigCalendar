@@ -59,6 +59,7 @@ fun PrintCalendarScreen(
     var includeCompletedTasks by remember { mutableStateOf(false) }
     var orientation by remember { mutableStateOf(PageOrientation.PORTRAIT) }
     var pageSize by remember { mutableStateOf(PageSize.A4) }
+    var hideOtherMonthDays by remember { mutableStateOf(false) }
     var isGeneratingPdf by remember { mutableStateOf(false) }
     var generatedPdfPath by remember { mutableStateOf<String?>(null) }
 
@@ -254,6 +255,25 @@ fun PrintCalendarScreen(
                             label = { Text("A3") }
                         )
                     }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Opção para ocultar dias de outros meses
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Ocultar dias de outros meses",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = hideOtherMonthDays,
+                            onCheckedChange = { hideOtherMonthDays = it }
+                        )
+                    }
                 }
             }
 
@@ -281,7 +301,7 @@ fun PrintCalendarScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(400.dp),
+                            .height(200.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant
                         ),
@@ -303,20 +323,20 @@ fun PrintCalendarScreen(
                                 ) {
                                     Text(
                                         text = "✅ PDF gerado com sucesso!",
-                                        style = MaterialTheme.typography.titleMedium,
+                                        style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     
-                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Spacer(modifier = Modifier.height(6.dp))
                                     
                                     Text(
                                         text = "Arquivo salvo em:",
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                     
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     
                                     Text(
                                         text = generatedPdfPath!!,
@@ -326,7 +346,7 @@ fun PrintCalendarScreen(
                                         modifier = Modifier.padding(horizontal = 16.dp)
                                     )
                                     
-                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Spacer(modifier = Modifier.height(8.dp))
                                     
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -449,19 +469,6 @@ fun PrintCalendarScreen(
                     }
                 }
             }
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(stringResource(id = R.string.pdf_preview_placeholder))
-                }
-            }
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -481,7 +488,8 @@ fun PrintCalendarScreen(
                         includeMoonPhases = includeMoonPhases,
                         includeCompletedTasks = includeCompletedTasks,
                         orientation = orientation,
-                        pageSize = pageSize
+                        pageSize = pageSize,
+                        hideOtherMonthDays = hideOtherMonthDays
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
@@ -521,7 +529,8 @@ data class PrintOptions(
     val includeMoonPhases: Boolean,
     val includeCompletedTasks: Boolean,
     val orientation: PageOrientation,
-    val pageSize: PageSize
+    val pageSize: PageSize,
+    val hideOtherMonthDays: Boolean
 )
 
 enum class PageOrientation { PORTRAIT, LANDSCAPE }

@@ -183,13 +183,23 @@ class PdfGenerationService {
         val isCurrentMonth = date.month == month.month
         
         if (!isCurrentMonth) {
-            // Dias de outros meses - mais claros
-            cell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
-            cell.add(Paragraph(date.dayOfMonth.toString())
-                .setFont(dayFont)
-                .setFontSize(10f)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setFontColor(ColorConstants.GRAY))
+            // Dias de outros meses
+            if (printOptions.hideOtherMonthDays) {
+                // Se a opção estiver ativada, criar célula vazia
+                cell.setBackgroundColor(ColorConstants.WHITE)
+                cell.add(Paragraph("")
+                    .setFont(dayFont)
+                    .setFontSize(10f)
+                    .setTextAlignment(TextAlignment.CENTER))
+            } else {
+                // Dias de outros meses - mais claros (comportamento padrão)
+                cell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
+                cell.add(Paragraph(date.dayOfMonth.toString())
+                    .setFont(dayFont)
+                    .setFontSize(10f)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontColor(ColorConstants.GRAY))
+            }
         } else {
             // Dias do mês atual
             val isToday = date == LocalDate.now()

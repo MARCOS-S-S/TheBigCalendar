@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Para Downloads/TheBigCalendar/ -->
+    <external-path name="downloads" path="Download/TheBigCalendar/"/>
+    <!-- Para Downloads/ -->
+    <external-path name="downloads_root" path="Download/"/>
+    <!-- Para arquivos internos -->
+    <files-path name="files" path="."/>
+    <!-- Para cache -->
+    <cache-path name="cache" path="."/>
+    <!-- Para arquivos externos da app -->
+    <external-files-path name="external_files" path="."/>
+    <!-- Para cache externo -->
+    <external-cache-path name="external_cache" path="."/>
+</paths>
