@@ -1,6 +1,8 @@
 package com.mss.thebigcalendar.ui.screens
 
 import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,8 +18,19 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import android.util.Log
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.webkit.WebSettings
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
+import android.net.Uri
+import java.io.File
+import java.io.FileInputStream
+import java.io.IOException
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.CalendarUiState
 import com.mss.thebigcalendar.data.model.ViewMode
@@ -32,8 +45,9 @@ import java.util.*
 fun PrintCalendarScreen(
     uiState: CalendarUiState,
     onNavigateBack: () -> Unit,
-    onGeneratePdf: (PrintOptions) -> Unit
+    onGeneratePdf: (PrintOptions, (String) -> Unit) -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     var selectedMonth by remember { mutableStateOf(java.time.YearMonth.now()) }
     var includeTasks by remember { mutableStateOf(true) }
     var includeHolidays by remember { mutableStateOf(true) }
@@ -46,6 +60,7 @@ fun PrintCalendarScreen(
     var orientation by remember { mutableStateOf(PageOrientation.PORTRAIT) }
     var pageSize by remember { mutableStateOf(PageSize.A4) }
     var isGeneratingPdf by remember { mutableStateOf(false) }
+    var generatedPdfPath by remember { mutableStateOf<String?>(null) }
 
     // LaunchedEffect para controlar o estado de geração
     LaunchedEffect(isGeneratingPdf) {
@@ -279,19 +294,157 @@ fun PrintCalendarScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            PdfPreviewCalendar(
-                                selectedMonth = selectedMonth,
-                                includeTasks = includeTasks,
-                                includeHolidays = includeHolidays,
-                                includeSaintDays = includeSaintDays,
-                                includeEvents = includeEvents,
-                                includeBirthdays = includeBirthdays,
-                                includeNotes = includeNotes,
-                                includeMoonPhases = includeMoonPhases,
-                                includeCompletedTasks = includeCompletedTasks,
-                                orientation = orientation,
-                                pageSize = pageSize
-                            )
+                            if (generatedPdfPath != null) {
+                                // Mostrar mensagem de sucesso e opção para abrir PDF
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = "✅ PDF gerado com sucesso!",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    
+                                    Text(
+                                        text = "Arquivo salvo em:",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    
+                                    Text(
+                                        text = generatedPdfPath!!,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Button(
+                                            onClick = {
+                                            try {
+                                                // Abrir PDF com visualizador padrão do sistema
+                                                val file = File(generatedPdfPath!!)
+                                                android.util.Log.d("PrintCalendar", "📁 Tentando abrir arquivo: ${file.absolutePath}")
+                                                android.util.Log.d("PrintCalendar", "📁 Arquivo existe: ${file.exists()}")
+                                                android.util.Log.d("PrintCalendar", "📁 Arquivo pode ler: ${file.canRead()}")
+                                                
+                                                val uri = androidx.core.content.FileProvider.getUriForFile(
+                                                    context,
+                                                    "${context.packageName}.fileprovider",
+                                                    file
+                                                )
+                                                android.util.Log.d("PrintCalendar", "🔗 URI gerado: $uri")
+                                                    
+                                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                                                    setDataAndType(uri, "application/pdf")
+                                                    addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                }
+                                                
+                                                // Criar chooser para permitir ao usuário escolher o app
+                                                val chooserIntent = android.content.Intent.createChooser(
+                                                    intent,
+                                                    "Abrir PDF com"
+                                                )
+                                                chooserIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                
+                                                // Tentar abrir o chooser (o Android já lida com apps disponíveis)
+                                                try {
+                                                    context.startActivity(chooserIntent)
+                                                } catch (e: android.content.ActivityNotFoundException) {
+                                                    // Se não há apps disponíveis, mostrar mensagem
+                                                    android.util.Log.d("PrintCalendar", "Nenhum app disponível para abrir PDF")
+                                                    android.widget.Toast.makeText(
+                                                        context,
+                                                        "Nenhum visualizador de PDF encontrado. Instale um app como Adobe Reader ou Google PDF Viewer.",
+                                                        android.widget.Toast.LENGTH_LONG
+                                                    ).show()
+                                                }
+                                                } catch (e: Exception) {
+                                                    android.util.Log.e("PrintCalendar", "Erro ao abrir PDF: ${e.message}", e)
+                                                    android.widget.Toast.makeText(
+                                                        context,
+                                                        "Erro ao abrir PDF: ${e.message}",
+                                                        android.widget.Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            },
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.primary
+                                            )
+                                        ) {
+                                            Text("Abrir PDF")
+                                        }
+                                        
+                                        Button(
+                                            onClick = {
+                                            try {
+                                                // Compartilhar PDF
+                                                val file = File(generatedPdfPath!!)
+                                                android.util.Log.d("PrintCalendar", "📤 Tentando compartilhar arquivo: ${file.absolutePath}")
+                                                android.util.Log.d("PrintCalendar", "📤 Arquivo existe: ${file.exists()}")
+                                                android.util.Log.d("PrintCalendar", "📤 Arquivo pode ler: ${file.canRead()}")
+                                                
+                                                val uri = androidx.core.content.FileProvider.getUriForFile(
+                                                    context,
+                                                    "${context.packageName}.fileprovider",
+                                                    file
+                                                )
+                                                android.util.Log.d("PrintCalendar", "🔗 URI gerado para compartilhar: $uri")
+                                                    
+                                                    val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                                        setType("application/pdf")
+                                                        putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                                                        addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                                    }
+                                                    
+                                                    val chooserIntent = android.content.Intent.createChooser(
+                                                        shareIntent,
+                                                        "Compartilhar PDF"
+                                                    )
+                                                    chooserIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                    context.startActivity(chooserIntent)
+                                                } catch (e: Exception) {
+                                                    android.util.Log.e("PrintCalendar", "Erro ao compartilhar PDF: ${e.message}", e)
+                                                    android.widget.Toast.makeText(
+                                                        context,
+                                                        "Erro ao compartilhar PDF: ${e.message}",
+                                                        android.widget.Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            },
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.secondary
+                                            )
+                                        ) {
+                                            Text("Compartilhar")
+                                        }
+                                    }
+                                }
+                            } else {
+                                // Mostrar mensagem quando não há PDF
+                                Text(
+                                    text = stringResource(id = R.string.pdf_preview_placeholder),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                            }
                         }
                     }
                 }
@@ -331,7 +484,9 @@ fun PrintCalendarScreen(
                         pageSize = pageSize
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
-                    onGeneratePdf(options)
+                    onGeneratePdf(options) { pdfPath ->
+                        generatedPdfPath = pdfPath
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !isGeneratingPdf
@@ -349,210 +504,6 @@ fun PrintCalendarScreen(
                     }
                 } else {
                     Text(stringResource(id = R.string.generate_pdf))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun PdfPreviewCalendar(
-    selectedMonth: java.time.YearMonth,
-    includeTasks: Boolean,
-    includeHolidays: Boolean,
-    includeSaintDays: Boolean,
-    includeEvents: Boolean,
-    includeBirthdays: Boolean,
-    includeNotes: Boolean,
-    includeMoonPhases: Boolean,
-    includeCompletedTasks: Boolean,
-    orientation: PageOrientation,
-    pageSize: PageSize
-) {
-    // Calcular proporções baseadas na orientação e tamanho
-    val aspectRatio = when {
-        orientation == PageOrientation.LANDSCAPE -> 1.4f // Paisagem é mais larga
-        pageSize == PageSize.A3 -> 1.2f // A3 é maior que A4
-        else -> 0.7f // A4 retrato é mais alta
-    }
-    
-    val previewScale = when {
-        orientation == PageOrientation.LANDSCAPE -> 0.8f
-        pageSize == PageSize.A3 -> 0.9f
-        else -> 1.0f
-    }
-    
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(aspectRatio),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = androidx.compose.foundation.BorderStroke(
-            2.dp, 
-            MaterialTheme.colorScheme.outline
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .scale(previewScale),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Título do mês (como no PDF)
-            Text(
-                text = selectedMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Grade do calendário (simulando o PDF)
-            val firstDayOfMonth = selectedMonth.atDay(1)
-            val firstSunday = firstDayOfMonth.minusDays((firstDayOfMonth.dayOfWeek.value % 7).toLong())
-            
-            // Cabeçalho dos dias da semana
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                listOf("Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb").forEach { day ->
-                    Text(
-                        text = day,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            // Grade de dias (6 semanas x 7 dias)
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                for (week in 0..5) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        for (dayOfWeek in 0..6) {
-                            val currentDate = firstSunday.plusDays(((week * 7) + dayOfWeek).toLong())
-                            val isCurrentMonth = currentDate.month == selectedMonth.month
-                            val isToday = currentDate.isEqual(java.time.LocalDate.now())
-                            
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(if (orientation == PageOrientation.LANDSCAPE) 24.dp else 32.dp)
-                                    .padding(1.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Card(
-                                    modifier = Modifier.fillMaxSize(),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = when {
-                                            isToday -> MaterialTheme.colorScheme.primaryContainer
-                                            isCurrentMonth -> MaterialTheme.colorScheme.surface
-                                            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                                        }
-                                    ),
-                                    border = androidx.compose.foundation.BorderStroke(
-                                        0.5.dp,
-                                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                                    )
-                                ) {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = currentDate.dayOfMonth.toString(),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                                            color = when {
-                                                isToday -> MaterialTheme.colorScheme.onPrimaryContainer
-                                                isCurrentMonth -> MaterialTheme.colorScheme.onSurface
-                                                else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(1.dp))
-                        }
-                    }
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Informações sobre o que será incluído
-            Text(
-                text = buildString {
-                    append("Incluindo: ")
-                    val items = mutableListOf<String>()
-                    if (includeTasks) items.add("Tarefas")
-                    if (includeHolidays) items.add("Feriados")
-                    if (includeSaintDays) items.add("Santos")
-                    if (includeEvents) items.add("Eventos")
-                    if (includeBirthdays) items.add("Aniversários")
-                    if (includeNotes) items.add("Notas")
-                    if (includeMoonPhases) items.add("Fases da Lua")
-                    if (includeCompletedTasks) items.add("Tarefas Completadas")
-                    append(items.joinToString(", "))
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-            
-            // Informações de formato com destaque visual
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Indicador de orientação
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (orientation == PageOrientation.PORTRAIT) 
-                            MaterialTheme.colorScheme.primaryContainer 
-                        else MaterialTheme.colorScheme.secondaryContainer
-                    )
-                ) {
-                    Text(
-                        text = if (orientation == PageOrientation.PORTRAIT) "📄 Retrato" else "📄 Paisagem",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (orientation == PageOrientation.PORTRAIT) 
-                            MaterialTheme.colorScheme.onPrimaryContainer 
-                        else MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-                
-                // Indicador de tamanho
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (pageSize == PageSize.A4) 
-                            MaterialTheme.colorScheme.primaryContainer 
-                        else MaterialTheme.colorScheme.secondaryContainer
-                    )
-                ) {
-                    Text(
-                        text = if (pageSize == PageSize.A4) "📏 A4" else "📏 A3",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (pageSize == PageSize.A4) 
-                            MaterialTheme.colorScheme.onPrimaryContainer 
-                        else MaterialTheme.colorScheme.onSecondaryContainer,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
                 }
             }
         }

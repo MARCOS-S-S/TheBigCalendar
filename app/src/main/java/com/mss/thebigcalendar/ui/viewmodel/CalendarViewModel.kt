@@ -2600,7 +2600,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(isPrintCalendarScreenOpen = false) }
     }
     
-    fun generateCalendarPdf(printOptions: com.mss.thebigcalendar.ui.screens.PrintOptions) {
+    fun generateCalendarPdf(printOptions: com.mss.thebigcalendar.ui.screens.PrintOptions, onPdfGenerated: (String) -> Unit) {
         viewModelScope.launch {
             try {
                 android.util.Log.d("CalendarViewModel", "🖨️ Gerando PDF do calendário para ${printOptions.selectedMonth}")
@@ -2667,7 +2667,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 
                 android.util.Log.d("CalendarViewModel", "✅ PDF gerado com sucesso: ${pdfFile.absolutePath}")
                 
-                // TODO: Mostrar notificação de sucesso ou abrir o arquivo
+                // Notificar que o PDF foi gerado
+                onPdfGenerated(pdfFile.absolutePath)
                 
             } catch (e: Exception) {
                 android.util.Log.e("CalendarViewModel", "❌ Erro ao gerar PDF: ${e.message}", e)

@@ -367,8 +367,8 @@ class MainActivity : ComponentActivity() {
                             PrintCalendarScreen(
                                 uiState = uiState,
                                 onNavigateBack = { viewModel.closePrintCalendarScreen() },
-                                onGeneratePdf = { printOptions ->
-                                    viewModel.generateCalendarPdf(printOptions)
+                                onGeneratePdf = { printOptions, onPdfGenerated ->
+                                    viewModel.generateCalendarPdf(printOptions, onPdfGenerated)
                                 }
                             )
                         }
