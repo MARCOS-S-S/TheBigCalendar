@@ -202,22 +202,12 @@ class PdfGenerationService {
             }
         } else {
             // Dias do mês atual
-            val isToday = date == LocalDate.now()
-            
-            if (isToday) {
-                cell.setBackgroundColor(ColorConstants.YELLOW)
-            }
-            
             // Número do dia
             val dayParagraph = Paragraph(date.dayOfMonth.toString())
                 .setFont(dayFont)
                 .setFontSize(12f)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setBold()
-            
-            if (isToday) {
-                dayParagraph.setFontColor(ColorConstants.RED)
-            }
             
             cell.add(dayParagraph)
             
