@@ -44,6 +44,7 @@ import com.mss.thebigcalendar.ui.screens.SchedulesScreen
 import com.mss.thebigcalendar.ui.screens.AlarmsScreen
 import com.mss.thebigcalendar.ui.screens.GeneralSettingsScreen
 import com.mss.thebigcalendar.ui.screens.CompletedTasksScreen
+import com.mss.thebigcalendar.ui.screens.PrintCalendarScreen
 import com.mss.thebigcalendar.ui.screens.BackupScreen
 import com.mss.thebigcalendar.ui.screens.JsonConfigScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
@@ -201,6 +202,7 @@ class MainActivity : ComponentActivity() {
                     state.isTrashScreenOpen -> viewModel.closeTrashScreen()
                     state.isBackupScreenOpen -> viewModel.closeBackupScreen()
                     state.isCompletedTasksScreenOpen -> viewModel.closeCompletedTasksScreen()
+            state.isPrintCalendarScreenOpen -> viewModel.closePrintCalendarScreen()
                     state.isJsonConfigScreenOpen -> viewModel.closeJsonConfigScreen()
                     else -> finish()
                 }
@@ -358,6 +360,15 @@ class MainActivity : ComponentActivity() {
                                 onBackPressedDispatcher = onBackPressedDispatcher,
                                 onDeleteCompletedActivity = { activityId ->
                                     viewModel.deleteCompletedActivity(activityId)
+                                }
+                            )
+                        }
+                        uiState.isPrintCalendarScreenOpen -> {
+                            PrintCalendarScreen(
+                                uiState = uiState,
+                                onNavigateBack = { viewModel.closePrintCalendarScreen() },
+                                onGeneratePdf = { printOptions ->
+                                    viewModel.generateCalendarPdf(printOptions)
                                 }
                             )
                         }

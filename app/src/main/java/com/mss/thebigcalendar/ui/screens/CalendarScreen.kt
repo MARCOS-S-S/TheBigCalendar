@@ -187,6 +187,7 @@ fun CalendarScreen(
                     onBackup = { viewModel.onBackupIconClick() },
                     onNotesClick = { viewModel.onNotesClick() },
                     onAlarmsClick = { viewModel.onAlarmsClick() },
+                    onPrintCalendar = { viewModel.onPrintCalendarClick() },
                     onRequestClose = {
                         scope.launch { drawerState.close() }
                         viewModel.closeSidebar()

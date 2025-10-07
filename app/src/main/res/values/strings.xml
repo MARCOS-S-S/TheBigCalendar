@@ -88,6 +88,16 @@
     <string name="show_on_calendar">Mostrar no Calendário</string>
     <string name="show_in_menu">Mostrar no menu</string>
     <string name="settings">Configurações</string>
+    <string name="print_calendar">Imprimir Calendário</string>
+    <string name="content_options">Opções de Conteúdo</string>
+    <string name="print_settings">Configurações de Impressão</string>
+    <string name="orientation">Orientação</string>
+    <string name="portrait">Retrato</string>
+    <string name="landscape">Paisagem</string>
+    <string name="page_size">Tamanho da Página</string>
+    <string name="preview">Visualização</string>
+    <string name="pdf_preview_placeholder">Visualização do PDF aparecerá aqui</string>
+    <string name="generate_pdf">Gerar PDF</string>
     <string name="general">Geral</string>
     <string name="backup">Backup</string>
     <string name="do_backup">Backup</string>

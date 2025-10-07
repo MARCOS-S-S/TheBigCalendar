@@ -136,6 +136,12 @@ dependencies {
     implementation(libs.androidx.tools.core)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui)
+    
+    // Dependências para geração de PDF
+    implementation("com.itextpdf:itext7-core:7.2.5")
+    implementation("com.itextpdf:kernel:7.2.5")
+    implementation("com.itextpdf:io:7.2.5")
+    implementation("com.itextpdf:layout:7.2.5")
 
     // Dependências de Teste
     testImplementation(libs.junit)

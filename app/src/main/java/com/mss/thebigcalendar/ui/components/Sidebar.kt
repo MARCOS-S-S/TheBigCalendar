@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Backup
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -90,6 +91,7 @@ fun Sidebar(
     onBackup: () -> Unit,
     onNotesClick: () -> Unit,
     onAlarmsClick: () -> Unit,
+    onPrintCalendar: () -> Unit,
     onRequestClose: () -> Unit,
     onDeleteJsonCalendar: (com.mss.thebigcalendar.data.model.JsonCalendar) -> Unit,
     onToggleSidebarFilterVisibility: (String) -> Unit
@@ -306,6 +308,12 @@ fun Sidebar(
                 icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
                 selected = false,
                 onClick = { onNavigateToSettings("General") }
+            )
+            NavigationDrawerItem(
+                label = { Text(stringResource(id = R.string.print_calendar)) },
+                icon = { Icon(Icons.Filled.Print, contentDescription = null) },
+                selected = false,
+                onClick = { onPrintCalendar() }
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))

@@ -12,13 +12,11 @@ import com.google.android.gms.tasks.Task
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
 import com.mss.thebigcalendar.data.model.CalendarDay
-import com.mss.thebigcalendar.data.model.CalendarFilterOptions
 import com.mss.thebigcalendar.data.model.CalendarUiState
 import com.mss.thebigcalendar.data.model.Holiday
 import com.mss.thebigcalendar.data.model.SearchResult
 import com.mss.thebigcalendar.data.model.Theme
 import com.mss.thebigcalendar.data.model.ViewMode
-import com.mss.thebigcalendar.data.model.JsonScheduleData
 import com.mss.thebigcalendar.data.model.JsonSchedule
 import com.mss.thebigcalendar.data.model.toActivity
 import com.mss.thebigcalendar.data.model.JsonCalendar
@@ -58,7 +56,6 @@ import java.time.temporal.TemporalAdjusters
 import java.util.UUID
 import androidx.work.WorkManager
 import androidx.work.PeriodicWorkRequestBuilder
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.work.Constraints
@@ -69,7 +66,6 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.firstOrNull
-import org.json.JSONObject
 import org.json.JSONArray
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -103,6 +99,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val recurrenceService = RecurrenceService()
     private val backupService = BackupService(application, activityRepository, deletedActivityRepository, completedActivityRepository)
     private val visibilityService = VisibilityService(application)
+    private val pdfGenerationService = com.mss.thebigcalendar.data.service.PdfGenerationService()
 
     // State Management
     private val _uiState = MutableStateFlow(CalendarUiState())
@@ -172,7 +169,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         // Desregistrar broadcast receiver
         try {
             getApplication<Application>().unregisterReceiver(notificationBroadcastReceiver)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Ignorar erro se o receiver não estiver registrado
         }
     }
@@ -766,7 +763,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                                 
                                 // Para atividades recorrentes, verificar se esta data específica foi excluída
                                 val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true) {
-                                    if (activity.recurrenceRule?.startsWith("FREQ=HOURLY") == true) {
+                                    if (activity.recurrenceRule.startsWith("FREQ=HOURLY") == true) {
                                         // Para atividades HOURLY, verificar se a instância específica foi excluída
                                         val timeString = activity.startTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
                                         val instanceId = "${activity.id}_${date}_${timeString}"
@@ -2590,6 +2587,88 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun closeCompletedTasksScreen() {
         println("🚪 Fechando tela de tarefas concluídas")
         _uiState.update { it.copy(isCompletedTasksScreenOpen = false) }
+    }
+    
+    // --- Impressão de Calendário ---
+    fun onPrintCalendarClick() {
+        println("🖨️ Abrindo tela de impressão de calendário")
+        _uiState.update { it.copy(isPrintCalendarScreenOpen = true) }
+    }
+
+    fun closePrintCalendarScreen() {
+        println("🚪 Fechando tela de impressão de calendário")
+        _uiState.update { it.copy(isPrintCalendarScreenOpen = false) }
+    }
+    
+    fun generateCalendarPdf(printOptions: com.mss.thebigcalendar.ui.screens.PrintOptions) {
+        viewModelScope.launch {
+            try {
+                println("🖨️ Gerando PDF do calendário para ${printOptions.selectedMonth}")
+                
+                // Filtrar dados do mês selecionado
+                val monthActivities = _uiState.value.activities.filter { 
+                    val activityDate = LocalDate.parse(it.date)
+                    activityDate.year == printOptions.selectedMonth.year && 
+                    activityDate.month == printOptions.selectedMonth.month 
+                }
+                
+                val monthHolidays = _uiState.value.nationalHolidays.values.filter { holiday ->
+                    val holidayDate = LocalDate.parse(holiday.date)
+                    holidayDate.year == printOptions.selectedMonth.year && 
+                    holidayDate.month == printOptions.selectedMonth.month 
+                }
+                
+                val monthJsonHolidays = _uiState.value.activities.filter { activity ->
+                    val activityDate = LocalDate.parse(activity.date)
+                    val isJsonImported = activity.location?.startsWith("JSON_IMPORTED_") == true
+                    val dateMatches = activityDate.year == printOptions.selectedMonth.year && 
+                                    activityDate.month == printOptions.selectedMonth.month
+                    isJsonImported && dateMatches
+                }.map { activity ->
+                    // Converter Activity para JsonHoliday para o PDF
+                    val activityColor = try {
+                        androidx.compose.ui.graphics.Color(android.graphics.Color.parseColor(activity.categoryColor))
+                    } catch (e: Exception) {
+                        androidx.compose.ui.graphics.Color.Blue
+                    }
+                    
+                    com.mss.thebigcalendar.data.model.JsonHoliday(
+                        id = activity.id,
+                        name = activity.title,
+                        date = activity.date,
+                        summary = activity.description,
+                        wikipediaLink = activity.wikipediaLink,
+                        calendarId = "unknown",
+                        calendarTitle = "JSON Calendar",
+                        calendarColor = activityColor
+                    )
+                }
+                
+                // Obter fases da lua para o mês selecionado
+                val moonPhaseRepository = com.mss.thebigcalendar.data.repository.MoonPhaseRepository(getApplication())
+                val monthMoonPhases = moonPhaseRepository.getMoonPhasesForMonth(
+                    java.time.YearMonth.from(printOptions.selectedMonth)
+                )
+                
+                // Gerar PDF
+                val pdfFile = pdfGenerationService.generateCalendarPdf(
+                    printOptions = printOptions,
+                    activities = monthActivities,
+                    holidays = monthHolidays,
+                    jsonHolidays = monthJsonHolidays,
+                    moonPhases = monthMoonPhases
+                )
+                
+                println("✅ PDF gerado com sucesso: ${pdfFile.absolutePath}")
+                
+                // TODO: Mostrar notificação de sucesso ou abrir o arquivo
+                
+            } catch (e: Exception) {
+                println("❌ Erro ao gerar PDF: ${e.message}")
+                e.printStackTrace()
+                // TODO: Mostrar erro para o usuário
+            }
+        }
     }
     
     fun deleteCompletedActivity(activityId: String) {
