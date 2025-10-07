@@ -60,6 +60,7 @@ fun PrintCalendarScreen(
     var orientation by remember { mutableStateOf(PageOrientation.PORTRAIT) }
     var pageSize by remember { mutableStateOf(PageSize.A4) }
     var hideOtherMonthDays by remember { mutableStateOf(false) }
+    var showDayBorders by remember { mutableStateOf(true) }
     var isGeneratingPdf by remember { mutableStateOf(false) }
     var generatedPdfPath by remember { mutableStateOf<String?>(null) }
 
@@ -273,6 +274,25 @@ fun PrintCalendarScreen(
                         Switch(
                             checked = hideOtherMonthDays,
                             onCheckedChange = { hideOtherMonthDays = it }
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    // Opção para mostrar bordas dos dias
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Mostrar bordas dos dias",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = showDayBorders,
+                            onCheckedChange = { showDayBorders = it }
                         )
                     }
                 }
@@ -490,7 +510,8 @@ fun PrintCalendarScreen(
                         includeCompletedTasks = includeCompletedTasks,
                         orientation = orientation,
                         pageSize = pageSize,
-                        hideOtherMonthDays = hideOtherMonthDays
+                        hideOtherMonthDays = hideOtherMonthDays,
+                        showDayBorders = showDayBorders
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
@@ -531,7 +552,8 @@ data class PrintOptions(
     val includeCompletedTasks: Boolean,
     val orientation: PageOrientation,
     val pageSize: PageSize,
-    val hideOtherMonthDays: Boolean
+    val hideOtherMonthDays: Boolean,
+    val showDayBorders: Boolean
 )
 
 enum class PageOrientation { PORTRAIT, LANDSCAPE }

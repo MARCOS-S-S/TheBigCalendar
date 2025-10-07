@@ -7,6 +7,7 @@ import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.borders.Border
+import com.itextpdf.layout.borders.SolidBorder
 import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.element.Table
@@ -175,9 +176,15 @@ class PdfGenerationService {
     ): Cell {
         
         val cell = Cell()
-            .setBorder(Border.NO_BORDER)
             .setPadding(4f)
             .setMinHeight(80f)
+        
+        // Configurar bordas baseado na opção
+        if (printOptions.showDayBorders) {
+            cell.setBorder(SolidBorder(1f))
+        } else {
+            cell.setBorder(Border.NO_BORDER)
+        }
         
         // Verificar se é do mês atual
         val isCurrentMonth = date.month == month.month
