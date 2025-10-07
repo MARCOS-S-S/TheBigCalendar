@@ -77,7 +77,7 @@ class PdfGenerationService {
             // Título do calendário
             val monthYear = printOptions.selectedMonth.format(
                 DateTimeFormatter.ofPattern("MMMM yyyy", Locale("pt", "BR"))
-            )
+            ).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale("pt", "BR")) else it.toString() }
             val title = Paragraph(monthYear)
                 .setFont(titleFont)
                 .setFontSize(24f)
