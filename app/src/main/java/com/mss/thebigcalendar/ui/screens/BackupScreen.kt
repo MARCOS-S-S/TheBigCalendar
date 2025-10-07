@@ -172,31 +172,58 @@ fun BackupScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
             
-            // Mensagem de backup se existir
-            uiState.backupMessage?.let { message ->
-                item {
-                    Box(
+            // Progresso de restauração (barra real) ou mensagem
+            item {
+                if (uiState.isRestoringBackup) {
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
-                            .background(
-                                if (message.contains("sucesso", ignoreCase = true)) {
-                                    MaterialTheme.colorScheme.primaryContainer
-                                } else {
-                                    MaterialTheme.colorScheme.errorContainer
-                                }
-                            )
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = message,
+                            text = stringResource(R.string.restore_backup),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = if (message.contains("sucesso", ignoreCase = true)) {
-                                MaterialTheme.colorScheme.onPrimaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.onErrorContainer
-                            }
+                            color = MaterialTheme.colorScheme.onSurface
                         )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        androidx.compose.material3.LinearProgressIndicator(
+                            progress = { uiState.restoreProgress.coerceIn(0f, 1f) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "${(uiState.restoreProgress * 100).toInt()}%",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    uiState.backupMessage?.let { message ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    if (message.contains("sucesso", ignoreCase = true)) {
+                                        MaterialTheme.colorScheme.primaryContainer
+                                    } else {
+                                        MaterialTheme.colorScheme.errorContainer
+                                    }
+                                )
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = message,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = if (message.contains("sucesso", ignoreCase = true)) {
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                } else {
+                                    MaterialTheme.colorScheme.onErrorContainer
+                                }
+                            )
+                        }
                     }
                 }
             }

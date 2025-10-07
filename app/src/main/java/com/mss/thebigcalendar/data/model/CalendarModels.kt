@@ -117,6 +117,8 @@ data class CalendarUiState(
     val isTrashScreenOpen: Boolean = false,
     val isBackupScreenOpen: Boolean = false,
     val backupMessage: String? = null,
+    val isRestoringBackup: Boolean = false,
+    val restoreProgress: Float = 0f,
     val needsStoragePermission: Boolean = false,
     val backupFiles: List<BackupInfo> = emptyList(),
     val showCompletedActivities: Boolean = false,

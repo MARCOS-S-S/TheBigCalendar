@@ -2942,13 +2942,16 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             try {
                 println("🔄 Iniciando restauração do backup: $filePath")
                 _uiState.update { it.copy(
-                    backupMessage = "Restauração em andamento..."
+                    backupMessage = null,
+                    isRestoringBackup = true,
+                    restoreProgress = 0f
                 ) }
                 
                 val backupFile = java.io.File(filePath)
                 if (!backupFile.exists()) {
                     _uiState.update { it.copy(
-                        backupMessage = "Arquivo de backup não encontrado"
+                        backupMessage = "Arquivo de backup não encontrado",
+                        isRestoringBackup = false
                     ) }
                     return@launch
                 }
@@ -2962,31 +2965,36 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         println("   - Itens da lixeira: ${result.deletedActivities.size}")
                         println("   - Atividades concluídas: ${result.completedActivities.size}")
                         
-                        // Limpar dados atuais
+                        // Etapa 1/5: Limpar dados atuais
                         clearAllCurrentData()
+                        _uiState.update { it.copy(restoreProgress = 0.2f) }
                         
-                        // Restaurar atividades
+                        // Etapa 2/5: Restaurar atividades
                         result.activities.forEach { activity ->
                             activityRepository.saveActivity(activity)
                         }
+                        _uiState.update { it.copy(restoreProgress = 0.5f) }
                         
-                        // Restaurar itens da lixeira
+                        // Etapa 3/5: Restaurar itens da lixeira
                         result.deletedActivities.forEach { deletedActivity ->
                             deletedActivityRepository.addDeletedActivity(deletedActivity.originalActivity)
                         }
+                        _uiState.update { it.copy(restoreProgress = 0.65f) }
                         
-                        // Restaurar atividades concluídas
+                        // Etapa 4/5: Restaurar atividades concluídas
                         result.completedActivities.forEach { activity ->
                             completedActivityRepository.addCompletedActivity(activity)
                         }
+                        _uiState.update { it.copy(restoreProgress = 0.8f) }
                         
                         _uiState.update { it.copy(
                             backupMessage = "Backup restaurado com sucesso! ${result.activities.size} atividades, ${result.deletedActivities.size} itens da lixeira e ${result.completedActivities.size} atividades concluídas restaurados."
                         ) }
                         
-                        // Recarregar dados da UI
+                        // Etapa 5/5: Recarregar dados da UI
                         loadData()
                         loadBackupFiles()
+                        _uiState.update { it.copy(restoreProgress = 0.9f) }
 
                         // Reagendar notificações
                         val notificationService = NotificationService(getApplication())
@@ -2998,12 +3006,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                         viewModelScope.launch {
                             delay(500) // Aguardar 500ms para garantir que os dados foram persistidos
                             notifyWidgetsDataChanged()
+                            _uiState.update { it.copy(
+                                isRestoringBackup = false,
+                                restoreProgress = 1f
+                            ) }
                         }
                     },
                     onFailure = { exception ->
                         println("❌ Erro ao restaurar backup: ${exception.message}")
                         _uiState.update { it.copy(
-                            backupMessage = "Erro ao restaurar backup: ${exception.message}"
+                            backupMessage = "Erro ao restaurar backup: ${exception.message}",
+                            isRestoringBackup = false
                         ) }
                     }
                 )
@@ -3011,7 +3024,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
             } catch (e: Exception) {
                 println("❌ Erro inesperado ao restaurar backup: ${e.message}")
                 _uiState.update { it.copy(
-                    backupMessage = "Erro inesperado: ${e.message}"
+                    backupMessage = "Erro inesperado: ${e.message}",
+                    isRestoringBackup = false
                 ) }
             }
         }
