@@ -241,90 +241,95 @@ private fun DayCell(
         // Filtrar apenas tarefas que devem aparecer no calendário (memoizado por lista de tarefas)
         val visibleTasks = remember(day.tasks) { day.tasks.filter { it.showInCalendar } }
 
-        if (visibleTasks.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(1.dp))
-
-            if (isCompact) {
-                // Modo compacto: mostrar apenas bolinhas coloridas lado a lado
-                val fallbackColor = MaterialTheme.colorScheme.secondaryContainer
+        if (isCompact) {
+            // Dots no modo compacto: incluir tarefas e agendamentos JSON
+            val fallbackColor = MaterialTheme.colorScheme.secondaryContainer
+            val taskDotColors = visibleTasks.map { task ->
+                remember(task.categoryColor, task.activityType) {
+                    when {
+                        task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> Color(0xFFE91E63)
+                        task.activityType == com.mss.thebigcalendar.data.model.ActivityType.NOTE -> Color(0xFF9C27B0)
+                        task.categoryColor == "1" -> Color.White
+                        task.categoryColor == "2" -> Color.Blue
+                        task.categoryColor == "3" -> Color.Yellow
+                        task.categoryColor == "4" -> Color.Red
+                        else -> fallbackColor
+                    }
+                }
+            }
+            val jsonDotColors = day.jsonHolidays.map { it.calendarColor }
+            val allDotColors = (taskDotColors + jsonDotColors).take(6)
+            if (allDotColors.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(1.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    visibleTasks.take(6).forEach { task ->
-                        val taskColor = remember(task.categoryColor, task.activityType) {
-                            when {
-                                task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> Color(0xFFE91E63)
-                                task.activityType == com.mss.thebigcalendar.data.model.ActivityType.NOTE -> Color(0xFF9C27B0)
-                                task.categoryColor == "1" -> Color.White
-                                task.categoryColor == "2" -> Color.Blue
-                                task.categoryColor == "3" -> Color.Yellow
-                                task.categoryColor == "4" -> Color.Red
-                                else -> fallbackColor
-                            }
-                        }
+                    allDotColors.forEach { dotColor ->
                         Box(
                             modifier = Modifier
                                 .padding(horizontal = 1.dp)
                                 .size(4.dp)
                                 .clip(CircleShape)
-                                .background(taskColor)
+                                .background(dotColor)
                         )
                     }
                 }
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(0.dp)
-                ) {
-                    val fallbackColor = MaterialTheme.colorScheme.secondaryContainer
-                    visibleTasks.take(2).forEach { task ->
-                        val taskColor = remember(task.categoryColor, task.activityType) {
-                            when {
-                                task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> Color(0xFFE91E63) // Rosa para aniversários
-                                task.activityType == com.mss.thebigcalendar.data.model.ActivityType.NOTE -> Color(0xFF9C27B0) // Roxo para notas
-                                task.categoryColor == "1" -> Color.White
-                                task.categoryColor == "2" -> Color.Blue
-                                task.categoryColor == "3" -> Color.Yellow
-                                task.categoryColor == "4" -> Color.Red
-                                else -> fallbackColor
-                            }
-                        }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(width = 3.dp, height = 7.dp)
-                                    .background(taskColor, RoundedCornerShape(2.dp))
-                            )
-                            Spacer(Modifier.width(3.dp))
-                            Text(
-                                text = task.title,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                                fontSize = 9.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
+            }
+        } else if (visibleTasks.isNotEmpty()) {
+            // Renderização detalhada no modo normal (somente tarefas)
+            Spacer(modifier = Modifier.height(1.dp))
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
+                val fallbackColor = MaterialTheme.colorScheme.secondaryContainer
+                visibleTasks.take(2).forEach { task ->
+                    val taskColor = remember(task.categoryColor, task.activityType) {
+                        when {
+                            task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> Color(0xFFE91E63) // Rosa para aniversários
+                            task.activityType == com.mss.thebigcalendar.data.model.ActivityType.NOTE -> Color(0xFF9C27B0) // Roxo para notas
+                            task.categoryColor == "1" -> Color.White
+                            task.categoryColor == "2" -> Color.Blue
+                            task.categoryColor == "3" -> Color.Yellow
+                            task.categoryColor == "4" -> Color.Red
+                            else -> fallbackColor
                         }
                     }
-                    if (visibleTasks.size > 2) {
-                        Row (
-                            modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            repeat(3) {
-                                Box(
-                                    modifier = Modifier
-                                        .padding(horizontal = 1.dp)
-                                        .size(3.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.onSurfaceVariant)
-                                )
-                            }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(width = 3.dp, height = 7.dp)
+                                .background(taskColor, RoundedCornerShape(2.dp))
+                        )
+                        Spacer(Modifier.width(3.dp))
+                        Text(
+                            text = task.title,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                            fontSize = 9.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                if (visibleTasks.size > 2) {
+                    Row (
+                        modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        repeat(3) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 1.dp)
+                                    .size(3.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                            )
                         }
                     }
                 }
