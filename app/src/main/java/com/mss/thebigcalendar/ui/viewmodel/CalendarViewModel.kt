@@ -2603,7 +2603,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun generateCalendarPdf(printOptions: com.mss.thebigcalendar.ui.screens.PrintOptions) {
         viewModelScope.launch {
             try {
-                println("🖨️ Gerando PDF do calendário para ${printOptions.selectedMonth}")
+                android.util.Log.d("CalendarViewModel", "🖨️ Gerando PDF do calendário para ${printOptions.selectedMonth}")
                 
                 // Filtrar dados do mês selecionado
                 val monthActivities = _uiState.value.activities.filter { 
@@ -2612,11 +2612,15 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     activityDate.month == printOptions.selectedMonth.month 
                 }
                 
+                android.util.Log.d("CalendarViewModel", "📅 Atividades encontradas: ${monthActivities.size}")
+                
                 val monthHolidays = _uiState.value.nationalHolidays.values.filter { holiday ->
                     val holidayDate = LocalDate.parse(holiday.date)
                     holidayDate.year == printOptions.selectedMonth.year && 
                     holidayDate.month == printOptions.selectedMonth.month 
                 }
+                
+                android.util.Log.d("CalendarViewModel", "🎉 Feriados encontrados: ${monthHolidays.size}")
                 
                 val monthJsonHolidays = _uiState.value.activities.filter { activity ->
                     val activityDate = LocalDate.parse(activity.date)
@@ -2651,6 +2655,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 )
                 
                 // Gerar PDF
+                android.util.Log.d("CalendarViewModel", "🔄 Chamando PdfGenerationService...")
                 val pdfFile = pdfGenerationService.generateCalendarPdf(
                     printOptions = printOptions,
                     activities = monthActivities,
@@ -2658,14 +2663,14 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     jsonHolidays = monthJsonHolidays,
                     moonPhases = monthMoonPhases
                 )
+                android.util.Log.d("CalendarViewModel", "✅ PdfGenerationService concluído!")
                 
-                println("✅ PDF gerado com sucesso: ${pdfFile.absolutePath}")
+                android.util.Log.d("CalendarViewModel", "✅ PDF gerado com sucesso: ${pdfFile.absolutePath}")
                 
                 // TODO: Mostrar notificação de sucesso ou abrir o arquivo
                 
             } catch (e: Exception) {
-                println("❌ Erro ao gerar PDF: ${e.message}")
-                e.printStackTrace()
+                android.util.Log.e("CalendarViewModel", "❌ Erro ao gerar PDF: ${e.message}", e)
                 // TODO: Mostrar erro para o usuário
             }
         }

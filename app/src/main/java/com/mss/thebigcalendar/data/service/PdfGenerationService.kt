@@ -46,10 +46,26 @@ class PdfGenerationService {
                 PageSize.A3.rotate() else PageSize.A3
         }
         
-        val outputFile = File.createTempFile("calendar_${printOptions.selectedMonth}", ".pdf")
+        // Criar arquivo no diretório de Downloads
+        val downloadsDir = File(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS), "TheBigCalendar")
+        if (!downloadsDir.exists()) {
+            downloadsDir.mkdirs()
+        }
+        
+        val fileName = "calendario_${printOptions.selectedMonth.format(DateTimeFormatter.ofPattern("yyyy_MM"))}.pdf"
+        val outputFile = File(downloadsDir, fileName)
+        
+        // Garantir que o arquivo seja sobrescrito se já existir
+        if (outputFile.exists()) {
+            outputFile.delete()
+            android.util.Log.d("PdfGenerationService", "🗑️ Arquivo existente removido: ${outputFile.name}")
+        }
+        
         val writer = PdfWriter(outputFile)
         val pdf = PdfDocument(writer)
         val document = Document(pdf, pageSize)
+        
+        android.util.Log.d("PdfGenerationService", "📄 Criando novo arquivo PDF: ${outputFile.absolutePath}")
         
         try {
             // Configurar fontes

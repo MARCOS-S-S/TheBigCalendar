@@ -142,6 +142,7 @@ dependencies {
     implementation("com.itextpdf:kernel:7.2.5")
     implementation("com.itextpdf:io:7.2.5")
     implementation("com.itextpdf:layout:7.2.5")
+    implementation(libs.androidx.compose.ui.text)
 
     // Dependências de Teste
     testImplementation(libs.junit)
