@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LocalContentColor
@@ -36,6 +37,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import com.mss.thebigcalendar.data.model.Activity
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.draw.scale
 
 @Composable
 fun MonthlyCalendar(
@@ -198,8 +200,9 @@ private fun DayCell(
             },
             modifier = Modifier.padding(top = 2.dp)
         )
+        var linesBudget = 4
 
-        if (!isCompact && day.holiday != null) {
+        if (!isCompact && day.holiday != null && linesBudget > 0) {
             val isSaintDay = day.isSaintDay
             val isNationalHoliday = day.isNationalHoliday
             Text(
@@ -221,11 +224,12 @@ private fun DayCell(
                 modifier = Modifier.padding(horizontal = 1.dp),
                 fontWeight = if (isSaintDay || isNationalHoliday) FontWeight.Bold else FontWeight.Normal
             )
+            linesBudget -= 1
         }
         
-        // Exibir agendamentos JSON importados (ocultar em modo compacto)
-        if (!isCompact && day.jsonHolidays.isNotEmpty()) {
-            day.jsonHolidays.forEach { jsonHoliday ->
+        // Exibir agendamentos JSON importados (ocultar em modo compacto) respeitando orçamento de linhas
+        if (!isCompact && day.jsonHolidays.isNotEmpty() && linesBudget > 0) {
+            day.jsonHolidays.take(linesBudget).forEach { jsonHoliday ->
                 Text(
                     text = jsonHoliday.name,
                     color = jsonHoliday.calendarColor,
@@ -235,6 +239,7 @@ private fun DayCell(
                     modifier = Modifier.padding(horizontal = 1.dp),
                     fontWeight = FontWeight.Bold
                 )
+                linesBudget -= 1
             }
         }
 
@@ -277,7 +282,7 @@ private fun DayCell(
                     }
                 }
             }
-        } else if (visibleTasks.isNotEmpty()) {
+        } else if (visibleTasks.isNotEmpty() && linesBudget > 0) {
             // Renderização detalhada no modo normal (somente tarefas)
             Spacer(modifier = Modifier.height(1.dp))
             Column(
@@ -286,7 +291,9 @@ private fun DayCell(
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 val fallbackColor = MaterialTheme.colorScheme.secondaryContainer
-                visibleTasks.take(2).forEach { task ->
+                val totalTasks = visibleTasks.size
+                visibleTasks.forEachIndexed { idx, task ->
+                    if (linesBudget <= 0) return@forEachIndexed
                     val taskColor = remember(task.categoryColor, task.activityType) {
                         when {
                             task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> Color(0xFFE91E63) // Rosa para aniversários
@@ -299,11 +306,20 @@ private fun DayCell(
                         }
                     }
 
+                    val rowYOffset = ((1f - verticalScale).coerceIn(0f, 0.5f) * -6).dp
+                    // Distribui orçamento: garante pelo menos 1 linha para cada item restante
+                    val remainingTasks = totalTasks - idx
+                    val minReservedForOthers = (remainingTasks - 1).coerceAtLeast(0)
+                    val maxForThis = (linesBudget - minReservedForOthers).coerceAtLeast(1)
+                    val allowedLinesForThisTask = minOf(2, maxForThis)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .scale(verticalScale.coerceIn(0.85f, 1f))
                     ) {
                         Box(
                             modifier = Modifier
+                                .offset(y = rowYOffset)
                                 .size(width = 3.dp, height = 7.dp)
                                 .background(taskColor, RoundedCornerShape(2.dp))
                         )
@@ -312,17 +328,22 @@ private fun DayCell(
                             text = task.title,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
                             fontSize = 9.sp,
-                            maxLines = 1,
+                            lineHeight = 10.sp,
+                            maxLines = allowedLinesForThisTask,
                             overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.offset(y = rowYOffset)
                         )
                     }
+                    // Consumir as linhas utilizadas por este item
+                    linesBudget -= allowedLinesForThisTask
                 }
-                if (visibleTasks.size > 2) {
+                if (visibleTasks.size > 2 && linesBudget > 0) {
                     Row (
                         modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        repeat(3) {
+                        val dots = minOf(3, linesBudget)
+                        repeat(dots) {
                             Box(
                                 modifier = Modifier
                                     .padding(horizontal = 1.dp)
@@ -331,6 +352,7 @@ private fun DayCell(
                                     .background(MaterialTheme.colorScheme.onSurfaceVariant)
                             )
                         }
+                        linesBudget -= dots
                     }
                 }
             }
