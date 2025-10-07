@@ -346,15 +346,6 @@ fun GeneralSettingsScreen(
                 }
             }
 
-            // Seção "Mostrar no menu"
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            Text(
-                text = stringResource(id = R.string.show_in_menu),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-            
             // Lista de filtros que podem ser adicionados ao menu
             val hiddenFilters = listOf(
                 "showHolidays" to stringResource(id = R.string.national_holidays),
@@ -367,8 +358,9 @@ fun GeneralSettingsScreen(
                 "showMoonPhases" to stringResource(id = R.string.moon_phases_filter)
             )
             
-            hiddenFilters.forEach { (key, label) ->
-                val isHidden = when (key) {
+            // Verificar se há filtros ocultos
+            val hasHiddenFilters = hiddenFilters.any { (key, _) ->
+                when (key) {
                     "showHolidays" -> !sidebarFilterVisibility.showHolidays
                     "showSaintDays" -> !sidebarFilterVisibility.showSaintDays
                     "showEvents" -> !sidebarFilterVisibility.showEvents
@@ -379,27 +371,52 @@ fun GeneralSettingsScreen(
                     "showMoonPhases" -> !sidebarFilterVisibility.showMoonPhases
                     else -> false
                 }
+            }
+            
+            // Seção "Mostrar no menu" - só aparece quando há filtros ocultos
+            if (hasHiddenFilters) {
+                Spacer(modifier = Modifier.height(24.dp))
                 
-                if (isHidden) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onToggleSidebarFilterVisibility(key) }
-                            .padding(vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Icon(
-                            imageVector = Icons.Default.ArrowForward,
-                            contentDescription = "Adicionar ao menu",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
+                Text(
+                    text = stringResource(id = R.string.show_in_menu),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                
+                hiddenFilters.forEach { (key, label) ->
+                    val isHidden = when (key) {
+                        "showHolidays" -> !sidebarFilterVisibility.showHolidays
+                        "showSaintDays" -> !sidebarFilterVisibility.showSaintDays
+                        "showEvents" -> !sidebarFilterVisibility.showEvents
+                        "showTasks" -> !sidebarFilterVisibility.showTasks
+                        "showBirthdays" -> !sidebarFilterVisibility.showBirthdays
+                        "showNotes" -> !sidebarFilterVisibility.showNotes
+                        "showCompletedActivities" -> !sidebarFilterVisibility.showCompletedTasks
+                        "showMoonPhases" -> !sidebarFilterVisibility.showMoonPhases
+                        else -> false
+                    }
+                    
+                    if (isHidden) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onToggleSidebarFilterVisibility(key) }
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                imageVector = Icons.Default.ArrowForward,
+                                contentDescription = "Adicionar ao menu",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
             }

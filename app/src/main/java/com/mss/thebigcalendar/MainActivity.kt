@@ -301,7 +301,7 @@ class MainActivity : ComponentActivity() {
                                     androidx.compose.material3.Text(
                                         text = stringResource(id = R.string.main_loading_appointments),
                                         style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
-                                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.primary
                                     )
                                     
                                     // Controlar o progresso da animação
