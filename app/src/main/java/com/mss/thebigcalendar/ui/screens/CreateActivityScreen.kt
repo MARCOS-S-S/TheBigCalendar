@@ -195,7 +195,7 @@ fun CreateActivityScreen(
                         Text(text = titleText)
                         Text(
                             text = selectedDate.format(formatter), // Usar selectedDate diretamente
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.clickable { showDatePicker = true }
                         )
                     }
@@ -237,7 +237,10 @@ fun CreateActivityScreen(
                                 onDismissRequest()
                             }
                         },
-                        enabled = title.isNotBlank()
+                        enabled = title.isNotBlank(),
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     ) {
                         Text(stringResource(id = R.string.create_activity_modal_save))
                     }

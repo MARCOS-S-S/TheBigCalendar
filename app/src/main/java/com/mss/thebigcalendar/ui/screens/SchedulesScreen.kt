@@ -127,7 +127,10 @@ fun SchedulesScreen(
                     // Seletor de tipo
                     Box {
                         TextButton(
-                            onClick = { showDropdown = true }
+                            onClick = { showDropdown = true },
+                            colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
                         ) {
                             Text(
                                 text = stringResource(id = R.string.filter_button),
@@ -166,7 +169,8 @@ fun SchedulesScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
@@ -244,7 +248,11 @@ private fun ActivityDateSection(
     activityType: ActivityType
 ) {
     val formatter = DateTimeFormatter.ofPattern(stringResource(id = R.string.date_format_full), Locale.getDefault())
-    val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+    val dayOfWeek = date.dayOfWeek
+        .getDisplayName(TextStyle.FULL, Locale.getDefault())
+        .replaceFirstChar { ch ->
+            if (ch.isLowerCase()) ch.titlecase(Locale.getDefault()) else ch.toString()
+        }
     
     Column {
         // Cabeçalho da data

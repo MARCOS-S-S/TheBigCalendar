@@ -547,8 +547,7 @@ fun AlarmsScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = stringResource(id = R.string.alarm_clear_orphaned_content_description),
-                                tint = MaterialTheme.colorScheme.error
+                                contentDescription = stringResource(id = R.string.alarm_clear_orphaned_content_description)
                             )
                         }
                     },
@@ -563,7 +562,8 @@ fun AlarmsScreen(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 )
             },

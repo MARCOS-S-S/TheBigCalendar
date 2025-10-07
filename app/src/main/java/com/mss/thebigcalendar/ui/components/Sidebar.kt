@@ -171,13 +171,23 @@ fun Sidebar(
                 label = { Text(stringResource(id = R.string.monthly)) },
                 icon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) },
                 selected = uiState.viewMode == ViewMode.MONTHLY,
-                onClick = { onViewModeChange(ViewMode.MONTHLY) }
+                onClick = { onViewModeChange(ViewMode.MONTHLY) },
+                colors = NavigationDrawerItemDefaults.colors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary
+                )
             )
             NavigationDrawerItem(
                 label = { Text(stringResource(id = R.string.yearly)) },
                 icon = { Icon(Icons.Filled.DateRange, contentDescription = null) },
                 selected = uiState.viewMode == ViewMode.YEARLY,
-                onClick = { onViewModeChange(ViewMode.YEARLY) }
+                onClick = { onViewModeChange(ViewMode.YEARLY) },
+                colors = NavigationDrawerItemDefaults.colors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary
+                )
             )
             NavigationDrawerItem(
                 label = { Text(stringResource(id = R.string.notes_menu)) },
