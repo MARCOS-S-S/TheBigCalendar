@@ -242,7 +242,7 @@ fun CalendarScreen(
                                                 Text(
                                                     text = uiState.displayedYearMonth.year.toString(),
                                                     style = MaterialTheme.typography.bodySmall,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                    color = MaterialTheme.colorScheme.onPrimary
                                                 )
                                             }
                                         }
@@ -263,7 +263,8 @@ fun CalendarScreen(
                                 }) {
                                     Icon(
                                         Icons.Default.Menu,
-                                        stringResource(id = R.string.open_close_menu)
+                                        stringResource(id = R.string.open_close_menu),
+                                        tint = MaterialTheme.colorScheme.onPrimary
                                     )
                                 }
                             },
@@ -282,19 +283,22 @@ fun CalendarScreen(
                                     IconButton(onClick = { viewModel.onSearchIconClick() }) {
                                         Icon(
                                             Icons.Default.Search,
-                                            stringResource(id = R.string.search)
+                                            stringResource(id = R.string.search),
+                                            tint = MaterialTheme.colorScheme.onPrimary
                                         )
                                     }
                                     IconButton(onClick = { viewModel.onGoToToday() }) {
                                         Icon(
                                             Icons.Default.Today,
-                                            contentDescription = stringResource(id = R.string.go_to_today)
+                                            contentDescription = stringResource(id = R.string.go_to_today),
+                                            tint = MaterialTheme.colorScheme.onPrimary
                                         )
                                     }
                                     IconButton(onClick = { viewModel.onChartIconClick() }) {
                                         Icon(
                                             Icons.Filled.BarChart,
-                                            stringResource(id = R.string.chart)
+                                            stringResource(id = R.string.chart),
+                                            tint = MaterialTheme.colorScheme.onPrimary
                                         )
                                     }
                                     IconButton(
@@ -304,7 +308,8 @@ fun CalendarScreen(
                                         Icon(
                                             Icons.Filled.Add,
                                             contentDescription = stringResource(id = R.string.add_appointment),
-                                            modifier = Modifier.size(20.dp)
+                                            modifier = Modifier.size(20.dp),
+                                            tint = MaterialTheme.colorScheme.onPrimary
                                         )
                                     }
                                     IconButton(
@@ -314,26 +319,31 @@ fun CalendarScreen(
                                         Icon(
                                             Icons.Default.Delete,
                                             contentDescription = stringResource(id = R.string.trash),
-                                            modifier = Modifier.size(20.dp)
+                                            modifier = Modifier.size(20.dp),
+                                            tint = MaterialTheme.colorScheme.onPrimary
                                         )
                                     }
                                 } else {
                                     IconButton(onClick = prevAction) {
                                         Icon(
                                             Icons.AutoMirrored.Filled.ArrowBack,
-                                            stringResource(id = R.string.previous)
+                                            stringResource(id = R.string.previous),
+                                            tint = MaterialTheme.colorScheme.onPrimary
                                         )
                                     }
                                     IconButton(onClick = nextAction) {
                                         Icon(
                                             Icons.AutoMirrored.Filled.ArrowForward,
-                                            stringResource(id = R.string.next)
+                                            stringResource(id = R.string.next),
+                                            tint = MaterialTheme.colorScheme.onPrimary
                                         )
                                     }
                                 }
                             },
                             colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                             )
                         )
                 },

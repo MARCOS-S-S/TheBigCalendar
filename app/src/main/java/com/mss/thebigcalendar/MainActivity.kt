@@ -231,6 +231,7 @@ class MainActivity : ComponentActivity() {
                 Theme.DARK -> true
                 else -> isSystemInDarkTheme()
             },
+            dynamicColor = true, // Sempre permitir cores dinâmicas
             pureBlack = uiState.pureBlackTheme && when (uiState.theme) {
                 Theme.LIGHT -> false
                 Theme.DARK -> true

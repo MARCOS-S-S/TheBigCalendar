@@ -62,7 +62,7 @@ private fun generateCustomColorScheme(
         return darkColorScheme(
             primary = primaryColor,
             onPrimary = Color.White,
-            primaryContainer = primaryColor.copy(alpha = 0.2f),
+            primaryContainer = primaryColor.copy(alpha = 0.3f),
             onPrimaryContainer = primaryColor.copy(alpha = 0.9f),
             
             secondary = secondaryColor,
@@ -94,7 +94,7 @@ private fun generateCustomColorScheme(
         return lightColorScheme(
             primary = primaryColor,
             onPrimary = Color.White,
-            primaryContainer = primaryColor.copy(alpha = 0.1f),
+            primaryContainer = primaryColor.copy(alpha = 0.2f),
             onPrimaryContainer = primaryColor.copy(alpha = 0.9f),
             
             secondary = secondaryColor,
@@ -190,33 +190,17 @@ fun TheBigCalendarTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     pureBlack: Boolean = false,
-    primaryColorHex: String = "#6650a4",
+    primaryColorHex: String = "AUTO",
     content: @Composable () -> Unit
 ) {
-    val baseColorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
+    // Gerar esquema de cores baseado na configuração
+    val colorScheme = if (primaryColorHex == "AUTO") {
+        // Modo automático: usar cores dinâmicas do Android
+        val context = LocalContext.current
+        val baseScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-    
-    val customPrimaryColor = Color(android.graphics.Color.parseColor(primaryColorHex))
-    
-    // Gerar esquema de cores completo baseado na cor primária personalizada
-    val colorScheme = if (primaryColorHex != "#6650a4") {
-        // Se uma cor personalizada foi escolhida, gerar esquema completo baseado nela
-        generateCustomColorScheme(customPrimaryColor, darkTheme, pureBlack)
-    } else {
-        // Usar esquema padrão ou dinâmico
-        val baseScheme = when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                val context = LocalContext.current
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            }
-            darkTheme -> DarkColorScheme
-            else -> LightColorScheme
+        } else {
+            if (darkTheme) DarkColorScheme else LightColorScheme
         }
         
         if (pureBlack && darkTheme) {
@@ -227,6 +211,10 @@ fun TheBigCalendarTheme(
         } else {
             baseScheme
         }
+    } else {
+        // Modo manual: usar cor personalizada
+        val customPrimaryColor = Color(android.graphics.Color.parseColor(primaryColorHex))
+        generateCustomColorScheme(customPrimaryColor, darkTheme, pureBlack)
     }
 
     val view = LocalView.current

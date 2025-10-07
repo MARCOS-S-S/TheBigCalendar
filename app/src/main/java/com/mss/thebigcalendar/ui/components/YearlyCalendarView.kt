@@ -51,15 +51,24 @@ fun YearlyCalendarView(
             horizontalArrangement = Arrangement.Center
         ) {
             IconButton(onClick = { onNavigateYear(-1) }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.previous_year_desc))
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack, 
+                    contentDescription = stringResource(id = R.string.previous_year_desc),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
             }
             Text(
                 text = year.toString(),
                 style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
             IconButton(onClick = { onNavigateYear(1) }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = stringResource(id = R.string.next_year_desc))
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowForward, 
+                    contentDescription = stringResource(id = R.string.next_year_desc),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
 

@@ -115,7 +115,12 @@ class SettingsRepository(private val context: Context) {
 
     val primaryColor: Flow<String> = context.dataStore.data
         .map { preferences ->
-            preferences[PreferencesKeys.PRIMARY_COLOR] ?: "#6650a4" // Cor padrão roxa
+            val savedColor = preferences[PreferencesKeys.PRIMARY_COLOR]
+            when {
+                savedColor == null -> "AUTO" // Primeira vez - usar automático
+                savedColor == "#6650a4" -> "AUTO" // Migração: valor antigo -> automático
+                else -> savedColor // Manter valor personalizado
+            }
         }
 
     suspend fun setPrimaryColor(colorHex: String) {

@@ -78,7 +78,9 @@ fun CalendarVisualizationSettingsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
@@ -251,7 +253,7 @@ fun CalendarVisualizationSettingsScreen(
                 ) {
                     // Botão automático como primeira opção
                     item {
-                        val isAutoSelected = uiState.primaryColor == "#6650a4" // Cor padrão = automático
+                        val isAutoSelected = uiState.primaryColor == "AUTO" // Modo automático
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
@@ -263,8 +265,7 @@ fun CalendarVisualizationSettingsScreen(
                                     shape = CircleShape
                                 )
                                 .clickable {
-                                    // TODO: Implementar lógica do botão automático
-                                    viewModel.setPrimaryColor("#6650a4")
+                                    viewModel.setPrimaryColor("AUTO")
                                 },
                             contentAlignment = Alignment.Center
                         ) {
