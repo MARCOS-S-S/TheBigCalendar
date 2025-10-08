@@ -1,5 +1,6 @@
 package com.mss.thebigcalendar.service
 
+
 import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -10,10 +11,7 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.mss.thebigcalendar.data.model.Activity
-import com.mss.thebigcalendar.data.model.NotificationType
 import com.mss.thebigcalendar.data.model.VisibilityLevel
-
-
 import java.time.LocalDateTime
 import java.time.ZoneId
 

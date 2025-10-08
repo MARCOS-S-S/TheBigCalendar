@@ -2,9 +2,8 @@ package com.mss.thebigcalendar.data.service
 
 import android.content.Context
 import com.google.gson.Gson
-import com.mss.thebigcalendar.data.model.MoonPhasesJson
-import com.mss.thebigcalendar.data.model.MoonPhaseJson
 import com.mss.thebigcalendar.data.model.MonthName
+import com.mss.thebigcalendar.data.model.MoonPhasesJson
 import com.mss.thebigcalendar.data.model.PhaseName
 import com.mss.thebigcalendar.ui.components.MoonPhase
 import com.mss.thebigcalendar.ui.components.MoonPhaseType
@@ -14,8 +13,6 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.time.Instant
 
 /**
  * Serviço para ler e processar o arquivo JSON de fases da lua

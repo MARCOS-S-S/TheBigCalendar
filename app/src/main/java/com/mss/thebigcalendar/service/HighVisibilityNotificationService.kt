@@ -9,15 +9,11 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
-import android.view.WindowManager
 import androidx.core.app.NotificationCompat
 import com.mss.thebigcalendar.MainActivity
-import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.VisibilityLevel
 import com.mss.thebigcalendar.ui.screens.HighVisibilityNotificationActivity
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 /**
  * Serviço para gerenciar notificações de alta visibilidade

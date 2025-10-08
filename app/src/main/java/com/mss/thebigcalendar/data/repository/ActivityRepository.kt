@@ -3,20 +3,19 @@ package com.mss.thebigcalendar.data.repository
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
-import com.mss.thebigcalendar.data.model.proto.Activities
 import com.mss.thebigcalendar.data.model.Activity
-import com.mss.thebigcalendar.data.model.proto.ActivityProto
 import com.mss.thebigcalendar.data.model.ActivityType
-import com.mss.thebigcalendar.data.model.proto.ActivityTypeProto
 import com.mss.thebigcalendar.data.model.NotificationSettings
 import com.mss.thebigcalendar.data.model.NotificationType
+import com.mss.thebigcalendar.data.model.proto.Activities
+import com.mss.thebigcalendar.data.model.proto.ActivityProto
+import com.mss.thebigcalendar.data.model.proto.ActivityTypeProto
 import com.mss.thebigcalendar.data.model.proto.NotificationSettingsProto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
-import java.util.UUID
 
 private val Context.activitiesDataStore: DataStore<Activities> by dataStore(
     fileName = "activities.pb",

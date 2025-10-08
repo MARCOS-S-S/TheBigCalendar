@@ -4,22 +4,21 @@ import android.content.Context
 import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.api.services.calendar.Calendar
-import com.google.api.services.calendar.model.Events
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.ActivityType
-import com.mss.thebigcalendar.data.model.SyncProgress
 import com.mss.thebigcalendar.data.model.SyncPhase
+import com.mss.thebigcalendar.data.model.SyncProgress
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.SyncRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import kotlin.time.Duration.Companion.seconds
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
 
 class ProgressiveSyncService(
     private val context: Context,

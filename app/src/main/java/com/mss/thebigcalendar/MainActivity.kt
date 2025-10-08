@@ -10,19 +10,14 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.PowerManager
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcher
-import androidx.appcompat.app.AppCompatDelegate
-import java.util.Locale
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -30,29 +25,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.mss.thebigcalendar.data.model.Theme
+import com.mss.thebigcalendar.ui.onboarding.OnboardingFlow
+import com.mss.thebigcalendar.ui.screens.AlarmsScreen
+import com.mss.thebigcalendar.ui.screens.BackupScreen
 import com.mss.thebigcalendar.ui.screens.CalendarScreen
+import com.mss.thebigcalendar.ui.screens.CalendarVisualizationSettingsScreen
+import com.mss.thebigcalendar.ui.screens.ChartScreen
+import com.mss.thebigcalendar.ui.screens.CompletedTasksScreen
+import com.mss.thebigcalendar.ui.screens.GeneralSettingsScreen
+import com.mss.thebigcalendar.ui.screens.JsonConfigScreen
+import com.mss.thebigcalendar.ui.screens.PrintCalendarScreen
+import com.mss.thebigcalendar.ui.screens.SchedulesScreen
 import com.mss.thebigcalendar.ui.screens.SearchScreen
 import com.mss.thebigcalendar.ui.screens.TrashScreen
-import com.mss.thebigcalendar.ui.screens.ChartScreen
-import com.mss.thebigcalendar.ui.screens.SchedulesScreen
-import com.mss.thebigcalendar.ui.screens.AlarmsScreen
-import com.mss.thebigcalendar.ui.screens.GeneralSettingsScreen
-import com.mss.thebigcalendar.ui.screens.CompletedTasksScreen
-import com.mss.thebigcalendar.ui.screens.PrintCalendarScreen
-import com.mss.thebigcalendar.ui.screens.BackupScreen
-import com.mss.thebigcalendar.ui.screens.JsonConfigScreen
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
-import com.mss.thebigcalendar.ui.onboarding.OnboardingFlow
 import kotlinx.coroutines.flow.first
-import androidx.lifecycle.lifecycleScope
-import com.mss.thebigcalendar.ui.screens.CalendarVisualizationSettingsScreen
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -427,8 +422,6 @@ class MainActivity : ComponentActivity() {
                                 syncProgress = uiState.syncProgress,
                                 onBackClick = { viewModel.closeSettingsScreen() },
                                 onImportJsonClick = { viewModel.openJsonConfigScreen() },
-                                currentAnimation = uiState.animationType,
-                                onAnimationChange = { viewModel.onAnimationTypeChange(it) },
                                 sidebarFilterVisibility = uiState.sidebarFilterVisibility,
                                 onToggleSidebarFilterVisibility = { filterKey ->
                                     viewModel.toggleSidebarFilterVisibility(filterKey)

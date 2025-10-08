@@ -5,7 +5,6 @@ import com.mss.thebigcalendar.data.model.Holiday
 import com.mss.thebigcalendar.data.model.SearchResult
 import com.mss.thebigcalendar.data.model.toSearchResult
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /**

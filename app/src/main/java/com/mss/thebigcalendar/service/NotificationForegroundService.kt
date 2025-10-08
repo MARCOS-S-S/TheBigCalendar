@@ -3,16 +3,12 @@ package com.mss.thebigcalendar.service
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.mss.thebigcalendar.MainActivity
-import com.mss.thebigcalendar.R
 
 /**
  * Serviço em foreground para manter o processo ativo e garantir que as notificações funcionem

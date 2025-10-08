@@ -3,6 +3,7 @@ package com.mss.thebigcalendar.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,27 +14,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoMode
-import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -52,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mss.thebigcalendar.R
+import com.mss.thebigcalendar.ui.components.AnimationSelectionDialog
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,6 +59,7 @@ fun CalendarVisualizationSettingsScreen(
     val currentScale = uiState.calendarScale
     val sliderValue = remember(currentScale) { mutableFloatStateOf(currentScale) }
     var hideOtherMonths by remember { mutableStateOf(uiState.hideOtherMonthDays) }
+    var showAnimationDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -141,6 +137,29 @@ fun CalendarVisualizationSettingsScreen(
                         viewModel.setHideOtherMonthDays(it)
                     }
                 )
+            }
+
+            // Opção de animação
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.general_animation_type),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    onClick = { showAnimationDialog = true },
+                    modifier = Modifier.height(40.dp)
+                ) {
+                    Text(
+                        text = uiState.animationType.getDisplayName(),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
 
             // Opção do tema escuro
@@ -306,6 +325,18 @@ fun CalendarVisualizationSettingsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+
+    // Dialog de seleção de animações
+    if (showAnimationDialog) {
+        AnimationSelectionDialog(
+            currentAnimation = uiState.animationType,
+            onAnimationSelected = { animationType ->
+                viewModel.onAnimationTypeChange(animationType)
+                showAnimationDialog = false
+            },
+            onDismiss = { showAnimationDialog = false }
+        )
     }
 }
 

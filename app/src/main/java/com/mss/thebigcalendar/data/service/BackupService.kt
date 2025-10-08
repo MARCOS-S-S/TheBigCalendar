@@ -5,16 +5,13 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
-import android.provider.Settings
-import android.util.Log
-import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.DeletedActivity
 import com.mss.thebigcalendar.data.repository.ActivityRepository
-import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
 import com.mss.thebigcalendar.data.repository.CompletedActivityRepository
+import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext

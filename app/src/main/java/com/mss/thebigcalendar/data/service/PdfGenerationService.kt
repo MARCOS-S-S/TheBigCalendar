@@ -11,23 +11,19 @@ import com.itextpdf.layout.borders.SolidBorder
 import com.itextpdf.layout.element.Cell
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.element.Table
-import com.itextpdf.layout.properties.HorizontalAlignment
 import com.itextpdf.layout.properties.TextAlignment
 import com.itextpdf.layout.properties.UnitValue
-import com.itextpdf.layout.properties.VerticalAlignment
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.Holiday
 import com.mss.thebigcalendar.data.model.JsonHoliday
 import com.mss.thebigcalendar.ui.components.MoonPhase
 import com.mss.thebigcalendar.ui.screens.PageOrientation
-import com.mss.thebigcalendar.ui.screens.PageSize as CustomPageSize
 import com.mss.thebigcalendar.ui.screens.PrintOptions
 import java.io.File
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
 import java.util.Locale
+import com.mss.thebigcalendar.ui.screens.PageSize as CustomPageSize
 
 class PdfGenerationService {
     

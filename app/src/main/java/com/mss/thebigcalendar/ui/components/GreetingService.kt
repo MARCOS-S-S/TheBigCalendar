@@ -3,16 +3,10 @@ package com.mss.thebigcalendar.ui.components
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Quote
 import com.mss.thebigcalendar.service.QuoteService
-import kotlinx.coroutines.launch
 import java.time.LocalTime
 
 /**

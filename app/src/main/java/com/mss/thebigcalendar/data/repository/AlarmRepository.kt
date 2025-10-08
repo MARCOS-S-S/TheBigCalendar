@@ -6,7 +6,6 @@ import com.mss.thebigcalendar.data.model.AlarmSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import java.time.LocalTime
 
 /**

@@ -1,8 +1,7 @@
 package com.mss.thebigcalendar.ui.screens
 
-import androidx.compose.foundation.background
+import android.util.Log
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,51 +11,43 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Sync
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Animation
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.mss.thebigcalendar.R
-import com.mss.thebigcalendar.data.model.Theme
-import com.mss.thebigcalendar.data.model.AnimationType
-import com.mss.thebigcalendar.data.model.Language
-import com.mss.thebigcalendar.ui.components.AnimationSelectionDialog
-import com.mss.thebigcalendar.ui.components.LanguageSelectionDialog
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.mss.thebigcalendar.R
+import com.mss.thebigcalendar.data.model.Language
+import com.mss.thebigcalendar.data.model.Theme
+import com.mss.thebigcalendar.ui.components.LanguageSelectionDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,8 +64,6 @@ fun GeneralSettingsScreen(
     syncProgress: com.mss.thebigcalendar.data.model.SyncProgress? = null,
     onBackClick: () -> Unit, // New parameter for back button
     onImportJsonClick: () -> Unit = {},
-    currentAnimation: AnimationType = AnimationType.NONE,
-    onAnimationChange: (AnimationType) -> Unit = {},
     sidebarFilterVisibility: com.mss.thebigcalendar.data.model.SidebarFilterVisibility = com.mss.thebigcalendar.data.model.SidebarFilterVisibility(),
     onToggleSidebarFilterVisibility: (String) -> Unit = {},
     currentLanguage: Language = Language.SYSTEM,
@@ -86,7 +75,6 @@ fun GeneralSettingsScreen(
     
     val scope = rememberCoroutineScope()
     var welcomeNameInput by remember { mutableStateOf(welcomeName) }
-    var showAnimationDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
 
     // Sincronizar o estado local com o estado do ViewModel
@@ -285,31 +273,6 @@ fun GeneralSettingsScreen(
                 }
             }
 
-            // Configuração de animações
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 10.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.general_animation_type),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Button(
-                    onClick = { showAnimationDialog = true },
-                    modifier = Modifier.height(40.dp)
-                ) {
-                    Text(
-                        text = currentAnimation.getDisplayName(),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-
             // Configuração de idioma
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -422,18 +385,6 @@ fun GeneralSettingsScreen(
             }
 
         }
-    }
-
-    // Dialog de seleção de animações
-    if (showAnimationDialog) {
-        AnimationSelectionDialog(
-            currentAnimation = currentAnimation,
-            onAnimationSelected = { animationType ->
-                onAnimationChange(animationType)
-                showAnimationDialog = false
-            },
-            onDismiss = { showAnimationDialog = false }
-        )
     }
 
     // Dialog de seleção de idioma

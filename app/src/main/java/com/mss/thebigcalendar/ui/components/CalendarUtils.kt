@@ -1,12 +1,11 @@
 package com.mss.thebigcalendar.ui.components
 
+import androidx.compose.ui.graphics.Color
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 
 /**
  * Retorna uma lista com as abreviações dos dias da semana, começando por Domingo.

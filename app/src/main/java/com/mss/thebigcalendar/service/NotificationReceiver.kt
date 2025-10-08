@@ -1,24 +1,22 @@
 package com.mss.thebigcalendar.service
 
+import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.appwidget.AppWidgetManager
 import android.util.Log
-import com.mss.thebigcalendar.MainActivity
+import com.mss.thebigcalendar.data.model.VisibilityLevel
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.LocalTime
-import java.time.LocalDateTime
 import java.time.LocalDate
-import com.mss.thebigcalendar.data.model.VisibilityLevel
-import com.mss.thebigcalendar.data.model.NotificationType
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 class NotificationReceiver : BroadcastReceiver() {
 
