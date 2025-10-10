@@ -100,6 +100,7 @@ fun PrintCalendarScreen(
     var yearTextColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Black) }
     var isYearTextColorPickerExpanded by remember { mutableStateOf(false) }
     var dayNumberFontSize by remember { mutableStateOf(FontSize.SMALL) }
+    var moonPhasePosition by remember { mutableStateOf(MoonPhasePosition.BELOW_CALENDAR) }
     var colorDayNumbersByEvents by remember { mutableStateOf(false) }
     var holidayColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color(0xFFC62828)) }
     var isHolidayColorPickerExpanded by remember { mutableStateOf(false) }
@@ -1189,6 +1190,71 @@ fun PrintCalendarScreen(
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     
+                    // Moon Phase Position (visível apenas se fases da lua estão ativadas)
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = includeMoonPhases,
+                        enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+                        exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()
+                    ) {
+                        Column {
+                            Text(
+                                text = stringResource(id = R.string.moon_phase_position),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilterChip(
+                                    selected = moonPhasePosition == MoonPhasePosition.BELOW_CALENDAR,
+                                    onClick = { moonPhasePosition = MoonPhasePosition.BELOW_CALENDAR },
+                                    label = { Text(stringResource(id = R.string.moon_phase_below_calendar)) },
+                                    leadingIcon = if (moonPhasePosition == MoonPhasePosition.BELOW_CALENDAR) {
+                                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                                    } else null,
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        enabled = true,
+                                        selected = moonPhasePosition == MoonPhasePosition.BELOW_CALENDAR,
+                                        borderColor = if (moonPhasePosition == MoonPhasePosition.BELOW_CALENDAR) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                        selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                        borderWidth = if (moonPhasePosition == MoonPhasePosition.BELOW_CALENDAR) 2.dp else 1.dp,
+                                        selectedBorderWidth = 2.dp
+                                    ),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                FilterChip(
+                                    selected = moonPhasePosition == MoonPhasePosition.OTHER_MONTH_DAYS,
+                                    onClick = { moonPhasePosition = MoonPhasePosition.OTHER_MONTH_DAYS },
+                                    label = { Text(stringResource(id = R.string.moon_phase_other_month_days)) },
+                                    leadingIcon = if (moonPhasePosition == MoonPhasePosition.OTHER_MONTH_DAYS) {
+                                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                                    } else null,
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        enabled = true,
+                                        selected = moonPhasePosition == MoonPhasePosition.OTHER_MONTH_DAYS,
+                                        borderColor = if (moonPhasePosition == MoonPhasePosition.OTHER_MONTH_DAYS) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                        selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                        borderWidth = if (moonPhasePosition == MoonPhasePosition.OTHER_MONTH_DAYS) 2.dp else 1.dp,
+                                        selectedBorderWidth = 2.dp
+                                    ),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
+                    
                     // Opção para colorir números dos dias
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -1700,6 +1766,7 @@ fun PrintCalendarScreen(
                         monthTextColor = monthTextColor,
                         yearTextColor = yearTextColor,
                         dayNumberFontSize = dayNumberFontSize,
+                        moonPhasePosition = moonPhasePosition,
                         colorDayNumbersByEvents = colorDayNumbersByEvents,
                         holidayColor = holidayColor,
                         saintDayColor = saintDayColor,
@@ -1768,6 +1835,7 @@ data class PrintOptions(
     val monthTextColor: androidx.compose.ui.graphics.Color,
     val yearTextColor: androidx.compose.ui.graphics.Color,
     val dayNumberFontSize: FontSize,
+    val moonPhasePosition: MoonPhasePosition,
     val colorDayNumbersByEvents: Boolean,
     val holidayColor: androidx.compose.ui.graphics.Color,
     val saintDayColor: androidx.compose.ui.graphics.Color,
@@ -1785,6 +1853,10 @@ enum class FontSize(val size: Float) {
     MEDIUM(24f),
     LARGE(32f),
     EXTRA_LARGE(40f)
+}
+enum class MoonPhasePosition {
+    BELOW_CALENDAR,      // Legenda abaixo do calendário
+    OTHER_MONTH_DAYS     // Dentro dos dias de outros meses
 }
 
 // Função auxiliar para obter o nome da cor

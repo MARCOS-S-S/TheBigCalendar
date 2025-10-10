@@ -7,14 +7,18 @@ import com.itextpdf.kernel.font.PdfFontFactory
 import com.itextpdf.kernel.geom.PageSize
 import com.itextpdf.kernel.pdf.PdfDocument
 import com.itextpdf.kernel.pdf.PdfWriter
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.borders.Border
 import com.itextpdf.layout.borders.SolidBorder
 import com.itextpdf.layout.element.Cell
+import com.itextpdf.layout.element.Image
 import com.itextpdf.layout.element.Paragraph
 import com.itextpdf.layout.element.Table
 import com.itextpdf.layout.properties.TextAlignment
 import com.itextpdf.layout.properties.UnitValue
+import com.itextpdf.kernel.pdf.xobject.PdfFormXObject
+import com.itextpdf.kernel.geom.Rectangle
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.Holiday
 import com.mss.thebigcalendar.data.model.JsonHoliday
@@ -244,10 +248,18 @@ class PdfGenerationService {
                 moonPhases,
                 printOptions,
                 dayFont,
-                contentFont
+                contentFont,
+                pdf
             )
             
             document.add(calendarTable)
+            
+            // Adicionar legenda das fases da lua (se configurado)
+            if (printOptions.includeMoonPhases && 
+                printOptions.moonPhasePosition == com.mss.thebigcalendar.ui.screens.MoonPhasePosition.BELOW_CALENDAR) {
+                val moonPhaseLegend = createMoonPhaseLegend(moonPhases, titleFont, pdf)
+                document.add(moonPhaseLegend)
+            }
             
         } finally {
             document.close()
@@ -264,7 +276,8 @@ class PdfGenerationService {
         moonPhases: List<MoonPhase>,
         printOptions: PrintOptions,
         dayFont: com.itextpdf.kernel.font.PdfFont,
-        contentFont: com.itextpdf.kernel.font.PdfFont
+        contentFont: com.itextpdf.kernel.font.PdfFont,
+        pdfDocument: PdfDocument
     ): Table {
         
         // Criar tabela 7x6 (7 dias da semana, 6 semanas máximo)
@@ -302,7 +315,8 @@ class PdfGenerationService {
                     moonPhases,
                     printOptions,
                     dayFont,
-                    contentFont
+                    contentFont,
+                    pdfDocument
                 )
                 table.addCell(cell)
             }
@@ -320,7 +334,8 @@ class PdfGenerationService {
         moonPhases: List<MoonPhase>,
         printOptions: PrintOptions,
         dayFont: com.itextpdf.kernel.font.PdfFont,
-        contentFont: com.itextpdf.kernel.font.PdfFont
+        contentFont: com.itextpdf.kernel.font.PdfFont,
+        pdfDocument: PdfDocument
     ): Cell {
         
         val cell = Cell()
@@ -339,21 +354,37 @@ class PdfGenerationService {
         
         if (!isCurrentMonth) {
             // Dias de outros meses
+            // Verificar se deve mostrar fase da lua neste dia
+            val moonPhaseForDay = if (printOptions.includeMoonPhases && 
+                                     printOptions.moonPhasePosition == com.mss.thebigcalendar.ui.screens.MoonPhasePosition.OTHER_MONTH_DAYS) {
+                moonPhases.find { it.date == date }
+            } else null
+            
             if (printOptions.hideOtherMonthDays) {
-                // Se a opção estiver ativada, criar célula vazia
-                cell.setBackgroundColor(ColorConstants.WHITE)
-                cell.add(Paragraph("")
-                    .setFont(dayFont)
-                    .setFontSize(10f)
-                    .setTextAlignment(TextAlignment.CENTER))
+                // Se a opção estiver ativada, criar célula vazia (a menos que tenha fase da lua)
+                if (moonPhaseForDay != null) {
+                    cell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
+                    addMoonPhaseDrawing(cell, moonPhaseForDay, contentFont, pdfDocument)
+                } else {
+                    cell.setBackgroundColor(ColorConstants.WHITE)
+                    cell.add(Paragraph("")
+                        .setFont(dayFont)
+                        .setFontSize(10f)
+                        .setTextAlignment(TextAlignment.CENTER))
+                }
             } else {
-                // Dias de outros meses - mais claros (comportamento padrão)
+                // Dias de outros meses - mostrar número ou fase da lua
                 cell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
-                cell.add(Paragraph(date.dayOfMonth.toString())
-                    .setFont(dayFont)
-                    .setFontSize(printOptions.dayNumberFontSize.size * 0.7f)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setFontColor(ColorConstants.GRAY))
+                
+                if (moonPhaseForDay != null) {
+                    addMoonPhaseDrawing(cell, moonPhaseForDay, contentFont, pdfDocument)
+                } else {
+                    cell.add(Paragraph(date.dayOfMonth.toString())
+                        .setFont(dayFont)
+                        .setFontSize(printOptions.dayNumberFontSize.size * 0.7f)
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setFontColor(ColorConstants.GRAY))
+                }
             }
         } else {
             // Dias do mês atual - aplicar cor de fundo selecionada
@@ -392,6 +423,209 @@ class PdfGenerationService {
         }
         
         return cell
+    }
+    
+    /**
+     * Cria um desenho vetorial da fase da lua
+     */
+    private fun createMoonPhaseImage(
+        moonPhase: MoonPhase,
+        pdfDocument: PdfDocument,
+        size: Float = 30f
+    ): Image {
+        // Criar form XObject para desenhar a lua
+        val form = PdfFormXObject(Rectangle(size, size))
+        val canvas = PdfCanvas(form, pdfDocument)
+        
+        val centerX = (size / 2f).toDouble()
+        val centerY = (size / 2f).toDouble()
+        val radius = (size / 2.2f).toDouble()
+        
+        canvas.saveState()
+        
+        // Desenhar círculo externo (borda da lua)
+        canvas.setStrokeColor(ColorConstants.DARK_GRAY)
+        canvas.setLineWidth(1.5f)
+        canvas.circle(centerX, centerY, radius)
+        canvas.stroke()
+        
+        // Desenhar preenchimento baseado na fase
+        when (moonPhase.phase) {
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.NEW_MOON -> {
+                // Lua nova - círculo preto completo
+                canvas.setFillColor(ColorConstants.BLACK)
+                canvas.circle(centerX, centerY, radius)
+                canvas.fill()
+            }
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.FULL_MOON -> {
+                // Lua cheia - círculo branco completo
+                canvas.setFillColor(ColorConstants.WHITE)
+                canvas.circle(centerX, centerY, radius)
+                canvas.fill()
+            }
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.FIRST_QUARTER -> {
+                // Quarto crescente - metade direita branca
+                canvas.setFillColor(ColorConstants.BLACK)
+                canvas.circle(centerX, centerY, radius)
+                canvas.fill()
+                canvas.setFillColor(ColorConstants.WHITE)
+                canvas.rectangle(centerX, centerY - radius, radius, radius * 2.0)
+                canvas.fill()
+            }
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.LAST_QUARTER -> {
+                // Quarto minguante - metade esquerda branca
+                canvas.setFillColor(ColorConstants.BLACK)
+                canvas.circle(centerX, centerY, radius)
+                canvas.fill()
+                canvas.setFillColor(ColorConstants.WHITE)
+                canvas.rectangle(centerX - radius, centerY - radius, radius, radius * 2.0)
+                canvas.fill()
+            }
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.WAXING_CRESCENT -> {
+                // Crescente - pequena fatia à direita
+                canvas.setFillColor(ColorConstants.BLACK)
+                canvas.circle(centerX, centerY, radius)
+                canvas.fill()
+                canvas.setFillColor(ColorConstants.WHITE)
+                canvas.moveTo(centerX, centerY - radius)
+                canvas.lineTo(centerX + (radius * 0.5), centerY)
+                canvas.lineTo(centerX, centerY + radius)
+                canvas.fill()
+            }
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.WAXING_GIBBOUS -> {
+                // Gibosa crescente - maior parte branca à direita
+                canvas.setFillColor(ColorConstants.WHITE)
+                canvas.circle(centerX, centerY, radius)
+                canvas.fill()
+                canvas.setFillColor(ColorConstants.BLACK)
+                canvas.rectangle(centerX - radius, centerY - radius, radius * 0.5, radius * 2.0)
+                canvas.fill()
+            }
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.WANING_CRESCENT -> {
+                // Minguante - pequena fatia à esquerda
+                canvas.setFillColor(ColorConstants.BLACK)
+                canvas.circle(centerX, centerY, radius)
+                canvas.fill()
+                canvas.setFillColor(ColorConstants.WHITE)
+                canvas.moveTo(centerX, centerY - radius)
+                canvas.lineTo(centerX - (radius * 0.5), centerY)
+                canvas.lineTo(centerX, centerY + radius)
+                canvas.fill()
+            }
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.WANING_GIBBOUS -> {
+                // Gibosa minguante - maior parte branca à esquerda
+                canvas.setFillColor(ColorConstants.WHITE)
+                canvas.circle(centerX, centerY, radius)
+                canvas.fill()
+                canvas.setFillColor(ColorConstants.BLACK)
+                canvas.rectangle(centerX + (radius * 0.5), centerY - radius, radius * 0.5, radius * 2.0)
+                canvas.fill()
+            }
+        }
+        
+        // Redesenhar borda por cima
+        canvas.setStrokeColor(ColorConstants.DARK_GRAY)
+        canvas.setLineWidth(1.5f)
+        canvas.circle(centerX, centerY, radius)
+        canvas.stroke()
+        
+        canvas.restoreState()
+        
+        return Image(form)
+    }
+    
+    /**
+     * Adiciona o desenho da fase da lua em uma célula
+     */
+    private fun addMoonPhaseDrawing(
+        cell: Cell,
+        moonPhase: MoonPhase,
+        font: com.itextpdf.kernel.font.PdfFont,
+        pdfDocument: PdfDocument
+    ) {
+        // Criar e adicionar desenho da lua
+        val moonImage = createMoonPhaseImage(moonPhase, pdfDocument, 35f)
+        cell.add(Paragraph().add(moonImage)
+            .setTextAlignment(TextAlignment.CENTER)
+            .setMarginTop(8f))
+        
+        // Adicionar nome da fase (opcional, pequeno)
+        val phaseName = when (moonPhase.phase) {
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.NEW_MOON -> "Nova"
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.WAXING_CRESCENT -> "Crescente"
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.FIRST_QUARTER -> "Qto. Cresc."
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.WAXING_GIBBOUS -> "Gib. Cresc."
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.FULL_MOON -> "Cheia"
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.WANING_GIBBOUS -> "Gib. Ming."
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.LAST_QUARTER -> "Qto. Ming."
+            com.mss.thebigcalendar.ui.components.MoonPhaseType.WANING_CRESCENT -> "Minguante"
+        }
+        
+        cell.add(Paragraph(phaseName)
+            .setFont(font)
+            .setFontSize(7f)
+            .setTextAlignment(TextAlignment.CENTER)
+            .setMarginTop(2f))
+    }
+    
+    /**
+     * Cria uma legenda com todas as fases da lua do mês
+     */
+    private fun createMoonPhaseLegend(
+        moonPhases: List<MoonPhase>,
+        font: com.itextpdf.kernel.font.PdfFont,
+        pdfDocument: PdfDocument
+    ): Table {
+        // Criar tabela para a legenda (todas as fases na horizontal, mas 50% da largura)
+        val numColumns = moonPhases.size.coerceAtLeast(1)
+        val legendTable = Table(UnitValue.createPercentArray(numColumns))
+            .setWidth(UnitValue.createPercentValue(50f))  // 50% da largura
+            .setBorder(Border.NO_BORDER)
+            .setMarginTop(10f)
+        
+        moonPhases.forEach { moonPhase ->
+            val cell = Cell()
+                .setBorder(Border.NO_BORDER)
+                .setPadding(4f)
+            
+            // Desenho vetorial da fase (menor para caber na legenda compacta)
+            val moonImage = createMoonPhaseImage(moonPhase, pdfDocument, 20f)
+            cell.add(Paragraph().add(moonImage)
+                .setTextAlignment(TextAlignment.CENTER))
+            
+            // Nome da fase (abreviado)
+            val phaseName = when (moonPhase.phase) {
+                com.mss.thebigcalendar.ui.components.MoonPhaseType.NEW_MOON -> "Nova"
+                com.mss.thebigcalendar.ui.components.MoonPhaseType.WAXING_CRESCENT -> "Cresc."
+                com.mss.thebigcalendar.ui.components.MoonPhaseType.FIRST_QUARTER -> "Qto.C"
+                com.mss.thebigcalendar.ui.components.MoonPhaseType.WAXING_GIBBOUS -> "Gib.C"
+                com.mss.thebigcalendar.ui.components.MoonPhaseType.FULL_MOON -> "Cheia"
+                com.mss.thebigcalendar.ui.components.MoonPhaseType.WANING_GIBBOUS -> "Gib.M"
+                com.mss.thebigcalendar.ui.components.MoonPhaseType.LAST_QUARTER -> "Qto.M"
+                com.mss.thebigcalendar.ui.components.MoonPhaseType.WANING_CRESCENT -> "Ming."
+            }
+            
+            cell.add(Paragraph(phaseName)
+                .setFont(font)
+                .setFontSize(7f)
+                .setTextAlignment(TextAlignment.CENTER))
+            
+            // Data
+            val dateFormatter = DateTimeFormatter.ofPattern("dd/MM", Locale("pt", "BR"))
+            cell.add(Paragraph(moonPhase.date.format(dateFormatter))
+                .setFont(font)
+                .setFontSize(7f)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setFontColor(ColorConstants.GRAY))
+            
+            legendTable.addCell(cell)
+        }
+        
+        // Aplicar estilo à tabela (50% da largura, horizontal)
+        legendTable.setBorder(SolidBorder(1f))
+        legendTable.setBackgroundColor(DeviceRgb(0.9f, 0.9f, 0.9f))
+        
+        return legendTable
     }
     
     /**
@@ -552,14 +786,16 @@ class PdfGenerationService {
             }
         }
         
-        // Fases da Lua
-        if (printOptions.includeMoonPhases) {
-            moonPhases.filter { moonPhase ->
-                moonPhase.date == date
-            }.forEach { moonPhase ->
-                dayContent.add("🌙 ${moonPhase.phase}")
-            }
-        }
+        // Fases da Lua - não adicionar aqui se estiverem sendo mostradas em outro lugar
+        // (nos dias de outros meses ou na legenda abaixo)
+        // Comentado para evitar duplicação
+        // if (printOptions.includeMoonPhases) {
+        //     moonPhases.filter { moonPhase ->
+        //         moonPhase.date == date
+        //     }.forEach { moonPhase ->
+        //         dayContent.add("🌙 ${moonPhase.phase}")
+        //     }
+        // }
         
         // Limitar a 4 itens por dia para não sobrecarregar
         return dayContent.take(4)
