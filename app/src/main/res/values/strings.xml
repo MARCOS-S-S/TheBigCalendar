@@ -108,6 +108,13 @@
     <string name="position_left">Esquerda</string>
     <string name="position_center">Centro</string>
     <string name="position_right">Direita</string>
+    <string name="font_size_settings">Tamanho da Fonte</string>
+    <string name="month_font_size">Tamanho do Mês</string>
+    <string name="year_font_size">Tamanho do Ano</string>
+    <string name="size_small">Pequeno</string>
+    <string name="size_medium">Médio</string>
+    <string name="size_large">Grande</string>
+    <string name="size_extra_large">XG</string>
     <string name="general">Geral</string>
     <string name="backup">Backup</string>
     <string name="do_backup">Backup</string>

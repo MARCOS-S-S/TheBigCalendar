@@ -151,14 +151,37 @@ class PdfGenerationService {
                 }
             }
             
-            // Criar células com conteúdo
+            // Determinar tamanho da fonte para cada célula
+            // Se mês e ano estão na mesma célula, usar o tamanho do mês como padrão
+            val leftFontSize = when {
+                leftContent.contains(monthName) && leftContent.contains(yearNumber) -> printOptions.monthFontSize.size
+                leftContent.contains(monthName) -> printOptions.monthFontSize.size
+                leftContent.contains(yearNumber) -> printOptions.yearFontSize.size
+                else -> 24f
+            }
+            
+            val centerFontSize = when {
+                centerContent.contains(monthName) && centerContent.contains(yearNumber) -> printOptions.monthFontSize.size
+                centerContent.contains(monthName) -> printOptions.monthFontSize.size
+                centerContent.contains(yearNumber) -> printOptions.yearFontSize.size
+                else -> 24f
+            }
+            
+            val rightFontSize = when {
+                rightContent.contains(monthName) && rightContent.contains(yearNumber) -> printOptions.monthFontSize.size
+                rightContent.contains(monthName) -> printOptions.monthFontSize.size
+                rightContent.contains(yearNumber) -> printOptions.yearFontSize.size
+                else -> 24f
+            }
+            
+            // Criar células com conteúdo e tamanhos de fonte apropriados
             val leftCell = Cell()
                 .setBorder(Border.NO_BORDER)
                 .setTextAlignment(TextAlignment.LEFT)
             if (leftContent.isNotEmpty()) {
                 leftCell.add(Paragraph(leftContent.toString())
                     .setFont(titleFont)
-                    .setFontSize(24f))
+                    .setFontSize(leftFontSize))
             }
             
             val centerCell = Cell()
@@ -167,7 +190,7 @@ class PdfGenerationService {
             if (centerContent.isNotEmpty()) {
                 centerCell.add(Paragraph(centerContent.toString())
                     .setFont(titleFont)
-                    .setFontSize(24f))
+                    .setFontSize(centerFontSize))
             }
             
             val rightCell = Cell()
@@ -176,7 +199,7 @@ class PdfGenerationService {
             if (rightContent.isNotEmpty()) {
                 rightCell.add(Paragraph(rightContent.toString())
                     .setFont(titleFont)
-                    .setFontSize(24f))
+                    .setFontSize(rightFontSize))
             }
             
             // Adicionar células à tabela
