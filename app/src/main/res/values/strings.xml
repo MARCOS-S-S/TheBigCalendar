@@ -115,6 +115,9 @@
     <string name="size_medium">Médio</string>
     <string name="size_large">Grande</string>
     <string name="size_extra_large">XG</string>
+    <string name="text_color_settings">Cor do Texto</string>
+    <string name="month_text_color">Cor do Texto do Mês</string>
+    <string name="year_text_color">Cor do Texto do Ano</string>
     <string name="general">Geral</string>
     <string name="backup">Backup</string>
     <string name="do_backup">Backup</string>

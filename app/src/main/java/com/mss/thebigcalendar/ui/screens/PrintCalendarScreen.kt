@@ -88,6 +88,10 @@ fun PrintCalendarScreen(
     var yearPosition by remember { mutableStateOf(TitlePosition.CENTER) }
     var monthFontSize by remember { mutableStateOf(FontSize.MEDIUM) }
     var yearFontSize by remember { mutableStateOf(FontSize.MEDIUM) }
+    var monthTextColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Black) }
+    var isMonthTextColorPickerExpanded by remember { mutableStateOf(false) }
+    var yearTextColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Black) }
+    var isYearTextColorPickerExpanded by remember { mutableStateOf(false) }
     var isGeneratingPdf by remember { mutableStateOf(false) }
     var generatedPdfPath by remember { mutableStateOf<String?>(null) }
 
@@ -886,6 +890,159 @@ fun PrintCalendarScreen(
                             )
                         )
                     }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Text Color Settings
+                    Text(
+                        text = stringResource(id = R.string.text_color_settings),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    // Month Text Color
+                    Text(
+                        text = stringResource(id = R.string.month_text_color),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Header com botão de expandir/colapsar para cor do texto do mês
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { isMonthTextColorPickerExpanded = !isMonthTextColorPickerExpanded },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .background(
+                                        color = monthTextColor,
+                                        shape = androidx.compose.foundation.shape.CircleShape
+                                    )
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.outline,
+                                        shape = androidx.compose.foundation.shape.CircleShape
+                                    )
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = getColorName(monthTextColor),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                        
+                        IconButton(onClick = { isMonthTextColorPickerExpanded = !isMonthTextColorPickerExpanded }) {
+                            Icon(
+                                imageVector = if (isMonthTextColorPickerExpanded) 
+                                    Icons.Default.KeyboardArrowUp 
+                                else 
+                                    Icons.Default.KeyboardArrowDown,
+                                contentDescription = if (isMonthTextColorPickerExpanded) 
+                                    stringResource(id = R.string.collapse) 
+                                else 
+                                    stringResource(id = R.string.expand),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                    
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = isMonthTextColorPickerExpanded,
+                        enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+                        exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()
+                    ) {
+                        Column {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            TextColorPicker(
+                                selectedColor = monthTextColor,
+                                onColorSelected = { monthTextColor = it }
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Year Text Color
+                    Text(
+                        text = stringResource(id = R.string.year_text_color),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Header com botão de expandir/colapsar para cor do texto do ano
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { isYearTextColorPickerExpanded = !isYearTextColorPickerExpanded },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .background(
+                                        color = yearTextColor,
+                                        shape = androidx.compose.foundation.shape.CircleShape
+                                    )
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.outline,
+                                        shape = androidx.compose.foundation.shape.CircleShape
+                                    )
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = getColorName(yearTextColor),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                        
+                        IconButton(onClick = { isYearTextColorPickerExpanded = !isYearTextColorPickerExpanded }) {
+                            Icon(
+                                imageVector = if (isYearTextColorPickerExpanded) 
+                                    Icons.Default.KeyboardArrowUp 
+                                else 
+                                    Icons.Default.KeyboardArrowDown,
+                                contentDescription = if (isYearTextColorPickerExpanded) 
+                                    stringResource(id = R.string.collapse) 
+                                else 
+                                    stringResource(id = R.string.expand),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                    
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = isYearTextColorPickerExpanded,
+                        enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+                        exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()
+                    ) {
+                        Column {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            TextColorPicker(
+                                selectedColor = yearTextColor,
+                                onColorSelected = { yearTextColor = it }
+                            )
+                        }
+                    }
                 }
             }
 
@@ -1282,7 +1439,9 @@ fun PrintCalendarScreen(
                         monthPosition = monthPosition,
                         yearPosition = yearPosition,
                         monthFontSize = monthFontSize,
-                        yearFontSize = yearFontSize
+                        yearFontSize = yearFontSize,
+                        monthTextColor = monthTextColor,
+                        yearTextColor = yearTextColor
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
@@ -1330,7 +1489,9 @@ data class PrintOptions(
     val monthPosition: TitlePosition,
     val yearPosition: TitlePosition,
     val monthFontSize: FontSize,
-    val yearFontSize: FontSize
+    val yearFontSize: FontSize,
+    val monthTextColor: androidx.compose.ui.graphics.Color,
+    val yearTextColor: androidx.compose.ui.graphics.Color
 )
 
 enum class PageOrientation { PORTRAIT, LANDSCAPE }
@@ -1346,6 +1507,7 @@ enum class FontSize(val size: Float) {
 // Função auxiliar para obter o nome da cor
 private fun getColorName(color: androidx.compose.ui.graphics.Color): String {
     return when (color) {
+        // Cores de fundo
         androidx.compose.ui.graphics.Color.White -> "Branco"
         androidx.compose.ui.graphics.Color(0xFFFFF9C4) -> "Amarelo Claro"
         androidx.compose.ui.graphics.Color(0xFFE1F5FE) -> "Azul Claro"
@@ -1355,6 +1517,16 @@ private fun getColorName(color: androidx.compose.ui.graphics.Color): String {
         androidx.compose.ui.graphics.Color(0xFFFFE0B2) -> "Laranja Claro"
         androidx.compose.ui.graphics.Color(0xFFEFEBE9) -> "Marrom Claro"
         androidx.compose.ui.graphics.Color(0xFFECEFF1) -> "Cinza Claro"
+        // Cores de texto
+        androidx.compose.ui.graphics.Color.Black -> "Preto"
+        androidx.compose.ui.graphics.Color(0xFF424242) -> "Cinza Escuro"
+        androidx.compose.ui.graphics.Color(0xFF1565C0) -> "Azul Escuro"
+        androidx.compose.ui.graphics.Color(0xFF2E7D32) -> "Verde Escuro"
+        androidx.compose.ui.graphics.Color(0xFFC62828) -> "Vermelho Escuro"
+        androidx.compose.ui.graphics.Color(0xFF6A1B9A) -> "Roxo Escuro"
+        androidx.compose.ui.graphics.Color(0xFFE65100) -> "Laranja Escuro"
+        androidx.compose.ui.graphics.Color(0xFF4E342E) -> "Marrom Escuro"
+        androidx.compose.ui.graphics.Color(0xFF37474F) -> "Azul Acinzentado"
         else -> "Personalizada"
     }
 }
@@ -1426,5 +1598,39 @@ private fun ColorOption(
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             modifier = Modifier.width(60.dp)
         )
+    }
+}
+
+@Composable
+private fun TextColorPicker(
+    selectedColor: androidx.compose.ui.graphics.Color,
+    onColorSelected: (androidx.compose.ui.graphics.Color) -> Unit
+) {
+    // Cores pré-definidas para texto
+    val textColors = listOf(
+        androidx.compose.ui.graphics.Color.Black to "Preto",
+        androidx.compose.ui.graphics.Color(0xFF424242) to "Cinza Escuro",
+        androidx.compose.ui.graphics.Color(0xFF1565C0) to "Azul Escuro",
+        androidx.compose.ui.graphics.Color(0xFF2E7D32) to "Verde Escuro",
+        androidx.compose.ui.graphics.Color(0xFFC62828) to "Vermelho Escuro",
+        androidx.compose.ui.graphics.Color(0xFF6A1B9A) to "Roxo Escuro",
+        androidx.compose.ui.graphics.Color(0xFFE65100) to "Laranja Escuro",
+        androidx.compose.ui.graphics.Color(0xFF4E342E) to "Marrom Escuro",
+        androidx.compose.ui.graphics.Color(0xFF37474F) to "Azul Acinzentado"
+    )
+    
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        textColors.forEach { (color, name) ->
+            ColorOption(
+                color = color,
+                name = name,
+                isSelected = selectedColor == color,
+                onClick = { onColorSelected(color) }
+            )
+        }
     }
 }

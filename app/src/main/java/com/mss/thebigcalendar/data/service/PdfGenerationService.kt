@@ -174,14 +174,37 @@ class PdfGenerationService {
                 else -> 24f
             }
             
-            // Criar células com conteúdo e tamanhos de fonte apropriados
+            // Determinar cor do texto para cada célula
+            val leftTextColor = when {
+                leftContent.contains(monthName) && leftContent.contains(yearNumber) -> convertComposeColorToITextColor(printOptions.monthTextColor)
+                leftContent.contains(monthName) -> convertComposeColorToITextColor(printOptions.monthTextColor)
+                leftContent.contains(yearNumber) -> convertComposeColorToITextColor(printOptions.yearTextColor)
+                else -> com.itextpdf.kernel.colors.ColorConstants.BLACK
+            }
+            
+            val centerTextColor = when {
+                centerContent.contains(monthName) && centerContent.contains(yearNumber) -> convertComposeColorToITextColor(printOptions.monthTextColor)
+                centerContent.contains(monthName) -> convertComposeColorToITextColor(printOptions.monthTextColor)
+                centerContent.contains(yearNumber) -> convertComposeColorToITextColor(printOptions.yearTextColor)
+                else -> com.itextpdf.kernel.colors.ColorConstants.BLACK
+            }
+            
+            val rightTextColor = when {
+                rightContent.contains(monthName) && rightContent.contains(yearNumber) -> convertComposeColorToITextColor(printOptions.monthTextColor)
+                rightContent.contains(monthName) -> convertComposeColorToITextColor(printOptions.monthTextColor)
+                rightContent.contains(yearNumber) -> convertComposeColorToITextColor(printOptions.yearTextColor)
+                else -> com.itextpdf.kernel.colors.ColorConstants.BLACK
+            }
+            
+            // Criar células com conteúdo, tamanhos de fonte e cores apropriados
             val leftCell = Cell()
                 .setBorder(Border.NO_BORDER)
                 .setTextAlignment(TextAlignment.LEFT)
             if (leftContent.isNotEmpty()) {
                 leftCell.add(Paragraph(leftContent.toString())
                     .setFont(titleFont)
-                    .setFontSize(leftFontSize))
+                    .setFontSize(leftFontSize)
+                    .setFontColor(leftTextColor))
             }
             
             val centerCell = Cell()
@@ -190,7 +213,8 @@ class PdfGenerationService {
             if (centerContent.isNotEmpty()) {
                 centerCell.add(Paragraph(centerContent.toString())
                     .setFont(titleFont)
-                    .setFontSize(centerFontSize))
+                    .setFontSize(centerFontSize)
+                    .setFontColor(centerTextColor))
             }
             
             val rightCell = Cell()
@@ -199,7 +223,8 @@ class PdfGenerationService {
             if (rightContent.isNotEmpty()) {
                 rightCell.add(Paragraph(rightContent.toString())
                     .setFont(titleFont)
-                    .setFontSize(rightFontSize))
+                    .setFontSize(rightFontSize)
+                    .setFontColor(rightTextColor))
             }
             
             // Adicionar células à tabela
