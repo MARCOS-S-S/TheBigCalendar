@@ -1,6 +1,8 @@
 package com.mss.thebigcalendar.data.service
 
+import com.itextpdf.kernel.colors.Color
 import com.itextpdf.kernel.colors.ColorConstants
+import com.itextpdf.kernel.colors.DeviceRgb
 import com.itextpdf.kernel.font.PdfFontFactory
 import com.itextpdf.kernel.geom.PageSize
 import com.itextpdf.kernel.pdf.PdfDocument
@@ -26,6 +28,17 @@ import java.util.Locale
 import com.mss.thebigcalendar.ui.screens.PageSize as CustomPageSize
 
 class PdfGenerationService {
+    
+    /**
+     * Converte uma cor do Compose para uma cor do iText PDF
+     */
+    private fun convertComposeColorToITextColor(composeColor: androidx.compose.ui.graphics.Color): Color {
+        return DeviceRgb(
+            composeColor.red,
+            composeColor.green,
+            composeColor.blue
+        )
+    }
     
     fun generateCalendarPdf(
         printOptions: PrintOptions,
@@ -204,7 +217,10 @@ class PdfGenerationService {
                     .setFontColor(ColorConstants.GRAY))
             }
         } else {
-            // Dias do mês atual
+            // Dias do mês atual - aplicar cor de fundo selecionada
+            val backgroundColor = convertComposeColorToITextColor(printOptions.backgroundColor)
+            cell.setBackgroundColor(backgroundColor)
+            
             // Número do dia
             val dayParagraph = Paragraph(date.dayOfMonth.toString())
                 .setFont(dayFont)

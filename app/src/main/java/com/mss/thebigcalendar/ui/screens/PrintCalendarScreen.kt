@@ -1,6 +1,9 @@
 package com.mss.thebigcalendar.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,12 +15,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -72,6 +78,8 @@ fun PrintCalendarScreen(
     var pageSize by remember { mutableStateOf(PageSize.A4) }
     var hideOtherMonthDays by remember { mutableStateOf(false) }
     var showDayBorders by remember { mutableStateOf(true) }
+    var backgroundColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.White) }
+    var isColorPickerExpanded by remember { mutableStateOf(false) }
     var isGeneratingPdf by remember { mutableStateOf(false) }
     var generatedPdfPath by remember { mutableStateOf<String?>(null) }
 
@@ -311,6 +319,93 @@ fun PrintCalendarScreen(
 
             HorizontalDivider()
 
+            // Background Color Selection
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    // Header com botão de expandir/colapsar
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { isColorPickerExpanded = !isColorPickerExpanded },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(id = R.string.background_color),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                            // Mostrar cor selecionada
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(top = 4.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .background(
+                                            color = backgroundColor,
+                                            shape = androidx.compose.foundation.shape.CircleShape
+                                        )
+                                        .border(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.outline,
+                                            shape = androidx.compose.foundation.shape.CircleShape
+                                        )
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = getColorName(backgroundColor),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                                )
+                            }
+                        }
+                        
+                        // Ícone de expandir/colapsar
+                        IconButton(onClick = { isColorPickerExpanded = !isColorPickerExpanded }) {
+                            Icon(
+                                imageVector = if (isColorPickerExpanded) 
+                                    Icons.Default.KeyboardArrowUp 
+                                else 
+                                    Icons.Default.KeyboardArrowDown,
+                                contentDescription = if (isColorPickerExpanded) 
+                                    stringResource(id = R.string.collapse) 
+                                else 
+                                    stringResource(id = R.string.expand),
+                                tint = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                        }
+                    }
+                    
+                    // Conteúdo expansível (cores)
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = isColorPickerExpanded,
+                        enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+                        exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()
+                    ) {
+                        Column {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            ColorPicker(
+                                selectedColor = backgroundColor,
+                                onColorSelected = { backgroundColor = it }
+                            )
+                        }
+                    }
+                }
+            }
+
+            HorizontalDivider()
+
             // PDF Preview Section
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -522,7 +617,8 @@ fun PrintCalendarScreen(
                         orientation = orientation,
                         pageSize = pageSize,
                         hideOtherMonthDays = hideOtherMonthDays,
-                        showDayBorders = showDayBorders
+                        showDayBorders = showDayBorders,
+                        backgroundColor = backgroundColor
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
@@ -564,8 +660,95 @@ data class PrintOptions(
     val orientation: PageOrientation,
     val pageSize: PageSize,
     val hideOtherMonthDays: Boolean,
-    val showDayBorders: Boolean
+    val showDayBorders: Boolean,
+    val backgroundColor: androidx.compose.ui.graphics.Color
 )
 
 enum class PageOrientation { PORTRAIT, LANDSCAPE }
 enum class PageSize { A4, A3 }
+
+// Função auxiliar para obter o nome da cor
+private fun getColorName(color: androidx.compose.ui.graphics.Color): String {
+    return when (color) {
+        androidx.compose.ui.graphics.Color.White -> "Branco"
+        androidx.compose.ui.graphics.Color(0xFFFFF9C4) -> "Amarelo Claro"
+        androidx.compose.ui.graphics.Color(0xFFE1F5FE) -> "Azul Claro"
+        androidx.compose.ui.graphics.Color(0xFFE8F5E9) -> "Verde Claro"
+        androidx.compose.ui.graphics.Color(0xFFFCE4EC) -> "Rosa Claro"
+        androidx.compose.ui.graphics.Color(0xFFF3E5F5) -> "Roxo Claro"
+        androidx.compose.ui.graphics.Color(0xFFFFE0B2) -> "Laranja Claro"
+        androidx.compose.ui.graphics.Color(0xFFEFEBE9) -> "Marrom Claro"
+        androidx.compose.ui.graphics.Color(0xFFECEFF1) -> "Cinza Claro"
+        else -> "Personalizada"
+    }
+}
+
+@Composable
+private fun ColorPicker(
+    selectedColor: androidx.compose.ui.graphics.Color,
+    onColorSelected: (androidx.compose.ui.graphics.Color) -> Unit
+) {
+    // Cores pré-definidas
+    val colors = listOf(
+        androidx.compose.ui.graphics.Color.White to "Branco",
+        androidx.compose.ui.graphics.Color(0xFFFFF9C4) to "Amarelo Claro",
+        androidx.compose.ui.graphics.Color(0xFFE1F5FE) to "Azul Claro",
+        androidx.compose.ui.graphics.Color(0xFFE8F5E9) to "Verde Claro",
+        androidx.compose.ui.graphics.Color(0xFFFCE4EC) to "Rosa Claro",
+        androidx.compose.ui.graphics.Color(0xFFF3E5F5) to "Roxo Claro",
+        androidx.compose.ui.graphics.Color(0xFFFFE0B2) to "Laranja Claro",
+        androidx.compose.ui.graphics.Color(0xFFEFEBE9) to "Marrom Claro",
+        androidx.compose.ui.graphics.Color(0xFFECEFF1) to "Cinza Claro"
+    )
+    
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        colors.forEach { (color, name) ->
+            ColorOption(
+                color = color,
+                name = name,
+                isSelected = selectedColor == color,
+                onClick = { onColorSelected(color) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ColorOption(
+    color: androidx.compose.ui.graphics.Color,
+    name: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .border(
+                    width = if (isSelected) 3.dp else 1.dp,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                    shape = androidx.compose.foundation.shape.CircleShape
+                )
+                .padding(4.dp)
+                .background(
+                    color = color,
+                    shape = androidx.compose.foundation.shape.CircleShape
+                )
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = name,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            modifier = Modifier.width(60.dp)
+        )
+    }
+}
