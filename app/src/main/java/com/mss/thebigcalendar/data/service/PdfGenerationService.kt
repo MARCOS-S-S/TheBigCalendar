@@ -110,17 +110,82 @@ class PdfGenerationService {
             val dayFont = PdfFontFactory.createFont()
             val contentFont = PdfFontFactory.createFont()
             
-            // Título do calendário
-            val monthYear = printOptions.selectedMonth.format(
-                DateTimeFormatter.ofPattern("MMMM yyyy", Locale("pt", "BR"))
+            // Título do calendário - mês e ano na mesma linha
+            val monthName = printOptions.selectedMonth.format(
+                DateTimeFormatter.ofPattern("MMMM", Locale("pt", "BR"))
             ).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale("pt", "BR")) else it.toString() }
-            val title = Paragraph(monthYear)
-                .setFont(titleFont)
-                .setFontSize(24f)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setMarginBottom(20f)
             
-            document.add(title)
+            val yearNumber = printOptions.selectedMonth.format(
+                DateTimeFormatter.ofPattern("yyyy", Locale("pt", "BR"))
+            )
+            
+            // Criar tabela com 3 colunas para posicionar mês e ano na mesma linha
+            val titleTable = Table(UnitValue.createPercentArray(3)).useAllAvailableWidth()
+                .setBorder(Border.NO_BORDER)
+            
+            // Preparar células vazias
+            val leftContent = StringBuilder()
+            val centerContent = StringBuilder()
+            val rightContent = StringBuilder()
+            
+            // Adicionar mês à posição correta
+            when (printOptions.monthPosition) {
+                com.mss.thebigcalendar.ui.screens.TitlePosition.LEFT -> leftContent.append(monthName)
+                com.mss.thebigcalendar.ui.screens.TitlePosition.CENTER -> centerContent.append(monthName)
+                com.mss.thebigcalendar.ui.screens.TitlePosition.RIGHT -> rightContent.append(monthName)
+            }
+            
+            // Adicionar ano à posição correta (com espaço se for na mesma célula que o mês)
+            when (printOptions.yearPosition) {
+                com.mss.thebigcalendar.ui.screens.TitlePosition.LEFT -> {
+                    if (leftContent.isNotEmpty()) leftContent.append(" ")
+                    leftContent.append(yearNumber)
+                }
+                com.mss.thebigcalendar.ui.screens.TitlePosition.CENTER -> {
+                    if (centerContent.isNotEmpty()) centerContent.append(" ")
+                    centerContent.append(yearNumber)
+                }
+                com.mss.thebigcalendar.ui.screens.TitlePosition.RIGHT -> {
+                    if (rightContent.isNotEmpty()) rightContent.append(" ")
+                    rightContent.append(yearNumber)
+                }
+            }
+            
+            // Criar células com conteúdo
+            val leftCell = Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.LEFT)
+            if (leftContent.isNotEmpty()) {
+                leftCell.add(Paragraph(leftContent.toString())
+                    .setFont(titleFont)
+                    .setFontSize(24f))
+            }
+            
+            val centerCell = Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER)
+            if (centerContent.isNotEmpty()) {
+                centerCell.add(Paragraph(centerContent.toString())
+                    .setFont(titleFont)
+                    .setFontSize(24f))
+            }
+            
+            val rightCell = Cell()
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.RIGHT)
+            if (rightContent.isNotEmpty()) {
+                rightCell.add(Paragraph(rightContent.toString())
+                    .setFont(titleFont)
+                    .setFontSize(24f))
+            }
+            
+            // Adicionar células à tabela
+            titleTable.addCell(leftCell)
+            titleTable.addCell(centerCell)
+            titleTable.addCell(rightCell)
+            titleTable.setMarginBottom(20f)
+            
+            document.add(titleTable)
             
             // Criar tabela do calendário
             val calendarTable = createCalendarTable(

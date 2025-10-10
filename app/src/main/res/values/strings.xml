@@ -102,6 +102,12 @@
     <string name="page_background_color">Cor de Fundo da Página</string>
     <string name="expand">Expandir</string>
     <string name="collapse">Recolher</string>
+    <string name="title_position_settings">Posicionamento do Título</string>
+    <string name="month_position">Posição do Mês</string>
+    <string name="year_position">Posição do Ano</string>
+    <string name="position_left">Esquerda</string>
+    <string name="position_center">Centro</string>
+    <string name="position_right">Direita</string>
     <string name="general">Geral</string>
     <string name="backup">Backup</string>
     <string name="do_backup">Backup</string>
