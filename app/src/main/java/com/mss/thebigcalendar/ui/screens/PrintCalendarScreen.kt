@@ -20,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -31,6 +32,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -171,47 +173,176 @@ fun PrintCalendarScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         FilterChip(
                             selected = includeTasks,
                             onClick = { includeTasks = !includeTasks },
-                            label = { Text(stringResource(id = R.string.tasks)) }
+                            label = { Text(stringResource(id = R.string.tasks)) },
+                            leadingIcon = if (includeTasks) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = includeTasks,
+                                borderColor = if (includeTasks) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (includeTasks) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                         FilterChip(
                             selected = includeHolidays,
                             onClick = { includeHolidays = !includeHolidays },
-                            label = { Text(stringResource(id = R.string.national_holidays)) }
+                            label = { Text(stringResource(id = R.string.national_holidays)) },
+                            leadingIcon = if (includeHolidays) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = includeHolidays,
+                                borderColor = if (includeHolidays) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (includeHolidays) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                         FilterChip(
                             selected = includeSaintDays,
                             onClick = { includeSaintDays = !includeSaintDays },
-                            label = { Text(stringResource(id = R.string.catholic_saint_days)) }
+                            label = { Text(stringResource(id = R.string.catholic_saint_days)) },
+                            leadingIcon = if (includeSaintDays) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = includeSaintDays,
+                                borderColor = if (includeSaintDays) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (includeSaintDays) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                         FilterChip(
                             selected = includeEvents,
                             onClick = { includeEvents = !includeEvents },
-                            label = { Text(stringResource(id = R.string.events)) }
+                            label = { Text(stringResource(id = R.string.events)) },
+                            leadingIcon = if (includeEvents) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = includeEvents,
+                                borderColor = if (includeEvents) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (includeEvents) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                         FilterChip(
                             selected = includeBirthdays,
                             onClick = { includeBirthdays = !includeBirthdays },
-                            label = { Text(stringResource(id = R.string.birthday)) }
+                            label = { Text(stringResource(id = R.string.birthday)) },
+                            leadingIcon = if (includeBirthdays) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = includeBirthdays,
+                                borderColor = if (includeBirthdays) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (includeBirthdays) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                         FilterChip(
                             selected = includeNotes,
                             onClick = { includeNotes = !includeNotes },
-                            label = { Text(stringResource(id = R.string.notes_title)) }
+                            label = { Text(stringResource(id = R.string.notes_title)) },
+                            leadingIcon = if (includeNotes) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = includeNotes,
+                                borderColor = if (includeNotes) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (includeNotes) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                         FilterChip(
                             selected = includeMoonPhases,
                             onClick = { includeMoonPhases = !includeMoonPhases },
-                            label = { Text(stringResource(id = R.string.moon_phases_filter)) }
+                            label = { Text(stringResource(id = R.string.moon_phases_filter)) },
+                            leadingIcon = if (includeMoonPhases) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = includeMoonPhases,
+                                borderColor = if (includeMoonPhases) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (includeMoonPhases) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                         FilterChip(
                             selected = includeCompletedTasks,
                             onClick = { includeCompletedTasks = !includeCompletedTasks },
-                            label = { Text(stringResource(id = R.string.completed_tasks_filter)) }
+                            label = { Text(stringResource(id = R.string.completed_tasks_filter)) },
+                            leadingIcon = if (includeCompletedTasks) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = includeCompletedTasks,
+                                borderColor = if (includeCompletedTasks) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (includeCompletedTasks) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                     }
                 }
@@ -248,12 +379,44 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = orientation == PageOrientation.PORTRAIT,
                             onClick = { orientation = PageOrientation.PORTRAIT },
-                            label = { Text(stringResource(id = R.string.portrait)) }
+                            label = { Text(stringResource(id = R.string.portrait)) },
+                            leadingIcon = if (orientation == PageOrientation.PORTRAIT) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = orientation == PageOrientation.PORTRAIT,
+                                borderColor = if (orientation == PageOrientation.PORTRAIT) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (orientation == PageOrientation.PORTRAIT) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                         FilterChip(
                             selected = orientation == PageOrientation.LANDSCAPE,
                             onClick = { orientation = PageOrientation.LANDSCAPE },
-                            label = { Text(stringResource(id = R.string.landscape)) }
+                            label = { Text(stringResource(id = R.string.landscape)) },
+                            leadingIcon = if (orientation == PageOrientation.LANDSCAPE) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = orientation == PageOrientation.LANDSCAPE,
+                                borderColor = if (orientation == PageOrientation.LANDSCAPE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (orientation == PageOrientation.LANDSCAPE) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                     }
                     
@@ -270,12 +433,44 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = pageSize == PageSize.A4,
                             onClick = { pageSize = PageSize.A4 },
-                            label = { Text("A4") }
+                            label = { Text("A4") },
+                            leadingIcon = if (pageSize == PageSize.A4) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = pageSize == PageSize.A4,
+                                borderColor = if (pageSize == PageSize.A4) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (pageSize == PageSize.A4) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                         FilterChip(
                             selected = pageSize == PageSize.A3,
                             onClick = { pageSize = PageSize.A3 },
-                            label = { Text("A3") }
+                            label = { Text("A3") },
+                            leadingIcon = if (pageSize == PageSize.A3) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = pageSize == PageSize.A3,
+                                borderColor = if (pageSize == PageSize.A3) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (pageSize == PageSize.A3) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
                         )
                     }
                     
