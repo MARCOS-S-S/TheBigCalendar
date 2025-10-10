@@ -77,6 +77,32 @@ class PdfGenerationService {
         
         android.util.Log.d("PdfGenerationService", "📄 Criando novo arquivo PDF: ${outputFile.absolutePath}")
         
+        // Aplicar cor de fundo da página
+        val pageBackgroundColor = convertComposeColorToITextColor(printOptions.pageBackgroundColor)
+        
+        // Criar evento de página para aplicar cor de fundo
+        pdf.addEventHandler(com.itextpdf.kernel.events.PdfDocumentEvent.END_PAGE, 
+            object : com.itextpdf.kernel.events.IEventHandler {
+                override fun handleEvent(event: com.itextpdf.kernel.events.Event?) {
+                    val docEvent = event as? com.itextpdf.kernel.events.PdfDocumentEvent
+                    if (docEvent != null) {
+                        val pdfDoc = docEvent.document
+                        val page = docEvent.page
+                        val canvas = com.itextpdf.kernel.pdf.canvas.PdfCanvas(page.newContentStreamBefore(), page.resources, pdfDoc)
+                        
+                        val pageRect = page.pageSize
+                        canvas
+                            .saveState()
+                            .setFillColor(pageBackgroundColor)
+                            .rectangle(pageRect.left.toDouble(),
+                                pageRect.bottom.toDouble(), pageRect.width.toDouble(), pageRect.height.toDouble()
+                            )
+                            .fill()
+                            .restoreState()
+                    }
+                }
+            })
+        
         try {
             // Configurar fontes
             val titleFont = PdfFontFactory.createFont()

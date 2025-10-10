@@ -99,6 +99,7 @@
     <string name="pdf_preview_placeholder">Visualização do PDF aparecerá aqui</string>
     <string name="generate_pdf">Gerar PDF</string>
     <string name="background_color">Cor de Fundo</string>
+    <string name="page_background_color">Cor de Fundo da Página</string>
     <string name="expand">Expandir</string>
     <string name="collapse">Recolher</string>
     <string name="general">Geral</string>

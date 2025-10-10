@@ -80,6 +80,8 @@ fun PrintCalendarScreen(
     var showDayBorders by remember { mutableStateOf(true) }
     var backgroundColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.White) }
     var isColorPickerExpanded by remember { mutableStateOf(false) }
+    var pageBackgroundColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.White) }
+    var isPageColorPickerExpanded by remember { mutableStateOf(false) }
     var isGeneratingPdf by remember { mutableStateOf(false) }
     var generatedPdfPath by remember { mutableStateOf<String?>(null) }
 
@@ -406,6 +408,93 @@ fun PrintCalendarScreen(
 
             HorizontalDivider()
 
+            // Page Background Color Selection
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    // Header com botão de expandir/colapsar
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { isPageColorPickerExpanded = !isPageColorPickerExpanded },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(id = R.string.page_background_color),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                            // Mostrar cor selecionada
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(top = 4.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .background(
+                                            color = pageBackgroundColor,
+                                            shape = androidx.compose.foundation.shape.CircleShape
+                                        )
+                                        .border(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.outline,
+                                            shape = androidx.compose.foundation.shape.CircleShape
+                                        )
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = getColorName(pageBackgroundColor),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                                )
+                            }
+                        }
+                        
+                        // Ícone de expandir/colapsar
+                        IconButton(onClick = { isPageColorPickerExpanded = !isPageColorPickerExpanded }) {
+                            Icon(
+                                imageVector = if (isPageColorPickerExpanded) 
+                                    Icons.Default.KeyboardArrowUp 
+                                else 
+                                    Icons.Default.KeyboardArrowDown,
+                                contentDescription = if (isPageColorPickerExpanded) 
+                                    stringResource(id = R.string.collapse) 
+                                else 
+                                    stringResource(id = R.string.expand),
+                                tint = MaterialTheme.colorScheme.onTertiaryContainer
+                            )
+                        }
+                    }
+                    
+                    // Conteúdo expansível (cores)
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = isPageColorPickerExpanded,
+                        enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+                        exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()
+                    ) {
+                        Column {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            ColorPicker(
+                                selectedColor = pageBackgroundColor,
+                                onColorSelected = { pageBackgroundColor = it }
+                            )
+                        }
+                    }
+                }
+            }
+
+            HorizontalDivider()
+
             // PDF Preview Section
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -618,7 +707,8 @@ fun PrintCalendarScreen(
                         pageSize = pageSize,
                         hideOtherMonthDays = hideOtherMonthDays,
                         showDayBorders = showDayBorders,
-                        backgroundColor = backgroundColor
+                        backgroundColor = backgroundColor,
+                        pageBackgroundColor = pageBackgroundColor
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
@@ -661,7 +751,8 @@ data class PrintOptions(
     val pageSize: PageSize,
     val hideOtherMonthDays: Boolean,
     val showDayBorders: Boolean,
-    val backgroundColor: androidx.compose.ui.graphics.Color
+    val backgroundColor: androidx.compose.ui.graphics.Color,
+    val pageBackgroundColor: androidx.compose.ui.graphics.Color
 )
 
 enum class PageOrientation { PORTRAIT, LANDSCAPE }
