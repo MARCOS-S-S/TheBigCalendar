@@ -92,6 +92,20 @@ fun PrintCalendarScreen(
     var isMonthTextColorPickerExpanded by remember { mutableStateOf(false) }
     var yearTextColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Black) }
     var isYearTextColorPickerExpanded by remember { mutableStateOf(false) }
+    var dayNumberFontSize by remember { mutableStateOf(FontSize.SMALL) }
+    var colorDayNumbersByEvents by remember { mutableStateOf(false) }
+    var holidayColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color(0xFFC62828)) }
+    var isHolidayColorPickerExpanded by remember { mutableStateOf(false) }
+    var saintDayColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color(0xFF6A1B9A)) }
+    var isSaintDayColorPickerExpanded by remember { mutableStateOf(false) }
+    var eventColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color(0xFF1565C0)) }
+    var isEventColorPickerExpanded by remember { mutableStateOf(false) }
+    var taskColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color(0xFF2E7D32)) }
+    var isTaskColorPickerExpanded by remember { mutableStateOf(false) }
+    var birthdayColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color(0xFFE65100)) }
+    var isBirthdayColorPickerExpanded by remember { mutableStateOf(false) }
+    var noteColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color(0xFF424242)) }
+    var isNoteColorPickerExpanded by remember { mutableStateOf(false) }
     var isGeneratingPdf by remember { mutableStateOf(false) }
     var generatedPdfPath by remember { mutableStateOf<String?>(null) }
 
@@ -1048,6 +1062,236 @@ fun PrintCalendarScreen(
 
             HorizontalDivider()
 
+            // Calendar Day Numbers Settings
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.calendar_settings),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    // Day Number Font Size
+                    Text(
+                        text = stringResource(id = R.string.day_number_font_size),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = dayNumberFontSize == FontSize.SMALL,
+                            onClick = { dayNumberFontSize = FontSize.SMALL },
+                            label = { Text(stringResource(id = R.string.size_small)) },
+                            leadingIcon = if (dayNumberFontSize == FontSize.SMALL) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = dayNumberFontSize == FontSize.SMALL,
+                                borderColor = if (dayNumberFontSize == FontSize.SMALL) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (dayNumberFontSize == FontSize.SMALL) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = dayNumberFontSize == FontSize.MEDIUM,
+                            onClick = { dayNumberFontSize = FontSize.MEDIUM },
+                            label = { Text(stringResource(id = R.string.size_medium)) },
+                            leadingIcon = if (dayNumberFontSize == FontSize.MEDIUM) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = dayNumberFontSize == FontSize.MEDIUM,
+                                borderColor = if (dayNumberFontSize == FontSize.MEDIUM) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (dayNumberFontSize == FontSize.MEDIUM) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = dayNumberFontSize == FontSize.LARGE,
+                            onClick = { dayNumberFontSize = FontSize.LARGE },
+                            label = { Text(stringResource(id = R.string.size_large)) },
+                            leadingIcon = if (dayNumberFontSize == FontSize.LARGE) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = dayNumberFontSize == FontSize.LARGE,
+                                borderColor = if (dayNumberFontSize == FontSize.LARGE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (dayNumberFontSize == FontSize.LARGE) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = dayNumberFontSize == FontSize.EXTRA_LARGE,
+                            onClick = { dayNumberFontSize = FontSize.EXTRA_LARGE },
+                            label = { Text(stringResource(id = R.string.size_extra_large)) },
+                            leadingIcon = if (dayNumberFontSize == FontSize.EXTRA_LARGE) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = dayNumberFontSize == FontSize.EXTRA_LARGE,
+                                borderColor = if (dayNumberFontSize == FontSize.EXTRA_LARGE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (dayNumberFontSize == FontSize.EXTRA_LARGE) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Opção para colorir números dos dias
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(id = R.string.color_day_numbers_by_events),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Text(
+                                text = stringResource(id = R.string.color_day_numbers_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                            )
+                        }
+                        Switch(
+                            checked = colorDayNumbersByEvents,
+                            onCheckedChange = { colorDayNumbersByEvents = it }
+                        )
+                    }
+                    
+                    // Seções de cores (visíveis apenas quando a opção está ativada)
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = colorDayNumbersByEvents,
+                        enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+                        exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()
+                    ) {
+                        Column {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            HorizontalDivider()
+                            
+                            Spacer(modifier = Modifier.height(12.dp))
+                            
+                            Text(
+                                text = stringResource(id = R.string.event_type_colors),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            
+                            Spacer(modifier = Modifier.height(12.dp))
+                            
+                            // Cor de Feriados
+                            ExpandableColorSelector(
+                                title = stringResource(id = R.string.national_holidays),
+                                selectedColor = holidayColor,
+                                isExpanded = isHolidayColorPickerExpanded,
+                                onExpandedChange = { isHolidayColorPickerExpanded = it },
+                                onColorSelected = { holidayColor = it }
+                            )
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            // Cor de Dias de Santos
+                            ExpandableColorSelector(
+                                title = stringResource(id = R.string.catholic_saint_days),
+                                selectedColor = saintDayColor,
+                                isExpanded = isSaintDayColorPickerExpanded,
+                                onExpandedChange = { isSaintDayColorPickerExpanded = it },
+                                onColorSelected = { saintDayColor = it }
+                            )
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            // Cor de Eventos
+                            ExpandableColorSelector(
+                                title = stringResource(id = R.string.events),
+                                selectedColor = eventColor,
+                                isExpanded = isEventColorPickerExpanded,
+                                onExpandedChange = { isEventColorPickerExpanded = it },
+                                onColorSelected = { eventColor = it }
+                            )
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            // Cor de Tarefas
+                            ExpandableColorSelector(
+                                title = stringResource(id = R.string.tasks),
+                                selectedColor = taskColor,
+                                isExpanded = isTaskColorPickerExpanded,
+                                onExpandedChange = { isTaskColorPickerExpanded = it },
+                                onColorSelected = { taskColor = it }
+                            )
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            // Cor de Aniversários
+                            ExpandableColorSelector(
+                                title = stringResource(id = R.string.birthday),
+                                selectedColor = birthdayColor,
+                                isExpanded = isBirthdayColorPickerExpanded,
+                                onExpandedChange = { isBirthdayColorPickerExpanded = it },
+                                onColorSelected = { birthdayColor = it }
+                            )
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            // Cor de Notas
+                            ExpandableColorSelector(
+                                title = stringResource(id = R.string.notes_title),
+                                selectedColor = noteColor,
+                                isExpanded = isNoteColorPickerExpanded,
+                                onExpandedChange = { isNoteColorPickerExpanded = it },
+                                onColorSelected = { noteColor = it }
+                            )
+                        }
+                    }
+                }
+            }
+
+            HorizontalDivider()
+
             // Background Color Selection
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -1441,7 +1685,15 @@ fun PrintCalendarScreen(
                         monthFontSize = monthFontSize,
                         yearFontSize = yearFontSize,
                         monthTextColor = monthTextColor,
-                        yearTextColor = yearTextColor
+                        yearTextColor = yearTextColor,
+                        dayNumberFontSize = dayNumberFontSize,
+                        colorDayNumbersByEvents = colorDayNumbersByEvents,
+                        holidayColor = holidayColor,
+                        saintDayColor = saintDayColor,
+                        eventColor = eventColor,
+                        taskColor = taskColor,
+                        birthdayColor = birthdayColor,
+                        noteColor = noteColor
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
@@ -1491,7 +1743,15 @@ data class PrintOptions(
     val monthFontSize: FontSize,
     val yearFontSize: FontSize,
     val monthTextColor: androidx.compose.ui.graphics.Color,
-    val yearTextColor: androidx.compose.ui.graphics.Color
+    val yearTextColor: androidx.compose.ui.graphics.Color,
+    val dayNumberFontSize: FontSize,
+    val colorDayNumbersByEvents: Boolean,
+    val holidayColor: androidx.compose.ui.graphics.Color,
+    val saintDayColor: androidx.compose.ui.graphics.Color,
+    val eventColor: androidx.compose.ui.graphics.Color,
+    val taskColor: androidx.compose.ui.graphics.Color,
+    val birthdayColor: androidx.compose.ui.graphics.Color,
+    val noteColor: androidx.compose.ui.graphics.Color
 )
 
 enum class PageOrientation { PORTRAIT, LANDSCAPE }
@@ -1631,6 +1891,81 @@ private fun TextColorPicker(
                 isSelected = selectedColor == color,
                 onClick = { onColorSelected(color) }
             )
+        }
+    }
+}
+
+@Composable
+private fun ExpandableColorSelector(
+    title: String,
+    selectedColor: androidx.compose.ui.graphics.Color,
+    isExpanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onColorSelected: (androidx.compose.ui.graphics.Color) -> Unit
+) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onExpandedChange(!isExpanded) }
+                .padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .background(
+                            color = selectedColor,
+                            shape = androidx.compose.foundation.shape.CircleShape
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline,
+                            shape = androidx.compose.foundation.shape.CircleShape
+                        )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+            
+            IconButton(onClick = { onExpandedChange(!isExpanded) }) {
+                Icon(
+                    imageVector = if (isExpanded) 
+                        Icons.Default.KeyboardArrowUp 
+                    else 
+                        Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (isExpanded) 
+                        stringResource(id = R.string.collapse) 
+                    else 
+                        stringResource(id = R.string.expand),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+        
+        androidx.compose.animation.AnimatedVisibility(
+            visible = isExpanded,
+            enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+            exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()
+        ) {
+            Column {
+                Spacer(modifier = Modifier.height(8.dp))
+                TextColorPicker(
+                    selectedColor = selectedColor,
+                    onColorSelected = onColorSelected
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
         }
     }
 }

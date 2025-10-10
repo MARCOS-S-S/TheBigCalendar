@@ -351,7 +351,7 @@ class PdfGenerationService {
                 cell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
                 cell.add(Paragraph(date.dayOfMonth.toString())
                     .setFont(dayFont)
-                    .setFontSize(10f)
+                    .setFontSize(printOptions.dayNumberFontSize.size * 0.7f)
                     .setTextAlignment(TextAlignment.CENTER)
                     .setFontColor(ColorConstants.GRAY))
             }
@@ -360,12 +360,20 @@ class PdfGenerationService {
             val backgroundColor = convertComposeColorToITextColor(printOptions.backgroundColor)
             cell.setBackgroundColor(backgroundColor)
             
-            // Número do dia
+            // Determinar cor do número do dia
+            val dayNumberColor = if (printOptions.colorDayNumbersByEvents) {
+                getDayNumberColor(date, activities, holidays, jsonHolidays, printOptions)
+            } else {
+                com.itextpdf.kernel.colors.ColorConstants.BLACK
+            }
+            
+            // Número do dia - usar tamanho e cor configurados pelo usuário
             val dayParagraph = Paragraph(date.dayOfMonth.toString())
                 .setFont(dayFont)
-                .setFontSize(12f)
+                .setFontSize(printOptions.dayNumberFontSize.size)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setBold()
+                .setFontColor(dayNumberColor)
             
             cell.add(dayParagraph)
             
@@ -384,6 +392,81 @@ class PdfGenerationService {
         }
         
         return cell
+    }
+    
+    /**
+     * Determina a cor do número do dia baseado nos eventos daquele dia
+     * Prioridade: Feriados > Dias de Santos > Aniversários > Eventos > Tarefas > Notas
+     */
+    private fun getDayNumberColor(
+        date: LocalDate,
+        activities: List<Activity>,
+        holidays: List<Holiday>,
+        jsonHolidays: List<JsonHoliday>,
+        printOptions: PrintOptions
+    ): Color {
+        
+        // Verificar feriados (maior prioridade)
+        if (printOptions.includeHolidays) {
+            val hasHoliday = holidays.any { LocalDate.parse(it.date) == date } ||
+                           jsonHolidays.any { LocalDate.parse(it.date) == date }
+            if (hasHoliday) {
+                return convertComposeColorToITextColor(printOptions.holidayColor)
+            }
+        }
+        
+        // Verificar dias de santos (segunda prioridade)
+        if (printOptions.includeSaintDays) {
+            // TODO: Adicionar lógica quando dias de santos estiverem disponíveis
+            // Por enquanto, vamos usar uma verificação placeholder
+        }
+        
+        // Verificar aniversários
+        if (printOptions.includeBirthdays) {
+            val hasBirthday = activities.any { 
+                LocalDate.parse(it.date) == date && 
+                it.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY
+            }
+            if (hasBirthday) {
+                return convertComposeColorToITextColor(printOptions.birthdayColor)
+            }
+        }
+        
+        // Verificar eventos
+        if (printOptions.includeEvents) {
+            val hasEvent = activities.any { 
+                LocalDate.parse(it.date) == date && 
+                it.activityType == com.mss.thebigcalendar.data.model.ActivityType.EVENT
+            }
+            if (hasEvent) {
+                return convertComposeColorToITextColor(printOptions.eventColor)
+            }
+        }
+        
+        // Verificar tarefas
+        if (printOptions.includeTasks) {
+            val hasTask = activities.any { 
+                LocalDate.parse(it.date) == date && 
+                it.activityType == com.mss.thebigcalendar.data.model.ActivityType.TASK
+            }
+            if (hasTask) {
+                return convertComposeColorToITextColor(printOptions.taskColor)
+            }
+        }
+        
+        // Verificar notas
+        if (printOptions.includeNotes) {
+            val hasNote = activities.any { 
+                LocalDate.parse(it.date) == date && 
+                it.activityType == com.mss.thebigcalendar.data.model.ActivityType.NOTE
+            }
+            if (hasNote) {
+                return convertComposeColorToITextColor(printOptions.noteColor)
+            }
+        }
+        
+        // Se não há eventos, retornar preto
+        return com.itextpdf.kernel.colors.ColorConstants.BLACK
     }
     
     private fun getDayContent(

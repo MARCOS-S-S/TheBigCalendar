@@ -118,6 +118,11 @@
     <string name="text_color_settings">Cor do Texto</string>
     <string name="month_text_color">Cor do Texto do Mês</string>
     <string name="year_text_color">Cor do Texto do Ano</string>
+    <string name="calendar_settings">Configurações do Calendário</string>
+    <string name="day_number_font_size">Tamanho dos Números dos Dias</string>
+    <string name="color_day_numbers_by_events">Colorir números dos dias</string>
+    <string name="color_day_numbers_description">Aplicar cor baseada nos agendamentos do dia</string>
+    <string name="event_type_colors">Cores por Tipo de Agendamento</string>
     <string name="general">Geral</string>
     <string name="backup">Backup</string>
     <string name="do_backup">Backup</string>
