@@ -2004,9 +2004,9 @@ private fun CustomScrollbar(
     val density = androidx.compose.ui.platform.LocalDensity.current
     var isHovered by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
     
-    // Obter cor da scrollbar baseada no tema Material Design
-    val scrollbarColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-        alpha = (0.1f + isHovered * 0.2f).coerceIn(0.1f, 0.3f)
+    // Obter cor primária do tema do app para a scrollbar
+    val scrollbarColor = MaterialTheme.colorScheme.primary.copy(
+        alpha = (0.3f + isHovered * 0.3f).coerceIn(0.3f, 0.6f)
     )
     
     androidx.compose.foundation.Canvas(
