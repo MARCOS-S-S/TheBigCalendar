@@ -586,4 +586,9 @@
     <string name="primary_color_desc">Choose the primary color of the application</string>
     <string name="changes_saved_automatically">Changes are saved automatically.</string>
 
+    <!-- MonthlyCalendar.kt - Category Colors -->
+    <string name="category_color_1">1</string>
+    <string name="category_color_2">2</string>
+    <string name="category_color_3">3</string>
+    <string name="category_color_4">4</string>
 </resources>

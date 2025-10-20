@@ -590,6 +590,11 @@
     <string name="primary_color_desc">アプリケーションのプライマリカラーを選択</string>
     <string name="changes_saved_automatically">変更は自動的に保存されます。</string>
 
+    <!-- MonthlyCalendar.kt - Category Colors -->
+    <string name="category_color_1">1</string>
+    <string name="category_color_2">2</string>
+    <string name="category_color_3">3</string>
+    <string name="category_color_4">4</string>
 </resources>
 
 

@@ -106,9 +106,12 @@ class ActivityRepository(private val context: Context) {
                     weeksInMonth > 0 && !startDate.isAfter(monthEnd)
                 }
                 activity.recurrenceRule == "MONTHLY" || activity.recurrenceRule?.startsWith("FREQ=MONTHLY") == true -> {
-                    // Mensais só se o dia de início for válido no mês
-                    val startDay = startDate.dayOfMonth
-                    startDay <= monthEnd.dayOfMonth && startDate.month == yearMonth.month
+                    // Mensais: há ocorrência neste mês se a data ajustada deste mês existir
+                    // e não for anterior à data de início
+                    val targetDay = kotlin.math.min(startDate.dayOfMonth, yearMonth.lengthOfMonth())
+                    val occurrenceDateThisMonth = yearMonth.atDay(targetDay)
+                    !occurrenceDateThisMonth.isBefore(startDate) &&
+                        !occurrenceDateThisMonth.isAfter(monthEnd)
                 }
                 activity.recurrenceRule == "YEARLY" || activity.recurrenceRule?.startsWith("FREQ=YEARLY") == true -> {
                     // Anuais só se for do mesmo mês

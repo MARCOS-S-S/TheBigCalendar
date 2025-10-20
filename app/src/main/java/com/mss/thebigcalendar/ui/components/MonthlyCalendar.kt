@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mss.thebigcalendar.data.model.CalendarDay
 import java.time.LocalDate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -38,6 +39,7 @@ import com.mss.thebigcalendar.data.model.Activity
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.draw.scale
+import com.mss.thebigcalendar.R
 
 @Composable
 fun MonthlyCalendar(
@@ -147,6 +149,7 @@ private fun DayCell(
     theme: com.mss.thebigcalendar.data.model.Theme,
     verticalScale: Float = 1f
 ) {
+    val context = LocalContext.current
     val cellModifier = modifier
         .padding(1.dp)
         // Ajuste correto: para verticalScale menor, a altura deve diminuir (modo compacto)
@@ -254,10 +257,10 @@ private fun DayCell(
                     when {
                         task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> Color(0xFFE91E63)
                         task.activityType == com.mss.thebigcalendar.data.model.ActivityType.NOTE -> Color(0xFF9C27B0)
-                        task.categoryColor == "1" -> Color.White
-                        task.categoryColor == "2" -> Color.Blue
-                        task.categoryColor == "3" -> Color.Yellow
-                        task.categoryColor == "4" -> Color.Red
+                        task.categoryColor == context.getString(R.string.category_color_1) -> Color.White
+                        task.categoryColor == context.getString(R.string.category_color_2) -> Color.Blue
+                        task.categoryColor == context.getString(R.string.category_color_3) -> Color.Yellow
+                        task.categoryColor == context.getString(R.string.category_color_4) -> Color.Red
                         else -> fallbackColor
                     }
                 }
@@ -298,10 +301,10 @@ private fun DayCell(
                         when {
                             task.activityType == com.mss.thebigcalendar.data.model.ActivityType.BIRTHDAY -> Color(0xFFE91E63) // Rosa para aniversários
                             task.activityType == com.mss.thebigcalendar.data.model.ActivityType.NOTE -> Color(0xFF9C27B0) // Roxo para notas
-                            task.categoryColor == "1" -> Color.White
-                            task.categoryColor == "2" -> Color.Blue
-                            task.categoryColor == "3" -> Color.Yellow
-                            task.categoryColor == "4" -> Color.Red
+                            task.categoryColor == context.getString(R.string.category_color_1) -> Color.White
+                            task.categoryColor == context.getString(R.string.category_color_2) -> Color.Blue
+                            task.categoryColor == context.getString(R.string.category_color_3) -> Color.Yellow
+                            task.categoryColor == context.getString(R.string.category_color_4) -> Color.Red
                             else -> fallbackColor
                         }
                     }
