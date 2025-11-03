@@ -78,6 +78,7 @@ fun CreateActivityScreen(
     var hasScheduledTime by remember(currentActivity.id) { mutableStateOf(currentActivity.startTime != null) }
 
     var showInCalendar by remember(currentActivity.id) { mutableStateOf(currentActivity.showInCalendar) }
+    var rollover by remember(currentActivity.id) { mutableStateOf(currentActivity.rollover) }
 
     var notificationSettings by remember(currentActivity.id) {
         mutableStateOf(
@@ -226,6 +227,7 @@ fun CreateActivityScreen(
                                 notificationSettings = notificationSettings,
                                 visibility = selectedVisibility,
                                 showInCalendar = showInCalendar,
+                                rollover = rollover,
                                 recurrenceRule = if (selectedRepetition == customRepetitionText) {
                                     customRepetitionRule
                                 } else {
@@ -345,6 +347,13 @@ fun CreateActivityScreen(
             CalendarVisibilitySelector(
                 showInCalendar = showInCalendar,
                 onShowInCalendarToggle = { showInCalendar = it }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            RolloverSelector(
+                rollover = rollover,
+                onRolloverToggle = { rollover = it }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -757,6 +766,38 @@ fun CalendarVisibilitySelector(
         if (!showInCalendar) {
             Text(
                 text = stringResource(id = R.string.show_in_calendar_description),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun RolloverSelector(
+    rollover: Boolean,
+    onRolloverToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.rollover_if_not_completed),
+                style = MaterialTheme.typography.labelMedium
+            )
+            Switch(
+                checked = rollover,
+                onCheckedChange = onRolloverToggle
+            )
+        }
+        if (rollover) {
+            Text(
+                text = stringResource(id = R.string.rollover_if_not_completed_description),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp)

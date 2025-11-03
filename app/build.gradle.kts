@@ -144,6 +144,7 @@ dependencies {
     implementation("com.itextpdf:layout:7.2.5")
     implementation(libs.androidx.compose.ui.text)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.room.ktx)
 
     // Dependências de Teste
     testImplementation(libs.junit)

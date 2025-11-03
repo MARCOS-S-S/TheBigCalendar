@@ -44,7 +44,8 @@ data class Activity(
     val isFromGoogle: Boolean = false,
     val excludedDates: List<String> = emptyList(), // Datas de instâncias recorrentes excluídas
     val excludedInstances: List<String> = emptyList(), // Instâncias específicas excluídas (para HOURLY)
-    val wikipediaLink: String? = null // Link para mais informações (usado em agendamentos JSON)
+    val wikipediaLink: String? = null, // Link para mais informações (usado em agendamentos JSON)
+    val rollover: Boolean = false
 )
 
 // Representa cada célula individual na grade do calendário
