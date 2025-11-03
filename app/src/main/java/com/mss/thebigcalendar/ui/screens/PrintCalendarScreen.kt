@@ -194,7 +194,7 @@ fun PrintCalendarScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
                 )
             ) {
                 Column(
@@ -204,7 +204,7 @@ fun PrintCalendarScreen(
                         text = stringResource(id = R.string.content_options),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     FlowRow(

@@ -79,6 +79,9 @@ class PdfGenerationService {
         val pdf = PdfDocument(writer)
         val document = Document(pdf, pageSize)
         
+        // Configurar margens mínimas para ocupar todo o espaço da página
+        document.setMargins(20f, 20f, 20f, 20f)
+        
         android.util.Log.d("PdfGenerationService", "📄 Criando novo arquivo PDF: ${outputFile.absolutePath}")
         
         // Aplicar cor de fundo da página
@@ -126,6 +129,7 @@ class PdfGenerationService {
             // Criar tabela com 3 colunas para posicionar mês e ano na mesma linha
             val titleTable = Table(UnitValue.createPercentArray(3)).useAllAvailableWidth()
                 .setBorder(Border.NO_BORDER)
+                .setMarginBottom(5f)
             
             // Preparar células vazias
             val leftContent = StringBuilder()
@@ -235,7 +239,6 @@ class PdfGenerationService {
             titleTable.addCell(leftCell)
             titleTable.addCell(centerCell)
             titleTable.addCell(rightCell)
-            titleTable.setMarginBottom(20f)
             
             document.add(titleTable)
             
@@ -249,7 +252,8 @@ class PdfGenerationService {
                 printOptions,
                 dayFont,
                 contentFont,
-                pdf
+                pdf,
+                pageSize
             )
             
             document.add(calendarTable)
@@ -277,11 +281,13 @@ class PdfGenerationService {
         printOptions: PrintOptions,
         dayFont: com.itextpdf.kernel.font.PdfFont,
         contentFont: com.itextpdf.kernel.font.PdfFont,
-        pdfDocument: PdfDocument
+        pdfDocument: PdfDocument,
+        pageSize: PageSize
     ): Table {
         
         // Criar tabela 7x6 (7 dias da semana, 6 semanas máximo)
         val table = Table(UnitValue.createPercentArray(7)).useAllAvailableWidth()
+            .setMarginTop(2f)
         
         // Cabeçalho com dias da semana
         val weekDays = listOf("Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb")
@@ -289,12 +295,13 @@ class PdfGenerationService {
             val cell = Cell()
                 .add(Paragraph(day)
                     .setFont(dayFont)
-                    .setFontSize(12f)
+                    .setFontSize(9f)
                     .setTextAlignment(TextAlignment.CENTER)
                     .setBold())
                 .setBackgroundColor(ColorConstants.LIGHT_GRAY)
                 .setBorder(Border.NO_BORDER)
-                .setPadding(8f)
+                .setPadding(2f)
+                .setMinHeight(15f)
             table.addCell(cell)
         }
         
@@ -316,7 +323,8 @@ class PdfGenerationService {
                     printOptions,
                     dayFont,
                     contentFont,
-                    pdfDocument
+                    pdfDocument,
+                    pageSize
                 )
                 table.addCell(cell)
             }
@@ -335,12 +343,13 @@ class PdfGenerationService {
         printOptions: PrintOptions,
         dayFont: com.itextpdf.kernel.font.PdfFont,
         contentFont: com.itextpdf.kernel.font.PdfFont,
-        pdfDocument: PdfDocument
+        pdfDocument: PdfDocument,
+        pageSize: PageSize
     ): Cell {
         
         val cell = Cell()
-            .setPadding(4f)
-            .setMinHeight(80f)
+            .setPadding(1f)
+            .setMinHeight(calculateOptimalCellHeight(pageSize))
         
         // Configurar bordas baseado na opção
         if (printOptions.showDayBorders) {
@@ -799,5 +808,18 @@ class PdfGenerationService {
         
         // Limitar a 4 itens por dia para não sobrecarregar
         return dayContent.take(4)
+    }
+    
+    /**
+     * Calcula a altura ótima das células do calendário baseada no tamanho da página
+     */
+    private fun calculateOptimalCellHeight(pageSize: PageSize): Float {
+        // Calcular altura disponível de forma conservadora para garantir uma página
+        val totalReservedSpace = 100f // espaço reservado para título, cabeçalho, margens e espaçamentos
+        val availableHeight = pageSize.height - totalReservedSpace
+        val cellHeight = availableHeight / 6f // 6 semanas
+        
+        // Garantir altura mínima para legibilidade, mas máxima para caber em uma página
+        return cellHeight.coerceIn(35f, 80f)
     }
 }
