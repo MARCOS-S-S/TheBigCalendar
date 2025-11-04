@@ -333,6 +333,10 @@ class PdfGenerationService {
         return table
     }
     
+    private fun cmToPoints(cm: Float): Float {
+        return cm * 28.35f
+    }
+
     private fun createDayCell(
         date: LocalDate,
         month: java.time.YearMonth,
@@ -349,7 +353,7 @@ class PdfGenerationService {
         
         val cell = Cell()
             .setPadding(1f)
-            .setMinHeight(calculateOptimalCellHeight(pageSize))
+            .setMinHeight(cmToPoints(printOptions.dayCellHeight))
         
         // Configurar bordas baseado na opção
         if (printOptions.showDayBorders) {
@@ -810,16 +814,4 @@ class PdfGenerationService {
         return dayContent.take(4)
     }
     
-    /**
-     * Calcula a altura ótima das células do calendário baseada no tamanho da página
-     */
-    private fun calculateOptimalCellHeight(pageSize: PageSize): Float {
-        // Calcular altura disponível de forma conservadora para garantir uma página
-        val totalReservedSpace = 100f // espaço reservado para título, cabeçalho, margens e espaçamentos
-        val availableHeight = pageSize.height - totalReservedSpace
-        val cellHeight = availableHeight / 6f // 6 semanas
-        
-        // Garantir altura mínima para legibilidade, mas máxima para caber em uma página
-        return cellHeight.coerceIn(35f, 80f)
-    }
 }

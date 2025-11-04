@@ -60,6 +60,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.google.android.material.slider.Slider
+import androidx.compose.material3.Slider
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.CalendarUiState
 import java.io.File
@@ -116,6 +118,7 @@ fun PrintCalendarScreen(
     var isNoteColorPickerExpanded by remember { mutableStateOf(false) }
     var isGeneratingPdf by remember { mutableStateOf(false) }
     var generatedPdfPath by remember { mutableStateOf<String?>(null) }
+    var dayCellHeight by remember { mutableStateOf(2.5f) }
 
     // LaunchedEffect para controlar o estado de geração
     LaunchedEffect(isGeneratingPdf) {
@@ -509,6 +512,29 @@ fun PrintCalendarScreen(
                             )
                         )
                     }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Cell Height
+                    Text(
+                        text = "Altura da Célula (cm)",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Slider(
+                        value = dayCellHeight,
+                        onValueChange = { dayCellHeight = it },
+                        valueRange = 1f..10f,
+                        steps = 8,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        text = "%.1f cm".format(dayCellHeight),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     
@@ -1773,7 +1799,8 @@ fun PrintCalendarScreen(
                         eventColor = eventColor,
                         taskColor = taskColor,
                         birthdayColor = birthdayColor,
-                        noteColor = noteColor
+                        noteColor = noteColor,
+                        dayCellHeight = dayCellHeight
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
@@ -1842,7 +1869,8 @@ data class PrintOptions(
     val eventColor: androidx.compose.ui.graphics.Color,
     val taskColor: androidx.compose.ui.graphics.Color,
     val birthdayColor: androidx.compose.ui.graphics.Color,
-    val noteColor: androidx.compose.ui.graphics.Color
+    val noteColor: androidx.compose.ui.graphics.Color,
+    val dayCellHeight: Float
 )
 
 enum class PageOrientation { PORTRAIT, LANDSCAPE }
