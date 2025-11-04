@@ -1,5 +1,6 @@
 package com.mss.thebigcalendar.ui.screens
 
+import android.R.attr.label
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -101,7 +102,9 @@ fun PrintCalendarScreen(
     var isMonthTextColorPickerExpanded by remember { mutableStateOf(false) }
     var yearTextColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Black) }
     var isYearTextColorPickerExpanded by remember { mutableStateOf(false) }
-    var dayNumberFontSize by remember { mutableStateOf(FontSize.SMALL) }
+    var dayNumberFontSize by remember { mutableStateOf(FontSize.TINY) }
+    var weekDayFontSize by remember { mutableStateOf(FontSize.TINY) }
+    var weekDayAbbreviation by remember { mutableStateOf(WeekDayAbbreviation.SHORT) }
     var moonPhasePosition by remember { mutableStateOf(MoonPhasePosition.BELOW_CALENDAR) }
     var colorDayNumbersByEvents by remember { mutableStateOf(false) }
     var holidayColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color(0xFFC62828)) }
@@ -764,9 +767,51 @@ fun PrintCalendarScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(
+                            selected = monthFontSize == FontSize.EXTRA_TINY,
+                            onClick = { monthFontSize = FontSize.EXTRA_TINY },
+                            label = { Text("XS") },
+                            leadingIcon = if (monthFontSize == FontSize.EXTRA_TINY) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = monthFontSize == FontSize.EXTRA_TINY,
+                                borderColor = if (monthFontSize == FontSize.EXTRA_TINY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (monthFontSize == FontSize.EXTRA_TINY) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = monthFontSize == FontSize.TINY,
+                            onClick = { monthFontSize = FontSize.TINY },
+                            label = { Text("S") },
+                            leadingIcon = if (monthFontSize == FontSize.TINY) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = monthFontSize == FontSize.TINY,
+                                borderColor = if (monthFontSize == FontSize.TINY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (monthFontSize == FontSize.TINY) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
                             selected = monthFontSize == FontSize.SMALL,
                             onClick = { monthFontSize = FontSize.SMALL },
-                            label = { Text(stringResource(id = R.string.size_small)) },
+                            label = { Text("M") },
                             leadingIcon = if (monthFontSize == FontSize.SMALL) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -787,7 +832,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = monthFontSize == FontSize.MEDIUM,
                             onClick = { monthFontSize = FontSize.MEDIUM },
-                            label = { Text(stringResource(id = R.string.size_medium)) },
+                            label = { Text("L") },
                             leadingIcon = if (monthFontSize == FontSize.MEDIUM) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -808,7 +853,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = monthFontSize == FontSize.LARGE,
                             onClick = { monthFontSize = FontSize.LARGE },
-                            label = { Text(stringResource(id = R.string.size_large)) },
+                            label = { Text("XL") },
                             leadingIcon = if (monthFontSize == FontSize.LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -829,7 +874,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = monthFontSize == FontSize.EXTRA_LARGE,
                             onClick = { monthFontSize = FontSize.EXTRA_LARGE },
-                            label = { Text(stringResource(id = R.string.size_extra_large)) },
+                            label = { Text("XXL") },
                             leadingIcon = if (monthFontSize == FontSize.EXTRA_LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -860,9 +905,51 @@ fun PrintCalendarScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(
+                            selected = yearFontSize == FontSize.EXTRA_TINY,
+                            onClick = { yearFontSize = FontSize.EXTRA_TINY },
+                            label = { Text("XS") },
+                            leadingIcon = if (yearFontSize == FontSize.EXTRA_TINY) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = yearFontSize == FontSize.EXTRA_TINY,
+                                borderColor = if (yearFontSize == FontSize.EXTRA_TINY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (yearFontSize == FontSize.EXTRA_TINY) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = yearFontSize == FontSize.TINY,
+                            onClick = { yearFontSize = FontSize.TINY },
+                            label = { Text("S") },
+                            leadingIcon = if (yearFontSize == FontSize.TINY) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = yearFontSize == FontSize.TINY,
+                                borderColor = if (yearFontSize == FontSize.TINY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (yearFontSize == FontSize.TINY) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
                             selected = yearFontSize == FontSize.SMALL,
                             onClick = { yearFontSize = FontSize.SMALL },
-                            label = { Text(stringResource(id = R.string.size_small)) },
+                            label = { Text("M") },
                             leadingIcon = if (yearFontSize == FontSize.SMALL) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -883,7 +970,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = yearFontSize == FontSize.MEDIUM,
                             onClick = { yearFontSize = FontSize.MEDIUM },
-                            label = { Text(stringResource(id = R.string.size_medium)) },
+                            label = { Text("L") },
                             leadingIcon = if (yearFontSize == FontSize.MEDIUM) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -904,7 +991,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = yearFontSize == FontSize.LARGE,
                             onClick = { yearFontSize = FontSize.LARGE },
-                            label = { Text(stringResource(id = R.string.size_large)) },
+                            label = { Text("XL") },
                             leadingIcon = if (yearFontSize == FontSize.LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -925,7 +1012,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = yearFontSize == FontSize.EXTRA_LARGE,
                             onClick = { yearFontSize = FontSize.EXTRA_LARGE },
-                            label = { Text(stringResource(id = R.string.size_extra_large)) },
+                            label = { Text("XXL") },
                             leadingIcon = if (yearFontSize == FontSize.EXTRA_LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -940,6 +1027,144 @@ fun PrintCalendarScreen(
                                 borderColor = if (yearFontSize == FontSize.EXTRA_LARGE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                                 selectedBorderColor = MaterialTheme.colorScheme.primary,
                                 borderWidth = if (yearFontSize == FontSize.EXTRA_LARGE) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Week Day Font Size
+                    Text(
+                        text = "Tamanho da Fonte (Dias da Semana)",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = weekDayFontSize == FontSize.EXTRA_TINY,
+                            onClick = { weekDayFontSize = FontSize.EXTRA_TINY },
+                            label = { Text("XS") },
+                            leadingIcon = if (weekDayFontSize == FontSize.EXTRA_TINY) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = weekDayFontSize == FontSize.EXTRA_TINY,
+                                borderColor = if (weekDayFontSize == FontSize.EXTRA_TINY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (weekDayFontSize == FontSize.EXTRA_TINY) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = weekDayFontSize == FontSize.TINY,
+                            onClick = { weekDayFontSize = FontSize.TINY },
+                            label = { Text("S") },
+                            leadingIcon = if (weekDayFontSize == FontSize.TINY) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = weekDayFontSize == FontSize.TINY,
+                                borderColor = if (weekDayFontSize == FontSize.TINY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (weekDayFontSize == FontSize.TINY) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = weekDayFontSize == FontSize.SMALL,
+                            onClick = { weekDayFontSize = FontSize.SMALL },
+                            label = { Text("M") },
+                            leadingIcon = if (weekDayFontSize == FontSize.SMALL) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = weekDayFontSize == FontSize.SMALL,
+                                borderColor = if (weekDayFontSize == FontSize.SMALL) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (weekDayFontSize == FontSize.SMALL) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = weekDayFontSize == FontSize.MEDIUM,
+                            onClick = { weekDayFontSize = FontSize.MEDIUM },
+                            label = { Text("L") },
+                            leadingIcon = if (weekDayFontSize == FontSize.MEDIUM) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = weekDayFontSize == FontSize.MEDIUM,
+                                borderColor = if (weekDayFontSize == FontSize.MEDIUM) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (weekDayFontSize == FontSize.MEDIUM) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = weekDayFontSize == FontSize.LARGE,
+                            onClick = { weekDayFontSize = FontSize.LARGE },
+                            label = { Text("XL") },
+                            leadingIcon = if (weekDayFontSize == FontSize.LARGE) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = weekDayFontSize == FontSize.LARGE,
+                                borderColor = if (weekDayFontSize == FontSize.LARGE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (weekDayFontSize == FontSize.LARGE) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = weekDayFontSize == FontSize.EXTRA_LARGE,
+                            onClick = { weekDayFontSize = FontSize.EXTRA_LARGE },
+                            label = { Text("XXL") },
+                            leadingIcon = if (weekDayFontSize == FontSize.EXTRA_LARGE) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = weekDayFontSize == FontSize.EXTRA_LARGE,
+                                borderColor = if (weekDayFontSize == FontSize.EXTRA_LARGE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (weekDayFontSize == FontSize.EXTRA_LARGE) 2.dp else 1.dp,
                                 selectedBorderWidth = 2.dp
                             )
                         )
@@ -1129,9 +1354,51 @@ fun PrintCalendarScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(
+                            selected = dayNumberFontSize == FontSize.EXTRA_TINY,
+                            onClick = { dayNumberFontSize = FontSize.EXTRA_TINY },
+                            label = { Text("XS") },
+                            leadingIcon = if (dayNumberFontSize == FontSize.EXTRA_TINY) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = dayNumberFontSize == FontSize.EXTRA_TINY,
+                                borderColor = if (dayNumberFontSize == FontSize.EXTRA_TINY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (dayNumberFontSize == FontSize.EXTRA_TINY) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = dayNumberFontSize == FontSize.TINY,
+                            onClick = { dayNumberFontSize = FontSize.TINY },
+                            label = { Text("S") },
+                            leadingIcon = if (dayNumberFontSize == FontSize.TINY) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = dayNumberFontSize == FontSize.TINY,
+                                borderColor = if (dayNumberFontSize == FontSize.TINY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (dayNumberFontSize == FontSize.TINY) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
                             selected = dayNumberFontSize == FontSize.SMALL,
                             onClick = { dayNumberFontSize = FontSize.SMALL },
-                            label = { Text(stringResource(id = R.string.size_small)) },
+                            label = { Text("M") },
                             leadingIcon = if (dayNumberFontSize == FontSize.SMALL) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1152,7 +1419,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = dayNumberFontSize == FontSize.MEDIUM,
                             onClick = { dayNumberFontSize = FontSize.MEDIUM },
-                            label = { Text(stringResource(id = R.string.size_medium)) },
+                            label = { Text("L") },
                             leadingIcon = if (dayNumberFontSize == FontSize.MEDIUM) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1173,7 +1440,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = dayNumberFontSize == FontSize.LARGE,
                             onClick = { dayNumberFontSize = FontSize.LARGE },
-                            label = { Text(stringResource(id = R.string.size_large)) },
+                            label = { Text("XL") },
                             leadingIcon = if (dayNumberFontSize == FontSize.LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1194,7 +1461,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = dayNumberFontSize == FontSize.EXTRA_LARGE,
                             onClick = { dayNumberFontSize = FontSize.EXTRA_LARGE },
-                            label = { Text(stringResource(id = R.string.size_extra_large)) },
+                            label = { Text("XXL") },
                             leadingIcon = if (dayNumberFontSize == FontSize.EXTRA_LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1209,6 +1476,60 @@ fun PrintCalendarScreen(
                                 borderColor = if (dayNumberFontSize == FontSize.EXTRA_LARGE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                                 selectedBorderColor = MaterialTheme.colorScheme.primary,
                                 borderWidth = if (dayNumberFontSize == FontSize.EXTRA_LARGE) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Week Day Abbreviation
+                    Text(
+                        text = "Abreviação dos Dias da Semana",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = weekDayAbbreviation == WeekDayAbbreviation.SHORT,
+                            onClick = { weekDayAbbreviation = WeekDayAbbreviation.SHORT },
+                            label = { Text("Curta") },
+                            leadingIcon = if (weekDayAbbreviation == WeekDayAbbreviation.SHORT) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = weekDayAbbreviation == WeekDayAbbreviation.SHORT,
+                                borderColor = if (weekDayAbbreviation == WeekDayAbbreviation.SHORT) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (weekDayAbbreviation == WeekDayAbbreviation.SHORT) 2.dp else 1.dp,
+                                selectedBorderWidth = 2.dp
+                            )
+                        )
+                        FilterChip(
+                            selected = weekDayAbbreviation == WeekDayAbbreviation.FULL,
+                            onClick = { weekDayAbbreviation = WeekDayAbbreviation.FULL },
+                            label = { Text("Completa") },
+                            leadingIcon = if (weekDayAbbreviation == WeekDayAbbreviation.FULL) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = weekDayAbbreviation == WeekDayAbbreviation.FULL,
+                                borderColor = if (weekDayAbbreviation == WeekDayAbbreviation.FULL) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                selectedBorderColor = MaterialTheme.colorScheme.primary,
+                                borderWidth = if (weekDayAbbreviation == WeekDayAbbreviation.FULL) 2.dp else 1.dp,
                                 selectedBorderWidth = 2.dp
                             )
                         )
@@ -1792,6 +2113,8 @@ fun PrintCalendarScreen(
                         monthTextColor = monthTextColor,
                         yearTextColor = yearTextColor,
                         dayNumberFontSize = dayNumberFontSize,
+                        weekDayFontSize = weekDayFontSize,
+                        weekDayAbbreviation = weekDayAbbreviation,
                         moonPhasePosition = moonPhasePosition,
                         colorDayNumbersByEvents = colorDayNumbersByEvents,
                         holidayColor = holidayColor,
@@ -1862,6 +2185,8 @@ data class PrintOptions(
     val monthTextColor: androidx.compose.ui.graphics.Color,
     val yearTextColor: androidx.compose.ui.graphics.Color,
     val dayNumberFontSize: FontSize,
+    val weekDayFontSize: FontSize,
+    val weekDayAbbreviation: WeekDayAbbreviation,
     val moonPhasePosition: MoonPhasePosition,
     val colorDayNumbersByEvents: Boolean,
     val holidayColor: androidx.compose.ui.graphics.Color,
@@ -1877,15 +2202,19 @@ enum class PageOrientation { PORTRAIT, LANDSCAPE }
 enum class PageSize { A4, A3 }
 enum class TitlePosition { LEFT, CENTER, RIGHT }
 enum class FontSize(val size: Float) {
-    SMALL(18f),
-    MEDIUM(24f),
-    LARGE(32f),
-    EXTRA_LARGE(40f)
+    EXTRA_TINY(6f),
+    TINY(8f),
+    SMALL(10f),
+    MEDIUM(12f),
+    LARGE(14f),
+    EXTRA_LARGE(16f)
 }
 enum class MoonPhasePosition {
     BELOW_CALENDAR,      // Legenda abaixo do calendário
     OTHER_MONTH_DAYS     // Dentro dos dias de outros meses
 }
+
+enum class WeekDayAbbreviation { SHORT, FULL }
 
 // Função auxiliar para obter o nome da cor
 private fun getColorName(color: androidx.compose.ui.graphics.Color): String {

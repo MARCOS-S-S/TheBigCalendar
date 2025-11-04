@@ -290,12 +290,15 @@ class PdfGenerationService {
             .setMarginTop(2f)
         
         // Cabeçalho com dias da semana
-        val weekDays = listOf("Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb")
+        val weekDays = when (printOptions.weekDayAbbreviation) {
+            com.mss.thebigcalendar.ui.screens.WeekDayAbbreviation.SHORT -> listOf("Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb")
+            com.mss.thebigcalendar.ui.screens.WeekDayAbbreviation.FULL -> listOf("Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado")
+        }
         weekDays.forEach { day ->
             val cell = Cell()
                 .add(Paragraph(day)
                     .setFont(dayFont)
-                    .setFontSize(9f)
+                    .setFontSize(printOptions.weekDayFontSize.size)
                     .setTextAlignment(TextAlignment.CENTER)
                     .setBold())
                 .setBackgroundColor(ColorConstants.LIGHT_GRAY)
