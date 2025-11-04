@@ -23,6 +23,7 @@ message ActivityProto {
   repeated string excluded_dates = 17; // Datas de instâncias recorrentes excluídas
   repeated string excluded_instances = 19; // Instâncias específicas excluídas (para HOURLY)
   string wikipedia_link = 18; // Link para mais informações (usado em agendamentos JSON)
+  bool rollover = 20;
 }
 
 message NotificationSettingsProto {

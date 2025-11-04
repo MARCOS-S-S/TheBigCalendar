@@ -174,8 +174,7 @@
             tools:node="merge">
             <meta-data
                 android:name="androidx.work.WorkManagerInitializer"
-                android:value="androidx.startup"
-                tools:node="remove" />
+                android:value="androidx.startup" />
         </provider>
 
         
