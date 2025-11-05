@@ -719,7 +719,7 @@ class PdfGenerationService {
             val canvas = drawContext.canvas
             val box = occupiedArea.bBox
             val lineHeight = 10f
-            var y = box.top - 30f
+            var y = box.top - 34f
 
             val lineColor = if (isCurrentMonth) com.itextpdf.kernel.colors.ColorConstants.LIGHT_GRAY else com.itextpdf.kernel.colors.DeviceRgb(0.9f, 0.9f, 0.9f)
             val textColor = if (isCurrentMonth) com.itextpdf.kernel.colors.ColorConstants.BLACK else com.itextpdf.kernel.colors.ColorConstants.GRAY
