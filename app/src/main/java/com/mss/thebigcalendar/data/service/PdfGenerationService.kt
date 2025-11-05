@@ -368,56 +368,48 @@ class PdfGenerationService {
         // Verificar se é do mês atual
         val isCurrentMonth = date.month == month.month
         
-        // Conteúdo do dia (calculado para ambos os casos, mas usado de forma diferente)
+        // Conteúdo do dia
         val dayContent = getDayContent(date, activities, holidays, jsonHolidays, moonPhases, printOptions)
+
+        if (printOptions.showLinesInDayCells) {
+            cell.setNextRenderer(LinedCellRenderer(cell, dayContent, contentFont, isCurrentMonth))
+        }
 
         if (!isCurrentMonth) {
             // Dias de outros meses
-            // Verificar se deve mostrar fase da lua neste dia
-            val moonPhaseForDay = if (printOptions.includeMoonPhases && 
-                                     printOptions.moonPhasePosition == com.mss.thebigcalendar.ui.screens.MoonPhasePosition.OTHER_MONTH_DAYS) {
-                moonPhases.find { it.date == date }
-            } else null
+            cell.setBackgroundColor(convertComposeColorToITextColor(printOptions.backgroundColor))
             
-            if (printOptions.hideOtherMonthDays) {
-                // Se a opção estiver ativada, criar célula vazia (a menos que tenha fase da lua)
-                if (moonPhaseForDay != null) {
-                    cell.setBackgroundColor(convertComposeColorToITextColor(printOptions.backgroundColor))
-                    addMoonPhaseDrawing(cell, moonPhaseForDay, contentFont, pdfDocument)
-                } else {
-                    cell.setBackgroundColor(convertComposeColorToITextColor(printOptions.backgroundColor))
-                    cell.add(Paragraph("")
-                        .setFont(dayFont)
-                        .setFontSize(10f)
-                        .setTextAlignment(TextAlignment.CENTER))
-                }
-            } else {
-                // Dias de outros meses - mostrar número ou fase da lua
-                cell.setBackgroundColor(convertComposeColorToITextColor(printOptions.backgroundColor))
-                
-                if (moonPhaseForDay != null) {
-                    addMoonPhaseDrawing(cell, moonPhaseForDay, contentFont, pdfDocument)
-                } else {
-                    cell.add(Paragraph(date.dayOfMonth.toString())
-                        .setFont(dayFont)
-                        .setFontSize(printOptions.dayNumberFontSize.size * 0.7f)
-                        .setTextAlignment(TextAlignment.CENTER)
-                        .setFontColor(ColorConstants.GRAY))
+            if (!printOptions.hideOtherMonthDays) {
+                cell.add(Paragraph(date.dayOfMonth.toString())
+                    .setFont(dayFont)
+                    .setFontSize(printOptions.dayNumberFontSize.size * 0.7f)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontColor(ColorConstants.GRAY))
+            }
+            
+            if (!printOptions.showLinesInDayCells) {
+                dayContent.forEach { content ->
+                    val contentParagraph = Paragraph(content)
+                        .setFont(contentFont)
+                        .setFontSize(8f)
+                        .setTextAlignment(TextAlignment.LEFT)
+                        .setMarginTop(2f)
+                        .setFontColor(ColorConstants.GRAY)
+                    
+                    cell.add(contentParagraph)
                 }
             }
         } else {
-            // Dias do mês atual - aplicar cor de fundo selecionada
+            // Dias do mês atual
             val backgroundColor = convertComposeColorToITextColor(printOptions.backgroundColor)
             cell.setBackgroundColor(backgroundColor)
             
-            // Determinar cor do número do dia
             val dayNumberColor = if (printOptions.colorDayNumbersByEvents) {
                 getDayNumberColor(date, activities, holidays, jsonHolidays, printOptions)
             } else {
                 com.itextpdf.kernel.colors.ColorConstants.BLACK
             }
             
-            // Número do dia - usar tamanho e cor configurados pelo usuário
             val dayParagraph = Paragraph(date.dayOfMonth.toString())
                 .setFont(dayFont)
                 .setFontSize(printOptions.dayNumberFontSize.size)
@@ -427,11 +419,7 @@ class PdfGenerationService {
             
             cell.add(dayParagraph)
             
-            // Apply LinedCellRenderer if enabled
-            if (printOptions.showLinesInDayCells) {
-                cell.setNextRenderer(LinedCellRenderer(cell, dayContent, contentFont))
-            } else {
-                // Conteúdo do dia (if not using LinedCellRenderer)
+            if (!printOptions.showLinesInDayCells) {
                 dayContent.forEach { content ->
                     val contentParagraph = Paragraph(content)
                         .setFont(contentFont)
@@ -725,14 +713,17 @@ class PdfGenerationService {
         return com.itextpdf.kernel.colors.ColorConstants.BLACK
     }
     
-    private inner class LinedCellRenderer(cell: Cell, private val dayContent: List<String>, private val contentFont: com.itextpdf.kernel.font.PdfFont) : com.itextpdf.layout.renderer.CellRenderer(cell) {
+    private inner class LinedCellRenderer(cell: Cell, private val dayContent: List<String>, private val contentFont: com.itextpdf.kernel.font.PdfFont, private val isCurrentMonth: Boolean) : com.itextpdf.layout.renderer.CellRenderer(cell) {
         override fun draw(drawContext: com.itextpdf.layout.renderer.DrawContext) {
             super.draw(drawContext)
             val canvas = drawContext.canvas
             val box = occupiedArea.bBox
             val lineHeight = 10f
-            var y = box.top - 34f
-            canvas.setStrokeColor(com.itextpdf.kernel.colors.ColorConstants.LIGHT_GRAY)
+            var y = box.top - 30f
+
+            val lineColor = if (isCurrentMonth) com.itextpdf.kernel.colors.ColorConstants.LIGHT_GRAY else com.itextpdf.kernel.colors.DeviceRgb(0.9f, 0.9f, 0.9f)
+            val textColor = if (isCurrentMonth) com.itextpdf.kernel.colors.ColorConstants.BLACK else com.itextpdf.kernel.colors.ColorConstants.GRAY
+            canvas.setStrokeColor(lineColor)
 
             val cellWidth = box.width - 10f // 5f padding on each side
             val allLines = mutableListOf<String>()
@@ -753,6 +744,7 @@ class PdfGenerationService {
                     val line = allLines[i]
                     canvas.beginText()
                         .setFontAndSize(contentFont, 8f)
+                        .setColor(textColor, true)
                         .moveText((box.left + 5f).toDouble(), (y + 2f).toDouble())
                         .showText(line)
                         .endText()
