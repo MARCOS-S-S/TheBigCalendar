@@ -368,6 +368,9 @@ class PdfGenerationService {
         // Verificar se é do mês atual
         val isCurrentMonth = date.month == month.month
         
+        // Conteúdo do dia (calculado para ambos os casos, mas usado de forma diferente)
+        val dayContent = getDayContent(date, activities, holidays, jsonHolidays, moonPhases, printOptions)
+
         if (!isCurrentMonth) {
             // Dias de outros meses
             // Verificar se deve mostrar fase da lua neste dia
@@ -424,17 +427,20 @@ class PdfGenerationService {
             
             cell.add(dayParagraph)
             
-            // Conteúdo do dia
-            val dayContent = getDayContent(date, activities, holidays, jsonHolidays, moonPhases, printOptions)
-            
-            dayContent.forEach { content ->
-                val contentParagraph = Paragraph(content)
-                    .setFont(contentFont)
-                    .setFontSize(8f)
-                    .setTextAlignment(TextAlignment.LEFT)
-                    .setMarginTop(2f)
-                
-                cell.add(contentParagraph)
+            // Apply LinedCellRenderer if enabled
+            if (printOptions.showLinesInDayCells) {
+                cell.setNextRenderer(LinedCellRenderer(cell, dayContent, contentFont))
+            } else {
+                // Conteúdo do dia (if not using LinedCellRenderer)
+                dayContent.forEach { content ->
+                    val contentParagraph = Paragraph(content)
+                        .setFont(contentFont)
+                        .setFontSize(8f)
+                        .setTextAlignment(TextAlignment.LEFT)
+                        .setMarginTop(2f)
+                    
+                    cell.add(contentParagraph)
+                }
             }
         }
         
@@ -719,6 +725,63 @@ class PdfGenerationService {
         return com.itextpdf.kernel.colors.ColorConstants.BLACK
     }
     
+    private inner class LinedCellRenderer(cell: Cell, private val dayContent: List<String>, private val contentFont: com.itextpdf.kernel.font.PdfFont) : com.itextpdf.layout.renderer.CellRenderer(cell) {
+        override fun draw(drawContext: com.itextpdf.layout.renderer.DrawContext) {
+            super.draw(drawContext)
+            val canvas = drawContext.canvas
+            val box = occupiedArea.bBox
+            val lineHeight = 10f
+            var y = box.top - 34f
+            canvas.setStrokeColor(com.itextpdf.kernel.colors.ColorConstants.LIGHT_GRAY)
+
+            val cellWidth = box.width - 10f // 5f padding on each side
+            val allLines = mutableListOf<String>()
+            for (text in dayContent) {
+                allLines.addAll(splitText(text, contentFont, 8f, cellWidth))
+            }
+
+            // Draw lines and text
+            var i = 0
+            while (y > box.bottom + 5f) {
+                // Draw line
+                canvas.moveTo((box.left + 2f).toDouble(), y.toDouble())
+                canvas.lineTo((box.right - 2f).toDouble(), y.toDouble())
+                canvas.stroke()
+
+                // Draw text
+                if (i < allLines.size) {
+                    val line = allLines[i]
+                    canvas.beginText()
+                        .setFontAndSize(contentFont, 8f)
+                        .moveText((box.left + 5f).toDouble(), (y + 2f).toDouble())
+                        .showText(line)
+                        .endText()
+                }
+
+                y -= lineHeight
+                i++
+            }
+        }
+    }
+
+    private fun splitText(text: String, font: com.itextpdf.kernel.font.PdfFont, fontSize: Float, maxWidth: Float): List<String> {
+        val lines = mutableListOf<String>()
+        var currentLine = ""
+        for (word in text.split(" ")) {
+            if (font.getWidth(currentLine + " " + word, fontSize) > maxWidth) {
+                lines.add(currentLine)
+                currentLine = word
+            } else {
+                if (currentLine.isNotEmpty()) {
+                    currentLine += " "
+                }
+                currentLine += word
+            }
+        }
+        lines.add(currentLine)
+        return lines
+    }
+
     private fun getDayContent(
         date: LocalDate,
         activities: List<Activity>,

@@ -675,6 +675,7 @@
     <string name="color_dark_brown">Marrom Escuro</string>
     <string name="color_blue_gray">Azul Acinzentado</string>
     <string name="color_custom">Personalizada</string>
+    <string name="show_lines_in_day_cells">Mostrar linhas nas células dos dias</string>
     <string name="share">Compartilhar</string>
     <string name="open_pdf">Abrir PDF</string>
     <string name="weekday_abbreviation_title">Abreviação dos Dias da Semana</string>

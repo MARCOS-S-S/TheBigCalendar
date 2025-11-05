@@ -133,6 +133,7 @@ fun PrintCalendarScreen(
     var isGeneratingPdf by remember { mutableStateOf(false) }
     var generatedPdfPath by remember { mutableStateOf<String?>(null) }
     var dayCellHeight by remember { mutableStateOf(2.5f) }
+    var showLinesInDayCells by remember { mutableStateOf(false) }
 
     // LaunchedEffect para controlar o estado de geração
     LaunchedEffect(isGeneratingPdf) {
@@ -600,6 +601,25 @@ fun PrintCalendarScreen(
                         Switch(
                             checked = showDayBorders,
                             onCheckedChange = { showDayBorders = it }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Opção para mostrar linhas nas células dos dias
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.show_lines_in_day_cells),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = showLinesInDayCells,
+                            onCheckedChange = { showLinesInDayCells = it }
                         )
                     }
                 }
@@ -2151,7 +2171,8 @@ fun PrintCalendarScreen(
                         taskColor = taskColor,
                         birthdayColor = birthdayColor,
                         noteColor = noteColor,
-                        dayCellHeight = dayCellHeight
+                        dayCellHeight = dayCellHeight,
+                        showLinesInDayCells = showLinesInDayCells
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
@@ -2225,7 +2246,8 @@ data class PrintOptions(
     val taskColor: androidx.compose.ui.graphics.Color,
     val birthdayColor: androidx.compose.ui.graphics.Color,
     val noteColor: androidx.compose.ui.graphics.Color,
-    val dayCellHeight: Float
+    val dayCellHeight: Float,
+    val showLinesInDayCells: Boolean
 )
 
 enum class PageOrientation { PORTRAIT, LANDSCAPE }
