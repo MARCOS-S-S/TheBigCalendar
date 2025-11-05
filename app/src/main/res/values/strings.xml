@@ -682,4 +682,8 @@
     <string name="page_size_a4">A4</string>
     <string name="page_size_a3">A3</string>
     <string name="month_year_format_full">MMMM yyyy</string>
+    <string name="color_sundays">Cor domingos</string>
+    <string name="sunday_color">Cor domingo</string>
+    <string name="color_saturdays">Cor sabados</string>
+    <string name="saturday_color">Cor sabado</string>
 </resources>

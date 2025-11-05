@@ -134,6 +134,12 @@ fun PrintCalendarScreen(
     var generatedPdfPath by remember { mutableStateOf<String?>(null) }
     var dayCellHeight by remember { mutableStateOf(2.5f) }
     var showLinesInDayCells by remember { mutableStateOf(false) }
+    var colorSundays by remember { mutableStateOf(false) }
+    var sundayColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Red) }
+    var isSundayColorPickerExpanded by remember { mutableStateOf(false) }
+    var colorSaturdays by remember { mutableStateOf(false) }
+    var saturdayColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Blue) }
+    var isSaturdayColorPickerExpanded by remember { mutableStateOf(false) }
 
     // LaunchedEffect para controlar o estado de geração
     LaunchedEffect(isGeneratingPdf) {
@@ -1670,6 +1676,71 @@ fun PrintCalendarScreen(
                             checked = colorDayNumbersByEvents,
                             onCheckedChange = { colorDayNumbersByEvents = it }
                         )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Opção para colorir domingos
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.color_sundays),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = colorSundays,
+                            onCheckedChange = { colorSundays = it }
+                        )
+                    }
+
+                    // Seletor de cor para domingos
+                    androidx.compose.animation.AnimatedVisibility(visible = colorSundays) {
+                        Column {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            ExpandableColorSelector(
+                                title = stringResource(id = R.string.sunday_color),
+                                selectedColor = sundayColor,
+                                isExpanded = isSundayColorPickerExpanded,
+                                onExpandedChange = { isSundayColorPickerExpanded = it },
+                                onColorSelected = { sundayColor = it }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Opção para colorir sábados
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.color_saturdays),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = colorSaturdays,
+                            onCheckedChange = { colorSaturdays = it }
+                        )
+                    }
+
+                    // Seletor de cor para sábados
+                    androidx.compose.animation.AnimatedVisibility(visible = colorSaturdays) {
+                        Column {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            ExpandableColorSelector(
+                                title = stringResource(id = R.string.saturday_color),
+                                selectedColor = saturdayColor,
+                                isExpanded = isSaturdayColorPickerExpanded,
+                                onExpandedChange = { isSaturdayColorPickerExpanded = it },
+                                onColorSelected = { saturdayColor = it }
+                            )
+                        }
                     }
                     
                     // Seções de cores (visíveis apenas quando a opção está ativada)

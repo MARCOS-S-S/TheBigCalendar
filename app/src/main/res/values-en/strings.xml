@@ -670,4 +670,9 @@
     <string name="color_dark_brown">Dark Brown</string>
     <string name="color_blue_gray">Blue Gray</string>
     <string name="color_custom">Custom</string>
+    <!--<string name="share_pdf">Share PDF</string>-->
+    <string name="color_sundays">Color Sundays</string>
+    <string name="sunday_color">Sunday Color</string>
+    <string name="color_saturdays">Color Saturdays</string>
+    <string name="saturday_color">Saturday Color</string>
 </resources>
