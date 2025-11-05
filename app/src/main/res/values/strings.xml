@@ -46,8 +46,8 @@
     <string name="show_in_calendar_description">A tarefa não aparecerá abaixo do dia no calendário</string>
     <string name="sync_with_google">Sincronizar com Google Calendar</string>
     <string name="select_date">Selecionar Data</string>
-    <string name="rollover_if_not_completed">Pular se não concluído</string>
-    <string name="rollover_if_not_completed_description">Se não for concluída, a tarefa será movida para o dia seguinte.</string>
+    <string name="rollover_if_not_completed" translatable="false">Pular se não concluído</string>
+    <string name="rollover_if_not_completed_description" translatable="false">Se não for concluída, a tarefa será movida para o dia seguinte.</string>
     
     <!-- Widget Configuration -->
     <string name="widget_configuration_title">Configurar Widget</string>
@@ -636,4 +636,49 @@
     <string name="category_color_3">3</string>
     <string name="category_color_4">4</string>
 
+    <string name="show_day_borders">Mostrar bordas dos dias</string>
+    <string name="cell_height_cm">Altura da Célula (cm)</string>
+    <string name="cell_height_cm_value">%.1f cm</string>
+    <string name="weekday_font_size">Tamanho da Fonte (Dias da Semana)</string>
+    <string name="short_abbreviation">Curta</string>
+    <string name="full_abbreviation">Completa</string>
+    <string name="font_size_xs">XS</string>
+    <string name="font_size_s">S</string>
+    <string name="font_size_m">M</string>
+    <string name="font_size_l">L</string>
+    <string name="font_size_xl">XL</string>
+    <string name="font_size_xxl">XXL</string>
+    <string name="pdf_generated_successfully">✅ PDF gerado com sucesso!</string>
+    <string name="file_saved_in">Arquivo salvo em:</string>
+    <string name="open_pdf_with">Abrir PDF com</string>
+    <string name="no_pdf_viewer_found">Nenhum visualizador de PDF encontrado. Instale um app como Adobe Reader ou Google PDF Viewer.</string>
+    <string name="error_opening_pdf">Erro ao abrir PDF: %s</string>
+    <string name="share_pdf">Compartilhar PDF</string>
+    <string name="error_sharing_pdf">Erro ao compartilhar PDF: %s</string>
+    <string name="generating_pdf">Gerando PDF...</string>
+    <string name="color_white">Branco</string>
+    <string name="color_light_yellow">Amarelo Claro</string>
+    <string name="color_light_blue">Azul Claro</string>
+    <string name="color_light_green">Verde Claro</string>
+    <string name="color_light_pink">Rosa Claro</string>
+    <string name="color_light_purple">Roxo Claro</string>
+    <string name="color_light_orange">Laranja Claro</string>
+    <string name="color_light_brown">Marrom Claro</string>
+    <string name="color_light_gray">Cinza Claro</string>
+    <string name="color_black">Preto</string>
+    <string name="color_dark_gray">Cinza Escuro</string>
+    <string name="color_dark_blue">Azul Escuro</string>
+    <string name="color_dark_green">Verde Escuro</string>
+    <string name="color_dark_red">Vermelho Escuro</string>
+    <string name="color_dark_purple">Roxo Escuro</string>
+    <string name="color_dark_orange">Laranja Escuro</string>
+    <string name="color_dark_brown">Marrom Escuro</string>
+    <string name="color_blue_gray">Azul Acinzentado</string>
+    <string name="color_custom">Personalizada</string>
+    <string name="share">Compartilhar</string>
+    <string name="open_pdf">Abrir PDF</string>
+    <string name="weekday_abbreviation_title">Abreviação dos Dias da Semana</string>
+    <string name="page_size_a4">A4</string>
+    <string name="page_size_a3">A3</string>
+    <string name="month_year_format_full">MMMM yyyy</string>
 </resources>

@@ -182,7 +182,7 @@ fun PrintCalendarScreen(
                         Icon(Icons.Default.KeyboardArrowLeft, contentDescription = stringResource(id = R.string.previous_month))
                     }
                     Text(
-                        text = selectedMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault()))
+                        text = selectedMonth.format(DateTimeFormatter.ofPattern(stringResource(id = R.string.month_year_format_full), Locale.getDefault()))
                             .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
@@ -475,7 +475,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = pageSize == PageSize.A4,
                             onClick = { pageSize = PageSize.A4 },
-                            label = { Text("A4") },
+                            label = { Text(stringResource(id = R.string.page_size_a4)) },
                             leadingIcon = if (pageSize == PageSize.A4) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -496,7 +496,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = pageSize == PageSize.A3,
                             onClick = { pageSize = PageSize.A3 },
-                            label = { Text("A3") },
+                            label = { Text(stringResource(id = R.string.page_size_a3)) },
                             leadingIcon = if (pageSize == PageSize.A3) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -520,7 +520,7 @@ fun PrintCalendarScreen(
 
                     // Cell Height
                     Text(
-                        text = "Altura da Célula (cm)",
+                        text = stringResource(id = R.string.cell_height_cm),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -532,7 +532,7 @@ fun PrintCalendarScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Text(
-                        text = "%.1f cm".format(dayCellHeight),
+                        text = stringResource(id = R.string.cell_height_cm_value).format(dayCellHeight),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         textAlign = androidx.compose.ui.text.style.TextAlign.End,
@@ -548,7 +548,7 @@ fun PrintCalendarScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Ocultar dias de outros meses",
+                            text = stringResource(id = R.string.hide_other_month_days),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -567,7 +567,7 @@ fun PrintCalendarScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Mostrar bordas dos dias",
+                            text = stringResource(id = R.string.show_day_borders),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -769,7 +769,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = monthFontSize == FontSize.EXTRA_TINY,
                             onClick = { monthFontSize = FontSize.EXTRA_TINY },
-                            label = { Text("XS") },
+                            label = { Text(stringResource(id = R.string.font_size_xs)) },
                             leadingIcon = if (monthFontSize == FontSize.EXTRA_TINY) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -790,7 +790,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = monthFontSize == FontSize.TINY,
                             onClick = { monthFontSize = FontSize.TINY },
-                            label = { Text("S") },
+                            label = { Text(stringResource(id = R.string.font_size_s)) },
                             leadingIcon = if (monthFontSize == FontSize.TINY) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -811,7 +811,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = monthFontSize == FontSize.SMALL,
                             onClick = { monthFontSize = FontSize.SMALL },
-                            label = { Text("M") },
+                            label = { Text(stringResource(id = R.string.font_size_m)) },
                             leadingIcon = if (monthFontSize == FontSize.SMALL) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -832,7 +832,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = monthFontSize == FontSize.MEDIUM,
                             onClick = { monthFontSize = FontSize.MEDIUM },
-                            label = { Text("L") },
+                            label = { Text(stringResource(id = R.string.font_size_l)) },
                             leadingIcon = if (monthFontSize == FontSize.MEDIUM) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -853,7 +853,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = monthFontSize == FontSize.LARGE,
                             onClick = { monthFontSize = FontSize.LARGE },
-                            label = { Text("XL") },
+                            label = { Text(stringResource(id = R.string.font_size_xl)) },
                             leadingIcon = if (monthFontSize == FontSize.LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -874,7 +874,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = monthFontSize == FontSize.EXTRA_LARGE,
                             onClick = { monthFontSize = FontSize.EXTRA_LARGE },
-                            label = { Text("XXL") },
+                            label = { Text(stringResource(id = R.string.font_size_xxl)) },
                             leadingIcon = if (monthFontSize == FontSize.EXTRA_LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -907,7 +907,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = yearFontSize == FontSize.EXTRA_TINY,
                             onClick = { yearFontSize = FontSize.EXTRA_TINY },
-                            label = { Text("XS") },
+                            label = { Text(stringResource(id = R.string.font_size_xs)) },
                             leadingIcon = if (yearFontSize == FontSize.EXTRA_TINY) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -928,7 +928,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = yearFontSize == FontSize.TINY,
                             onClick = { yearFontSize = FontSize.TINY },
-                            label = { Text("S") },
+                            label = { Text(stringResource(id = R.string.font_size_s)) },
                             leadingIcon = if (yearFontSize == FontSize.TINY) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -949,7 +949,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = yearFontSize == FontSize.SMALL,
                             onClick = { yearFontSize = FontSize.SMALL },
-                            label = { Text("M") },
+                            label = { Text(stringResource(id = R.string.font_size_m)) },
                             leadingIcon = if (yearFontSize == FontSize.SMALL) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -970,7 +970,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = yearFontSize == FontSize.MEDIUM,
                             onClick = { yearFontSize = FontSize.MEDIUM },
-                            label = { Text("L") },
+                            label = { Text(stringResource(id = R.string.font_size_l)) },
                             leadingIcon = if (yearFontSize == FontSize.MEDIUM) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -991,7 +991,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = yearFontSize == FontSize.LARGE,
                             onClick = { yearFontSize = FontSize.LARGE },
-                            label = { Text("XL") },
+                            label = { Text(stringResource(id = R.string.font_size_xl)) },
                             leadingIcon = if (yearFontSize == FontSize.LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1012,7 +1012,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = yearFontSize == FontSize.EXTRA_LARGE,
                             onClick = { yearFontSize = FontSize.EXTRA_LARGE },
-                            label = { Text("XXL") },
+                            label = { Text(stringResource(id = R.string.font_size_xxl)) },
                             leadingIcon = if (yearFontSize == FontSize.EXTRA_LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1036,7 +1036,7 @@ fun PrintCalendarScreen(
 
                     // Week Day Font Size
                     Text(
-                        text = "Tamanho da Fonte (Dias da Semana)",
+                        text = stringResource(id = R.string.weekday_font_size),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -1045,7 +1045,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = weekDayFontSize == FontSize.EXTRA_TINY,
                             onClick = { weekDayFontSize = FontSize.EXTRA_TINY },
-                            label = { Text("XS") },
+                            label = { Text(stringResource(id = R.string.font_size_xs)) },
                             leadingIcon = if (weekDayFontSize == FontSize.EXTRA_TINY) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1066,7 +1066,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = weekDayFontSize == FontSize.TINY,
                             onClick = { weekDayFontSize = FontSize.TINY },
-                            label = { Text("S") },
+                            label = { Text(stringResource(id = R.string.font_size_s)) },
                             leadingIcon = if (weekDayFontSize == FontSize.TINY) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1087,7 +1087,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = weekDayFontSize == FontSize.SMALL,
                             onClick = { weekDayFontSize = FontSize.SMALL },
-                            label = { Text("M") },
+                            label = { Text(stringResource(id = R.string.font_size_m)) },
                             leadingIcon = if (weekDayFontSize == FontSize.SMALL) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1108,7 +1108,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = weekDayFontSize == FontSize.MEDIUM,
                             onClick = { weekDayFontSize = FontSize.MEDIUM },
-                            label = { Text("L") },
+                            label = { Text(stringResource(id = R.string.font_size_l)) },
                             leadingIcon = if (weekDayFontSize == FontSize.MEDIUM) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1129,7 +1129,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = weekDayFontSize == FontSize.LARGE,
                             onClick = { weekDayFontSize = FontSize.LARGE },
-                            label = { Text("XL") },
+                            label = { Text(stringResource(id = R.string.font_size_xl)) },
                             leadingIcon = if (weekDayFontSize == FontSize.LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1150,7 +1150,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = weekDayFontSize == FontSize.EXTRA_LARGE,
                             onClick = { weekDayFontSize = FontSize.EXTRA_LARGE },
-                            label = { Text("XXL") },
+                            label = { Text(stringResource(id = R.string.font_size_xxl)) },
                             leadingIcon = if (weekDayFontSize == FontSize.EXTRA_LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1356,7 +1356,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = dayNumberFontSize == FontSize.EXTRA_TINY,
                             onClick = { dayNumberFontSize = FontSize.EXTRA_TINY },
-                            label = { Text("XS") },
+                            label = { Text(stringResource(id = R.string.font_size_xs)) },
                             leadingIcon = if (dayNumberFontSize == FontSize.EXTRA_TINY) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1377,7 +1377,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = dayNumberFontSize == FontSize.TINY,
                             onClick = { dayNumberFontSize = FontSize.TINY },
-                            label = { Text("S") },
+                            label = { Text(stringResource(id = R.string.font_size_s)) },
                             leadingIcon = if (dayNumberFontSize == FontSize.TINY) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1398,7 +1398,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = dayNumberFontSize == FontSize.SMALL,
                             onClick = { dayNumberFontSize = FontSize.SMALL },
-                            label = { Text("M") },
+                            label = { Text(stringResource(id = R.string.font_size_m)) },
                             leadingIcon = if (dayNumberFontSize == FontSize.SMALL) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1419,7 +1419,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = dayNumberFontSize == FontSize.MEDIUM,
                             onClick = { dayNumberFontSize = FontSize.MEDIUM },
-                            label = { Text("L") },
+                            label = { Text(stringResource(id = R.string.font_size_l)) },
                             leadingIcon = if (dayNumberFontSize == FontSize.MEDIUM) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1440,7 +1440,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = dayNumberFontSize == FontSize.LARGE,
                             onClick = { dayNumberFontSize = FontSize.LARGE },
-                            label = { Text("XL") },
+                            label = { Text(stringResource(id = R.string.font_size_xl)) },
                             leadingIcon = if (dayNumberFontSize == FontSize.LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1461,7 +1461,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = dayNumberFontSize == FontSize.EXTRA_LARGE,
                             onClick = { dayNumberFontSize = FontSize.EXTRA_LARGE },
-                            label = { Text("XXL") },
+                            label = { Text(stringResource(id = R.string.font_size_xxl)) },
                             leadingIcon = if (dayNumberFontSize == FontSize.EXTRA_LARGE) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1485,7 +1485,7 @@ fun PrintCalendarScreen(
 
                     // Week Day Abbreviation
                     Text(
-                        text = "Abreviação dos Dias da Semana",
+                        text = stringResource(id = R.string.weekday_abbreviation_title),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -1494,7 +1494,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = weekDayAbbreviation == WeekDayAbbreviation.SHORT,
                             onClick = { weekDayAbbreviation = WeekDayAbbreviation.SHORT },
-                            label = { Text("Curta") },
+                            label = { Text(stringResource(id = R.string.short_abbreviation)) },
                             leadingIcon = if (weekDayAbbreviation == WeekDayAbbreviation.SHORT) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1515,7 +1515,7 @@ fun PrintCalendarScreen(
                         FilterChip(
                             selected = weekDayAbbreviation == WeekDayAbbreviation.FULL,
                             onClick = { weekDayAbbreviation = WeekDayAbbreviation.FULL },
-                            label = { Text("Completa") },
+                            label = { Text(stringResource(id = R.string.full_abbreviation)) },
                             leadingIcon = if (weekDayAbbreviation == WeekDayAbbreviation.FULL) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                             } else null,
@@ -1935,7 +1935,7 @@ fun PrintCalendarScreen(
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     Text(
-                                        text = "✅ PDF gerado com sucesso!",
+                                        text = stringResource(id = R.string.pdf_generated_successfully),
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.primary
@@ -1944,7 +1944,7 @@ fun PrintCalendarScreen(
                                     Spacer(modifier = Modifier.height(6.dp))
                                     
                                     Text(
-                                        text = "Arquivo salvo em:",
+                                        text = stringResource(id = R.string.file_saved_in),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -1990,7 +1990,7 @@ fun PrintCalendarScreen(
                                                 // Criar chooser para permitir ao usuário escolher o app
                                                 val chooserIntent = android.content.Intent.createChooser(
                                                     intent,
-                                                    "Abrir PDF com"
+                                                    context.getString(R.string.open_pdf_with)
                                                 )
                                                 chooserIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
                                                 
@@ -2002,7 +2002,7 @@ fun PrintCalendarScreen(
                                                     android.util.Log.d("PrintCalendar", "Nenhum app disponível para abrir PDF")
                                                     android.widget.Toast.makeText(
                                                         context,
-                                                        "Nenhum visualizador de PDF encontrado. Instale um app como Adobe Reader ou Google PDF Viewer.",
+                                                        context.getString(R.string.no_pdf_viewer_found),
                                                         android.widget.Toast.LENGTH_LONG
                                                     ).show()
                                                 }
@@ -2010,7 +2010,7 @@ fun PrintCalendarScreen(
                                                     android.util.Log.e("PrintCalendar", "Erro ao abrir PDF: ${e.message}", e)
                                                     android.widget.Toast.makeText(
                                                         context,
-                                                        "Erro ao abrir PDF: ${e.message}",
+                                                        context.getString(R.string.error_opening_pdf, e.message ?: ""),
                                                         android.widget.Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
@@ -2020,7 +2020,7 @@ fun PrintCalendarScreen(
                                                 containerColor = MaterialTheme.colorScheme.primary
                                             )
                                         ) {
-                                            Text("Abrir PDF")
+                                            Text(stringResource(id = R.string.open_pdf))
                                         }
                                         
                                         Button(
@@ -2047,7 +2047,7 @@ fun PrintCalendarScreen(
                                                     
                                                     val chooserIntent = android.content.Intent.createChooser(
                                                         shareIntent,
-                                                        "Compartilhar PDF"
+                                                        context.getString(R.string.share_pdf)
                                                     )
                                                     chooserIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
                                                     context.startActivity(chooserIntent)
@@ -2055,7 +2055,7 @@ fun PrintCalendarScreen(
                                                     android.util.Log.e("PrintCalendar", "Erro ao compartilhar PDF: ${e.message}", e)
                                                     android.widget.Toast.makeText(
                                                         context,
-                                                        "Erro ao compartilhar PDF: ${e.message}",
+                                                        context.getString(R.string.error_sharing_pdf, e.message ?: ""),
                                                         android.widget.Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
@@ -2065,7 +2065,7 @@ fun PrintCalendarScreen(
                                                 containerColor = MaterialTheme.colorScheme.secondary
                                             )
                                         ) {
-                                            Text("Compartilhar")
+                                            Text(stringResource(id = R.string.share))
                                         }
                                     }
                                 }
