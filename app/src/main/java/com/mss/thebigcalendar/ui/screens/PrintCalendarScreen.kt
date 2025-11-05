@@ -70,6 +70,15 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
+private fun isDarkColor(color: androidx.compose.ui.graphics.Color): Boolean {
+    val red = color.red * 255
+    val green = color.green * 255
+    val blue = color.blue * 255
+    val luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue)
+    return luminance < 128
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrintCalendarScreen(
     uiState: CalendarUiState,
@@ -103,7 +112,9 @@ fun PrintCalendarScreen(
     var yearTextColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Black) }
     var isYearTextColorPickerExpanded by remember { mutableStateOf(false) }
     var dayNumberFontSize by remember { mutableStateOf(FontSize.TINY) }
+    var dayNumberColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Black) }
     var weekDayFontSize by remember { mutableStateOf(FontSize.TINY) }
+    var weekDayColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Black) }
     var weekDayAbbreviation by remember { mutableStateOf(WeekDayAbbreviation.SHORT) }
     var moonPhasePosition by remember { mutableStateOf(MoonPhasePosition.BELOW_CALENDAR) }
     var colorDayNumbersByEvents by remember { mutableStateOf(false) }
@@ -128,6 +139,21 @@ fun PrintCalendarScreen(
         if (isGeneratingPdf) {
             kotlinx.coroutines.delay(2000)
             isGeneratingPdf = false
+        }
+    }
+
+    LaunchedEffect(backgroundColor) {
+        val isDark = isDarkColor(backgroundColor)
+        if (isDark) {
+            monthTextColor = androidx.compose.ui.graphics.Color.White
+            yearTextColor = androidx.compose.ui.graphics.Color.White
+            dayNumberColor = androidx.compose.ui.graphics.Color.White
+            weekDayColor = androidx.compose.ui.graphics.Color.White
+        } else {
+            monthTextColor = androidx.compose.ui.graphics.Color.Black
+            yearTextColor = androidx.compose.ui.graphics.Color.Black
+            dayNumberColor = androidx.compose.ui.graphics.Color.Black
+            weekDayColor = androidx.compose.ui.graphics.Color.Black
         }
     }
 
@@ -2113,7 +2139,9 @@ fun PrintCalendarScreen(
                         monthTextColor = monthTextColor,
                         yearTextColor = yearTextColor,
                         dayNumberFontSize = dayNumberFontSize,
+                        dayNumberColor = dayNumberColor,
                         weekDayFontSize = weekDayFontSize,
+                        weekDayColor = weekDayColor,
                         weekDayAbbreviation = weekDayAbbreviation,
                         moonPhasePosition = moonPhasePosition,
                         colorDayNumbersByEvents = colorDayNumbersByEvents,
@@ -2185,7 +2213,9 @@ data class PrintOptions(
     val monthTextColor: androidx.compose.ui.graphics.Color,
     val yearTextColor: androidx.compose.ui.graphics.Color,
     val dayNumberFontSize: FontSize,
+    val dayNumberColor: androidx.compose.ui.graphics.Color,
     val weekDayFontSize: FontSize,
+    val weekDayColor: androidx.compose.ui.graphics.Color,
     val weekDayAbbreviation: WeekDayAbbreviation,
     val moonPhasePosition: MoonPhasePosition,
     val colorDayNumbersByEvents: Boolean,
@@ -2202,12 +2232,12 @@ enum class PageOrientation { PORTRAIT, LANDSCAPE }
 enum class PageSize { A4, A3 }
 enum class TitlePosition { LEFT, CENTER, RIGHT }
 enum class FontSize(val size: Float) {
-    EXTRA_TINY(6f),
-    TINY(8f),
-    SMALL(10f),
-    MEDIUM(12f),
-    LARGE(14f),
-    EXTRA_LARGE(16f)
+    EXTRA_TINY(8f),
+    TINY(12f),
+    SMALL(14f),
+    MEDIUM(16f),
+    LARGE(18f),
+    EXTRA_LARGE(20f)
 }
 enum class MoonPhasePosition {
     BELOW_CALENDAR,      // Legenda abaixo do calendário
@@ -2229,6 +2259,26 @@ private fun getColorName(color: androidx.compose.ui.graphics.Color): String {
         androidx.compose.ui.graphics.Color(0xFFFFE0B2) -> "Laranja Claro"
         androidx.compose.ui.graphics.Color(0xFFEFEBE9) -> "Marrom Claro"
         androidx.compose.ui.graphics.Color(0xFFECEFF1) -> "Cinza Claro"
+        // Novas cores fortes
+        androidx.compose.ui.graphics.Color(0xFFD32F2F) -> "Vermelho"
+        androidx.compose.ui.graphics.Color(0xFFC2185B) -> "Rosa"
+        androidx.compose.ui.graphics.Color(0xFF7B1FA2) -> "Roxo"
+        androidx.compose.ui.graphics.Color(0xFF512DA8) -> "Roxo Escuro"
+        androidx.compose.ui.graphics.Color(0xFF303F9F) -> "Índigo"
+        androidx.compose.ui.graphics.Color(0xFF1976D2) -> "Azul"
+        androidx.compose.ui.graphics.Color(0xFF0288D1) -> "Azul Claro"
+        androidx.compose.ui.graphics.Color(0xFF0097A7) -> "Ciano"
+        androidx.compose.ui.graphics.Color(0xFF00796B) -> "Verde-azulado"
+        androidx.compose.ui.graphics.Color(0xFF388E3C) -> "Verde"
+        androidx.compose.ui.graphics.Color(0xFF689F38) -> "Verde Claro"
+        androidx.compose.ui.graphics.Color(0xFFAFB42B) -> "Lima"
+        androidx.compose.ui.graphics.Color(0xFFFBC02D) -> "Amarelo"
+        androidx.compose.ui.graphics.Color(0xFFFFA000) -> "Âmbar"
+        androidx.compose.ui.graphics.Color(0xFFF57C00) -> "Laranja"
+        androidx.compose.ui.graphics.Color(0xFFE64A19) -> "Laranja Escuro"
+        androidx.compose.ui.graphics.Color(0xFF5D4037) -> "Marrom"
+        androidx.compose.ui.graphics.Color(0xFF616161) -> "Cinza"
+        androidx.compose.ui.graphics.Color(0xFF455A64) -> "Cinza Azulado"
         // Cores de texto
         androidx.compose.ui.graphics.Color.Black -> "Preto"
         androidx.compose.ui.graphics.Color(0xFF424242) -> "Cinza Escuro"
@@ -2258,7 +2308,27 @@ private fun ColorPicker(
         androidx.compose.ui.graphics.Color(0xFFF3E5F5) to "Roxo Claro",
         androidx.compose.ui.graphics.Color(0xFFFFE0B2) to "Laranja Claro",
         androidx.compose.ui.graphics.Color(0xFFEFEBE9) to "Marrom Claro",
-        androidx.compose.ui.graphics.Color(0xFFECEFF1) to "Cinza Claro"
+        androidx.compose.ui.graphics.Color(0xFFECEFF1) to "Cinza Claro",
+        // Novas cores fortes
+        androidx.compose.ui.graphics.Color(0xFFD32F2F) to "Vermelho",
+        androidx.compose.ui.graphics.Color(0xFFC2185B) to "Rosa",
+        androidx.compose.ui.graphics.Color(0xFF7B1FA2) to "Roxo",
+        androidx.compose.ui.graphics.Color(0xFF512DA8) to "Roxo Escuro",
+        androidx.compose.ui.graphics.Color(0xFF303F9F) to "Índigo",
+        androidx.compose.ui.graphics.Color(0xFF1976D2) to "Azul",
+        androidx.compose.ui.graphics.Color(0xFF0288D1) to "Azul Claro",
+        androidx.compose.ui.graphics.Color(0xFF0097A7) to "Ciano",
+        androidx.compose.ui.graphics.Color(0xFF00796B) to "Verde-azulado",
+        androidx.compose.ui.graphics.Color(0xFF388E3C) to "Verde",
+        androidx.compose.ui.graphics.Color(0xFF689F38) to "Verde Claro",
+        androidx.compose.ui.graphics.Color(0xFFAFB42B) to "Lima",
+        androidx.compose.ui.graphics.Color(0xFFFBC02D) to "Amarelo",
+        androidx.compose.ui.graphics.Color(0xFFFFA000) to "Âmbar",
+        androidx.compose.ui.graphics.Color(0xFFF57C00) to "Laranja",
+        androidx.compose.ui.graphics.Color(0xFFE64A19) to "Laranja Escuro",
+        androidx.compose.ui.graphics.Color(0xFF5D4037) to "Marrom",
+        androidx.compose.ui.graphics.Color(0xFF616161) to "Cinza",
+        androidx.compose.ui.graphics.Color(0xFF455A64) to "Cinza Azulado"
     )
     
     FlowRow(

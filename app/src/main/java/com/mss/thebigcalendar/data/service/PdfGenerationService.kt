@@ -379,10 +379,10 @@ class PdfGenerationService {
             if (printOptions.hideOtherMonthDays) {
                 // Se a opção estiver ativada, criar célula vazia (a menos que tenha fase da lua)
                 if (moonPhaseForDay != null) {
-                    cell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
+                    cell.setBackgroundColor(convertComposeColorToITextColor(printOptions.backgroundColor))
                     addMoonPhaseDrawing(cell, moonPhaseForDay, contentFont, pdfDocument)
                 } else {
-                    cell.setBackgroundColor(ColorConstants.WHITE)
+                    cell.setBackgroundColor(convertComposeColorToITextColor(printOptions.backgroundColor))
                     cell.add(Paragraph("")
                         .setFont(dayFont)
                         .setFontSize(10f)
@@ -390,7 +390,7 @@ class PdfGenerationService {
                 }
             } else {
                 // Dias de outros meses - mostrar número ou fase da lua
-                cell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
+                cell.setBackgroundColor(convertComposeColorToITextColor(printOptions.backgroundColor))
                 
                 if (moonPhaseForDay != null) {
                     addMoonPhaseDrawing(cell, moonPhaseForDay, contentFont, pdfDocument)
