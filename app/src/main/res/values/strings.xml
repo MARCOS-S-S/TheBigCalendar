@@ -56,6 +56,7 @@
     <string name="widget_id_label">ID do Widget</string>
     <string name="widget_configuration_coming_soon">Configurações em Breve</string>
     <string name="widget_configuration_placeholder_text">Em breve você poderá personalizar cores, tamanhos e outras opções do seu widget.</string>
+    <string name="widget_background_transparency">Transparência do Fundo</string>
 
     <!-- DeleteConfirmationDialog.kt -->
     <string name="delete_confirmation_title">Confirmar Exclusão</string>

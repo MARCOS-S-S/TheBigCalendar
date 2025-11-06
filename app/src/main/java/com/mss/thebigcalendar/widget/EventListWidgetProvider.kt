@@ -41,6 +41,10 @@ class EventListWidgetProvider : AppWidgetProvider() {
     ) {
         val views = RemoteViews(context.packageName, R.layout.event_list_widget)
 
+        val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+        val transparency = prefs.getFloat("transparency_$appWidgetId", 1.0f)
+        views.setFloat(R.id.event_list_widget_layout, "setAlpha", transparency)
+
         // Set up the intent that points to the RemoteViewsService that will
         // provide the views for the ListView.
         val serviceIntent = Intent(context, EventListWidgetService::class.java).apply {

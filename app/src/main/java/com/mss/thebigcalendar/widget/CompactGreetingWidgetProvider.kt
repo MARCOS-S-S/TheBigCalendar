@@ -50,6 +50,10 @@ class CompactGreetingWidgetProvider : AppWidgetProvider() {
     ) {
         val views = RemoteViews(context.packageName, R.layout.compact_greeting_widget)
 
+        val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+        val transparency = prefs.getFloat("transparency_$appWidgetId", 1.0f)
+        views.setFloat(R.id.widget_main_content, "setAlpha", transparency)
+
         // Atualiza a saudação baseada no horário
         val greeting = getGreetingBasedOnTime(context)
         views.setTextViewText(R.id.compact_widget_greeting, greeting)

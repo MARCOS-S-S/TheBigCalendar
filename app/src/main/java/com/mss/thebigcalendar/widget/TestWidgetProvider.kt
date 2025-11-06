@@ -48,6 +48,10 @@ class TestWidgetProvider : AppWidgetProvider() {
     ) {
         val views = RemoteViews(context.packageName, R.layout.test_widget)
 
+        val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+        val transparency = prefs.getFloat("transparency_$appWidgetId", 1.0f)
+        views.setFloat(R.id.widget_main_content, "setAlpha", transparency)
+
         // Set up the click listener for the widget title to open the app
         val appIntent = Intent(context, MainActivity::class.java)
         val appPendingIntent = PendingIntent.getActivity(

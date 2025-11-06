@@ -52,17 +52,27 @@ class WidgetConfigurationActivity : ComponentActivity() {
             TheBigCalendarTheme {
                 WidgetConfigurationScreen(
                     appWidgetId = appWidgetId,
-                    onSaveConfiguration = { saveWidgetConfiguration() },
+                    onSaveConfiguration = { transparency -> saveWidgetConfiguration(transparency) },
                     onCancelConfiguration = { cancelWidgetConfiguration() }
                 )
             }
         }
     }
     
-    private fun saveWidgetConfiguration() {
-        // TODO: Implementar salvamento das configurações do widget
-        
-        // For now, just finish the configuration
+    private fun saveWidgetConfiguration(transparency: Float) {
+        val context = this
+        val prefs = context.getSharedPreferences("widget_prefs", MODE_PRIVATE)
+        with(prefs.edit()) {
+            putFloat("transparency_$appWidgetId", transparency)
+            apply()
+        }
+
+        val intent = Intent(this, com.mss.thebigcalendar.widget.GreetingWidgetProvider::class.java)
+        intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+        val ids = intArrayOf(appWidgetId)
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        sendBroadcast(intent)
+
         val resultValue = Intent()
         resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         setResult(RESULT_OK, resultValue)
@@ -79,10 +89,11 @@ class WidgetConfigurationActivity : ComponentActivity() {
 @Composable
 fun WidgetConfigurationScreen(
     appWidgetId: Int,
-    onSaveConfiguration: () -> Unit,
+    onSaveConfiguration: (Float) -> Unit,
     onCancelConfiguration: () -> Unit
 ) {
     val context = LocalContext.current
+    var transparency by remember { mutableStateOf(1f) }
     
     Scaffold(
         topBar = {
@@ -102,7 +113,8 @@ fun WidgetConfigurationScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onSaveConfiguration) {
+
+                    IconButton(onClick = { onSaveConfiguration(transparency) }) {
                         Icon(
                             Icons.Default.Check,
                             contentDescription = stringResource(id = R.string.save),
@@ -181,7 +193,9 @@ fun WidgetConfigurationScreen(
                 }
             }
             
-            // Placeholder para futuras configurações
+
+
+            // Card para a configuração de transparência
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -192,17 +206,25 @@ fun WidgetConfigurationScreen(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = stringResource(id = R.string.widget_configuration_coming_soon),
+                        text = stringResource(id = R.string.widget_background_transparency),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium
                     )
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
+                    Slider(
+                        value = transparency,
+                        onValueChange = { transparency = it },
+                        valueRange = 0f..1f,
+                        steps = 10
+                    )
+
                     Text(
-                        text = stringResource(id = R.string.widget_configuration_placeholder_text),
+                        text = "${(transparency * 100).toInt()}%",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.align(Alignment.End)
                     )
                 }
             }
@@ -222,7 +244,7 @@ fun WidgetConfigurationScreen(
                 }
                 
                 Button(
-                    onClick = onSaveConfiguration,
+                    onClick = { onSaveConfiguration(transparency) },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(id = R.string.save))

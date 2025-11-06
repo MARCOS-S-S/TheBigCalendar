@@ -7,8 +7,10 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.util.Log
 import android.widget.RemoteViews
+
 import com.mss.thebigcalendar.MainActivity
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.repository.ActivityRepository
@@ -42,6 +44,19 @@ class GreetingWidgetProvider : AppWidgetProvider() {
         appWidgetId: Int
     ) {
         val views = RemoteViews(context.packageName, R.layout.greeting_widget)
+
+        val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+        val transparency = prefs.getFloat("transparency_$appWidgetId", 1.0f)
+        Log.d("GreetingWidgetProvider", "Updating widget $appWidgetId with transparency $transparency")
+
+        val typedValue = android.util.TypedValue()
+        context.theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+        val backgroundColor = typedValue.data
+
+        val alpha = (transparency * 255).toInt()
+        val colorWithAlpha = Color.argb(alpha, Color.red(backgroundColor), Color.green(backgroundColor), Color.blue(backgroundColor))
+        views.setInt(R.id.widget_root, "setBackgroundColor", colorWithAlpha)
+
 
         // Atualiza a saudação baseada no horário
         val greeting = getGreetingBasedOnTime(context)
