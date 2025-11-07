@@ -567,8 +567,8 @@ fun PrintCalendarScreen(
                     Slider(
                         value = dayCellHeight,
                         onValueChange = { dayCellHeight = it },
-                        valueRange = 1f..10f,
-                        steps = 17,
+                        valueRange = 1f..4f,
+                        steps = 29,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Text(
