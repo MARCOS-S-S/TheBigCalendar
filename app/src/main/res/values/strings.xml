@@ -687,6 +687,7 @@
     <string name="sunday_color">Cor domingo</string>
     <string name="color_saturdays">Cor sabados</string>
     <string name="saturday_color">Cor sabado</string>
+    <string name="include_notes_page">Incluir folha de anotações</string>
     <string name="color_weekday_header_background">Colorir fundo do cabeçalho dos dias da semana</string>
     <string name="weekday_header_color_sunday">Cor do cabeçalho (Domingo)</string>
     <string name="weekday_header_color_monday">Cor do cabeçalho (Segunda)</string>

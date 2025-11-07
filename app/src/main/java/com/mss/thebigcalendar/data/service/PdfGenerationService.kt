@@ -264,6 +264,10 @@ class PdfGenerationService {
                 val moonPhaseLegend = createMoonPhaseLegend(moonPhases, titleFont, pdf)
                 document.add(moonPhaseLegend)
             }
+
+            if (printOptions.includeNotesPage) {
+                addNotesPage(document, pdf, pageSize, titleFont)
+            }
             
         } finally {
             document.close()
@@ -875,6 +879,42 @@ class PdfGenerationService {
         
         // Limitar a 4 itens por dia para não sobrecarregar
         return dayContent.take(4)
+    }
+
+    private fun addNotesPage(document: Document, pdf: PdfDocument, pageSize: PageSize, titleFont: com.itextpdf.kernel.font.PdfFont) {
+        document.add(com.itextpdf.layout.element.AreaBreak())
+
+        // Add title
+        val title = Paragraph("Anotações")
+            .setFont(titleFont)
+            .setFontSize(24f)
+            .setTextAlignment(TextAlignment.CENTER)
+            .setMarginBottom(20f)
+        document.add(title)
+
+        val page = pdf.lastPage
+        val canvas = PdfCanvas(page)
+        val pageRect = page.pageSize
+
+        // Draw lines
+        val leftMargin = document.leftMargin
+        val rightMargin = document.rightMargin
+        val topMargin = document.topMargin
+        val bottomMargin = document.bottomMargin
+
+        val usableWidth = pageRect.width - leftMargin - rightMargin
+        var y = pageRect.top - topMargin - 80f // Start below title
+        val lineHeight = 20f
+
+        canvas.setStrokeColor(ColorConstants.LIGHT_GRAY)
+        canvas.setLineWidth(0.5f)
+
+        while (y > bottomMargin) {
+            canvas.moveTo(leftMargin.toDouble(), y.toDouble())
+            canvas.lineTo((leftMargin + usableWidth).toDouble(), y.toDouble())
+            canvas.stroke()
+            y -= lineHeight
+        }
     }
     
 }

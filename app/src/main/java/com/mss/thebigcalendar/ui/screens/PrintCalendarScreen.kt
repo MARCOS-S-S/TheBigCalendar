@@ -99,6 +99,8 @@ fun PrintCalendarScreen(
     var pageSize by remember { mutableStateOf(PageSize.A4) }
     var hideOtherMonthDays by remember { mutableStateOf(false) }
     var showDayBorders by remember { mutableStateOf(true) }
+    var showNotesSection by remember { mutableStateOf(false) }
+    var includeNotesPage by remember { mutableStateOf(false) }
     var backgroundColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.White) }
     var isColorPickerExpanded by remember { mutableStateOf(false) }
     var pageBackgroundColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.White) }
@@ -633,6 +635,25 @@ fun PrintCalendarScreen(
                         Switch(
                             checked = showLinesInDayCells,
                             onCheckedChange = { showLinesInDayCells = it }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Opção para incluir página de anotações
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.include_notes_page),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = includeNotesPage,
+                            onCheckedChange = { includeNotesPage = it }
                         )
                     }
                 }
@@ -2306,7 +2327,9 @@ fun PrintCalendarScreen(
                         colorSaturdays = colorSaturdays,
                         saturdayColor = saturdayColor,
                         colorWeekDayHeader = colorWeekDayHeader,
-                        weekDayHeaderBackgroundColors = weekDayHeaderBackgroundColors
+                        weekDayHeaderBackgroundColors = weekDayHeaderBackgroundColors,
+                        showNotesSection = showNotesSection,
+                        includeNotesPage = includeNotesPage
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
@@ -2387,7 +2410,9 @@ data class PrintOptions(
     val colorSaturdays: Boolean,
     val saturdayColor: androidx.compose.ui.graphics.Color,
     val colorWeekDayHeader: Boolean,
-    val weekDayHeaderBackgroundColors: List<androidx.compose.ui.graphics.Color>
+    val weekDayHeaderBackgroundColors: List<androidx.compose.ui.graphics.Color>,
+    val showNotesSection: Boolean,
+    val includeNotesPage: Boolean
 )
 
 enum class PageOrientation { PORTRAIT, LANDSCAPE }
