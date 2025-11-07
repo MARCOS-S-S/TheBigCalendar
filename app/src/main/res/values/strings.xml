@@ -688,4 +688,11 @@
     <string name="color_saturdays">Cor sabados</string>
     <string name="saturday_color">Cor sabado</string>
     <string name="color_weekday_header_background">Colorir fundo do cabeçalho dos dias da semana</string>
+    <string name="weekday_header_color_sunday">Cor do cabeçalho (Domingo)</string>
+    <string name="weekday_header_color_monday">Cor do cabeçalho (Segunda)</string>
+    <string name="weekday_header_color_tuesday">Cor do cabeçalho (Terça)</string>
+    <string name="weekday_header_color_wednesday">Cor do cabeçalho (Quarta)</string>
+    <string name="weekday_header_color_thursday">Cor do cabeçalho (Quinta)</string>
+    <string name="weekday_header_color_friday">Cor do cabeçalho (Sexta)</string>
+    <string name="weekday_header_color_saturday">Cor do cabeçalho (Sábado)</string>
 </resources>

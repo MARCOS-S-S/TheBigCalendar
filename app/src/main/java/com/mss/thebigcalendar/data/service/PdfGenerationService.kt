@@ -294,12 +294,12 @@ class PdfGenerationService {
             com.mss.thebigcalendar.ui.screens.WeekDayAbbreviation.SHORT -> listOf("Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb")
             com.mss.thebigcalendar.ui.screens.WeekDayAbbreviation.FULL -> listOf("Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado")
         }
-        val headerBackgroundColor = if (printOptions.colorWeekDayHeader) {
-            convertComposeColorToITextColor(printOptions.weekDayHeaderBackgroundColor)
-        } else {
-            ColorConstants.LIGHT_GRAY
-        }
-        weekDays.forEach { day ->
+        weekDays.forEachIndexed { index, day ->
+            val headerBackgroundColor = if (printOptions.colorWeekDayHeader) {
+                convertComposeColorToITextColor(printOptions.weekDayHeaderBackgroundColors[index])
+            } else {
+                ColorConstants.LIGHT_GRAY
+            }
             val cell = Cell()
                 .add(Paragraph(day)
                     .setFont(dayFont)

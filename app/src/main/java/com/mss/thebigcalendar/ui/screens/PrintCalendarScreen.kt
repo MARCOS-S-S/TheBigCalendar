@@ -141,8 +141,12 @@ fun PrintCalendarScreen(
     var saturdayColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Blue) }
     var isSaturdayColorPickerExpanded by remember { mutableStateOf(false) }
     var colorWeekDayHeader by remember { mutableStateOf(false) }
-    var weekDayHeaderBackgroundColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.LightGray) }
-    var isWeekDayHeaderBackgroundColorPickerExpanded by remember { mutableStateOf(false) }
+    val weekDayHeaderBackgroundColors = remember {
+        androidx.compose.runtime.mutableStateListOf<androidx.compose.ui.graphics.Color>().apply {
+            addAll(List(7) { androidx.compose.ui.graphics.Color.LightGray })
+        }
+    }
+    var expandedColorPickers by remember { mutableStateOf(List(7) { false }) }
 
     // LaunchedEffect para controlar o estado de geração
     LaunchedEffect(isGeneratingPdf) {
@@ -1768,14 +1772,31 @@ fun PrintCalendarScreen(
                     // Seletor de cor para fundo do cabeçalho dos dias da semana
                     androidx.compose.animation.AnimatedVisibility(visible = colorWeekDayHeader) {
                         Column {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            ExpandableColorSelector(
-                                title = stringResource(id = R.string.background_color),
-                                selectedColor = weekDayHeaderBackgroundColor,
-                                isExpanded = isWeekDayHeaderBackgroundColorPickerExpanded,
-                                onExpandedChange = { isWeekDayHeaderBackgroundColorPickerExpanded = it },
-                                onColorSelected = { weekDayHeaderBackgroundColor = it }
+                            val weekDays = listOf(
+                                R.string.weekday_header_color_sunday,
+                                R.string.weekday_header_color_monday,
+                                R.string.weekday_header_color_tuesday,
+                                R.string.weekday_header_color_wednesday,
+                                R.string.weekday_header_color_thursday,
+                                R.string.weekday_header_color_friday,
+                                R.string.weekday_header_color_saturday
                             )
+                            weekDays.forEachIndexed { index, day ->
+                                Spacer(modifier = Modifier.height(8.dp))
+                                ExpandableColorSelector(
+                                    title = stringResource(id = day),
+                                    selectedColor = weekDayHeaderBackgroundColors[index],
+                                    isExpanded = expandedColorPickers[index],
+                                    onExpandedChange = {
+                                        expandedColorPickers = expandedColorPickers.mapIndexed { i, b ->
+                                            if (i == index) !b else false
+                                        }
+                                    },
+                                    onColorSelected = {
+                                        weekDayHeaderBackgroundColors[index] = it
+                                    }
+                                )
+                            }
                         }
                     }
                     
@@ -2285,7 +2306,7 @@ fun PrintCalendarScreen(
                         colorSaturdays = colorSaturdays,
                         saturdayColor = saturdayColor,
                         colorWeekDayHeader = colorWeekDayHeader,
-                        weekDayHeaderBackgroundColor = weekDayHeaderBackgroundColor
+                        weekDayHeaderBackgroundColors = weekDayHeaderBackgroundColors
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
@@ -2366,7 +2387,7 @@ data class PrintOptions(
     val colorSaturdays: Boolean,
     val saturdayColor: androidx.compose.ui.graphics.Color,
     val colorWeekDayHeader: Boolean,
-    val weekDayHeaderBackgroundColor: androidx.compose.ui.graphics.Color
+    val weekDayHeaderBackgroundColors: List<androidx.compose.ui.graphics.Color>
 )
 
 enum class PageOrientation { PORTRAIT, LANDSCAPE }
