@@ -107,8 +107,12 @@
         <!-- Activity para configuração de widgets -->
         <activity
             android:name=".ui.screens.WidgetConfigurationActivity"
-            android:exported="false"
-            android:theme="@style/Theme.TheBigCalendar" />
+            android:exported="true"
+            android:theme="@style/Theme.TheBigCalendar">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
             
         <!-- Serviço para notificações de alta visibilidade -->
         <service

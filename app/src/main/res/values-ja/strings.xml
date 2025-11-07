@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">TBCalendar</string>
+    <string name="app_name">Big Calendar</string>
 
     <!-- CreateActivityModal.kt -->
     <string name="create_activity_modal_title">タイトル</string>
