@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.ui.theme.TheBigCalendarTheme
+import android.content.Context
 
 class WidgetConfigurationActivity : ComponentActivity() {
     
@@ -63,7 +64,7 @@ class WidgetConfigurationActivity : ComponentActivity() {
         val context = this
         val prefs = context.getSharedPreferences("widget_prefs", MODE_PRIVATE)
         with(prefs.edit()) {
-            putFloat("transparency_$appWidgetId", transparency)
+            putFloat("transparency_$appWidgetId", 1.0f - transparency)
             apply()
         }
 
@@ -93,7 +94,11 @@ fun WidgetConfigurationScreen(
     onCancelConfiguration: () -> Unit
 ) {
     val context = LocalContext.current
-    var transparency by remember { mutableStateOf(1f) }
+    var transparency by remember(appWidgetId) {
+        val prefs = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+        val storedTransparency = prefs.getFloat("transparency_$appWidgetId", 0f)
+        mutableStateOf(1.0f - storedTransparency)
+    }
     
     Scaffold(
         topBar = {
