@@ -88,7 +88,8 @@ fun TrashScreen(
                     ) {
                         Icon(
                             Icons.Default.CheckCircle,
-                            contentDescription = stringResource(R.string.completed_tasks_title)
+                            contentDescription = stringResource(R.string.completed_tasks_title),
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                     
@@ -100,7 +101,8 @@ fun TrashScreen(
                             ) {
                                 Icon(
                                     Icons.Default.Sort,
-                                    contentDescription = stringResource(R.string.sort_order)
+                                    contentDescription = stringResource(R.string.sort_order),
+                                    tint = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
                             
@@ -132,7 +134,8 @@ fun TrashScreen(
                         ) {
                             Icon(
                                 Icons.Default.Delete,
-                                contentDescription = stringResource(R.string.empty_trash)
+                                contentDescription = stringResource(R.string.empty_trash),
+                                tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
