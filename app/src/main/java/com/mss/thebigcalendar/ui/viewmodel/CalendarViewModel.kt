@@ -695,7 +695,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private fun loadInitialHolidaysAndSaints() {
         viewModelScope.launch {
             val nationalHolidaysList = holidayRepository.getNationalHolidays()
-            val saintDaysList = holidayRepository.getSaintDays()
+            val saintDaysList = withContext(Dispatchers.IO) { holidayRepository.getSaintDays() }
 
             _uiState.update { currentState ->
                 currentState.copy(
@@ -712,7 +712,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     
 
 
-    private fun updateCalendarDays() {
+    private suspend fun updateCalendarDays() {
         val state = _uiState.value
         
         // Verificar se podemos usar o cache
@@ -727,122 +727,124 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         val daysFromPrevMonthOffset = (firstDayOfMonth.dayOfWeek.value % 7)
         val gridStartDate = firstDayOfMonth.minusDays(daysFromPrevMonthOffset.toLong())
 
-        val newCalendarDays = List(42) { i ->
-            val date = gridStartDate.plusDays(i.toLong())
-            
-            // Coletar todas as atividades para este dia (incluindo repetitivas)
-            val allActivitiesForThisDay = mutableListOf<Activity>()
-            
-            val tasksForThisDay = if (state.filterOptions.showTasks || state.filterOptions.showEvents || state.filterOptions.showNotes || state.filterOptions.showBirthdays) {
+        val newCalendarDays = withContext(Dispatchers.Default) {
+            List(42) { i ->
+                val date = gridStartDate.plusDays(i.toLong())
                 
-                state.activities.forEach { activity ->
-                    try {
-                        // EXCLUIR atividades JSON importadas das tasks para evitar duplicação
-                        val isJsonImported = activity.location?.startsWith("JSON_IMPORTED_") == true
-                        if (isJsonImported) {
-                            return@forEach // Pular atividades JSON importadas
-                        }
-                        
-                        val activityDate = LocalDate.parse(activity.date)
-                        val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
-                                (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
-                                (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
-                                (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
-                        
-                        if (typeMatches) {
-                            // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
-                            val dateMatches = if (activity.activityType == ActivityType.BIRTHDAY) {
-                                activityDate.month == date.month && activityDate.dayOfMonth == date.dayOfMonth
-                            } else {
-                                activityDate.isEqual(date)
-                            }
-                            
-                            if (dateMatches) {
-                                // Verificar se a atividade deve aparecer no calendário
-                                val shouldShowInCalendar = activity.showInCalendar
-                                
-                                // Para atividades recorrentes, verificar se esta data específica foi excluída
-                                val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true) {
-                                    if (activity.recurrenceRule.startsWith("FREQ=HOURLY") == true) {
-                                        // Para atividades HOURLY, verificar se a instância específica foi excluída
-                                        val timeString = activity.startTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
-                                        val instanceId = "${activity.id}_${date}_${timeString}"
-                                        activity.excludedInstances.contains(instanceId)
-                                    } else {
-                                        // Para outras atividades, verificar se a data foi excluída
-                                        activity.excludedDates.contains(date.toString())
-                                    }
-                                } else {
-                                    false
-                                }
-                                
-                                if (shouldShowInCalendar && !isExcluded) {
-                                    allActivitiesForThisDay.add(activity)
-                                }
-                            }
-                            
-                            // Se a atividade é repetitiva, calcular se deve aparecer neste dia
-                            if (activity.recurrenceRule?.isNotEmpty() == true && 
-                                activity.showInCalendar) {
-                                
-                                val recurringInstances = calculateRecurringInstancesForDate(activity, date)
-                                allActivitiesForThisDay.addAll(recurringInstances)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        // Erro ao processar atividade - continuar com outras atividades
-                    }
-                }
+                // Coletar todas as atividades para este dia (incluindo repetitivas)
+                val allActivitiesForThisDay = mutableListOf<Activity>()
                 
-                // Adicionar tarefas finalizadas se a opção estiver ativada
-                if (state.showCompletedActivities) {
-                    state.completedActivities.forEach { completedActivity ->
+                val tasksForThisDay = if (state.filterOptions.showTasks || state.filterOptions.showEvents || state.filterOptions.showNotes || state.filterOptions.showBirthdays) {
+                    
+                    state.activities.forEach { activity ->
                         try {
-                            val activityDate = LocalDate.parse(completedActivity.date)
-                            val dateMatches = activityDate.isEqual(date)
+                            // EXCLUIR atividades JSON importadas das tasks para evitar duplicação
+                            val isJsonImported = activity.location?.startsWith("JSON_IMPORTED_") == true
+                            if (isJsonImported) {
+                                return@forEach // Pular atividades JSON importadas
+                            }
                             
-                            if (dateMatches) {
-                                allActivitiesForThisDay.add(completedActivity)
+                            val activityDate = LocalDate.parse(activity.date)
+                            val typeMatches = (state.filterOptions.showTasks && activity.activityType == ActivityType.TASK) ||
+                                    (state.filterOptions.showEvents && activity.activityType == ActivityType.EVENT) ||
+                                    (state.filterOptions.showNotes && activity.activityType == ActivityType.NOTE) ||
+                                    (state.filterOptions.showBirthdays && activity.activityType == ActivityType.BIRTHDAY)
+                            
+                            if (typeMatches) {
+                                // Para aniversários, verificar se é o mesmo dia e mês (ignorando o ano)
+                                val dateMatches = if (activity.activityType == ActivityType.BIRTHDAY) {
+                                    activityDate.month == date.month && activityDate.dayOfMonth == date.dayOfMonth
+                                } else {
+                                    activityDate.isEqual(date)
+                                }
+                                
+                                if (dateMatches) {
+                                    // Verificar se a atividade deve aparecer no calendário
+                                    val shouldShowInCalendar = activity.showInCalendar
+                                    
+                                    // Para atividades recorrentes, verificar se esta data específica foi excluída
+                                    val isExcluded = if (activity.recurrenceRule?.isNotEmpty() == true) {
+                                        if (activity.recurrenceRule.startsWith("FREQ=HOURLY") == true) {
+                                            // Para atividades HOURLY, verificar se a instância específica foi excluída
+                                            val timeString = activity.startTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: "00:00"
+                                            val instanceId = "${activity.id}_${date}_${timeString}"
+                                            activity.excludedInstances.contains(instanceId)
+                                        } else {
+                                            // Para outras atividades, verificar se a data foi excluída
+                                            activity.excludedDates.contains(date.toString())
+                                        }
+                                    } else {
+                                        false
+                                    }
+                                    
+                                    if (shouldShowInCalendar && !isExcluded) {
+                                        allActivitiesForThisDay.add(activity)
+                                    }
+                                }
+                                
+                                // Se a atividade é repetitiva, calcular se deve aparecer neste dia
+                                if (activity.recurrenceRule?.isNotEmpty() == true && 
+                                    activity.showInCalendar) {
+                                    
+                                    val recurringInstances = calculateRecurringInstancesForDate(activity, date)
+                                    allActivitiesForThisDay.addAll(recurringInstances)
+                                }
                             }
                         } catch (e: Exception) {
-                            // Erro ao processar tarefa finalizada - continuar com outras
+                            // Erro ao processar atividade - continuar com outras atividades
                         }
                     }
-                }
-                
-                // Incluir tarefas finalizadas na lista final se a opção estiver ativada
-                val finalTasksList = if (state.showCompletedActivities) {
-                    allActivitiesForThisDay.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
+                    
+                    // Adicionar tarefas finalizadas se a opção estiver ativada
+                    if (state.showCompletedActivities) {
+                        state.completedActivities.forEach { completedActivity ->
+                            try {
+                                val activityDate = LocalDate.parse(completedActivity.date)
+                                val dateMatches = activityDate.isEqual(date)
+                                
+                                if (dateMatches) {
+                                    allActivitiesForThisDay.add(completedActivity)
+                                }
+                            } catch (e: Exception) {
+                                // Erro ao processar tarefa finalizada - continuar com outras
+                            }
+                        }
+                    }
+                    
+                    // Incluir tarefas finalizadas na lista final se a opção estiver ativada
+                    val finalTasksList = if (state.showCompletedActivities) {
+                        allActivitiesForThisDay.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
+                    } else {
+                        // Filtrar apenas atividades não finalizadas
+                        allActivitiesForThisDay.filter { !it.isCompleted }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
+                    }
+                    
+                    finalTasksList
                 } else {
-                    // Filtrar apenas atividades não finalizadas
-                    allActivitiesForThisDay.filter { !it.isCompleted }.sortedWith(compareByDescending<Activity> { it.categoryColor?.toIntOrNull() ?: 0 }.thenBy { it.startTime ?: LocalTime.MIN })
+                    emptyList()
                 }
+
+                val holidayForThisDay = if (state.filterOptions.showHolidays) state.nationalHolidays[date] else null
+                val saintDayForThisDay = if (state.filterOptions.showSaintDays) state.saintDays[date.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd"))] else null
                 
-                finalTasksList
-            } else {
-                emptyList()
+                // Buscar agendamentos JSON para este dia
+                val monthDay = date.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd"))
+                val jsonHolidaysForThisDay = state.jsonHolidays[monthDay] ?: emptyList()
+
+                CalendarDay(
+                    date = date,
+                    isCurrentMonth = date.month == state.displayedYearMonth.month,
+                    isSelected = date.isEqual(state.selectedDate),
+                    isToday = date.isEqual(LocalDate.now()),
+                    tasks = tasksForThisDay,
+                    holiday = holidayForThisDay ?: saintDayForThisDay,
+                    jsonHolidays = jsonHolidaysForThisDay,
+                    isWeekend = date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY,
+                    isNationalHoliday = holidayForThisDay?.type == com.mss.thebigcalendar.data.model.HolidayType.NATIONAL,
+                    isSaintDay = state.filterOptions.showSaintDays && saintDayForThisDay != null,
+                    isJsonHolidayDay = jsonHolidaysForThisDay.isNotEmpty()
+                )
             }
-
-            val holidayForThisDay = if (state.filterOptions.showHolidays) state.nationalHolidays[date] else null
-            val saintDayForThisDay = if (state.filterOptions.showSaintDays) state.saintDays[date.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd"))] else null
-            
-            // Buscar agendamentos JSON para este dia
-            val monthDay = date.format(java.time.format.DateTimeFormatter.ofPattern("MM-dd"))
-            val jsonHolidaysForThisDay = state.jsonHolidays[monthDay] ?: emptyList()
-
-            CalendarDay(
-                date = date,
-                isCurrentMonth = date.month == state.displayedYearMonth.month,
-                isSelected = date.isEqual(state.selectedDate),
-                isToday = date.isEqual(LocalDate.now()),
-                tasks = tasksForThisDay,
-                holiday = holidayForThisDay ?: saintDayForThisDay,
-                jsonHolidays = jsonHolidaysForThisDay,
-                isWeekend = date.dayOfWeek == java.time.DayOfWeek.SATURDAY || date.dayOfWeek == java.time.DayOfWeek.SUNDAY,
-                isNationalHoliday = holidayForThisDay?.type == com.mss.thebigcalendar.data.model.HolidayType.NATIONAL,
-                isSaintDay = state.filterOptions.showSaintDays && saintDayForThisDay != null,
-                isJsonHolidayDay = jsonHolidaysForThisDay.isNotEmpty()
-            )
         }
         
         // Salvar no cache
