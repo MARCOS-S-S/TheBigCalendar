@@ -6,6 +6,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.mss.thebigcalendar.data.service.BackupInfo
 //import com.google.android.gms.common.config.GservicesValue.value
 //import com.google.android.gms.common.config.GservicesValue.value
+import com.google.api.services.drive.model.File as DriveFile
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
@@ -73,6 +74,7 @@ data class FilterOptions(
     val showNotes: Boolean = false,
     val showBirthdays: Boolean = false
 )
+
 
 // Classe de estado principal da UI
 data class CalendarUiState(
@@ -146,6 +148,14 @@ data class CalendarUiState(
     val hideOtherMonthDays: Boolean = false,
     val pureBlackTheme: Boolean = false,
     val primaryColor: String = "AUTO",
+
+    // Cloud Backup State
+    val cloudBackupFiles: List<DriveFile> = emptyList(),
+    val isListingCloudBackups: Boolean = false,
+    val cloudBackupError: String? = null,
+    val isBackingUp: Boolean = false,
+    val isRestoring: Boolean = false,
+    val restoreMessage: String? = null
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

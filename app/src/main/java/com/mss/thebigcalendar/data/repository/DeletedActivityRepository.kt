@@ -74,6 +74,17 @@ class DeletedActivityRepository(private val context: Context) {
         }
     }
 
+    suspend fun saveAllDeletedActivities(deletedActivities: List<DeletedActivity>) {
+        context.deletedActivitiesDataStore.updateData { currentTrashActivities ->
+            val newTrashActivities = currentTrashActivities.toBuilder()
+            deletedActivities.forEach { deletedActivity ->
+                val proto = deletedActivity.toProto()
+                newTrashActivities.addTrashActivities(proto)
+            }
+            newTrashActivities.build()
+        }
+    }
+
     // --- Mappers ---
 
     private fun DeletedActivity.toProto(): TrashActivityProto {

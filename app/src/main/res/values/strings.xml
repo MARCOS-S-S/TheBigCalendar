@@ -136,7 +136,6 @@
     <string name="local_backup">Backup Local</string>
     <string name="local_backup_description">Salvar dados no armazenamento do dispositivo</string>
     <string name="cloud_backup">Backup na Nuvem</string>
-    <string name="cloud_backup_description">Salvar dados na nuvem (em breve)</string>
     <string name="backup_limitations_info">⚠️ Limitações atuais:\n• Alarmes independentes não são incluídos no backup\n• Notificações de atividades recorrentes precisam ser reagendadas manualmente após a restauração.</string>
     <string name="local_backups_list">Backups Locais</string>
     <string name="no_backups_yet">Nenhum backup encontrado</string>
@@ -151,6 +150,27 @@
     <string name="delete_backup_confirmation_title">Confirmar Exclusão</string>
     <string name="delete_backup_confirmation_message">Tem certeza que deseja excluir o backup \"%1$s\"?\n\nEsta ação não pode ser desfeita.</string>
     <string name="delete_backup_confirm">Excluir</string>
+
+    <!-- Cloud Backup Strings -->
+    <string name="cloud_backup_description">Faça backup dos seus dados no Google Drive.</string>
+    <string name="cloud_backups_list">Backups na Nuvem</string>
+    <string name="no_cloud_backups_yet">Nenhum backup na nuvem ainda</string>
+    <string name="no_cloud_backups_description">Faça login no Google e crie seu primeiro backup na nuvem.</string>
+    <string name="login_to_see_cloud_backups">Faça login para ver backups na nuvem</string>
+    <string name="login_to_see_cloud_backups_description">Conecte sua conta Google para acessar e gerenciar seus backups na nuvem.</string>
+    <string name="creating_backup">Criando backup...</string>
+    <string name="restoring_backup">Restaurando backup...</string>
+    <string name="cloud_backup_success">Backup na nuvem criado com sucesso.</string>
+    <string name="cloud_backup_failed">Falha ao criar backup na nuvem: %s</string>
+    <string name="restore_success">Restaurado de %s</string>
+    <string name="restore_failed">Falha na restauração: %s</string>
+    <string name="list_cloud_backups_failed">Falha ao listar backups na nuvem: %s</string>
+    <string name="delete_cloud_backup_failed">Falha ao excluir backup na nuvem: %s</string>
+    <string name="restore_backup_confirmation_message_cloud">Restaurar o backup \"%s\" substituirá todos os dados atuais do aplicativo. Deseja continuar?</string>
+    <string name="restore_cloud_backup_confirmation_message">Tem certeza que deseja restaurar o backup \"%1$s\"? Esta ação irá substituir todos os dados atuais do aplicativo.</string>
+    <string name="delete_backup_confirmation_message_cloud">Tem certeza de que deseja excluir o backup \"%s\" do Google Drive? Esta ação não pode ser desfeita.</string>
+    <string name="cloud_backup_info_details">%1$d atividades, %2$d na lixeira</string>
+    <string name="backup_date_time_format">dd/MM/yyyy \'às\' HH:mm</string>
     <string name="sidebar_change_theme">Tema escuro</string>
     <string name="sync_now">Sincronizar agora</string>
     <string name="syncing">Sincronizando...</string>

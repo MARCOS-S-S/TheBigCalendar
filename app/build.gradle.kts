@@ -123,7 +123,9 @@ dependencies {
     // Dependências para o Login com Google e API do Calendar
     implementation(libs.google.auth)
     implementation(libs.google.api.client.android)
+    implementation("com.google.http-client:google-http-client-android:1.42.3")
     implementation(libs.google.api.services.calendar)
+    implementation("com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0")
     
     // WorkManager para sincronização em background
     implementation("androidx.work:work-runtime-ktx:2.9.0")

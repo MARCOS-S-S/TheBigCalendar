@@ -21,12 +21,90 @@ import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+import com.mss.thebigcalendar.service.GoogleDriveService
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import java.time.Instant
+import com.google.api.services.drive.model.File as DriveFile
+
 class BackupService(
     private val context: Context,
     private val activityRepository: ActivityRepository,
     private val deletedActivityRepository: DeletedActivityRepository,
     private val completedActivityRepository: CompletedActivityRepository
 ) {
+
+    private fun getGoogleDriveService(account: GoogleSignInAccount): GoogleDriveService {
+        return GoogleDriveService(context, account)
+    }
+
+    suspend fun createCloudBackup(account: GoogleSignInAccount): Result<String> = withContext(Dispatchers.IO) {
+        val tempFile = File.createTempFile(BACKUP_FILE_PREFIX, BACKUP_FILE_EXTENSION, context.cacheDir)
+        try {
+            val activities = activityRepository.activities.first()
+            val deletedActivities = deletedActivityRepository.deletedActivities.first()
+            val completedActivities = completedActivityRepository.completedActivities.first()
+
+            val backupData = createBackupJson(activities, deletedActivities, completedActivities)
+            tempFile.writeText(backupData, Charsets.UTF_8)
+
+            val appProperties = mapOf(
+                "totalActivities" to activities.size.toString(),
+                "totalDeletedActivities" to deletedActivities.size.toString(),
+                "totalCompletedActivities" to completedActivities.size.toString()
+            )
+
+            val driveService = getGoogleDriveService(account)
+            val uploadedFile = driveService.uploadBackupFile(tempFile, appProperties)
+
+            if (uploadedFile != null) {
+                Result.success(uploadedFile.id)
+            } else {
+                Result.failure(Exception("Falha ao fazer upload do arquivo de backup para o Google Drive"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        } finally {
+            if (tempFile.exists()) {
+                tempFile.delete()
+            }
+        }
+    }
+
+    suspend fun listCloudBackupFiles(account: GoogleSignInAccount): Result<List<DriveFile>> = withContext(Dispatchers.IO) {
+        try {
+            val driveService = getGoogleDriveService(account)
+            val files = driveService.getBackupFiles()
+            Result.success(files)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun restoreFromCloudBackup(account: GoogleSignInAccount, fileId: String, fileName: String): Result<RestoreResult> = withContext(Dispatchers.IO) {
+        try {
+            val driveService = getGoogleDriveService(account)
+            val tempFile = File.createTempFile("restore_", ".json", context.cacheDir)
+            driveService.downloadBackupFile(fileId, tempFile)
+
+            val result = restoreFromBackup(tempFile)
+
+            tempFile.delete()
+
+            result
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deleteCloudBackup(account: GoogleSignInAccount, fileId: String): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val driveService = getGoogleDriveService(account)
+            driveService.deleteBackupFile(fileId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
     
     companion object {
         private const val TAG = "BackupService"

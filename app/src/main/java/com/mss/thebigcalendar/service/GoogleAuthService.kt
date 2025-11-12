@@ -8,6 +8,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
+import com.google.api.services.drive.DriveScopes
 import com.google.api.services.calendar.CalendarScopes
 
 class GoogleAuthService(private val context: Context) {
@@ -19,7 +20,8 @@ class GoogleAuthService(private val context: Context) {
             .requestEmail()
             .requestScopes(
                 Scope(CalendarScopes.CALENDAR),
-                Scope(CalendarScopes.CALENDAR_EVENTS)
+                Scope(CalendarScopes.CALENDAR_EVENTS),
+                Scope(DriveScopes.DRIVE_APPDATA)
             )
             .build()
     }

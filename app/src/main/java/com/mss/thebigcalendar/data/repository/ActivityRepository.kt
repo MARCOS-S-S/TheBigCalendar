@@ -208,6 +208,12 @@ class ActivityRepository(private val context: Context) {
         }
     }
 
+    suspend fun clearAllActivities() {
+        context.activitiesDataStore.updateData { currentActivities ->
+            currentActivities.toBuilder().clearActivities().build()
+        }
+    }
+
     /**
      * Remove todas as atividades JSON importadas de um calendário específico
      */

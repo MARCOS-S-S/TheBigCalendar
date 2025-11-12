@@ -80,6 +80,8 @@ import com.mss.thebigcalendar.widget.EventListWidgetService
 import com.mss.thebigcalendar.MainActivity
 import com.mss.thebigcalendar.R
 
+import com.google.api.services.drive.model.File as DriveFile
+
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
 
     // Repositories
@@ -104,6 +106,78 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     // State Management
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
+
+    // ===== CLOUD BACKUP FUNCTIONS =====
+
+    fun listCloudBackups() {
+        val account = _uiState.value.googleSignInAccount ?: return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isListingCloudBackups = true, cloudBackupError = null) }
+            backupService.listCloudBackupFiles(account)
+                .onSuccess { files ->
+                    _uiState.update { it.copy(cloudBackupFiles = files, isListingCloudBackups = false) }
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isListingCloudBackups = false, cloudBackupError = "Failed to list cloud backups: ${error.message}") }
+                }
+        }
+    }
+
+    fun createCloudBackup() {
+        val account = _uiState.value.googleSignInAccount ?: return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isBackingUp = true, backupMessage = null) }
+            backupService.createCloudBackup(account)
+                .onSuccess {
+                    _uiState.update { it.copy(isBackingUp = false, backupMessage = "Cloud backup created successfully.") }
+                    listCloudBackups() // Refresh the list
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isBackingUp = false, backupMessage = "Cloud backup failed: ${error.message}") }
+                }
+        }
+    }
+
+    fun restoreFromCloudBackup(fileId: String, fileName: String) {
+        val account = _uiState.value.googleSignInAccount ?: return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRestoring = true, restoreMessage = null) }
+            backupService.restoreFromCloudBackup(account, fileId, fileName)
+                .onSuccess { restoreResult ->
+                    // Logic to handle the restored data
+                    activityRepository.clearAllActivities()
+                    deletedActivityRepository.clearAllDeletedActivities()
+                    completedActivityRepository.clearAllCompletedActivities()
+
+                    activityRepository.saveAllActivities(restoreResult.activities)
+                    deletedActivityRepository.saveAllDeletedActivities(restoreResult.deletedActivities)
+                    completedActivityRepository.saveAllCompletedActivities(restoreResult.completedActivities)
+
+                    _uiState.update { it.copy(isRestoring = false, restoreMessage = "Restored from ${restoreResult.backupFileName}") }
+                    loadData() // Reload all data
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isRestoring = false, restoreMessage = "Restore failed: ${error.message}") }
+                }
+        }
+    }
+
+    fun deleteCloudBackup(fileId: String) {
+        val account = _uiState.value.googleSignInAccount ?: return
+        viewModelScope.launch {
+            backupService.deleteCloudBackup(account, fileId)
+                .onSuccess {
+                    listCloudBackups() // Refresh the list
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(cloudBackupError = "Failed to delete backup: ${error.message}") }
+                }
+        }
+    }
+
+    fun clearCloudBackupError() {
+        _uiState.update { it.copy(cloudBackupError = null) }
+    }
     
     // Cache System
     private var updateJob: Job? = null

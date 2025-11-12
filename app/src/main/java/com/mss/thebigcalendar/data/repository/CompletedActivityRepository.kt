@@ -61,6 +61,17 @@ class CompletedActivityRepository(private val context: Context) {
         }
     }
 
+    suspend fun saveAllCompletedActivities(activities: List<Activity>) {
+        context.completedActivitiesDataStore.updateData { currentActivities ->
+            val newActivities = currentActivities.toBuilder()
+            activities.forEach { activity ->
+                val proto = activity.toProto()
+                newActivities.addActivities(proto)
+            }
+            newActivities.build()
+        }
+    }
+
     // --- Mappers ---
 
     private fun Activity.toProto(): ActivityProto {
