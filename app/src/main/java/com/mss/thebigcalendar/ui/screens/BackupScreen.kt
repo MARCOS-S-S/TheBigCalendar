@@ -23,6 +23,8 @@ import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -364,6 +366,7 @@ fun AutoBackupSettings(
     isCloudBackupEnabled: Boolean
 ) {
     var showTimePicker by remember { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -372,11 +375,23 @@ fun AutoBackupSettings(
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(16.dp)
     ) {
-        Text(
-            text = stringResource(id = R.string.auto_backup_settings_title),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = R.string.auto_backup_settings_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(onClick = { isExpanded = !isExpanded }) {
+                Icon(
+                    imageVector = if (isExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                    contentDescription = if (isExpanded) "Collapse" else "Expand"
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
@@ -393,7 +408,7 @@ fun AutoBackupSettings(
             )
         }
 
-        if (settings.enabled) {
+        if (settings.enabled && isExpanded) {
             Spacer(modifier = Modifier.height(16.dp))
 
             // Frequency Dropdown
