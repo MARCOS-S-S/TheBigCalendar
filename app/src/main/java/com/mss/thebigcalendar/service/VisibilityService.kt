@@ -320,9 +320,8 @@ class VisibilityService(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         
-        val notification = NotificationCompat.Builder(context, VISIBILITY_CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setContentTitle("$alertType: ${activity.title}")
+                    val notification = NotificationCompat.Builder(context, VISIBILITY_CHANNEL_ID)
+                        .setSmallIcon(com.mss.thebigcalendar.R.mipmap.ic_launcher)            .setContentTitle("$alertType: ${activity.title}")
             .setContentText("${activity.description ?: "Sem descrição"} - ${formatActivityTime(activity)}")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
@@ -385,7 +384,7 @@ class VisibilityService(private val context: Context) {
                 
                 // Criar uma notificação temporária apenas para tocar o som
                 val tempNotification = NotificationCompat.Builder(context, VISIBILITY_CHANNEL_ID)
-                    .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                    .setSmallIcon(com.mss.thebigcalendar.R.mipmap.ic_launcher)
                     .setContentTitle("Alerta")
                     .setContentText("Notificação de alta visibilidade")
                     .setPriority(NotificationCompat.PRIORITY_HIGH)

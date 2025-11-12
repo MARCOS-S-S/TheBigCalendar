@@ -86,7 +86,7 @@ class NotificationForegroundService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("")
             .setContentText("")
-            .setSmallIcon(android.R.drawable.ic_menu_info_details) // Ícone do sistema, menos visível
+            .setSmallIcon(com.mss.thebigcalendar.R.mipmap.ic_launcher) // Ícone do sistema, menos visível
             .setOngoing(true)
             .setSilent(true)
             .setPriority(NotificationCompat.PRIORITY_MIN)

@@ -168,7 +168,7 @@ class HighVisibilityNotificationService : Service() {
         )
         
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setSmallIcon(com.mss.thebigcalendar.R.mipmap.ic_launcher)
             .setContentTitle("🔔 ${activity.title}")
             .setContentText("Notificação de alta visibilidade ativa")
             .setPriority(NotificationCompat.PRIORITY_MAX)

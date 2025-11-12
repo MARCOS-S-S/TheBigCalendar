@@ -578,7 +578,7 @@ class AlarmService(
             val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
                 .setContentTitle(context.getString(R.string.alarm_notification_title))
                 .setContentText("${alarmSettings.label} - ${alarmSettings.time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}")
-                .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                .setSmallIcon(com.mss.thebigcalendar.R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent)
                 .setFullScreenIntent(pendingIntent, true) // Força tela cheia
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_MAX)
@@ -659,7 +659,7 @@ class AlarmService(
             val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
                 .setContentTitle(context.getString(R.string.alarm_notification_title))
                 .setContentText("${alarmSettings.label} - ${alarmSettings.time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}")
-                .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                .setSmallIcon(com.mss.thebigcalendar.R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent)
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_MAX)
                 .setCategory(androidx.core.app.NotificationCompat.CATEGORY_ALARM)
@@ -832,7 +832,7 @@ class AlarmService(
             val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
                 .setContentTitle(context.getString(R.string.alarm_status_notification_title))
                 .setContentText("${alarmSettings.label} às ${alarmSettings.time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}")
-                .setSmallIcon(android.R.drawable.ic_dialog_alert) // Ícone de alerta mais visível
+                .setSmallIcon(com.mss.thebigcalendar.R.mipmap.ic_launcher) // Ícone de alerta mais visível
                 .setContentIntent(pendingIntent)
                 .setOngoing(true) // Notificação persistente
                 .setAutoCancel(false) // Não remove ao tocar
