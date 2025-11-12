@@ -58,11 +58,13 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.api.services.drive.model.File as DriveFile
 import com.mss.thebigcalendar.R
+import com.mss.thebigcalendar.data.repository.AutoBackupSettings
 import com.mss.thebigcalendar.data.repository.BackupFrequency
 import com.mss.thebigcalendar.data.repository.BackupType
 import com.mss.thebigcalendar.data.service.BackupInfo
@@ -72,6 +74,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -201,7 +204,7 @@ fun BackupScreen(
                         CircularProgressIndicator()
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = if (uiState.isBackingUp) "Creating backup..." else "Restoring backup...",
+                            text = if (uiState.isBackingUp) stringResource(R.string.creating_backup) else stringResource(R.string.restoring_backup),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -361,8 +364,8 @@ fun BackupScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AutoBackupSettings(
-    settings: com.mss.thebigcalendar.data.repository.AutoBackupSettings,
-    onSettingsChange: (com.mss.thebigcalendar.data.repository.AutoBackupSettings) -> Unit,
+    settings: AutoBackupSettings,
+    onSettingsChange: (AutoBackupSettings) -> Unit,
     isCloudBackupEnabled: Boolean
 ) {
     var showTimePicker by remember { mutableStateOf(false) }
@@ -388,7 +391,7 @@ fun AutoBackupSettings(
             IconButton(onClick = { isExpanded = !isExpanded }) {
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand"
+                    contentDescription = if (isExpanded) stringResource(R.string.collapse) else stringResource(R.string.expand)
                 )
             }
         }
@@ -506,12 +509,12 @@ fun AutoBackupSettings(
                                 showTimePicker = false
                             }
                         ) {
-                            Text("OK")
+                            Text(stringResource(R.string.ok))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showTimePicker = false }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                     }
                 )
@@ -563,7 +566,7 @@ fun DeleteConfirmationDialog(backupName: String, onConfirm: () -> Unit, onDismis
 fun BackupOptionItem(
     title: String,
     description: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     onClick: () -> Unit,
     enabled: Boolean = true
 ) {
@@ -706,7 +709,7 @@ fun BackupFileItem(backupInfo: BackupInfo, onDelete: () -> Unit, onRestore: () -
 }
 
 @Composable
-fun EmptyState(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, description: String) {
+fun EmptyState(icon: ImageVector, title: String, description: String) {
     Box(
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(32.dp),
         contentAlignment = Alignment.Center
@@ -749,7 +752,7 @@ private fun formatFileSize(sizeInBytes: Long): String {
 
 private fun formatBackupDate(dateString: String, format: String): String {
     return try {
-        val dateTime = java.time.LocalDateTime.parse(dateString)
+        val dateTime = LocalDateTime.parse(dateString)
         val formatter = DateTimeFormatter.ofPattern(format, Locale.getDefault())
         dateTime.format(formatter)
     } catch (e: Exception) {
@@ -757,12 +760,13 @@ private fun formatBackupDate(dateString: String, format: String): String {
     }
 }
 
+@Composable
 private fun formatDriveDate(epochMillis: Long, format: String): String {
     return try {
         val date = Date(epochMillis)
         val displayFormatter = SimpleDateFormat(format, Locale.getDefault())
         displayFormatter.format(date)
     } catch (e: Exception) {
-        "Invalid date"
+        stringResource(R.string.invalid_date)
     }
 }
