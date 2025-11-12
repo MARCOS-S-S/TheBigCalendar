@@ -25,16 +25,23 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -54,6 +61,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.api.services.drive.model.File as DriveFile
 import com.mss.thebigcalendar.R
+import com.mss.thebigcalendar.data.repository.BackupFrequency
+import com.mss.thebigcalendar.data.repository.BackupType
 import com.mss.thebigcalendar.data.service.BackupInfo
 import com.mss.thebigcalendar.ui.viewmodel.CalendarViewModel
 import com.mss.thebigcalendar.ui.components.StoragePermissionDialog
@@ -146,6 +155,16 @@ fun BackupScreen(
                     icon = Icons.Default.CloudUpload,
                     onClick = { viewModel.createCloudBackup() },
                     enabled = uiState.googleSignInAccount != null
+                )
+            }
+
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+
+            item {
+                AutoBackupSettings(
+                    settings = uiState.autoBackupSettings,
+                    onSettingsChange = { viewModel.saveAutoBackupSettings(it) },
+                    isCloudBackupEnabled = uiState.googleSignInAccount != null
                 )
             }
 
@@ -333,6 +352,155 @@ fun BackupScreen(
                     viewModel.loadBackupFiles()
                 }
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AutoBackupSettings(
+    settings: com.mss.thebigcalendar.data.repository.AutoBackupSettings,
+    onSettingsChange: (com.mss.thebigcalendar.data.repository.AutoBackupSettings) -> Unit,
+    isCloudBackupEnabled: Boolean
+) {
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(16.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.auto_backup_settings_title),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = R.string.auto_backup_enable),
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = settings.enabled,
+                onCheckedChange = { onSettingsChange(settings.copy(enabled = it)) }
+            )
+        }
+
+        if (settings.enabled) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Frequency Dropdown
+            var frequencyExpanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = frequencyExpanded,
+                onExpandedChange = { frequencyExpanded = !frequencyExpanded }
+            ) {
+                TextButton(onClick = { frequencyExpanded = true }) {
+                    Text(text = stringResource(id = R.string.auto_backup_frequency) + ": " + when (settings.frequency) {
+                        BackupFrequency.DAILY -> stringResource(id = R.string.auto_backup_frequency_daily)
+                        BackupFrequency.TWO_DAYS -> stringResource(id = R.string.auto_backup_frequency_two_days)
+                        BackupFrequency.WEEKLY -> stringResource(id = R.string.auto_backup_frequency_weekly)
+                        BackupFrequency.MONTHLY -> stringResource(id = R.string.auto_backup_frequency_monthly)
+                    })
+                }
+                ExposedDropdownMenu(
+                    expanded = frequencyExpanded,
+                    onDismissRequest = { frequencyExpanded = false }
+                ) {
+                    BackupFrequency.values().forEach { frequency ->
+                        DropdownMenuItem(
+                            text = { Text(text = when (frequency) {
+                                BackupFrequency.DAILY -> stringResource(id = R.string.auto_backup_frequency_daily)
+                                BackupFrequency.TWO_DAYS -> stringResource(id = R.string.auto_backup_frequency_two_days)
+                                BackupFrequency.WEEKLY -> stringResource(id = R.string.auto_backup_frequency_weekly)
+                                BackupFrequency.MONTHLY -> stringResource(id = R.string.auto_backup_frequency_monthly)
+                            }) },
+                            onClick = {
+                                onSettingsChange(settings.copy(frequency = frequency))
+                                frequencyExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Backup Type Dropdown
+            var typeExpanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = typeExpanded,
+                onExpandedChange = { typeExpanded = !typeExpanded }
+            ) {
+                TextButton(onClick = { typeExpanded = true }) {
+                    Text(text = stringResource(id = R.string.auto_backup_type) + ": " + when (settings.backupType) {
+                        BackupType.LOCAL -> stringResource(id = R.string.auto_backup_type_local)
+                        BackupType.CLOUD -> stringResource(id = R.string.auto_backup_type_cloud)
+                    })
+                }
+                ExposedDropdownMenu(
+                    expanded = typeExpanded,
+                    onDismissRequest = { typeExpanded = false }
+                ) {
+                    BackupType.values().forEach { type ->
+                        DropdownMenuItem(
+                            text = { Text(text = when (type) {
+                                BackupType.LOCAL -> stringResource(id = R.string.auto_backup_type_local)
+                                BackupType.CLOUD -> stringResource(id = R.string.auto_backup_type_cloud)
+                            }) },
+                            onClick = {
+                                onSettingsChange(settings.copy(backupType = type))
+                                typeExpanded = false
+                            },
+                            enabled = if (type == BackupType.CLOUD) isCloudBackupEnabled else true
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Time Picker
+            TextButton(onClick = { showTimePicker = true }) {
+                Text(text = stringResource(id = R.string.auto_backup_time) + ": ${String.format("%02d:%02d", settings.hour, settings.minute)}")
+            }
+
+            if (showTimePicker) {
+                val timePickerState = rememberTimePickerState(
+                    initialHour = settings.hour,
+                    initialMinute = settings.minute,
+                    is24Hour = true
+                )
+                AlertDialog(
+                    onDismissRequest = { showTimePicker = false },
+                    title = { Text(text = stringResource(id = R.string.auto_backup_time)) },
+                    text = {
+                        TimePicker(state = timePickerState)
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                onSettingsChange(settings.copy(hour = timePickerState.hour, minute = timePickerState.minute))
+                                showTimePicker = false
+                            }
+                        ) {
+                            Text("OK")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showTimePicker = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
         }
     }
 }

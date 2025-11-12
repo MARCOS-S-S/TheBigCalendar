@@ -48,6 +48,13 @@ class SettingsRepository(private val context: Context) {
         val SIDEBAR_SHOW_COMPLETED_TASKS = booleanPreferencesKey("sidebar_show_completed_tasks")
         val SIDEBAR_SHOW_MOON_PHASES = booleanPreferencesKey("sidebar_show_moon_phases")
 
+        // Auto Backup Settings
+        val AUTO_BACKUP_ENABLED = booleanPreferencesKey("auto_backup_enabled")
+        val AUTO_BACKUP_FREQUENCY = stringPreferencesKey("auto_backup_frequency")
+        val AUTO_BACKUP_HOUR = stringPreferencesKey("auto_backup_hour")
+        val AUTO_BACKUP_MINUTE = stringPreferencesKey("auto_backup_minute")
+        val AUTO_BACKUP_TYPE = stringPreferencesKey("auto_backup_type")
+
     }
 
     val theme: Flow<Theme> = context.dataStore.data
@@ -143,6 +150,17 @@ class SettingsRepository(private val context: Context) {
             )
         }
 
+    val autoBackupSettings: Flow<AutoBackupSettings> = context.dataStore.data
+        .map { preferences ->
+            AutoBackupSettings(
+                enabled = preferences[PreferencesKeys.AUTO_BACKUP_ENABLED] ?: false,
+                frequency = BackupFrequency.valueOf(preferences[PreferencesKeys.AUTO_BACKUP_FREQUENCY] ?: BackupFrequency.DAILY.name),
+                hour = preferences[PreferencesKeys.AUTO_BACKUP_HOUR]?.toIntOrNull() ?: 2,
+                minute = preferences[PreferencesKeys.AUTO_BACKUP_MINUTE]?.toIntOrNull() ?: 0,
+                backupType = BackupType.valueOf(preferences[PreferencesKeys.AUTO_BACKUP_TYPE] ?: BackupType.LOCAL.name)
+            )
+        }
+
 
 
             val filterOptions: Flow<CalendarFilterOptions> = context.dataStore.data
@@ -201,18 +219,28 @@ class SettingsRepository(private val context: Context) {
         sharedPrefs.edit().putString("selected_language", language.code).apply()
     }
 
-    suspend fun saveSidebarFilterVisibility(visibility: SidebarFilterVisibility) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SIDEBAR_SHOW_HOLIDAYS] = visibility.showHolidays
-            preferences[PreferencesKeys.SIDEBAR_SHOW_SAINT_DAYS] = visibility.showSaintDays
-            preferences[PreferencesKeys.SIDEBAR_SHOW_EVENTS] = visibility.showEvents
-            preferences[PreferencesKeys.SIDEBAR_SHOW_TASKS] = visibility.showTasks
-            preferences[PreferencesKeys.SIDEBAR_SHOW_BIRTHDAYS] = visibility.showBirthdays
-            preferences[PreferencesKeys.SIDEBAR_SHOW_NOTES] = visibility.showNotes
-            preferences[PreferencesKeys.SIDEBAR_SHOW_COMPLETED_TASKS] = visibility.showCompletedTasks
-            preferences[PreferencesKeys.SIDEBAR_SHOW_MOON_PHASES] = visibility.showMoonPhases
+            suspend fun saveSidebarFilterVisibility(visibility: SidebarFilterVisibility) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.SIDEBAR_SHOW_HOLIDAYS] = visibility.showHolidays
+                preferences[PreferencesKeys.SIDEBAR_SHOW_SAINT_DAYS] = visibility.showSaintDays
+                preferences[PreferencesKeys.SIDEBAR_SHOW_EVENTS] = visibility.showEvents
+                preferences[PreferencesKeys.SIDEBAR_SHOW_TASKS] = visibility.showTasks
+                preferences[PreferencesKeys.SIDEBAR_SHOW_BIRTHDAYS] = visibility.showBirthdays
+                preferences[PreferencesKeys.SIDEBAR_SHOW_NOTES] = visibility.showNotes
+                preferences[PreferencesKeys.SIDEBAR_SHOW_COMPLETED_TASKS] = visibility.showCompletedTasks
+                preferences[PreferencesKeys.SIDEBAR_SHOW_MOON_PHASES] = visibility.showMoonPhases
+            }
         }
+    
+        suspend fun saveAutoBackupSettings(settings: AutoBackupSettings) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.AUTO_BACKUP_ENABLED] = settings.enabled
+                preferences[PreferencesKeys.AUTO_BACKUP_FREQUENCY] = settings.frequency.name
+                preferences[PreferencesKeys.AUTO_BACKUP_HOUR] = settings.hour.toString()
+                preferences[PreferencesKeys.AUTO_BACKUP_MINUTE] = settings.minute.toString()
+                preferences[PreferencesKeys.AUTO_BACKUP_TYPE] = settings.backupType.name
+            }
+        }
+    
+    
     }
-
-
-}

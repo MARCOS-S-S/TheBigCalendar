@@ -155,7 +155,14 @@ data class CalendarUiState(
     val cloudBackupError: String? = null,
     val isBackingUp: Boolean = false,
     val isRestoring: Boolean = false,
-    val restoreMessage: String? = null
+    val restoreMessage: String? = null,
+    val autoBackupSettings: com.mss.thebigcalendar.data.repository.AutoBackupSettings = com.mss.thebigcalendar.data.repository.AutoBackupSettings(
+        enabled = false,
+        frequency = com.mss.thebigcalendar.data.repository.BackupFrequency.DAILY,
+        hour = 2,
+        minute = 0,
+        backupType = com.mss.thebigcalendar.data.repository.BackupType.LOCAL
+    )
 )
 
 enum class Theme { LIGHT, DARK, SYSTEM }

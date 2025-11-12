@@ -716,4 +716,17 @@
     <string name="weekday_header_color_thursday">Cor do cabeçalho (Quinta)</string>
     <string name="weekday_header_color_friday">Cor do cabeçalho (Sexta)</string>
     <string name="weekday_header_color_saturday">Cor do cabeçalho (Sábado)</string>
+
+    <!-- Auto Backup Settings -->
+    <string name="auto_backup_settings_title">Backups Automáticos</string>
+    <string name="auto_backup_enable">Ativar backups automáticos</string>
+    <string name="auto_backup_frequency">Frequência</string>
+    <string name="auto_backup_frequency_daily">Diariamente</string>
+    <string name="auto_backup_frequency_two_days">A cada 2 dias</string>
+    <string name="auto_backup_frequency_weekly">Semanalmente</string>
+    <string name="auto_backup_frequency_monthly">Mensalmente</string>
+    <string name="auto_backup_type">Tipo de backup</string>
+    <string name="auto_backup_type_local">Local</string>
+    <string name="auto_backup_type_cloud">Nuvem</string>
+    <string name="auto_backup_time">Horário do backup</string>
 </resources>

@@ -33,6 +33,10 @@ class NotificationService(
         const val CHANNEL_ID = "calendar_notifications"
         const val CHANNEL_NAME = "Lembretes do Calendário"
         const val CHANNEL_DESCRIPTION = "Notificações para atividades e tarefas do calendário"
+
+        const val AUTO_BACKUP_CHANNEL_ID = "auto_backup_notifications"
+        const val AUTO_BACKUP_CHANNEL_NAME = "Backups Automáticos"
+        const val AUTO_BACKUP_CHANNEL_DESCRIPTION = "Notificações sobre backups automáticos"
         
         // Ações para as notificações
         const val ACTION_VIEW_ACTIVITY = "com.mss.thebigcalendar.VIEW_ACTIVITY"
@@ -52,16 +56,16 @@ class NotificationService(
     }
 
     init {
-        createNotificationChannel()
+        createNotificationChannels()
         cleanOldNotifications() // Limpar notificações antigas
     }
 
     /**
-     * Cria o canal de notificação (necessário para Android 8.0+)
+     * Cria os canais de notificação (necessário para Android 8.0+)
      */
-    private fun createNotificationChannel() {
+    private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
+            val calendarChannel = NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
@@ -77,8 +81,43 @@ class NotificationService(
                         .build())
                 setBypassDnd(true) // Ignorar "Não perturbe"
             }
-            notificationManager.createNotificationChannel(channel)
+            notificationManager.createNotificationChannel(calendarChannel)
+
+            val backupChannel = NotificationChannel(
+                AUTO_BACKUP_CHANNEL_ID,
+                AUTO_BACKUP_CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = AUTO_BACKUP_CHANNEL_DESCRIPTION
+                setSound(null, null)
+                enableVibration(false)
+            }
+            notificationManager.createNotificationChannel(backupChannel)
         }
+    }
+
+    fun showAutoBackupSuccessNotification(backupType: com.mss.thebigcalendar.data.repository.BackupType, backupPath: String) {
+        val notification = NotificationCompat.Builder(context, AUTO_BACKUP_CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle("Backup Automático Concluído")
+            .setContentText("Backup do tipo ${backupType.name.lowercase()} realizado com sucesso.")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+
+        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+    }
+
+    fun showAutoBackupFailedNotification(backupType: com.mss.thebigcalendar.data.repository.BackupType, errorMessage: String) {
+        val notification = NotificationCompat.Builder(context, AUTO_BACKUP_CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setContentTitle("Falha no Backup Automático")
+            .setContentText("O backup do tipo ${backupType.name.lowercase()} falhou: $errorMessage")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+
+        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
     }
 
     /**

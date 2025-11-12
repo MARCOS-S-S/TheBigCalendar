@@ -11,7 +11,8 @@ import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.DeletedActivity
 import com.mss.thebigcalendar.data.repository.ActivityRepository
 import com.mss.thebigcalendar.data.repository.CompletedActivityRepository
-import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
+import com.mss.thebigcalendar.data.repository.BackupFrequency
+import com.mss.thebigcalendar.data.repository.BackupType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -23,6 +24,7 @@ import java.time.format.DateTimeFormatter
 
 import com.mss.thebigcalendar.service.GoogleDriveService
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.mss.thebigcalendar.data.repository.DeletedActivityRepository
 import java.time.Instant
 import com.google.api.services.drive.model.File as DriveFile
 

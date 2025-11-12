@@ -102,10 +102,20 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val backupService = BackupService(application, activityRepository, deletedActivityRepository, completedActivityRepository)
     private val visibilityService = VisibilityService(application)
     private val pdfGenerationService = com.mss.thebigcalendar.data.service.PdfGenerationService()
+    private val backupScheduler = com.mss.thebigcalendar.service.BackupScheduler(application)
 
     // State Management
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
+
+    // ===== AUTO BACKUP FUNCTIONS =====
+
+    fun saveAutoBackupSettings(settings: com.mss.thebigcalendar.data.repository.AutoBackupSettings) {
+        viewModelScope.launch {
+            settingsRepository.saveAutoBackupSettings(settings)
+            backupScheduler.schedule(settings)
+        }
+    }
 
     // ===== CLOUD BACKUP FUNCTIONS =====
 
@@ -660,6 +670,11 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             settingsRepository.language.collect { language ->
                 _uiState.update { it.copy(language = language) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.autoBackupSettings.collect { settings ->
+                _uiState.update { it.copy(autoBackupSettings = settings) }
             }
         }
         viewModelScope.launch {
