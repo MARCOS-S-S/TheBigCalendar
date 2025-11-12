@@ -713,4 +713,17 @@
     <string name="weekday_header_color_thursday">Couleur de l\'en-tête (Jeudi)</string>
     <string name="weekday_header_color_friday">Couleur de l\'en-tête (Vendredi)</string>
     <string name="weekday_header_color_saturday">Couleur de l\'en-tête (Samedi)</string>
+    <string name="invalid_date">Date invalide</string>
+    <!-- Auto Backup Settings -->
+    <string name="auto_backup_settings_title">Sauvegardes Automatiques</string>
+    <string name="auto_backup_enable">Activer les sauvegardes automatiques</string>
+    <string name="auto_backup_frequency">Fréquence</string>
+    <string name="auto_backup_frequency_daily">Quotidiennement</string>
+    <string name="auto_backup_frequency_two_days">Tous les 2 jours</string>
+    <string name="auto_backup_frequency_weekly">Hebdomadairement</string>
+    <string name="auto_backup_frequency_monthly">Mensuellement</string>
+    <string name="auto_backup_type">Type de sauvegarde</string>
+    <string name="auto_backup_type_local">Local</string>
+    <string name="auto_backup_type_cloud">Cloud</string>
+    <string name="auto_backup_time">Heure de la sauvegarde</string>
 </resources>

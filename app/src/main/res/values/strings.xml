@@ -716,6 +716,7 @@
     <string name="weekday_header_color_thursday">Cor do cabeçalho (Quinta)</string>
     <string name="weekday_header_color_friday">Cor do cabeçalho (Sexta)</string>
     <string name="weekday_header_color_saturday">Cor do cabeçalho (Sábado)</string>
+    <string name="invalid_date">Data inválida</string>
 
     <!-- Auto Backup Settings -->
     <string name="auto_backup_settings_title">Backups Automáticos</string>

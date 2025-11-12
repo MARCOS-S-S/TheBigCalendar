@@ -712,7 +712,19 @@
     <string name="weekday_header_color_wednesday">Цвет заголовка (Среда)</string>
     <string name="weekday_header_color_thursday">Цвет заголовка (Четверг)</string>
     <string name="weekday_header_color_friday">Цвет заголовка (Пятница)</string>
-    <string name="weekday_header_color_saturday">Цвет заголовка (Суббота)</string>
-    </resources>
-
+        <string name="weekday_header_color_saturday">Цвет заголовка (Суббота)</string>
+        <string name="invalid_date">Неверная дата</string>
+        <!-- Auto Backup Settings -->
+    <string name="auto_backup_settings_title">Автоматические резервные копии</string>
+    <string name="auto_backup_enable">Включить автоматическое резервное копирование</string>
+    <string name="auto_backup_frequency">Частота</string>
+    <string name="auto_backup_frequency_daily">Ежедневно</string>
+    <string name="auto_backup_frequency_two_days">Каждые 2 дня</string>
+    <string name="auto_backup_frequency_weekly">Еженедельно</string>
+    <string name="auto_backup_frequency_monthly">Ежемесячно</string>
+    <string name="auto_backup_type">Тип резервной копии</string>
+    <string name="auto_backup_type_local">Локальный</string>
+    <string name="auto_backup_type_cloud">Облачный</string>
+    <string name="auto_backup_time">Время резервного копирования</string>
+</resources>
 

@@ -712,4 +712,17 @@
     <string name="weekday_header_color_thursday">Header color (Thursday)</string>
     <string name="weekday_header_color_friday">Header color (Friday)</string>
     <string name="weekday_header_color_saturday">Header color (Saturday)</string>
+    <string name="invalid_date">Invalid date</string>
+    <!-- Auto Backup Settings -->
+    <string name="auto_backup_settings_title">Auto Backups</string>
+    <string name="auto_backup_enable">Enable auto backups</string>
+    <string name="auto_backup_frequency">Frequency</string>
+    <string name="auto_backup_frequency_daily">Daily</string>
+    <string name="auto_backup_frequency_two_days">Every 2 days</string>
+    <string name="auto_backup_frequency_weekly">Weekly</string>
+    <string name="auto_backup_frequency_monthly">Monthly</string>
+    <string name="auto_backup_type">Backup type</string>
+    <string name="auto_backup_type_local">Local</string>
+    <string name="auto_backup_type_cloud">Cloud</string>
+    <string name="auto_backup_time">Backup time</string>
 </resources>

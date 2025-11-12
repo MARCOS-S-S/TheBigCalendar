@@ -712,7 +712,19 @@
     <string name="weekday_header_color_wednesday">Kopfzeilenfarbe (Mittwoch)</string>
     <string name="weekday_header_color_thursday">Kopfzeilenfarbe (Donnerstag)</string>
     <string name="weekday_header_color_friday">Kopfzeilenfarbe (Freitag)</string>
-    <string name="weekday_header_color_saturday">Kopfzeilenfarbe (Samstag)</string>
-    </resources>
-
+        <string name="weekday_header_color_saturday">Kopfzeilenfarbe (Samstag)</string>
+        <string name="invalid_date">Ungültiges Datum</string>
+        <!-- Auto Backup Settings -->
+    <string name="auto_backup_settings_title">Automatische Backups</string>
+    <string name="auto_backup_enable">Automatische Backups aktivieren</string>
+    <string name="auto_backup_frequency">Häufigkeit</string>
+    <string name="auto_backup_frequency_daily">Täglich</string>
+    <string name="auto_backup_frequency_two_days">Alle 2 Tage</string>
+    <string name="auto_backup_frequency_weekly">Wöchentlich</string>
+    <string name="auto_backup_frequency_monthly">Monatlich</string>
+    <string name="auto_backup_type">Backup-Typ</string>
+    <string name="auto_backup_type_local">Lokal</string>
+    <string name="auto_backup_type_cloud">Cloud</string>
+    <string name="auto_backup_time">Backup-Zeit</string>
+</resources>
 

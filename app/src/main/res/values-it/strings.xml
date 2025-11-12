@@ -712,7 +712,19 @@
     <string name="weekday_header_color_wednesday">Colore intestazione (Mercoledì)</string>
     <string name="weekday_header_color_thursday">Colore intestazione (Giovedì)</string>
     <string name="weekday_header_color_friday">Colore intestazione (Venerdì)</string>
-    <string name="weekday_header_color_saturday">Colore intestazione (Sabato)</string>
-    </resources>
-
+        <string name="weekday_header_color_saturday">Colore intestazione (Sabato)</string>
+        <string name="invalid_date">Data non valida</string>
+        <!-- Auto Backup Settings -->
+    <string name="auto_backup_settings_title">Backup Automatici</string>
+    <string name="auto_backup_enable">Abilita backup automatici</string>
+    <string name="auto_backup_frequency">Frequenza</string>
+    <string name="auto_backup_frequency_daily">Quotidianamente</string>
+    <string name="auto_backup_frequency_two_days">Ogni 2 giorni</string>
+    <string name="auto_backup_frequency_weekly">Settimanalmente</string>
+    <string name="auto_backup_frequency_monthly">Mensilmente</string>
+    <string name="auto_backup_type">Tipo di backup</string>
+    <string name="auto_backup_type_local">Locale</string>
+    <string name="auto_backup_type_cloud">Cloud</string>
+    <string name="auto_backup_time">Ora del backup</string>
+</resources>
 

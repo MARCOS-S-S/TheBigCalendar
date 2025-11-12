@@ -712,7 +712,19 @@
     <string name="weekday_header_color_wednesday">ヘッダーの色（水曜日）</string>
     <string name="weekday_header_color_thursday">ヘッダーの色（木曜日）</string>
     <string name="weekday_header_color_friday">ヘッダーの色（金曜日）</string>
-    <string name="weekday_header_color_saturday">ヘッダーの色（土曜日）</string>
-    </resources>
-
+        <string name="weekday_header_color_saturday">ヘッダーの色（土曜日）</string>
+        <string name="invalid_date">無効な日付</string>
+        <!-- Auto Backup Settings -->
+    <string name="auto_backup_settings_title">自動バックアップ</string>
+    <string name="auto_backup_enable">自動バックアップを有効にする</string>
+    <string name="auto_backup_frequency">頻度</string>
+    <string name="auto_backup_frequency_daily">毎日</string>
+    <string name="auto_backup_frequency_two_days">2日ごと</string>
+    <string name="auto_backup_frequency_weekly">毎週</string>
+    <string name="auto_backup_frequency_monthly">毎月</string>
+    <string name="auto_backup_type">バックアップの種類</string>
+    <string name="auto_backup_type_local">ローカル</string>
+    <string name="auto_backup_type_cloud">クラウド</string>
+    <string name="auto_backup_time">バックアップ時間</string>
+</resources>
 

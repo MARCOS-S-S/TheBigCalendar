@@ -712,7 +712,19 @@
     <string name="weekday_header_color_wednesday">标题颜色（星期三）</string>
     <string name="weekday_header_color_thursday">标题颜色（星期四）</string>
     <string name="weekday_header_color_friday">标题颜色（星期五）</string>
-    <string name="weekday_header_color_saturday">标题颜色（星期六）</string>
-    </resources>
-
+        <string name="weekday_header_color_saturday">标题颜色（星期六）</string>
+        <string name="invalid_date">无效日期</string>
+        <!-- Auto Backup Settings -->
+    <string name="auto_backup_settings_title">自动备份</string>
+    <string name="auto_backup_enable">启用自动备份</string>
+    <string name="auto_backup_frequency">频率</string>
+    <string name="auto_backup_frequency_daily">每天</string>
+    <string name="auto_backup_frequency_two_days">每2天</string>
+    <string name="auto_backup_frequency_weekly">每周</string>
+    <string name="auto_backup_frequency_monthly">每月</string>
+    <string name="auto_backup_type">备份类型</string>
+    <string name="auto_backup_type_local">本地</string>
+    <string name="auto_backup_type_cloud">云端</string>
+    <string name="auto_backup_time">备份时间</string>
+</resources>
 
