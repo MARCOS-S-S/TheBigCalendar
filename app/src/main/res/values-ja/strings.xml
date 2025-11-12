@@ -134,7 +134,6 @@
     <string name="local_backup">ローカルバックアップ</string>
     <string name="local_backup_description">デバイスストレージにデータを保存</string>
     <string name="cloud_backup">クラウドバックアップ</string>
-    <string name="cloud_backup_description">クラウドにデータを保存（近日公開）</string>
     <string name="backup_limitations_info">⚠️ 現在の制限：\n• 独立したアラームはバックアップに含まれません\n• 繰り返しアクティビティの通知は復元後に手動で再スケジュールする必要があります。</string>
     <string name="local_backups_list">ローカルバックアップ</string>
     <string name="no_backups_yet">バックアップが見つかりません</string>
@@ -672,7 +671,48 @@
     <string name="color_dark_orange">濃いオレンジ</string>
     <string name="color_dark_brown">濃い茶色</string>
     <string name="color_blue_gray">青灰色</string>
-    <string name="color_custom">カスタム</string>
-</resources>
+        <string name="color_custom">カスタム</string>
+    
+        <!-- Cloud Backup Strings -->
+        <string name="cloud_backup_description">Googleドライブにデータをバックアップします。</string>
+        <string name="cloud_backups_list">クラウドバックアップ</string>
+        <string name="no_cloud_backups_yet">まだクラウドバックアップはありません</string>
+        <string name="no_cloud_backups_description">Googleにログインして、最初のクラウドバックアップを作成してください。</string>
+        <string name="login_to_see_cloud_backups">ログインしてクラウドバックアップを表示</string>
+        <string name="login_to_see_cloud_backups_description">Googleアカウントを接続して、クラウドバックアップにアクセスし、管理します。</string>
+        <string name="creating_backup">バックアップを作成中...</string>
+        <string name="restoring_backup">バックアップを復元中...</string>
+        <string name="cloud_backup_success">クラウドバックアップが正常に作成されました。</string>
+        <string name="cloud_backup_failed">クラウドバックアップの作成に失敗しました: %s</string>
+        <string name="restore_success">%sから復元しました</string>
+        <string name="restore_failed">復元に失敗しました: %s</string>
+        <string name="list_cloud_backups_failed">クラウドバックアップのリスト表示に失敗しました: %s</string>
+        <string name="delete_cloud_backup_failed">クラウドバックアップの削除に失敗しました: %s</string>
+        <string name="restore_cloud_backup_confirmation_message">バックアップ「%1$s」を復元してもよろしいですか？この操作は、現在のすべてのアプリケーションデータを置き換えます。</string>
+        <string name="cloud_backup_info_details">アクティビティ%1$d件、ゴミ箱に%2$d件</string>
+        <string name="backup_date_time_format">yyyy/MM/dd HH:mm</string>
+    <string name="restore_backup_confirmation_message_cloud">バックアップ「%s」を復元すると、現在のすべてのアプリケーションデータが置き換えられます。続行しますか？</string>
+    <string name="delete_backup_confirmation_message_cloud">Googleドライブからバックアップ「%s」を削除してもよろしいですか？この操作は元に戻せません。</string>
+    <string name="show_lines_in_day_cells">日付セルに線を表示</string>
+    <string name="share">共有</string>
+    <string name="open_pdf">PDFを開く</string>
+    <string name="weekday_abbreviation_title">曜日の略語</string>
+    <string name="page_size_a4">A4</string>
+    <string name="page_size_a3">A3</string>
+    <string name="month_year_format_full">yyyy年MMMM</string>
+    <string name="color_sundays">日曜日の色</string>
+    <string name="sunday_color">日曜日の色</string>
+    <string name="color_saturdays">土曜日の色</string>
+    <string name="saturday_color">土曜日の色</string>
+    <string name="include_notes_page">ノートページを含める</string>
+    <string name="color_weekday_header_background">曜日のヘッダー背景を色付け</string>
+    <string name="weekday_header_color_sunday">ヘッダーの色（日曜日）</string>
+    <string name="weekday_header_color_monday">ヘッダーの色（月曜日）</string>
+    <string name="weekday_header_color_tuesday">ヘッダーの色（火曜日）</string>
+    <string name="weekday_header_color_wednesday">ヘッダーの色（水曜日）</string>
+    <string name="weekday_header_color_thursday">ヘッダーの色（木曜日）</string>
+    <string name="weekday_header_color_friday">ヘッダーの色（金曜日）</string>
+    <string name="weekday_header_color_saturday">ヘッダーの色（土曜日）</string>
+    </resources>
 
 

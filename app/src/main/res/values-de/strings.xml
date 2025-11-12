@@ -134,7 +134,6 @@
     <string name="local_backup">Lokales Backup</string>
     <string name="local_backup_description">Daten im Gerätespeicher speichern</string>
     <string name="cloud_backup">Cloud-Backup</string>
-    <string name="cloud_backup_description">Daten in der Cloud speichern (demnächst verfügbar)</string>
     <string name="backup_limitations_info">⚠️ Aktuelle Einschränkungen:\n• Unabhängige Alarme sind nicht im Backup enthalten\n• Benachrichtigungen für wiederkehrende Aktivitäten müssen nach der Wiederherstellung manuell neu geplant werden.</string>
     <string name="local_backups_list">Lokale Backups</string>
     <string name="no_backups_yet">Keine Backups gefunden</string>
@@ -672,7 +671,48 @@
     <string name="color_dark_orange">Dunkelorange</string>
     <string name="color_dark_brown">Dunkelbraun</string>
     <string name="color_blue_gray">Blaugrau</string>
-    <string name="color_custom">Benutzerdefiniert</string>
-</resources>
+        <string name="color_custom">Benutzerdefiniert</string>
+    
+        <!-- Cloud Backup Strings -->
+        <string name="cloud_backup_description">Sichern Sie Ihre Daten auf Google Drive.</string>
+        <string name="cloud_backups_list">Cloud-Backups</string>
+        <string name="no_cloud_backups_yet">Noch keine Cloud-Backups vorhanden</string>
+        <string name="no_cloud_backups_description">Melden Sie sich bei Google an und erstellen Sie Ihr erstes Cloud-Backup.</string>
+        <string name="login_to_see_cloud_backups">Anmelden, um Cloud-Backups zu sehen</string>
+        <string name="login_to_see_cloud_backups_description">Verbinden Sie Ihr Google-Konto, um auf Ihre Cloud-Backups zuzugreifen und sie zu verwalten.</string>
+        <string name="creating_backup">Backup wird erstellt...</string>
+        <string name="restoring_backup">Backup wird wiederhergestellt...</string>
+        <string name="cloud_backup_success">Cloud-Backup erfolgreich erstellt.</string>
+        <string name="cloud_backup_failed">Fehler beim Erstellen des Cloud-Backups: %s</string>
+        <string name="restore_success">Wiederhergestellt von %s</string>
+        <string name="restore_failed">Wiederherstellung fehlgeschlagen: %s</string>
+        <string name="list_cloud_backups_failed">Fehler beim Auflisten der Cloud-Backups: %s</string>
+        <string name="delete_cloud_backup_failed">Fehler beim Löschen des Cloud-Backups: %s</string>
+        <string name="restore_cloud_backup_confirmation_message">Sind Sie sicher, dass Sie das Backup \"%1$s\" wiederherstellen möchten? Diese Aktion ersetzt alle aktuellen Anwendungsdaten.</string>
+        <string name="cloud_backup_info_details">%1$d Aktivitäten, %2$d im Papierkorb</string>
+        <string name="backup_date_time_format">dd.MM.yyyy \'um\' HH:mm</string>
+    <string name="restore_backup_confirmation_message_cloud">Das Wiederherstellen des Backups \"%s\" ersetzt alle aktuellen Anwendungsdaten. Möchten Sie fortfahren?</string>
+    <string name="delete_backup_confirmation_message_cloud">Sind Sie sicher, dass Sie das Backup \"%s\" aus Google Drive löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="show_lines_in_day_cells">Linien in Tageszellen anzeigen</string>
+    <string name="share">Teilen</string>
+    <string name="open_pdf">PDF öffnen</string>
+    <string name="weekday_abbreviation_title">Abkürzung der Wochentage</string>
+    <string name="page_size_a4">A4</string>
+    <string name="page_size_a3">A3</string>
+    <string name="month_year_format_full">MMMM yyyy</string>
+    <string name="color_sundays">Sonntage färben</string>
+    <string name="sunday_color">Sonntagsfarbe</string>
+    <string name="color_saturdays">Samstage färben</string>
+    <string name="saturday_color">Samstagsfarbe</string>
+    <string name="include_notes_page">Notizseite einschließen</string>
+    <string name="color_weekday_header_background">Hintergrund der Wochentag-Kopfzeile färben</string>
+    <string name="weekday_header_color_sunday">Kopfzeilenfarbe (Sonntag)</string>
+    <string name="weekday_header_color_monday">Kopfzeilenfarbe (Montag)</string>
+    <string name="weekday_header_color_tuesday">Kopfzeilenfarbe (Dienstag)</string>
+    <string name="weekday_header_color_wednesday">Kopfzeilenfarbe (Mittwoch)</string>
+    <string name="weekday_header_color_thursday">Kopfzeilenfarbe (Donnerstag)</string>
+    <string name="weekday_header_color_friday">Kopfzeilenfarbe (Freitag)</string>
+    <string name="weekday_header_color_saturday">Kopfzeilenfarbe (Samstag)</string>
+    </resources>
 
 

@@ -134,7 +134,6 @@
     <string name="local_backup">Sauvegarde Locale</string>
     <string name="local_backup_description">Sauvegarder les données dans le stockage de l\'appareil</string>
     <string name="cloud_backup">Sauvegarde Cloud</string>
-    <string name="cloud_backup_description">Sauvegarder les données dans le cloud (bientôt disponible)</string>
     <string name="backup_limitations_info">⚠️ Limitations actuelles :\n• Les alarmes indépendantes ne sont pas incluses dans la sauvegarde\n• Les notifications d\'activités récurrentes doivent être reprogrammées manuellement après la restauration.</string>
     <string name="local_backups_list">Sauvegardes Locales</string>
     <string name="no_backups_yet">Aucune sauvegarde trouvée</string>
@@ -673,6 +672,45 @@
     <string name="color_dark_brown">Marron foncé</string>
     <string name="color_blue_gray">Gris bleu</string>
     <string name="color_custom">Personnalisé</string>
+
+    <!-- Cloud Backup Strings -->
+    <string name="cloud_backup_description">Sauvegardez vos données sur Google Drive.</string>
+    <string name="cloud_backups_list">Sauvegardes Cloud</string>
+    <string name="no_cloud_backups_yet">Aucune sauvegarde cloud pour le moment</string>
+    <string name="no_cloud_backups_description">Connectez-vous à Google et créez votre première sauvegarde cloud.</string>
+    <string name="login_to_see_cloud_backups">Connectez-vous pour voir les sauvegardes cloud</string>
+    <string name="login_to_see_cloud_backups_description">Connectez votre compte Google pour accéder et gérer vos sauvegardes cloud.</string>
+    <string name="creating_backup">Création de la sauvegarde...</string>
+    <string name="restoring_backup">Restauration de la sauvegarde...</string>
+    <string name="cloud_backup_success">Sauvegarde cloud créée avec succès.</string>
+    <string name="cloud_backup_failed">Échec de la création de la sauvegarde cloud : %s</string>
+    <string name="restore_success">Restauré depuis %s</string>
+    <string name="restore_failed">Échec de la restauration : %s</string>
+    <string name="list_cloud_backups_failed">Échec de la liste des sauvegardes cloud : %s</string>
+    <string name="delete_cloud_backup_failed">Échec de la suppression de la sauvegarde cloud : %s</string>
+    <string name="restore_cloud_backup_confirmation_message">Êtes-vous sûr de vouloir restaurer la sauvegarde \"%1$s\" ? Cette action remplacera toutes les données actuelles de l\'application.</string>
+    <string name="cloud_backup_info_details">%1$d activités, %2$d dans la corbeille</string>
+    <string name="backup_date_time_format">dd/MM/yyyy \'à\' HH:mm</string>
+    <string name="restore_backup_confirmation_message_cloud">La restauration de la sauvegarde \"%s\" remplacera toutes les données actuelles de l\'application. Souhaitez-vous continuer ?</string>
+    <string name="delete_backup_confirmation_message_cloud">Êtes-vous sûr de vouloir supprimer la sauvegarde \"%s\" de Google Drive ? Cette action est irréversible.</string>
+    <string name="show_lines_in_day_cells">Afficher les lignes dans les cellules des jours</string>
+    <string name="share">Partager</string>
+    <string name="open_pdf">Ouvrir le PDF</string>
+    <string name="weekday_abbreviation_title">Abréviation des jours de la semaine</string>
+    <string name="page_size_a4">A4</string>
+    <string name="page_size_a3">A3</string>
+    <string name="month_year_format_full">MMMM yyyy</string>
+    <string name="color_sundays">Colorer les dimanches</string>
+    <string name="sunday_color">Couleur du dimanche</string>
+    <string name="color_saturdays">Colorer les samedis</string>
+    <string name="saturday_color">Couleur du samedi</string>
+    <string name="include_notes_page">Inclure une page de notes</string>
+    <string name="color_weekday_header_background">Colorer l\'arrière-plan de l\'en-tête des jours de la semaine</string>
+    <string name="weekday_header_color_sunday">Couleur de l\'en-tête (Dimanche)</string>
+    <string name="weekday_header_color_monday">Couleur de l\'en-tête (Lundi)</string>
+    <string name="weekday_header_color_tuesday">Couleur de l\'en-tête (Mardi)</string>
+    <string name="weekday_header_color_wednesday">Couleur de l\'en-tête (Mercredi)</string>
+    <string name="weekday_header_color_thursday">Couleur de l\'en-tête (Jeudi)</string>
+    <string name="weekday_header_color_friday">Couleur de l\'en-tête (Vendredi)</string>
+    <string name="weekday_header_color_saturday">Couleur de l\'en-tête (Samedi)</string>
 </resources>
-
-

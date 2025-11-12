@@ -134,7 +134,6 @@
     <string name="local_backup">Local Backup</string>
     <string name="local_backup_description">Save data to device storage</string>
     <string name="cloud_backup">Cloud Backup</string>
-    <string name="cloud_backup_description">Save data to cloud (coming soon)</string>
     <string name="backup_limitations_info">⚠️ Current limitations:\n• Independent alarms are not included in backup\n• Recurring activity notifications need to be manually rescheduled after restoration.</string>
     <string name="local_backups_list">Local Backups</string>
     <string name="no_backups_yet">No backups found</string>
@@ -676,4 +675,41 @@
     <string name="sunday_color">Sunday Color</string>
     <string name="color_saturdays">Color Saturdays</string>
     <string name="saturday_color">Saturday Color</string>
+
+    <!-- Cloud Backup Strings -->
+    <string name="cloud_backup_description">Back up your data to Google Drive.</string>
+    <string name="cloud_backups_list">Cloud Backups</string>
+    <string name="no_cloud_backups_yet">No cloud backups yet</string>
+    <string name="no_cloud_backups_description">Log in to Google and create your first cloud backup.</string>
+    <string name="login_to_see_cloud_backups">Log in to see cloud backups</string>
+    <string name="login_to_see_cloud_backups_description">Connect your Google account to access and manage your cloud backups.</string>
+    <string name="creating_backup">Creating backup...</string>
+    <string name="restoring_backup">Restoring backup...</string>
+    <string name="cloud_backup_success">Cloud backup created successfully.</string>
+    <string name="cloud_backup_failed">Failed to create cloud backup: %s</string>
+    <string name="restore_success">Restored from %s</string>
+    <string name="restore_failed">Restore failed: %s</string>
+    <string name="list_cloud_backups_failed">Failed to list cloud backups: %s</string>
+    <string name="delete_cloud_backup_failed">Failed to delete cloud backup: %s</string>
+    <string name="restore_cloud_backup_confirmation_message">Are you sure you want to restore the backup \"%1$s\"? This action will replace all current application data.</string>
+    <string name="cloud_backup_info_details">%1$d activities, %2$d in trash</string>
+    <string name="backup_date_time_format">MM/dd/yyyy \'at\' HH:mm</string>
+    <string name="restore_backup_confirmation_message_cloud">Restoring the backup \"%s\" will replace all current application data. Do you wish to continue?</string>
+    <string name="delete_backup_confirmation_message_cloud">Are you sure you want to delete the backup \"%s\" from Google Drive? This action cannot be undone.</string>
+    <string name="show_lines_in_day_cells">Show lines in day cells</string>
+    <string name="share">Share</string>
+    <string name="open_pdf">Open PDF</string>
+    <string name="weekday_abbreviation_title">Weekday Abbreviation</string>
+    <string name="page_size_a4">A4</string>
+    <string name="page_size_a3">A3</string>
+    <string name="month_year_format_full">MMMM yyyy</string>
+    <string name="include_notes_page">Include notes page</string>
+    <string name="color_weekday_header_background">Color weekday header background</string>
+    <string name="weekday_header_color_sunday">Header color (Sunday)</string>
+    <string name="weekday_header_color_monday">Header color (Monday)</string>
+    <string name="weekday_header_color_tuesday">Header color (Tuesday)</string>
+    <string name="weekday_header_color_wednesday">Header color (Wednesday)</string>
+    <string name="weekday_header_color_thursday">Header color (Thursday)</string>
+    <string name="weekday_header_color_friday">Header color (Friday)</string>
+    <string name="weekday_header_color_saturday">Header color (Saturday)</string>
 </resources>

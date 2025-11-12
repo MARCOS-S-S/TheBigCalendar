@@ -134,7 +134,6 @@
     <string name="local_backup">Respaldo Local</string>
     <string name="local_backup_description">Guardar datos en el almacenamiento del dispositivo</string>
     <string name="cloud_backup">Respaldo en la Nube</string>
-    <string name="cloud_backup_description">Guardar datos en la nube (próximamente)</string>
     <string name="backup_limitations_info">⚠️ Limitaciones actuales:\n• Las alarmas independientes no se incluyen en el respaldo\n• Las notificaciones de actividades recurrentes necesitan ser reagendadas manualmente después de la restauración.</string>
     <string name="local_backups_list">Respaldos Locales</string>
     <string name="no_backups_yet">No se encontraron respaldos</string>
@@ -672,6 +671,45 @@
     <string name="color_dark_brown">Marrón oscuro</string>
     <string name="color_blue_gray">Gris azulado</string>
     <string name="color_custom">Personalizado</string>
+
+    <!-- Cloud Backup Strings -->
+    <string name="cloud_backup_description">Haz una copia de seguridad de tus datos en Google Drive.</string>
+    <string name="cloud_backups_list">Copias de seguridad en la nube</string>
+    <string name="no_cloud_backups_yet">Aún no hay copias de seguridad en la nube</string>
+    <string name="no_cloud_backups_description">Inicia sesión en Google y crea tu primera copia de seguridad en la nube.</string>
+    <string name="login_to_see_cloud_backups">Inicia sesión para ver las copias de seguridad en la nube</string>
+    <string name="login_to_see_cloud_backups_description">Conecta tu cuenta de Google para acceder y gestionar tus copias de seguridad en la nube.</string>
+    <string name="creating_backup">Creando copia de seguridad...</string>
+    <string name="restoring_backup">Restaurando copia de seguridad...</string>
+    <string name="cloud_backup_success">Copia de seguridad en la nube creada con éxito.</string>
+    <string name="cloud_backup_failed">Error al crear la copia de seguridad en la nube: %s</string>
+    <string name="restore_success">Restaurado desde %s</string>
+    <string name="restore_failed">Error en la restauración: %s</string>
+    <string name="list_cloud_backups_failed">Error al listar las copias de seguridad en la nube: %s</string>
+    <string name="delete_cloud_backup_failed">Error al eliminar la copia de seguridad en la nube: %s</string>
+    <string name="restore_cloud_backup_confirmation_message">¿Estás seguro de que quieres restaurar la copia de seguridad \"%1$s\"? Esta acción reemplazará todos los datos actuales de la aplicación.</string>
+    <string name="cloud_backup_info_details">%1$d actividades, %2$d en la papelera</string>
+    <string name="backup_date_time_format">dd/MM/yyyy \'a las\' HH:mm</string>
+    <string name="restore_backup_confirmation_message_cloud">Restaurar la copia de seguridad \"%s\" reemplazará todos los datos actuales de la aplicación. ¿Desea continuar?</string>
+    <string name="delete_backup_confirmation_message_cloud">¿Está seguro de que desea eliminar la copia de seguridad \"%s\" de Google Drive? Esta acción no se puede deshacer.</string>
+    <string name="show_lines_in_day_cells">Mostrar líneas en las celdas de los días</string>
+    <string name="share">Compartir</string>
+    <string name="open_pdf">Abrir PDF</string>
+    <string name="weekday_abbreviation_title">Abreviatura de los días de la semana</string>
+    <string name="page_size_a4">A4</string>
+    <string name="page_size_a3">A3</string>
+    <string name="month_year_format_full">MMMM yyyy</string>
+    <string name="color_sundays">Colorear domingos</string>
+    <string name="sunday_color">Color domingo</string>
+    <string name="color_saturdays">Colorear sábados</string>
+    <string name="saturday_color">Color sábado</string>
+    <string name="include_notes_page">Incluir hoja de notas</string>
+    <string name="color_weekday_header_background">Colorear fondo del encabezado de los días de la semana</string>
+    <string name="weekday_header_color_sunday">Color del encabezado (Domingo)</string>
+    <string name="weekday_header_color_monday">Color del encabezado (Lunes)</string>
+    <string name="weekday_header_color_tuesday">Color del encabezado (Martes)</string>
+    <string name="weekday_header_color_wednesday">Color del encabezado (Miércoles)</string>
+    <string name="weekday_header_color_thursday">Color del encabezado (Jueves)</string>
+    <string name="weekday_header_color_friday">Color del encabezado (Viernes)</string>
+    <string name="weekday_header_color_saturday">Color del encabezado (Sábado)</string>
 </resources>
-
-

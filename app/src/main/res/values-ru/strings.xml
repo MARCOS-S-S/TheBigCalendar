@@ -134,7 +134,6 @@
     <string name="local_backup">Локальная резервная копия</string>
     <string name="local_backup_description">Сохранить данные в хранилище устройства</string>
     <string name="cloud_backup">Облачная резервная копия</string>
-    <string name="cloud_backup_description">Сохранить данные в облаке (скоро)</string>
     <string name="backup_limitations_info">⚠️ Текущие ограничения:\n• Независимые будильники не включены в резервную копию\n• Уведомления о повторяющихся активностях необходимо перенастроить вручную после восстановления.</string>
     <string name="local_backups_list">Локальные резервные копии</string>
     <string name="no_backups_yet">Резервные копии не найдены</string>
@@ -672,7 +671,48 @@
     <string name="color_dark_orange">Темно-оранжевый</string>
     <string name="color_dark_brown">Темно-коричневый</string>
     <string name="color_blue_gray">Сине-серый</string>
-    <string name="color_custom">Пользовательский</string>
-</resources>
+        <string name="color_custom">Пользовательский</string>
+    
+        <!-- Cloud Backup Strings -->
+        <string name="cloud_backup_description">Создайте резервную копию ваших данных на Google Диске.</string>
+        <string name="cloud_backups_list">Облачные резервные копии</string>
+        <string name="no_cloud_backups_yet">Облачных резервных копий пока нет</string>
+        <string name="no_cloud_backups_description">Войдите в Google и создайте свою первую облачную резервную копию.</string>
+        <string name="login_to_see_cloud_backups">Войдите, чтобы увидеть облачные резервные копии</string>
+        <string name="login_to_see_cloud_backups_description">Подключите свою учетную запись Google для доступа и управления облачными резервными копиями.</string>
+        <string name="creating_backup">Создание резервной копии...</string>
+        <string name="restoring_backup">Восстановление резервной копии...</string>
+        <string name="cloud_backup_success">Облачная резервная копия успешно создана.</string>
+        <string name="cloud_backup_failed">Не удалось создать облачную резервную копию: %s</string>
+        <string name="restore_success">Восстановлено из %s</string>
+        <string name="restore_failed">Ошибка восстановления: %s</string>
+        <string name="list_cloud_backups_failed">Не удалось получить список облачных резервных копий: %s</string>
+        <string name="delete_cloud_backup_failed">Не удалось удалить облачную резервную копию: %s</string>
+        <string name="restore_cloud_backup_confirmation_message">Вы уверены, что хотите восстановить резервную копию \"%1$s\"? Это действие заменит все текущие данные приложения.</string>
+        <string name="cloud_backup_info_details">%1$d активностей, %2$d в корзине</string>
+        <string name="backup_date_time_format">dd.MM.yyyy \'в\' HH:mm</string>
+    <string name="restore_backup_confirmation_message_cloud">Восстановление резервной копии \"%s\" заменит все текущие данные приложения. Продолжить?</string>
+    <string name="delete_backup_confirmation_message_cloud">Вы уверены, что хотите удалить резервную копию \"%s\" из Google Диска? Это действие нельзя отменить.</string>
+    <string name="show_lines_in_day_cells">Показывать линии в ячейках дней</string>
+    <string name="share">Поделиться</string>
+    <string name="open_pdf">Открыть PDF</string>
+    <string name="weekday_abbreviation_title">Аббревиатура дней недели</string>
+    <string name="page_size_a4">A4</string>
+    <string name="page_size_a3">A3</string>
+    <string name="month_year_format_full">MMMM yyyy</string>
+    <string name="color_sundays">Цвет воскресений</string>
+    <string name="sunday_color">Цвет воскресенья</string>
+    <string name="color_saturdays">Цвет суббот</string>
+    <string name="saturday_color">Цвет субботы</string>
+    <string name="include_notes_page">Включить страницу для заметок</string>
+    <string name="color_weekday_header_background">Раскрасить фон заголовка дней недели</string>
+    <string name="weekday_header_color_sunday">Цвет заголовка (Воскресенье)</string>
+    <string name="weekday_header_color_monday">Цвет заголовка (Понедельник)</string>
+    <string name="weekday_header_color_tuesday">Цвет заголовка (Вторник)</string>
+    <string name="weekday_header_color_wednesday">Цвет заголовка (Среда)</string>
+    <string name="weekday_header_color_thursday">Цвет заголовка (Четверг)</string>
+    <string name="weekday_header_color_friday">Цвет заголовка (Пятница)</string>
+    <string name="weekday_header_color_saturday">Цвет заголовка (Суббота)</string>
+    </resources>
 
 

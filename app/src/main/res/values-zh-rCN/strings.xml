@@ -134,7 +134,6 @@
     <string name="local_backup">本地备份</string>
     <string name="local_backup_description">将数据保存到设备存储</string>
     <string name="cloud_backup">云备份</string>
-    <string name="cloud_backup_description">将数据保存到云端（即将推出）</string>
     <string name="backup_limitations_info">⚠️ 当前限制：\n• 独立闹钟不包含在备份中\n• 重复活动的通知需要在恢复后手动重新安排。</string>
     <string name="local_backups_list">本地备份</string>
     <string name="no_backups_yet">未找到备份</string>
@@ -672,7 +671,48 @@
     <string name="color_dark_orange">深橙色</string>
     <string name="color_dark_brown">深棕色</string>
     <string name="color_blue_gray">蓝灰色</string>
-    <string name="color_custom">自定义</string>
-</resources>
+        <string name="color_custom">自定义</string>
+    
+        <!-- Cloud Backup Strings -->
+        <string name="cloud_backup_description">将您的数据备份到Google云端硬盘。</string>
+        <string name="cloud_backups_list">云备份</string>
+        <string name="no_cloud_backups_yet">尚无云备份</string>
+        <string name="no_cloud_backups_description">登录Google并创建您的第一个云备份。</string>
+        <string name="login_to_see_cloud_backups">登录以查看云备份</string>
+        <string name="login_to_see_cloud_backups_description">连接您的Google帐户以访问和管理您的云备份。</string>
+        <string name="creating_backup">正在创建备份...</string>
+        <string name="restoring_backup">正在恢复备份...</string>
+        <string name="cloud_backup_success">云备份已成功创建。</string>
+        <string name="cloud_backup_failed">创建云备份失败: %s</string>
+        <string name="restore_success">已从%s恢复</string>
+        <string name="restore_failed">恢复失败: %s</string>
+        <string name="list_cloud_backups_failed">列出云备份失败: %s</string>
+        <string name="delete_cloud_backup_failed">删除云备份失败: %s</string>
+        <string name="restore_cloud_backup_confirmation_message">您确定要恢复备份“%1$s”吗？此操作将替换所有当前应用程序数据。</string>
+        <string name="cloud_backup_info_details">%1$d个活动，%2$d个在回收站中</string>
+        <string name="backup_date_time_format">yyyy/MM/dd HH:mm</string>
+    <string name="restore_backup_confirmation_message_cloud">恢复备份“%s”将替换所有当前应用程序数据。要继续吗？</string>
+    <string name="delete_backup_confirmation_message_cloud">您确定要从Google云端硬盘删除备份“%s”吗？此操作无法撤销。</string>
+    <string name="show_lines_in_day_cells">在日期单元格中显示线条</string>
+    <string name="share">分享</string>
+    <string name="open_pdf">打开PDF</string>
+    <string name="weekday_abbreviation_title">工作日缩写</string>
+    <string name="page_size_a4">A4</string>
+    <string name="page_size_a3">A3</string>
+    <string name="month_year_format_full">yyyy年MMMM</string>
+    <string name="color_sundays">为星期日着色</string>
+    <string name="sunday_color">星期日颜色</string>
+    <string name="color_saturdays">为星期六着色</string>
+    <string name="saturday_color">星期六颜色</string>
+    <string name="include_notes_page">包括笔记页面</string>
+    <string name="color_weekday_header_background">为工作日标题背景着色</string>
+    <string name="weekday_header_color_sunday">标题颜色（星期日）</string>
+    <string name="weekday_header_color_monday">标题颜色（星期一）</string>
+    <string name="weekday_header_color_tuesday">标题颜色（星期二）</string>
+    <string name="weekday_header_color_wednesday">标题颜色（星期三）</string>
+    <string name="weekday_header_color_thursday">标题颜色（星期四）</string>
+    <string name="weekday_header_color_friday">标题颜色（星期五）</string>
+    <string name="weekday_header_color_saturday">标题颜色（星期六）</string>
+    </resources>
 
 

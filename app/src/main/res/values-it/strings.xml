@@ -134,7 +134,6 @@
     <string name="local_backup">Backup Locale</string>
     <string name="local_backup_description">Salva dati nella memoria del dispositivo</string>
     <string name="cloud_backup">Backup Cloud</string>
-    <string name="cloud_backup_description">Salva dati nel cloud (in arrivo)</string>
     <string name="backup_limitations_info">⚠️ Limitazioni attuali:\n• Le sveglie indipendenti non sono incluse nel backup\n• Le notifiche per attività ricorrenti devono essere riprogrammate manualmente dopo il ripristino.</string>
     <string name="local_backups_list">Backup Locali</string>
     <string name="no_backups_yet">Nessun backup trovato</string>
@@ -672,7 +671,48 @@
     <string name="color_dark_orange">Arancione scuro</string>
     <string name="color_dark_brown">Marrone scuro</string>
     <string name="color_blue_gray">Grigio-blu</string>
-    <string name="color_custom">Personalizzato</string>
-</resources>
+        <string name="color_custom">Personalizzato</string>
+    
+        <!-- Cloud Backup Strings -->
+        <string name="cloud_backup_description">Esegui il backup dei tuoi dati su Google Drive.</string>
+        <string name="cloud_backups_list">Backup su cloud</string>
+        <string name="no_cloud_backups_yet">Nessun backup su cloud ancora</string>
+        <string name="no_cloud_backups_description">Accedi a Google e crea il tuo primo backup su cloud.</string>
+        <string name="login_to_see_cloud_backups">Accedi per vedere i backup su cloud</string>
+        <string name="login_to_see_cloud_backups_description">Collega il tuo account Google per accedere e gestire i tuoi backup su cloud.</string>
+        <string name="creating_backup">Creazione del backup...</string>
+        <string name="restoring_backup">Ripristino del backup...</string>
+        <string name="cloud_backup_success">Backup su cloud creato con successo.</string>
+        <string name="cloud_backup_failed">Creazione del backup su cloud non riuscita: %s</string>
+        <string name="restore_success">Ripristinato da %s</string>
+        <string name="restore_failed">Ripristino non riuscito: %s</string>
+        <string name="list_cloud_backups_failed">Elenco dei backup su cloud non riuscito: %s</string>
+        <string name="delete_cloud_backup_failed">Eliminazione del backup su cloud non riuscita: %s</string>
+        <string name="restore_cloud_backup_confirmation_message">Sei sicuro di voler ripristinare il backup \"%1$s\"? Questa azione sostituirà tutti i dati correnti dell\'applicazione.</string>
+        <string name="cloud_backup_info_details">%1$d attività, %2$d nel cestino</string>
+        <string name="backup_date_time_format">dd/MM/yyyy \'alle\' HH:mm</string>
+    <string name="restore_backup_confirmation_message_cloud">Il ripristino del backup \"%s\" sostituirà tutti i dati correnti dell\'applicazione. Desideri continuare?</string>
+    <string name="delete_backup_confirmation_message_cloud">Sei sicuro di voler eliminare il backup \"%s\" da Google Drive? Questa azione non può essere annullata.</string>
+    <string name="show_lines_in_day_cells">Mostra linee nelle celle dei giorni</string>
+    <string name="share">Condividi</string>
+    <string name="open_pdf">Apri PDF</string>
+    <string name="weekday_abbreviation_title">Abbreviazione dei giorni della settimana</string>
+    <string name="page_size_a4">A4</string>
+    <string name="page_size_a3">A3</string>
+    <string name="month_year_format_full">MMMM yyyy</string>
+    <string name="color_sundays">Colora domeniche</string>
+    <string name="sunday_color">Colore domenica</string>
+    <string name="color_saturdays">Colora sabati</string>
+    <string name="saturday_color">Colore sabato</string>
+    <string name="include_notes_page">Includi pagina note</string>
+    <string name="color_weekday_header_background">Colora sfondo intestazione giorni feriali</string>
+    <string name="weekday_header_color_sunday">Colore intestazione (Domenica)</string>
+    <string name="weekday_header_color_monday">Colore intestazione (Lunedì)</string>
+    <string name="weekday_header_color_tuesday">Colore intestazione (Martedì)</string>
+    <string name="weekday_header_color_wednesday">Colore intestazione (Mercoledì)</string>
+    <string name="weekday_header_color_thursday">Colore intestazione (Giovedì)</string>
+    <string name="weekday_header_color_friday">Colore intestazione (Venerdì)</string>
+    <string name="weekday_header_color_saturday">Colore intestazione (Sabato)</string>
+    </resources>
 
 
