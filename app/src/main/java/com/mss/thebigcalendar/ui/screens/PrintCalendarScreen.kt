@@ -88,6 +88,20 @@ fun PrintCalendarScreen(
     onGeneratePdf: (PrintOptions, (String) -> Unit) -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
+    val typefaceMap = remember {
+        try {
+            val fontFiles = context.assets.list("fonts") ?: emptyArray()
+            fontFiles.associateWith { filename ->
+                try {
+                    android.graphics.Typeface.createFromAsset(context.assets, "fonts/$filename")
+                } catch (e: Exception) {
+                    null
+                }
+            }.filterValues { it != null } as Map<String, android.graphics.Typeface>
+        } catch (e: java.io.IOException) {
+            emptyMap<String, android.graphics.Typeface>()
+        }
+    }
     var selectedMonth by remember { mutableStateOf(java.time.YearMonth.now()) }
     var includeTasks by remember { mutableStateOf(uiState.filterOptions.showTasks) }
     var includeHolidays by remember { mutableStateOf(uiState.filterOptions.showHolidays) }
@@ -2108,15 +2122,8 @@ fun PrintCalendarScreen(
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    
-                    val fontAssets = remember {
-                        try {
-                            context.assets.list("fonts")?.toList() ?: emptyList()
-                        } catch (e: java.io.IOException) {
-                            emptyList<String>() // Fallback
-                        }
-                    }
-                    val fontOptions = listOf("Default") + fontAssets
+
+                    val fontOptions = listOf("Default") + typefaceMap.keys.toList()
                     var isFontMenuExpanded by remember { mutableStateOf(false) }
 
                     Box {
@@ -2130,7 +2137,9 @@ fun PrintCalendarScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             val displayName = if (fontFamily == "Default") "Default" else fontFamily.substringBeforeLast('.').replace('-', ' ')
-                            Text(text = displayName)
+                            val selectedTypeface = if (fontFamily != "Default") typefaceMap[fontFamily] else null
+                            val selectedFontFamily = if (selectedTypeface != null) androidx.compose.ui.text.font.FontFamily(selectedTypeface) else androidx.compose.ui.text.font.FontFamily.Default
+                            Text(text = displayName, fontFamily = selectedFontFamily)
                             Icon(Icons.Default.ArrowDropDown, contentDescription = "Expandir")
                         }
 
@@ -2141,8 +2150,11 @@ fun PrintCalendarScreen(
                         ) {
                             fontOptions.forEach { fontFilename ->
                                 val displayName = if (fontFilename == "Default") "Default" else fontFilename.substringBeforeLast('.').replace('-', ' ')
+                                val typeface = if (fontFilename != "Default") typefaceMap[fontFilename] else null
+                                val itemFontFamily = if (typeface != null) androidx.compose.ui.text.font.FontFamily(typeface) else androidx.compose.ui.text.font.FontFamily.Default
+
                                 androidx.compose.material3.DropdownMenuItem(
-                                    text = { Text(displayName) },
+                                    text = { Text(displayName, fontFamily = itemFontFamily) },
                                     onClick = {
                                         fontFamily = fontFilename
                                         isFontMenuExpanded = false
@@ -2154,17 +2166,7 @@ fun PrintCalendarScreen(
                 }
             }
 
-            val selectedTypeface = remember(fontFamily) {
-                if (fontFamily != "Default") {
-                    try {
-                        android.graphics.Typeface.createFromAsset(context.assets, "fonts/$fontFamily")
-                    } catch (e: Exception) {
-                        null // Font not found or failed to load
-                    }
-                } else {
-                    null // Default font
-                }
-            }
+            val selectedTypeface = if (fontFamily != "Default") typefaceMap[fontFamily] else null
 
             androidx.compose.animation.AnimatedVisibility(visible = selectedTypeface != null) {
                 Column(modifier = Modifier.padding(top = 8.dp)) {
