@@ -62,6 +62,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.android.material.slider.Slider
 import androidx.compose.material3.Slider
 import com.mss.thebigcalendar.R
@@ -2108,7 +2109,6 @@ fun PrintCalendarScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     
-                    val context = androidx.compose.ui.platform.LocalContext.current
                     val fontAssets = remember {
                         try {
                             context.assets.list("fonts")?.toList() ?: emptyList()
@@ -2150,6 +2150,32 @@ fun PrintCalendarScreen(
                                 )
                             }
                         }
+                    }
+                }
+            }
+
+            val selectedTypeface = remember(fontFamily) {
+                if (fontFamily != "Default") {
+                    try {
+                        android.graphics.Typeface.createFromAsset(context.assets, "fonts/$fontFamily")
+                    } catch (e: Exception) {
+                        null // Font not found or failed to load
+                    }
+                } else {
+                    null // Default font
+                }
+            }
+
+            androidx.compose.animation.AnimatedVisibility(visible = selectedTypeface != null) {
+                Column(modifier = Modifier.padding(top = 8.dp)) {
+                    Text("Pré-visualização da fonte:", style = MaterialTheme.typography.labelSmall)
+                    Card(modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
+                        Text(
+                            text = "O céu está azul hoje.",
+                            fontFamily = androidx.compose.ui.text.font.FontFamily(selectedTypeface!!),
+                            fontSize = 20.sp,
+                            modifier = Modifier.padding(16.dp)
+                        )
                     }
                 }
             }
