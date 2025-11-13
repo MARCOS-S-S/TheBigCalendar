@@ -726,5 +726,34 @@
     <string name="auto_backup_type_local">Локальный</string>
     <string name="auto_backup_type_cloud">Облачный</string>
     <string name="auto_backup_time">Время резервного копирования</string>
+    <!-- CustomRepetitionScreen.kt -->
+    <string name="custom_repetition_hours">Часы</string>
+    <string name="custom_repetition_days">Дни</string>
+    <string name="custom_repetition_weeks">Недели</string>
+    <string name="custom_repetition_months">Месяцы</string>
+    <string name="custom_repetition_date_placeholder">ДД.ММ.ГГГГ</string>
+    <string name="custom_repetition_quantity">Количество</string>
+    <string name="custom_repetition_save_configuration">Сохранить настройки</string>
+
+    <string name="delete_json_calendar_title">🗑️ Удалить календарь</string>
+    <string name="remove">Удалить</string>
+
+    <string name="language_selection_title">Выберите язык</string>
+
+    <string name="allow">Разрешить</string>
+    <string name="not_now">Не сейчас</string>
+
+    <string name="no_description">Нет описания</string>
+    <string name="high_visibility_notification">Уведомление высокой важности</string>
+
+    <string name="at_time_conjunction"> в </string>
+
+    <string name="high_visibility_notification_active">Уведомление высокой важности активно</string>
+
+    <string name="backup_success_notification">Резервное копирование типа %1$s выполнено успешно.</string>
+    <string name="backup_failed_notification">Ошибка резервного копирования типа %1$s: %2$s</string>
+
+    <string name="font_preview">Предпросмотр шрифта:</string>
+    <string name="font_selected">Выбранный шрифт</string>
 </resources>
 

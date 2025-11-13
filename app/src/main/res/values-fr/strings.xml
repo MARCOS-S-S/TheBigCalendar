@@ -726,4 +726,41 @@
     <string name="auto_backup_type_local">Local</string>
     <string name="auto_backup_type_cloud">Cloud</string>
     <string name="auto_backup_time">Heure de la sauvegarde</string>
+    <!-- CustomRepetitionScreen.kt -->
+    <string name="custom_repetition_hours">Heures</string>
+    <string name="custom_repetition_days">Jours</string>
+    <string name="custom_repetition_weeks">Semaines</string>
+    <string name="custom_repetition_months">Mois</string>
+    <string name="custom_repetition_date_placeholder">JJ/MM/AAAA</string>
+    <string name="custom_repetition_quantity">Quantité</string>
+    <string name="custom_repetition_save_configuration">Enregistrer la configuration</string>
+
+    <!-- DeleteJsonCalendarDialog.kt -->
+    <string name="delete_json_calendar_title">🗑️ Supprimer le calendrier</string>
+    <string name="remove">Supprimer</string>
+
+    <!-- LanguageSelectionDialog.kt -->
+    <string name="language_selection_title">Sélectionner la langue</string>
+
+    <!-- BackgroundPermissionDialog.kt -->
+    <string name="allow">Autoriser</string>
+    <string name="not_now">Pas maintenant</string>
+
+    <!-- VisibilityService.kt -->
+    <string name="no_description">Aucune description</string>
+    <string name="high_visibility_notification">Notification à haute visibilité</string>
+
+    <!-- AlarmService.kt -->
+    <string name="at_time_conjunction"> à </string>
+
+    <!-- HighVisibilityNotificationService.kt -->
+    <string name="high_visibility_notification_active">Notification à haute visibilité active</string>
+
+    <!-- NotificationService.kt -->
+    <string name="backup_success_notification">Sauvegarde de type %1$s terminée avec succès.</string>
+    <string name="backup_failed_notification">La sauvegarde de type %1$s a échoué : %2$s</string>
+
+    <!-- PrintCalendarScreen.kt -->
+    <string name="font_preview">Aperçu de la police :</string>
+    <string name="font_selected">Police sélectionnée</string>
 </resources>

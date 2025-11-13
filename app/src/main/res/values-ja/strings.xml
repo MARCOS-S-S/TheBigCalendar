@@ -726,5 +726,34 @@
     <string name="auto_backup_type_local">ローカル</string>
     <string name="auto_backup_type_cloud">クラウド</string>
     <string name="auto_backup_time">バックアップ時間</string>
+    <!-- CustomRepetitionScreen.kt -->
+    <string name="custom_repetition_hours">時間</string>
+    <string name="custom_repetition_days">日</string>
+    <string name="custom_repetition_weeks">週間</string>
+    <string name="custom_repetition_months">ヶ月</string>
+    <string name="custom_repetition_date_placeholder">YYYY/MM/DD</string>
+    <string name="custom_repetition_quantity">数量</string>
+    <string name="custom_repetition_save_configuration">設定を保存</string>
+
+    <string name="delete_json_calendar_title">🗑️ カレンダーを削除</string>
+    <string name="remove">削除</string>
+
+    <string name="language_selection_title">言語を選択</string>
+
+    <string name="allow">許可</string>
+    <string name="not_now">今はしない</string>
+
+    <string name="no_description">説明なし</string>
+    <string name="high_visibility_notification">視認性の高い通知</string>
+
+    <string name="at_time_conjunction"> に </string>
+
+    <string name="high_visibility_notification_active">視認性の高い通知が有効です</string>
+
+    <string name="backup_success_notification">%1$s のバックアップが完了しました。</string>
+    <string name="backup_failed_notification">%1$s のバックアップに失敗しました: %2$s</string>
+
+    <string name="font_preview">フォントのプレビュー:</string>
+    <string name="font_selected">選択されたフォント</string>
 </resources>
 

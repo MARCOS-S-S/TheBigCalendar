@@ -726,5 +726,34 @@
     <string name="auto_backup_type_local">Locale</string>
     <string name="auto_backup_type_cloud">Cloud</string>
     <string name="auto_backup_time">Ora del backup</string>
+    <!-- CustomRepetitionScreen.kt -->
+    <string name="custom_repetition_hours">Ore</string>
+    <string name="custom_repetition_days">Giorni</string>
+    <string name="custom_repetition_weeks">Settimane</string>
+    <string name="custom_repetition_months">Mesi</string>
+    <string name="custom_repetition_date_placeholder">GG/MM/AAAA</string>
+    <string name="custom_repetition_quantity">Quantità</string>
+    <string name="custom_repetition_save_configuration">Salva configurazione</string>
+
+    <string name="delete_json_calendar_title">🗑️ Rimuovi calendario</string>
+    <string name="remove">Rimuovi</string>
+
+    <string name="language_selection_title">Seleziona lingua</string>
+
+    <string name="allow">Consenti</string>
+    <string name="not_now">Non ora</string>
+
+    <string name="no_description">Nessuna descrizione</string>
+    <string name="high_visibility_notification">Notifica ad alta visibilità</string>
+
+    <string name="at_time_conjunction"> alle </string>
+
+    <string name="high_visibility_notification_active">Notifica ad alta visibilità attiva</string>
+
+    <string name="backup_success_notification">Backup di tipo %1$s completato con successo.</string>
+    <string name="backup_failed_notification">Backup di tipo %1$s fallito: %2$s</string>
+
+    <string name="font_preview">Anteprima font:</string>
+    <string name="font_selected">Font selezionato</string>
 </resources>
 

@@ -726,5 +726,34 @@
     <string name="auto_backup_type_local">本地</string>
     <string name="auto_backup_type_cloud">云端</string>
     <string name="auto_backup_time">备份时间</string>
+    <!-- CustomRepetitionScreen.kt -->
+    <string name="custom_repetition_hours">小时</string>
+    <string name="custom_repetition_days">天</string>
+    <string name="custom_repetition_weeks">周</string>
+    <string name="custom_repetition_months">月</string>
+    <string name="custom_repetition_date_placeholder">YYYY/MM/DD</string>
+    <string name="custom_repetition_quantity">数量</string>
+    <string name="custom_repetition_save_configuration">保存配置</string>
+    <!-- DeleteJsonCalendarDialog.kt -->
+    <string name="delete_json_calendar_title">🗑️ 删除日历</string>
+    <string name="remove">删除</string>
+    <!-- LanguageSelectionDialog.kt -->
+    <string name="language_selection_title">选择语言</string>
+    <!-- BackgroundPermissionDialog.kt -->
+    <string name="allow">允许</string>
+    <string name="not_now">暂不</string>
+    <!-- VisibilityService.kt -->
+    <string name="no_description">无描述</string>
+    <string name="high_visibility_notification">高可见性通知</string>
+    <!-- AlarmService.kt -->
+    <string name="at_time_conjunction"> </string>
+    <!-- HighVisibilityNotificationService.kt -->
+    <string name="high_visibility_notification_active">高可见性通知已激活</string>
+    <!-- NotificationService.kt -->
+    <string name="backup_success_notification">%1$s 备份成功。</string>
+    <string name="backup_failed_notification">%1$s 备份失败：%2$s</string>
+    <!-- PrintCalendarScreen.kt -->
+    <string name="font_preview">字体预览：</string>
+    <string name="font_selected">已选字体</string>
 </resources>
 

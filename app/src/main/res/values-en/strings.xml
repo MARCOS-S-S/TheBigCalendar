@@ -725,4 +725,41 @@
     <string name="auto_backup_type_local">Local</string>
     <string name="auto_backup_type_cloud">Cloud</string>
     <string name="auto_backup_time">Backup time</string>
+    <!-- CustomRepetitionScreen.kt -->
+    <string name="custom_repetition_hours">Hours</string>
+    <string name="custom_repetition_days">Days</string>
+    <string name="custom_repetition_weeks">Weeks</string>
+    <string name="custom_repetition_months">Months</string>
+    <string name="custom_repetition_date_placeholder">MM/DD/YYYY</string>
+    <string name="custom_repetition_quantity">Quantity</string>
+    <string name="custom_repetition_save_configuration">Save Configuration</string>
+
+    <!-- DeleteJsonCalendarDialog.kt -->
+    <string name="delete_json_calendar_title">🗑️ Remove Calendar</string>
+    <string name="remove">Remove</string>
+
+    <!-- LanguageSelectionDialog.kt -->
+    <string name="language_selection_title">Select Language</string>
+
+    <!-- BackgroundPermissionDialog.kt -->
+    <string name="allow">Allow</string>
+    <string name="not_now">Not now</string>
+
+    <!-- VisibilityService.kt -->
+    <string name="no_description">No description</string>
+    <string name="high_visibility_notification">High visibility notification</string>
+
+    <!-- AlarmService.kt -->
+    <string name="at_time_conjunction"> at </string>
+
+    <!-- HighVisibilityNotificationService.kt -->
+    <string name="high_visibility_notification_active">High visibility notification active</string>
+
+    <!-- NotificationService.kt -->
+    <string name="backup_success_notification">Backup of type %1$s completed successfully.</string>
+    <string name="backup_failed_notification">Backup of type %1$s failed: %2$s</string>
+
+    <!-- PrintCalendarScreen.kt -->
+    <string name="font_preview">Font preview:</string>
+    <string name="font_selected">Selected Font</string>
 </resources>
