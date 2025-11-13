@@ -412,13 +412,26 @@ class PdfGenerationService {
             // Dias do mês atual
             val backgroundColor = convertComposeColorToITextColor(printOptions.backgroundColor)
             cell.setBackgroundColor(backgroundColor)
-            
-            val dayNumberColor = if (printOptions.colorDayNumbersByEvents) {
-                getDayNumberColor(date, activities, holidays, jsonHolidays, printOptions)
-            } else {
-                com.itextpdf.kernel.colors.ColorConstants.BLACK
+
+            val dayNumberColor = when {
+                // Prioridade 1: Colorir domingos se a opção estiver ativa
+                printOptions.colorSundays && date.dayOfWeek == java.time.DayOfWeek.SUNDAY -> {
+                    convertComposeColorToITextColor(printOptions.sundayColor)
+                }
+                // Prioridade 2: Colorir sábados se a opção estiver ativa
+                printOptions.colorSaturdays && date.dayOfWeek == java.time.DayOfWeek.SATURDAY -> {
+                    convertComposeColorToITextColor(printOptions.saturdayColor)
+                }
+                // Lógica existente para colorir por eventos
+                printOptions.colorDayNumbersByEvents -> {
+                    getDayNumberColor(date, activities, holidays, jsonHolidays, printOptions)
+                }
+                // Cor padrão
+                else -> {
+                    com.itextpdf.kernel.colors.ColorConstants.BLACK
+                }
             }
-            
+
             val dayParagraph = Paragraph(date.dayOfMonth.toString())
                 .setFont(dayFont)
                 .setFontSize(printOptions.dayNumberFontSize.size)
