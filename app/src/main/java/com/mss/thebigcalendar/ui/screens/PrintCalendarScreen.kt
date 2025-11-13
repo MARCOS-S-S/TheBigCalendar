@@ -87,14 +87,14 @@ fun PrintCalendarScreen(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     var selectedMonth by remember { mutableStateOf(java.time.YearMonth.now()) }
-    var includeTasks by remember { mutableStateOf(true) }
-    var includeHolidays by remember { mutableStateOf(true) }
-    var includeSaintDays by remember { mutableStateOf(true) }
-    var includeEvents by remember { mutableStateOf(true) }
-    var includeBirthdays by remember { mutableStateOf(true) }
-    var includeNotes by remember { mutableStateOf(true) }
-    var includeMoonPhases by remember { mutableStateOf(false) }
-    var includeCompletedTasks by remember { mutableStateOf(false) }
+    var includeTasks by remember { mutableStateOf(uiState.filterOptions.showTasks) }
+    var includeHolidays by remember { mutableStateOf(uiState.filterOptions.showHolidays) }
+    var includeSaintDays by remember { mutableStateOf(uiState.filterOptions.showSaintDays) }
+    var includeEvents by remember { mutableStateOf(uiState.filterOptions.showEvents) }
+    var includeBirthdays by remember { mutableStateOf(uiState.filterOptions.showBirthdays) }
+    var includeNotes by remember { mutableStateOf(uiState.filterOptions.showNotes) }
+    var includeMoonPhases by remember { mutableStateOf(uiState.showMoonPhases) }
+    var includeCompletedTasks by remember { mutableStateOf(uiState.showCompletedActivities) }
     var orientation by remember { mutableStateOf(PageOrientation.PORTRAIT) }
     var pageSize by remember { mutableStateOf(PageSize.A4) }
     var hideOtherMonthDays by remember { mutableStateOf(false) }
