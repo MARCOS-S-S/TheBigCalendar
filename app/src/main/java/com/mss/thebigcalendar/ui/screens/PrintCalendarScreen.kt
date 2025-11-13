@@ -2116,7 +2116,7 @@ fun PrintCalendarScreen(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "Fonte do Calendário",
+                        stringResource(id = R.string.font_selected),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -2170,7 +2170,7 @@ fun PrintCalendarScreen(
 
             androidx.compose.animation.AnimatedVisibility(visible = selectedTypeface != null) {
                 Column(modifier = Modifier.padding(top = 8.dp)) {
-                    Text("Pré-visualização da fonte:", style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(id = R.string.font_preview), style = MaterialTheme.typography.labelSmall)
                     Card(modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
                         Text(
                             text = "O céu está azul hoje.",
@@ -2465,7 +2465,7 @@ fun PrintCalendarScreen(
                             modifier = Modifier.size(16.dp),
                             strokeWidth = 2.dp
                         )
-                        Text("Gerando PDF...")
+                        Text(stringResource(id = R.string.generating_pdf))
                     }
                 } else {
                     Text(stringResource(id = R.string.generate_pdf))

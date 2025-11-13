@@ -4,6 +4,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.mss.thebigcalendar.R
 
 /**
  * Dialog para solicitar permissão de segundo plano contextualmente
@@ -17,7 +19,7 @@ fun BackgroundPermissionDialog(
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = { 
-            Text("🔔 Permissão Necessária") 
+            Text(stringResource(id = R.string.permission_required_title))
         },
         text = { 
             Text(
@@ -29,14 +31,14 @@ fun BackgroundPermissionDialog(
             TextButton(
                 onClick = onAllowPermission
             ) {
-                Text("Permitir")
+                Text(stringResource(id = R.string.allow))
             }
         },
         dismissButton = {
             TextButton(
                 onClick = onDenyPermission
             ) {
-                Text("Agora não")
+                Text(stringResource(id = R.string.not_now))
             }
         }
     )

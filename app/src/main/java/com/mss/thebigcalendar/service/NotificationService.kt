@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.VisibilityLevel
 import java.time.LocalDateTime
@@ -100,7 +101,7 @@ class NotificationService(
         val notification = NotificationCompat.Builder(context, AUTO_BACKUP_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("Backup Automático Concluído")
-            .setContentText("Backup do tipo ${backupType.name.lowercase()} realizado com sucesso.")
+            .setContentText(context.getString(R.string.backup_success_notification, backupType.name.lowercase()))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .build()
@@ -112,7 +113,7 @@ class NotificationService(
         val notification = NotificationCompat.Builder(context, AUTO_BACKUP_CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
             .setContentTitle("Falha no Backup Automático")
-            .setContentText("O backup do tipo ${backupType.name.lowercase()} falhou: $errorMessage")
+            .setContentText(context.getString(R.string.backup_failed_notification, backupType.name.lowercase(), errorMessage))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .build()

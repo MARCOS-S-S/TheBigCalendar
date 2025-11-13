@@ -462,7 +462,7 @@
     <string name="visibility_custom_configuration_content_description">Configuração personalizada</string>
 
     <!-- AlarmScreen.kt -->
-    <string name="permission_required_title">Permissão Necessária</string>
+    <string name="permission_required_title">🔔 Permissão Necessária</string>
     <string name="permission_required_message">Para o despertador funcionar corretamente, é necessário permitir que o app exiba sobre outros apps.</string>
     <string name="configure_button_text">Configurar</string>
     <string name="done_button_text">Pronto</string>
@@ -730,4 +730,42 @@
     <string name="auto_backup_type_local">Local</string>
     <string name="auto_backup_type_cloud">Nuvem</string>
     <string name="auto_backup_time">Horário do backup</string>
+
+    <!-- CustomRepetitionScreen.kt -->
+    <string name="custom_repetition_hours">Horas</string>
+    <string name="custom_repetition_days">Dias</string>
+    <string name="custom_repetition_weeks">Semanas</string>
+    <string name="custom_repetition_months">Meses</string>
+    <string name="custom_repetition_date_placeholder">DD/MM/AAAA</string>
+    <string name="custom_repetition_quantity">Quantidade</string>
+    <string name="custom_repetition_save_configuration">Salvar Configuração</string>
+
+    <!-- DeleteJsonCalendarDialog.kt -->
+    <string name="delete_json_calendar_title">🗑️ Remover Calendário</string>
+    <string name="remove">Remover</string>
+
+    <!-- LanguageSelectionDialog.kt -->
+    <string name="language_selection_title">Selecionar Idioma</string>
+
+    <!-- BackgroundPermissionDialog.kt -->
+    <string name="allow">Permitir</string>
+    <string name="not_now">Agora não</string>
+
+    <!-- VisibilityService.kt -->
+    <string name="no_description">Sem descrição</string>
+    <string name="high_visibility_notification">Notificação de alta visibilidade</string>
+
+    <!-- AlarmService.kt -->
+    <string name="at_time_conjunction"> às </string>
+
+    <!-- HighVisibilityNotificationService.kt -->
+    <string name="high_visibility_notification_active">Notificação de alta visibilidade ativa</string>
+
+    <!-- NotificationService.kt -->
+    <string name="backup_success_notification">Backup do tipo %1$s realizado com sucesso.</string>
+    <string name="backup_failed_notification">O backup do tipo %1$s falhou: %2$s</string>
+
+    <!-- PrintCalendarScreen.kt -->
+    <string name="font_preview">Pré-visualização da fonte:</string>
+    <string name="font_selected">Fonte Selecionada</string>
 </resources>

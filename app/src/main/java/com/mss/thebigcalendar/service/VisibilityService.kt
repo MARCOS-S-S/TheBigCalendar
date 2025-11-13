@@ -322,7 +322,7 @@ class VisibilityService(private val context: Context) {
         
                     val notification = NotificationCompat.Builder(context, VISIBILITY_CHANNEL_ID)
                         .setSmallIcon(com.mss.thebigcalendar.R.mipmap.ic_launcher)            .setContentTitle("$alertType: ${activity.title}")
-            .setContentText("${activity.description ?: "Sem descrição"} - ${formatActivityTime(activity)}")
+            .setContentText("${activity.description ?: context.getString(R.string.no_description)} - ${formatActivityTime(activity)}")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setAutoCancel(true)
@@ -386,7 +386,7 @@ class VisibilityService(private val context: Context) {
                 val tempNotification = NotificationCompat.Builder(context, VISIBILITY_CHANNEL_ID)
                     .setSmallIcon(com.mss.thebigcalendar.R.mipmap.ic_launcher)
                     .setContentTitle("Alerta")
-                    .setContentText("Notificação de alta visibilidade")
+                    .setContentText(context.getString(R.string.high_visibility_notification))
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
                     // REMOVIDO: .setSound() - pode causar som adicional

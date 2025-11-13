@@ -110,22 +110,22 @@ fun CustomRepetitionScreen(
                     ) {
                         FilterChip(
                             onClick = { repetitionType = "hours" },
-                            label = { Text("Horas") },
+                            label = { Text(stringResource(id = R.string.custom_repetition_hours)) },
                             selected = repetitionType == "hours"
                         )
                         FilterChip(
                             onClick = { repetitionType = "days" },
-                            label = { Text("Dias") },
+                            label = { Text(stringResource(id = R.string.custom_repetition_days)) },
                             selected = repetitionType == "days"
                         )
                         FilterChip(
                             onClick = { repetitionType = "weeks" },
-                            label = { Text("Semanas") },
+                            label = { Text(stringResource(id = R.string.custom_repetition_weeks)) },
                             selected = repetitionType == "weeks"
                         )
                         FilterChip(
                             onClick = { repetitionType = "months" },
-                            label = { Text("Meses") },
+                            label = { Text(stringResource(id = R.string.custom_repetition_months)) },
                             selected = repetitionType == "months"
                         )
                     }
@@ -252,7 +252,7 @@ fun CustomRepetitionScreen(
                         OutlinedTextField(
                             value = endDate,
                             onValueChange = { endDate = it },
-                            label = { Text("DD/MM/AAAA") },
+                            label = { Text(stringResource(id = R.string.custom_repetition_date_placeholder)) },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -297,7 +297,7 @@ fun CustomRepetitionScreen(
                                     maxOccurrences = numericValue
                                 }
                             },
-                            label = { Text("Quantidade") },
+                            label = { Text(stringResource(id = R.string.custom_repetition_quantity)) },
                             modifier = Modifier.fillMaxWidth(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
@@ -326,7 +326,7 @@ fun CustomRepetitionScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Salvar Configuração")
+                Text(stringResource(id = R.string.custom_repetition_save_configuration))
             }
         }
     }

@@ -14,6 +14,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mss.thebigcalendar.data.model.Language
 import android.util.Log
+import androidx.compose.ui.res.stringResource
+import com.mss.thebigcalendar.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +32,7 @@ fun LanguageSelectionDialog(
             onDismiss()
         },
         title = {
-            Text("Selecionar Idioma")
+            Text(stringResource(id = R.string.language_selection_title))
         },
         text = {
             Log.d("LanguageSelectionDialog", "📝 Renderizando lista de idiomas")
@@ -96,7 +98,7 @@ fun LanguageSelectionDialog(
                 Log.d("LanguageSelectionDialog", "❌ Botão cancelar clicado")
                 onDismiss()
             }) {
-                Text("Cancelar")
+                Text(stringResource(id = R.string.cancel_button))
             }
         }
     )

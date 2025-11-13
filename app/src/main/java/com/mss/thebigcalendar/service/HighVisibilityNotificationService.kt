@@ -11,6 +11,7 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.mss.thebigcalendar.MainActivity
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.Activity
 import com.mss.thebigcalendar.data.model.VisibilityLevel
 import com.mss.thebigcalendar.ui.screens.HighVisibilityNotificationActivity
@@ -170,7 +171,7 @@ class HighVisibilityNotificationService : Service() {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(com.mss.thebigcalendar.R.mipmap.ic_launcher)
             .setContentTitle("🔔 ${activity.title}")
-            .setContentText("Notificação de alta visibilidade ativa")
+            .setContentText(applicationContext.getString(R.string.high_visibility_notification_active))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setOngoing(true) // Notificação persistente

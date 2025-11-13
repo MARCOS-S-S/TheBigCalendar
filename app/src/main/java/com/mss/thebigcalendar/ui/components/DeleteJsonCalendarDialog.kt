@@ -4,6 +4,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.mss.thebigcalendar.R
 import com.mss.thebigcalendar.data.model.JsonCalendar
 
 /**
@@ -19,7 +21,7 @@ fun DeleteJsonCalendarDialog(
         AlertDialog(
             onDismissRequest = onDismissRequest,
             title = { 
-                Text("🗑️ Remover Calendário") 
+                Text(stringResource(id = R.string.delete_json_calendar_title))
             },
             text = { 
                 Text(
@@ -31,14 +33,14 @@ fun DeleteJsonCalendarDialog(
                 TextButton(
                     onClick = onConfirmDelete
                 ) {
-                    Text("Remover")
+                    Text(stringResource(id = R.string.remove))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = onDismissRequest
                 ) {
-                    Text("Cancelar")
+                    Text(stringResource(id = R.string.cancel_button))
                 }
             }
         )

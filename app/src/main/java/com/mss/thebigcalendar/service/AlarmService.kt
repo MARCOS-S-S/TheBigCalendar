@@ -831,7 +831,7 @@ class AlarmService(
             
             val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
                 .setContentTitle(context.getString(R.string.alarm_status_notification_title))
-                .setContentText("${alarmSettings.label} às ${alarmSettings.time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}")
+                .setContentText("${alarmSettings.label}${context.getString(R.string.at_time_conjunction)}${alarmSettings.time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))}")
                 .setSmallIcon(com.mss.thebigcalendar.R.mipmap.ic_launcher) // Ícone de alerta mais visível
                 .setContentIntent(pendingIntent)
                 .setOngoing(true) // Notificação persistente
