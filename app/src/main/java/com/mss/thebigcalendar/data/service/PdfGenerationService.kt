@@ -31,7 +31,9 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import com.mss.thebigcalendar.ui.screens.PageSize as CustomPageSize
 
-class PdfGenerationService {
+import android.content.Context
+
+class PdfGenerationService(private val context: Context) {
     
     /**
      * Converte uma cor do Compose para uma cor do iText PDF
@@ -112,10 +114,28 @@ class PdfGenerationService {
         
         try {
             // Configurar fontes
-            val titleFont = PdfFontFactory.createFont()
-            val headerFont = PdfFontFactory.createFont()
-            val dayFont = PdfFontFactory.createFont()
-            val contentFont = PdfFontFactory.createFont()
+            val fontPath = if (printOptions.fontFamily != "Default") {
+                "fonts/${printOptions.fontFamily}"
+            } else {
+                null
+            }
+
+            val baseFont = if (fontPath != null) {
+                try {
+                    val fontBytes = context.assets.open(fontPath).readBytes()
+                    PdfFontFactory.createFont(fontBytes, com.itextpdf.io.font.PdfEncodings.IDENTITY_H, com.itextpdf.kernel.font.PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED)
+                } catch (e: java.io.IOException) {
+                    android.util.Log.e("PdfGenerationService", "Error loading font: $fontPath", e)
+                    PdfFontFactory.createFont() // Fallback to default
+                }
+            } else {
+                PdfFontFactory.createFont() // Default
+            }
+
+            val titleFont = baseFont
+            val headerFont = baseFont
+            val dayFont = baseFont
+            val contentFont = baseFont
             
             // Título do calendário - mês e ano na mesma linha
             val monthName = printOptions.selectedMonth.format(

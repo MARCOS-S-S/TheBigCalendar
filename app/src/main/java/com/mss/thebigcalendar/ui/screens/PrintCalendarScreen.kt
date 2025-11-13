@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -143,6 +144,7 @@ fun PrintCalendarScreen(
     var saturdayColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Blue) }
     var isSaturdayColorPickerExpanded by remember { mutableStateOf(false) }
     var isPreviewExpanded by remember { mutableStateOf(false) }
+    var fontFamily by remember { mutableStateOf("Default") }
     var colorWeekDayHeader by remember { mutableStateOf(false) }
     val weekDayHeaderBackgroundColors = remember {
         androidx.compose.runtime.mutableStateListOf<androidx.compose.ui.graphics.Color>().apply {
@@ -2088,6 +2090,72 @@ fun PrintCalendarScreen(
 
             HorizontalDivider()
 
+            // Font Family Selection
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "Fonte do Calendário",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    val fontAssets = remember {
+                        try {
+                            context.assets.list("fonts")?.toList() ?: emptyList()
+                        } catch (e: java.io.IOException) {
+                            emptyList<String>() // Fallback
+                        }
+                    }
+                    val fontOptions = listOf("Default") + fontAssets
+                    var isFontMenuExpanded by remember { mutableStateOf(false) }
+
+                    Box {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { isFontMenuExpanded = true }
+                                .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small)
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val displayName = if (fontFamily == "Default") "Default" else fontFamily.substringBeforeLast('.').replace('-', ' ')
+                            Text(text = displayName)
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Expandir")
+                        }
+
+                        androidx.compose.material3.DropdownMenu(
+                            expanded = isFontMenuExpanded,
+                            onDismissRequest = { isFontMenuExpanded = false },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            fontOptions.forEach { fontFilename ->
+                                val displayName = if (fontFilename == "Default") "Default" else fontFilename.substringBeforeLast('.').replace('-', ' ')
+                                androidx.compose.material3.DropdownMenuItem(
+                                    text = { Text(displayName) },
+                                    onClick = {
+                                        fontFamily = fontFilename
+                                        isFontMenuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            HorizontalDivider()
+
             // PDF Preview Section
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -2348,7 +2416,8 @@ fun PrintCalendarScreen(
                         colorWeekDayHeader = colorWeekDayHeader,
                         weekDayHeaderBackgroundColors = weekDayHeaderBackgroundColors,
                         showNotesSection = showNotesSection,
-                        includeNotesPage = includeNotesPage
+                        includeNotesPage = includeNotesPage,
+                        fontFamily = fontFamily
                     )
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
@@ -2432,7 +2501,8 @@ data class PrintOptions(
     val colorWeekDayHeader: Boolean,
     val weekDayHeaderBackgroundColors: List<androidx.compose.ui.graphics.Color>,
     val showNotesSection: Boolean,
-    val includeNotesPage: Boolean
+    val includeNotesPage: Boolean,
+    val fontFamily: String
 )
 
 enum class PageOrientation { PORTRAIT, LANDSCAPE }

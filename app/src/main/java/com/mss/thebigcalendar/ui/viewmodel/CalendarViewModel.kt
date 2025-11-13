@@ -101,7 +101,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val recurrenceService = RecurrenceService()
     private val backupService = BackupService(application, activityRepository, deletedActivityRepository, completedActivityRepository)
     private val visibilityService = VisibilityService(application)
-    private val pdfGenerationService = com.mss.thebigcalendar.data.service.PdfGenerationService()
+    private val pdfGenerationService = com.mss.thebigcalendar.data.service.PdfGenerationService(application)
     private val backupScheduler = com.mss.thebigcalendar.service.BackupScheduler(application)
 
     // State Management
