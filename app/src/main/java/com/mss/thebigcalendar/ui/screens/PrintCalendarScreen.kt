@@ -2439,12 +2439,12 @@ enum class PageOrientation { PORTRAIT, LANDSCAPE }
 enum class PageSize { A4, A3 }
 enum class TitlePosition { LEFT, CENTER, RIGHT }
 enum class FontSize(val size: Float) {
-    EXTRA_TINY(8f),
-    TINY(12f),
-    SMALL(14f),
-    MEDIUM(16f),
-    LARGE(18f),
-    EXTRA_LARGE(20f)
+    EXTRA_TINY(10f),
+    TINY(16f),
+    SMALL(20f),
+    MEDIUM(24f),
+    LARGE(28f),
+    EXTRA_LARGE(32f)
 }
 enum class MoonPhasePosition {
     BELOW_CALENDAR,      // Legenda abaixo do calendário
