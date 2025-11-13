@@ -142,6 +142,7 @@ fun PrintCalendarScreen(
     var colorSaturdays by remember { mutableStateOf(false) }
     var saturdayColor by remember { mutableStateOf(androidx.compose.ui.graphics.Color.Blue) }
     var isSaturdayColorPickerExpanded by remember { mutableStateOf(false) }
+    var isPreviewExpanded by remember { mutableStateOf(false) }
     var colorWeekDayHeader by remember { mutableStateOf(false) }
     val weekDayHeaderBackgroundColors = remember {
         androidx.compose.runtime.mutableStateListOf<androidx.compose.ui.graphics.Color>().apply {
@@ -2095,183 +2096,201 @@ fun PrintCalendarScreen(
                 )
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp)
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.preview),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    // PDF Preview
-                    Card(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp, 
-                            MaterialTheme.colorScheme.outline
-                        )
+                            .clickable { isPreviewExpanded = !isPreviewExpanded },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (generatedPdfPath != null) {
-                                // Mostrar mensagem de sucesso e opção para abrir PDF
-                                Column(
+                        Text(
+                            text = stringResource(id = R.string.preview),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Icon(
+                            imageVector = if (isPreviewExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (isPreviewExpanded) stringResource(id = R.string.collapse) else stringResource(id = R.string.expand)
+                        )
+                    }
+
+                    androidx.compose.animation.AnimatedVisibility(visible = isPreviewExpanded) {
+                        Column {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            
+                            // PDF Preview
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                                border = androidx.compose.foundation.BorderStroke(
+                                    1.dp, 
+                                    MaterialTheme.colorScheme.outline
+                                )
+                            ) {
+                                Box(
                                     modifier = Modifier.fillMaxSize(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    Text(
-                                        text = stringResource(id = R.string.pdf_generated_successfully),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    
-                                    Text(
-                                        text = stringResource(id = R.string.file_saved_in),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    
-                                    Text(
-                                        text = generatedPdfPath!!,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
-                                    
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        Button(
-                                            onClick = {
-                                            try {
-                                                // Abrir PDF com visualizador padrão do sistema
-                                                val file = File(generatedPdfPath!!)
-                                                android.util.Log.d("PrintCalendar", "📁 Tentando abrir arquivo: ${file.absolutePath}")
-                                                android.util.Log.d("PrintCalendar", "📁 Arquivo existe: ${file.exists()}")
-                                                android.util.Log.d("PrintCalendar", "📁 Arquivo pode ler: ${file.canRead()}")
-                                                
-                                                val uri = androidx.core.content.FileProvider.getUriForFile(
-                                                    context,
-                                                    "${context.packageName}.fileprovider",
-                                                    file
-                                                )
-                                                android.util.Log.d("PrintCalendar", "🔗 URI gerado: $uri")
-                                                    
-                                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
-                                                    setDataAndType(uri, "application/pdf")
-                                                    addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                }
-                                                
-                                                // Criar chooser para permitir ao usuário escolher o app
-                                                val chooserIntent = android.content.Intent.createChooser(
-                                                    intent,
-                                                    context.getString(R.string.open_pdf_with)
-                                                )
-                                                chooserIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                
-                                                // Tentar abrir o chooser (o Android já lida com apps disponíveis)
-                                                try {
-                                                    context.startActivity(chooserIntent)
-                                                } catch (e: android.content.ActivityNotFoundException) {
-                                                    // Se não há apps disponíveis, mostrar mensagem
-                                                    android.util.Log.d("PrintCalendar", "Nenhum app disponível para abrir PDF")
-                                                    android.widget.Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.no_pdf_viewer_found),
-                                                        android.widget.Toast.LENGTH_LONG
-                                                    ).show()
-                                                }
-                                                } catch (e: Exception) {
-                                                    android.util.Log.e("PrintCalendar", "Erro ao abrir PDF: ${e.message}", e)
-                                                    android.widget.Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.error_opening_pdf, e.message ?: ""),
-                                                        android.widget.Toast.LENGTH_SHORT
-                                                    ).show()
-                                                }
-                                            },
-                                            modifier = Modifier.weight(1f),
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = MaterialTheme.colorScheme.primary
-                                            )
+                                    if (generatedPdfPath != null) {
+                                        // Mostrar mensagem de sucesso e opção para abrir PDF
+                                        Column(
+                                            modifier = Modifier.fillMaxSize(),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center
                                         ) {
-                                            Text(stringResource(id = R.string.open_pdf))
-                                        }
-                                        
-                                        Button(
-                                            onClick = {
-                                            try {
-                                                // Compartilhar PDF
-                                                val file = File(generatedPdfPath!!)
-                                                android.util.Log.d("PrintCalendar", "📤 Tentando compartilhar arquivo: ${file.absolutePath}")
-                                                android.util.Log.d("PrintCalendar", "📤 Arquivo existe: ${file.exists()}")
-                                                android.util.Log.d("PrintCalendar", "📤 Arquivo pode ler: ${file.canRead()}")
-                                                
-                                                val uri = androidx.core.content.FileProvider.getUriForFile(
-                                                    context,
-                                                    "${context.packageName}.fileprovider",
-                                                    file
-                                                )
-                                                android.util.Log.d("PrintCalendar", "🔗 URI gerado para compartilhar: $uri")
-                                                    
-                                                    val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-                                                        setType("application/pdf")
-                                                        putExtra(android.content.Intent.EXTRA_STREAM, uri)
-                                                        addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                                    }
-                                                    
-                                                    val chooserIntent = android.content.Intent.createChooser(
-                                                        shareIntent,
-                                                        context.getString(R.string.share_pdf)
+                                            Text(
+                                                text = stringResource(id = R.string.pdf_generated_successfully),
+                                                style = MaterialTheme.typography.titleSmall,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                            
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                            
+                                            Text(
+                                                text = stringResource(id = R.string.file_saved_in),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            
+                                            Text(
+                                                text = generatedPdfPath!!,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                                modifier = Modifier.padding(horizontal = 16.dp)
+                                            )
+                                            
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            
+                                                                                Row(
+                                                                                    modifier = Modifier
+                                                                                        .fillMaxWidth()
+                                                                                        .padding(horizontal = 16.dp),
+                                                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                                                ) {                                                Button(
+                                                    onClick = {
+                                                    try {
+                                                        // Abrir PDF com visualizador padrão do sistema
+                                                        val file = File(generatedPdfPath!!)
+                                                        android.util.Log.d("PrintCalendar", "📁 Tentando abrir arquivo: ${file.absolutePath}")
+                                                        android.util.Log.d("PrintCalendar", "📁 Arquivo existe: ${file.exists()}")
+                                                        android.util.Log.d("PrintCalendar", "📁 Arquivo pode ler: ${file.canRead()}")
+                                                        
+                                                        val uri = androidx.core.content.FileProvider.getUriForFile(
+                                                            context,
+                                                            "${context.packageName}.fileprovider",
+                                                            file
+                                                        )
+                                                        android.util.Log.d("PrintCalendar", "🔗 URI gerado: $uri")
+                                                            
+                                                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                                                            setDataAndType(uri, "application/pdf")
+                                                            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                                            addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                        }
+                                                        
+                                                        // Criar chooser para permitir ao usuário escolher o app
+                                                        val chooserIntent = android.content.Intent.createChooser(
+                                                            intent,
+                                                            context.getString(R.string.open_pdf_with)
+                                                        )
+                                                        chooserIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                        
+                                                        // Tentar abrir o chooser (o Android já lida com apps disponíveis)
+                                                        try {
+                                                            context.startActivity(chooserIntent)
+                                                        } catch (e: android.content.ActivityNotFoundException) {
+                                                            // Se não há apps disponíveis, mostrar mensagem
+                                                            android.util.Log.d("PrintCalendar", "Nenhum app disponível para abrir PDF")
+                                                            android.widget.Toast.makeText(
+                                                                context,
+                                                                context.getString(R.string.no_pdf_viewer_found),
+                                                                android.widget.Toast.LENGTH_LONG
+                                                            ).show()
+                                                        }
+                                                        } catch (e: Exception) {
+                                                            android.util.Log.e("PrintCalendar", "Erro ao abrir PDF: ${e.message}", e)
+                                                            android.widget.Toast.makeText(
+                                                                context,
+                                                                context.getString(R.string.error_opening_pdf, e.message ?: ""),
+                                                                android.widget.Toast.LENGTH_SHORT
+                                                            ).show()
+                                                        }
+                                                    },
+                                                    modifier = Modifier.weight(1f),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = MaterialTheme.colorScheme.primary
                                                     )
-                                                    chooserIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                    context.startActivity(chooserIntent)
-                                                } catch (e: Exception) {
-                                                    android.util.Log.e("PrintCalendar", "Erro ao compartilhar PDF: ${e.message}", e)
-                                                    android.widget.Toast.makeText(
-                                                        context,
-                                                        context.getString(R.string.error_sharing_pdf, e.message ?: ""),
-                                                        android.widget.Toast.LENGTH_SHORT
-                                                    ).show()
+                                                ) {
+                                                    Text(stringResource(id = R.string.open_pdf))
                                                 }
-                                            },
-                                            modifier = Modifier.weight(1f),
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = MaterialTheme.colorScheme.secondary
-                                            )
-                                        ) {
-                                            Text(stringResource(id = R.string.share))
+                                                
+                                                Button(
+                                                    onClick = {
+                                                    try {
+                                                        // Compartilhar PDF
+                                                        val file = File(generatedPdfPath!!)
+                                                        android.util.Log.d("PrintCalendar", "📤 Tentando compartilhar arquivo: ${file.absolutePath}")
+                                                        android.util.Log.d("PrintCalendar", "📤 Arquivo existe: ${file.exists()}")
+                                                        android.util.Log.d("PrintCalendar", "📤 Arquivo pode ler: ${file.canRead()}")
+                                                        
+                                                        val uri = androidx.core.content.FileProvider.getUriForFile(
+                                                            context,
+                                                            "${context.packageName}.fileprovider",
+                                                            file
+                                                        )
+                                                        android.util.Log.d("PrintCalendar", "🔗 URI gerado para compartilhar: $uri")
+                                                            
+                                                            val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                                                setType("application/pdf")
+                                                                putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                                                                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                                            }
+                                                            
+                                                            val chooserIntent = android.content.Intent.createChooser(
+                                                                shareIntent,
+                                                                context.getString(R.string.share_pdf)
+                                                            )
+                                                            chooserIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                            context.startActivity(chooserIntent)
+                                                        } catch (e: Exception) {
+                                                            android.util.Log.e("PrintCalendar", "Erro ao compartilhar PDF: ${e.message}", e)
+                                                            android.widget.Toast.makeText(
+                                                                context,
+                                                                context.getString(R.string.error_sharing_pdf, e.message ?: ""),
+                                                                android.widget.Toast.LENGTH_SHORT
+                                                            ).show()
+                                                        }
+                                                    },
+                                                    modifier = Modifier.weight(1f),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = MaterialTheme.colorScheme.secondary
+                                                    )
+                                                ) {
+                                                    Text(stringResource(id = R.string.share))
+                                                }
+                                            }
                                         }
+                                    } else {
+                                        // Mostrar mensagem quando não há PDF
+                                        Text(
+                                            text = stringResource(id = R.string.pdf_preview_placeholder),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                        )
                                     }
                                 }
-                            } else {
-                                // Mostrar mensagem quando não há PDF
-                                Text(
-                                    text = stringResource(id = R.string.pdf_preview_placeholder),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                                )
                             }
                         }
                     }
@@ -2334,6 +2353,7 @@ fun PrintCalendarScreen(
                     Log.d("PrintCalendar", "📋 Opções do PDF: $options")
                     onGeneratePdf(options) { pdfPath ->
                         generatedPdfPath = pdfPath
+                        isPreviewExpanded = true
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
